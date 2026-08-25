@@ -110,5 +110,5 @@ class TestFailureAccounting:
 
         result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
         assert result.counters["timeouts"] >= 1
-        records = [json.loads(l) for l in result.records_path.read_text().splitlines()]
+        records = [json.loads(line) for line in result.records_path.read_text().splitlines()]
         assert records and all(r["evaluation_metadata"].get("failed") for r in records)

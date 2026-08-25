@@ -112,6 +112,8 @@ documented in [docs/methodology.md](docs/methodology.md).
 ## Documentation
 
 - [Methodology](docs/methodology.md) — metric definitions and benchmark protocol
+- [Evaluator study guide](docs/evaluator-study.md) — run and read comparative studies
+- [LLM pilot runbook](docs/llm-pilot-runbook.md) — the only manual, metered step
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not
 - [Safety policy](docs/safety.md) — content rules for fixtures and mutations
 - [Evaluator contract](docs/evaluator-contract.md) — writing your own evaluator
