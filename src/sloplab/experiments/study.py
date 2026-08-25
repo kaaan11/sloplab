@@ -29,10 +29,26 @@ class StudyRunResult:
     case_count: int
 
 
+def resolve_against_anchors(path_str: str, anchors: list[Path]) -> Path:
+    """Resolve ``path_str`` against the first anchor where it exists.
+
+    Absolute paths pass through unchanged. Raises when nothing matches.
+    """
+    candidate = Path(path_str)
+    if candidate.is_absolute():
+        return candidate
+    for anchor in anchors:
+        resolved = anchor / candidate
+        if resolved.exists():
+            return resolved
+    raise FileNotFoundError(
+        f"path '{path_str}' does not exist relative to any of {[str(a) for a in anchors]}"
+    )
+
+
 def run_deterministic_study(
     config: DeterministicStudyConfig,
-    repo_root: Path,
-    suite_yaml_path: Path,
+    study_config_path: Path,
     out_dir: Path,
 ) -> StudyRunResult:
     """Materialize the suite, evaluate all evaluators, write a reproducible bundle.
@@ -41,9 +57,12 @@ def run_deterministic_study(
     ``records.jsonl`` file is byte-identical across runs. Wall-clock and machine
     details live only in ``manifest.json``.
     """
+    anchors = [Path.cwd(), *study_config_path.absolute().parents]
+    suite_yaml_path = resolve_against_anchors(config.suite.config_path, anchors)
+
     # 1. materialize the suite into the experiment output (deterministic).
     suite_config = load_suite_config(suite_yaml_path)
-    corpus_root = _resolve_relative(config.suite.corpus_root, suite_yaml_path)
+    corpus_root = resolve_against_anchors(config.suite.corpus_root, anchors)
     canonical, _derived = discover_fixtures(corpus_root)
     if not canonical:
         raise ValueError(f"no canonical fixtures under '{corpus_root}'")
@@ -75,7 +94,7 @@ def run_deterministic_study(
     provenance = ExperimentProvenance(
         experiment_name=config.name,
         config_hash=sha256_text(json.dumps(config.model_dump(), sort_keys=True)),
-        commit_sha=current_commit_sha(repo_root),
+        commit_sha=current_commit_sha(study_config_path.absolute().parent),
         suite_hash=sha256_file(index_path),
         corpus_root=str(corpus_root),
         base_seed=config.base_seed,
@@ -92,18 +111,4 @@ def run_deterministic_study(
         records_path=records_path,
         manifest_path=manifest_path,
         case_count=len(cases),
-    )
-
-
-def _resolve_relative(path_str: str, suite_yaml_path: Path) -> Path:
-    """Resolve relative paths against cwd first, then the suite file's ancestors."""
-    candidate = Path(path_str)
-    if candidate.is_absolute():
-        return candidate
-    for anchor in [Path.cwd(), *suite_yaml_path.absolute().parents]:
-        resolved = anchor / candidate
-        if resolved.is_dir():
-            return resolved
-    raise FileNotFoundError(
-        f"path '{path_str}' does not exist relative to cwd or the suite location"
     )

@@ -334,7 +334,7 @@ def study(config: str, out: str) -> None:
 
     cfg = load_study_config(_Path(config))
     out_dir = _Path(out)
-    result = run_deterministic_study(cfg, _Path.cwd(), _Path(cfg.suite.config_path), out_dir)
+    result = run_deterministic_study(cfg, _Path(config), out_dir)
 
     _meta, records = read_run_jsonl(result.records_path)
     by_evaluator: dict[str, list[Any]] = {}

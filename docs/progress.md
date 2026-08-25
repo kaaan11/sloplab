@@ -129,3 +129,24 @@ release engineering for v0.1.0/v0.1.1 (`dab8c09`, `7500d4e`) - repo publication,
 annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
 
 **Missing queue items: none.** Deferred ideas live in docs/backlog.md by design.
+
+---
+
+## V0.2 build log (V20-V29, 2026-08-25)
+
+- **Status:** complete through V29; human gates pending (V22 corpus review,
+  V26 study review - deliverables ready; V30 secret/pilot approval).
+- **Changed:** decision D-0012 (V0.2 charter); independent audit with finding F-1
+  fixed + regression tests; +12 balanced canonical fixtures (52 total) and balance
+  report; evidence-graph-baseline evaluator; experiments/ infrastructure
+  (configs, prompt registry, provenance manifests, byte-identical runner);
+  comparative analysis (paired win/loss, per-operator/class, error taxonomy,
+  bootstrap CI); budgeted LLM pilot runner + mock tests; evaluator-study guide,
+  pilot runbook, reproducibility update; v0.2.0-rc1 release notes.
+- **Verification:** 156 tests green offline on clean environment; ruff+mypy strict
+  clean; deterministic study reproduces byte-identically from foreign CWD and clean
+  install; audit finding corrected with committed regenerated example results.
+- **Known limitations:** evidence-graph MDR=0.0 by design (structure-driven trust);
+  baseline generality fixes documented as corpus-adjacent calibration; live LLM
+  pilot intentionally not executed.
+- **Next:** human review of V22/V26 deliverables; V30 secret decision.

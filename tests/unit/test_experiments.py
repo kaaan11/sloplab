@@ -62,8 +62,8 @@ class TestDeterministicStudy:
 
         out_a = study_workspace / "runA"
         out_b = study_workspace / "runB"
-        run_a = run_deterministic_study(config, study_workspace, suite_yaml, out_a)
-        run_b = run_deterministic_study(config, study_workspace, suite_yaml, out_b)
+        run_a = run_deterministic_study(config, suite_yaml, out_a)
+        run_b = run_deterministic_study(config, suite_yaml, out_b)
 
         assert run_a.records_path.read_bytes() == run_b.records_path.read_bytes()
         # Derived adversarial content is also stable.
@@ -82,7 +82,7 @@ class TestDeterministicStudy:
     def test_manifest_carries_provenance(self, study_workspace: Path) -> None:
         config = load_study_config(study_workspace / "study.yaml")
         result = run_deterministic_study(
-            config, study_workspace, study_workspace / "suite.yaml", study_workspace / "out"
+            config, study_workspace / "study.yaml", study_workspace / "out"
         )
         manifest = json.loads(result.manifest_path.read_text())
         assert manifest["experiment_name"] == "study-v24"

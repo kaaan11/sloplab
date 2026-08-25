@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sloplab"
-version = "0.1.0"
+version = "0.2.0rc1"
 description = "Adversarial testing framework for vulnerability-report triage evaluators"
 readme = "README.md"
 license = { text = "MIT" }
