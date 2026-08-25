@@ -92,9 +92,22 @@ def plan_suite(
     group_counts: dict[str, int] = {}
 
     for index, fixture in enumerate(fixtures):
-        key, policy = config.policy_for_fixture(
-            fixture.manifest.report_class, fixture.manifest.pair_id
-        )
+        try:
+            key, policy = config.policy_for_fixture(
+                fixture.manifest.report_class, fixture.manifest.pair_id
+            )
+        except KeyError as exc:
+            uncovered = {
+                f.manifest.report_class.value
+                for f in fixtures
+                if f.manifest.pair_id is None
+                and f.manifest.report_class.value not in config.policies
+            }
+            raise ValueError(
+                f"suite '{config.name}' has no policy covering report class "
+                f"'{fixture.manifest.report_class.value}'; add it to 'policies' "
+                f"(currently uncovered classes: {sorted(uncovered)})"
+            ) from exc
         group_counts[key] = group_counts.get(key, 0) + 1
         plans = plan_fixture(
             fixture,

@@ -95,15 +95,18 @@ def materialize(suite: str, out: str) -> None:
     from sloplab.mutations.materialize import load_suite_config, materialize_suite
 
     config = load_suite_config(_Path(suite))
-    corpus_root = _Path(config.corpus_root)
+    corpus_root = _resolve_corpus_root(config.corpus_root, _Path(suite))
     try:
         canonical, _derived = discover_fixtures(corpus_root)
     except FixtureError as exc:
         raise click.ClickException(str(exc)) from exc
     if not canonical:
-        raise click.ClickException(f"no canonical fixtures found under '{config.corpus_root}'")
+        raise click.ClickException(
+            f"no canonical fixtures discovered under '{corpus_root}' - "
+            f"check 'corpus_root' in {suite}"
+        )
 
-    result = materialize_suite(config, canonical, _Path(out))
+    result = materialize_suite(config, canonical, _Path(out), corpus_root_resolved=corpus_root)
     click.echo(result.summary())
     if result.safety_violations:
         raise SystemExit(1)
@@ -136,8 +139,19 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
 
     header, _entries = read_suite_index(index_path)
     corpus_root_str = (header or {}).get("corpus_root")
-    corpus_root = Path(corpus_root_str) if corpus_root_str else Path.cwd()
-    return index_path, corpus_root, materialized_root
+    if not corpus_root_str:
+        return index_path, Path.cwd(), materialized_root
+    candidate = Path(corpus_root_str)
+    if candidate.is_absolute() and candidate.is_dir():
+        return index_path, candidate, materialized_root
+    for anchor in [Path.cwd(), *index_path.absolute().parents]:
+        resolved = anchor / candidate
+        if resolved.is_dir():
+            return index_path, resolved, materialized_root
+    raise click.ClickException(
+        f"corpus_root '{corpus_root_str}' from suite index does not exist relative to "
+        f"the current directory or the index location"
+    )
 
 
 def _run_evaluators_over_suite(
@@ -188,6 +202,26 @@ def _run_evaluators_over_suite(
     )
     write_run_jsonl(out_dir / "run.jsonl", metadata, records)
     return bundles
+
+
+def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
+    """Resolve a suite's ``corpus_root`` robustly.
+
+    Relative paths are tried against, in order: the current working directory,
+    the suite file's directory, and its grandparent (repo-root style layouts).
+    Absolute paths pass through unchanged.
+    """
+    candidate = Path(corpus_root)
+    if candidate.is_absolute():
+        return candidate
+    anchors = [Path.cwd(), *suite_path.absolute().parents]
+    for anchor in anchors:
+        resolved = anchor / candidate
+        if resolved.is_dir():
+            return resolved
+    raise click.ClickException(
+        f"corpus_root '{corpus_root}' does not exist relative to any of {[str(a) for a in anchors]}"
+    )
 
 
 def _hash_file(path: Path) -> str:
@@ -243,18 +277,26 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if do_materialize:
+        corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
         try:
-            canonical, _derived = discover_fixtures(_Path(config.corpus_root))
+            canonical, _derived = discover_fixtures(corpus_root)
         except FixtureError as exc:
             raise click.ClickException(str(exc)) from exc
-        result = materialize_suite(config, canonical, out_dir)
+        if not canonical:
+            raise click.ClickException(
+                f"no canonical fixtures discovered under '{corpus_root}' - "
+                f"check 'corpus_root' in {suite}"
+            )
+        result = materialize_suite(config, canonical, out_dir, corpus_root_resolved=corpus_root)
         click.echo(result.summary())
+    else:
+        corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
 
     index_path = out_dir / SUITE_INDEX_NAME
     bundles = _run_evaluators_over_suite(
         evaluators,
         index_path,
-        _Path(config.corpus_root),
+        corpus_root,
         out_dir,
         out_dir,
         config.name,

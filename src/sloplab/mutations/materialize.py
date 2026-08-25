@@ -96,10 +96,18 @@ def materialize_suite(
     config: SuiteConfig,
     fixtures: list[CanonicalFixture],
     out_root: Path,
+    *,
+    corpus_root_resolved: Path | None = None,
 ) -> MaterializationResult:
-    """Apply every planned mutation and write derived cases under ``out_root``."""
+    """Apply every planned mutation and write derived cases under ``out_root``.
+
+    ``corpus_root_resolved`` overrides the corpus-root string recorded in the
+    suite-index header (pass the absolute path used during discovery so later
+    evaluation stages can relocate fixtures regardless of working directory).
+    """
     result = MaterializationResult(out_root=out_root)
     plans, _group_counts = plan_suite(config, fixtures)
+    header_corpus_root = str(corpus_root_resolved or config.corpus_root)
 
     seen_ids: set[str] = set()
     index_lines: list[dict[str, Any]] = []
@@ -145,7 +153,7 @@ def materialize_suite(
     header = {
         "record_type": "suite_header",
         "suite_name": config.name,
-        "corpus_root": config.corpus_root,
+        "corpus_root": header_corpus_root,
         "base_seed": config.base_seed,
         "generator_version": __version__,
     }
