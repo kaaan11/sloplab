@@ -43,10 +43,10 @@ See [docs/safety.md](docs/safety.md) and [docs/threat-model.md](docs/threat-mode
 git clone <repo-url> && cd sloplab
 uv sync --group dev          # or: pip install -e .
 
-# validate the committed corpus (52 synthetic fixtures)
+# validate the committed corpus (60 fixture files / 52 logical reports)
 sloplab validate corpus/
 
-# run the full V1 benchmark with the deterministic rules baseline (~250 cases)
+# run the full V1 benchmark with the deterministic rules baseline (~340 cases)
 sloplab benchmark benchmarks/suites/v1-core.yaml \
     --evaluator rules-baseline --out benchmarks/results/my-run
 

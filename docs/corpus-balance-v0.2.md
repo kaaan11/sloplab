@@ -3,16 +3,16 @@
 ## Summary
 
 Twelve new synthetic canonical fixtures were added (6 valid, 6 review), bringing
-the corpus from 48 to **52 files / 40 logical reports** - within the charter cap of
-60. All fixtures pass `sloplab validate` with zero errors and warnings.
+the corpus from **48 files / 40 logical reports** to **60 files / 52 logical
+reports** - exactly at the charter cap of 60 fixture files. All fixtures pass `sloplab validate` with zero errors and warnings.
 
 ## Class distribution
 
 | Class | v0.1.1 files | Added | v0.2 files | Logical share |
 |---|---:|---:|---:|---|
-| valid | 12 | +6 | **18** | ~35% |
-| invalid | 18 (10 standalone + 8 pair members) | +0 | **18** | ~35% |
-| review | 10 | +6 | **16** | ~30% |
+| valid | 12 | +6 | **18** | ~30% |
+| invalid | 26 (10 standalone + 16 pair members) | +0 | **26** | ~43% |
+| review | 10 | +6 | **16** | ~27% |
 
 Presentation pairs remain 8 pairs (16 files) inside the invalid count; their
 plain/polished roles are unchanged.

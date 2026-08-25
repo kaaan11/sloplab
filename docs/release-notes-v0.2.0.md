@@ -9,7 +9,7 @@ secret (deferred to backlog - see docs/llm-pilot-runbook.md).
 ## Headline
 
 The framework now demonstrably discriminates robustness differences between
-evaluators. On the 52-fixture corpus (340 cases, seed `20260825`):
+evaluators. On the 60-file corpus (52 logical reports; 340 cases, seed `20260825`):
 
 | Metric | rules-baseline | evidence-graph-baseline |
 |---|---|---|
@@ -27,8 +27,9 @@ deliver. Analysis: docs/evaluator-study-v0.2.md, docs/v26-results-audit.md.
 - **Independent audit** of corpus/labels/provenance/scoring with one verified fix:
   calibration bin-boundary float defect corrected + regression tests
   (docs/audit-v0.1.1.md).
-- **Corpus:** 12 new synthetic fixtures (6 valid, 6 review) -> 52 total, balance
-  report committed (docs/corpus-balance-v0.2.md).
+- **Corpus:** 12 new synthetic fixtures (6 valid, 6 review) -> 60 fixture files
+  (52 logical reports), at the charter cap; balance report committed
+  (docs/corpus-balance-v0.2.md).
 - **New evaluator:** evidence-graph-baseline (negative control), label-independent,
   contract-conformance tested.
 - **Experiment infrastructure:** versioned configs, prompt registry, run manifests

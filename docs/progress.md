@@ -137,7 +137,7 @@ annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
 - **Status:** complete through V29; human gates pending (V22 corpus review,
   V26 study review - deliverables ready; V30 secret/pilot approval).
 - **Changed:** decision D-0012 (V0.2 charter); independent audit with finding F-1
-  fixed + regression tests; +12 balanced canonical fixtures (52 total) and balance
+  fixed + regression tests; +12 balanced synthetic fixtures (corpus at 60 fixture files / 52 logical reports) and balance
   report; evidence-graph-baseline evaluator; experiments/ infrastructure
   (configs, prompt registry, provenance manifests, byte-identical runner);
   comparative analysis (paired win/loss, per-operator/class, error taxonomy,

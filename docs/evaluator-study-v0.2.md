@@ -11,8 +11,9 @@
 > to content-quality mutations; its results demonstrate that SlopLab detects such
 > blindness. See docs/v26-results-audit.md for the root-cause analysis.
 
-Run: `experiments/configs/deterministic-study-v0.2.yaml` over the 52-fixture corpus.
-Population: **340 cases** (52 canonical + 288 derived). Seed `20260825`; records are
+Run: `experiments/configs/deterministic-study-v0.2.yaml` over the 60-file corpus
+(52 logical reports).
+Population: **340 cases** (60 canonical + 280 derived). Seed `20260825`; records are
 byte-identical across re-runs at this commit.
 
 ## Headline metrics (post-audit run)
