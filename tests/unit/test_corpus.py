@@ -169,6 +169,15 @@ class TestSafetyPolicy:
         violations = validate_content_safety("Visit https://evil.attacker.com/payload now.")
         assert len(violations) == 1
 
+    def test_loopback_and_localhost_allowed(self) -> None:
+        text = "Probe http://127.0.0.1:7001/health and http://localhost:9000/attack-page."
+        assert validate_content_safety(text) == []
+
+    def test_private_ip_allowed_public_ip_rejected(self) -> None:
+        assert validate_content_safety("POST http://10.0.0.5/admin") == []
+        violations = validate_content_safety("GET https://93.184.216.34/path")
+        assert len(violations) == 1
+
     def test_reserved_urls_allowed(self) -> None:
         text = (
             "Try https://demo.example.org/login or http://api.demo.example.com/v1 "

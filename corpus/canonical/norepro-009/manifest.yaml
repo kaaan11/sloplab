@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-norepro-009
+title: Authentication bypass in SampleStack admin panel via header manipulation
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+ground_truth:
+  reproducible: false
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - authentication_bypass_demonstrated
+  expected_dimensions:
+    reproducibility: 0.2
+    evidence_completeness: 0.45
+    claim_evidence_consistency: 0.05
+    impact_calibration: 0.05
+    scope_consistency: 0.35
+  rationale: >
+    The claim (authentication bypass) is directly contradicted by the report's own
+    observed results, which show the control working identically with and without
+    the manipulated header. Reject is the correct triage decision.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack and stack.example.org are fictional demo
+  assets. Header name is invented for the demo scenario.
+report:
+  path: canonical/norepro-009/report.md

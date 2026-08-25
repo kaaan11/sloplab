@@ -1,0 +1,35 @@
+schema_version: 1
+id: canonical-crypto-011
+title: DemoVault accepts legacy cipher for internal replication channel
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - key_recovery_demonstrated
+    - production_exposure_confirmed
+  expected_dimensions:
+    reproducibility: 0.75
+    evidence_completeness: 0.68
+    claim_evidence_consistency: 0.7
+    impact_calibration: 0.55
+    scope_consistency: 0.5
+  rationale: >
+    Carefully hedged configuration observation; attribution of the weak negotiation
+    (server default vs client offer) is unresolved, so neither reject nor accept is
+    supportable. Correct triage decision is needs_manual_review.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault replication service is fictional. No real
+  cipher names are asserted as defaults for any real product.
+report:
+  path: canonical/crypto-011/report.md

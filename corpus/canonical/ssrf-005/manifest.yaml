@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-ssrf-005
+title: Import preview fetch follows internal addresses in SampleStack connector
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - cloud_credential_compromise
+  expected_dimensions:
+    reproducibility: 0.88
+    evidence_completeness: 0.87
+    claim_evidence_consistency: 0.9
+    impact_calibration: 0.78
+    scope_consistency: 0.86
+  rationale: >
+    SSRF-pattern report with deployment-specific preconditions called out honestly;
+    read-only demonstration without speculative escalation claims.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack and stack.example.org are fictional demo
+  assets. Loopback target is the sandbox's own bundled health service.
+report:
+  path: canonical/ssrf-005/report.md

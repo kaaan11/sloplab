@@ -1,17 +1,22 @@
-"""Safety policy: approved synthetic identifier namespaces and content validators.
+"""Safety policy: approved identifier namespaces and content validators.
 
 All fabricated identifiers emitted anywhere in SlopLab (fixtures, mutation output)
-must come from the reserved namespaces below. See docs/safety.md (D-0003).
+must come from the namespaces below. See docs/safety.md (D-0003).
+
+Allowed URL hosts are: RFC 2606 reserved domains (+ subdomains), ``localhost``
+variants, and private/loopback/link-local IP literals (RFC 1918 / 127.0.0.0/8 /
+169.254.0.0/16). Public hosts would risk pointing at real targets and are rejected.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import re
 
 #: Fictional far-future year for all fabricated CVE references.
 FAKE_CVE_YEAR = "2099"
 
-#: RFC 2606 + RFC 7030-ish reserved documentation domains allowed in generated text.
+#: RFC 2606 reserved documentation domains allowed in generated text.
 RESERVED_DOMAINS: tuple[str, ...] = (
     "example.com",
     "example.org",
@@ -41,13 +46,23 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}")
-_URL_RE = re.compile(r"https?://(?P<host>[A-Za-z0-9.-]+)[^\s)\]>]*", re.IGNORECASE)
+_URL_RE = re.compile(r"https?://(?P<host>[A-Za-z0-9.-]+)[^\s)\]>`]*", re.IGNORECASE)
+
+_LOCAL_HOST_SUFFIXES = ("localhost", ".localhost", ".local")
 
 
 def is_reserved_host(host: str) -> bool:
-    """True if host is a reserved documentation domain or a subdomain of one."""
+    """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
-    return any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS)
+    if any(host == suffix or host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
+        return True
+    if any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS):
+        return True
+    try:
+        addr = ipaddress.ip_address(host)
+    except ValueError:
+        return False
+    return addr.is_loopback or addr.is_private or addr.is_link_local or addr.is_reserved
 
 
 def find_real_year_cves(text: str) -> list[str]:
@@ -58,7 +73,7 @@ def find_real_year_cves(text: str) -> list[str]:
 
 
 def find_unsafe_urls(text: str) -> list[str]:
-    """URLs whose host is outside the reserved documentation domains."""
+    """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
         if not is_reserved_host(match.group("host")):

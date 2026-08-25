@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-oob-008
+title: Profile status field reflects input back to the same user in ToyTracker
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - other_user_impact
+  expected_dimensions:
+    reproducibility: 0.88
+    evidence_completeness: 0.65
+    claim_evidence_consistency: 0.3
+    impact_calibration: 0.08
+    scope_consistency: 0.25
+  rationale: >
+    Self-XSS-pattern report: reflection is confined to the storing user's own view
+    and the report itself confirms cross-user rendering is escaped. No boundary is
+    crossed; reject is the correct triage decision.
+sanitization_note: >-
+  Fully synthetic scenario; ToyTracker and tracker.example.org are fictional demo
+  assets. Markup sample is inert styling text.
+report:
+  path: canonical/oob-008/report.md
