@@ -86,3 +86,17 @@ Each entry records a material engineering decision, its context, and consequence
   configuration, returns only schema-validated results, and treats malformed output /
   timeouts / API errors as failed evaluations rather than crashes. No live calls occur
   in tests; all adapter failure modes are covered with mocks.
+
+## D-0011 - M7 release direction (human-approved)
+
+- **Date:** 2026-08-25
+- **Decision:**
+  1. The `needs_manual_review` class is retained in V0.1.0 ground truth; forcing
+     accept/reject labels onto genuinely ambiguous fixtures would be less honest.
+  2. The Robustness Score remains an auxiliary summary only. Dimensional metrics are
+     primary everywhere: they appear first in generated Markdown reports (the score is
+     labeled "Auxiliary" and printed last) and the README's example table contains no
+     composite score.
+  3. No git tag and no remote push for V0.1.0; publication decisions (visibility,
+     tag, CI/secret strategy) are deferred to a subsequent human checkpoint.
+- **Consequences:** Release-candidate state stands as committed at HEAD of `main`.
