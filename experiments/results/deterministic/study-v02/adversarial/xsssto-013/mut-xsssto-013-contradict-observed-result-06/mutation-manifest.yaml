@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-xsssto-013-contradict-observed-result-06
+parent_id: canonical-xsssto-013
+operator: contradict_observed_result
+category: evidence_contradiction
+parameters:
+  choices:
+    inserted_negation: Subsequent attempts could not reproduce any anomalous response;
+      the control behaved identically with and without the manipulated input.
+    target_heading: Observed Result
+seed: 15332114169445807549
+variant_index: 5
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.91
+  evidence_completeness: 0.89
+  claim_evidence_consistency: 0.23
+  impact_calibration: 0.84
+  scope_consistency: 0.9
+generator_version: 0.1.0
+report:
+  path: adversarial/xsssto-013/mut-xsssto-013-contradict-observed-result-06/report.md

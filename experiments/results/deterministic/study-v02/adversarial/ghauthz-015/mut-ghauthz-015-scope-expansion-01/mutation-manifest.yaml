@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-ghauthz-015-scope-expansion-01
+parent_id: canonical-ghauthz-015
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: The same flaw is also present in the administrative
+      API and the public marketing site of this product.
+    expanded_version_claim: Every version ever released is affected, including builds
+      distributed through unofficial mirrors.
+seed: 10384428471155951228
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.94
+  evidence_completeness: 0.69
+  claim_evidence_consistency: 0.78
+  impact_calibration: 0.82
+  scope_consistency: 0.38
+generator_version: 0.1.0
+report:
+  path: adversarial/ghauthz-015/mut-ghauthz-015-scope-expansion-01/report.md

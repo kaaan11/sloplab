@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-openred-015-add-irrelevant-detail-05
+parent_id: canonical-openred-015
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 15630044428951567940
+variant_index: 4
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.89
+  evidence_completeness: 0.78
+  claim_evidence_consistency: 0.92
+  impact_calibration: 0.78
+  scope_consistency: 0.9
+generator_version: 0.1.0
+report:
+  path: adversarial/openred-015/mut-openred-015-add-irrelevant-detail-05/report.md

@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-pair1a-cookie-professionalize-language-01
+parent_id: canonical-pair1a-cookie
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations: []
+seed: 6263704991742904154
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.88
+  evidence_completeness: 0.72
+  claim_evidence_consistency: 0.3
+  impact_calibration: 0.1
+  scope_consistency: 0.36
+generator_version: 0.1.0
+report:
+  path: adversarial/pair1a-cookie/mut-pair1a-cookie-professionalize-language-01/report.md

@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-totiming-019-remove-affected-version-03
+parent_id: canonical-totiming-019
+operator: remove_affected_version
+category: evidence_removal
+parameters:
+  choices:
+    removed_section_heading: Affected Versions
+seed: 3398939462421290591
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.5
+  evidence_completeness: 0.55
+  claim_evidence_consistency: 0.52
+  impact_calibration: 0.58
+  scope_consistency: 0.31
+generator_version: 0.1.0
+report:
+  path: adversarial/totiming-019/mut-totiming-019-remove-affected-version-03/report.md

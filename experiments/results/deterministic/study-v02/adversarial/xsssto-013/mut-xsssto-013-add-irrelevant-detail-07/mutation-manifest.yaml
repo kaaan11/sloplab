@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-xsssto-013-add-irrelevant-detail-07
+parent_id: canonical-xsssto-013
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 7155402586539105724
+variant_index: 6
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.86
+  evidence_completeness: 0.79
+  claim_evidence_consistency: 0.93
+  impact_calibration: 0.84
+  scope_consistency: 0.9
+generator_version: 0.1.0
+report:
+  path: adversarial/xsssto-013/mut-xsssto-013-add-irrelevant-detail-07/report.md

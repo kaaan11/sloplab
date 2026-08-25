@@ -1,0 +1,26 @@
+schema_version: 1
+id: mut-pair2a-dirlist-professionalize-language-01
+parent_id: canonical-pair2a-dirlist
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations:
+    - contraction:isn't
+seed: 1249156709469225306
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.86
+  evidence_completeness: 0.66
+  claim_evidence_consistency: 0.3
+  impact_calibration: 0.08
+  scope_consistency: 0.32
+generator_version: 0.1.0
+report:
+  path: adversarial/pair2a-dirlist/mut-pair2a-dirlist-professionalize-language-01/report.md

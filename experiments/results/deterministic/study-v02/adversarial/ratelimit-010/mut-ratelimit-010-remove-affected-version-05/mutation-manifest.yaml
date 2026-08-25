@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-ratelimit-010-remove-affected-version-05
+parent_id: canonical-ratelimit-010
+operator: remove_affected_version
+category: evidence_removal
+parameters:
+  choices:
+    removed_section_heading: Affected Versions
+seed: 9039231174700921834
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.8
+  evidence_completeness: 0.57
+  claim_evidence_consistency: 0.65
+  impact_calibration: 0.6
+  scope_consistency: 0.2
+generator_version: 0.1.0
+report:
+  path: adversarial/ratelimit-010/mut-ratelimit-010-remove-affected-version-05/report.md

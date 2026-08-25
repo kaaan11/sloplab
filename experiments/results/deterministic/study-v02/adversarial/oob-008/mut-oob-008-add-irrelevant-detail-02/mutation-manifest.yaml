@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-oob-008-add-irrelevant-detail-02
+parent_id: canonical-oob-008
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 314672289387388512
+variant_index: 1
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.83
+  evidence_completeness: 0.55
+  claim_evidence_consistency: 0.3
+  impact_calibration: 0.08
+  scope_consistency: 0.25
+generator_version: 0.1.0
+report:
+  path: adversarial/oob-008/mut-oob-008-add-irrelevant-detail-02/report.md

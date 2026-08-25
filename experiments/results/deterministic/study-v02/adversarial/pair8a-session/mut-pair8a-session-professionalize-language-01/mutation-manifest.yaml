@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-pair8a-session-professionalize-language-01
+parent_id: canonical-pair8a-session
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations:
+    - contraction:doesn't
+    - contraction:it's
+seed: 255283125066678639
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.87
+  evidence_completeness: 0.66
+  claim_evidence_consistency: 0.27
+  impact_calibration: 0.08
+  scope_consistency: 0.31
+generator_version: 0.1.0
+report:
+  path: adversarial/pair8a-session/mut-pair8a-session-professionalize-language-01/report.md

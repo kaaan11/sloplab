@@ -1,0 +1,33 @@
+schema_version: 1
+id: mut-websig-018-fabricate-reference-06
+parent_id: canonical-websig-018
+operator: fabricate_reference
+category: reference
+parameters:
+  choices:
+    appended_reference_block: '### References
+
+
+      - Vendor advisory: https://security.example.org/advisories/SA-6932
+
+      - Related write-up: https://blog.example.org/posts/session-handling-gone-wrong
+
+      - Internal tracker: https://issues.example.org/browse/DEMO-4485'
+    target_heading: Impact
+seed: 2494719318156475984
+variant_index: 5
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.93
+  evidence_completeness: 0.75
+  claim_evidence_consistency: 0.57
+  impact_calibration: 0.77
+  scope_consistency: 0.85
+generator_version: 0.1.0
+report:
+  path: adversarial/websig-018/mut-websig-018-fabricate-reference-06/report.md

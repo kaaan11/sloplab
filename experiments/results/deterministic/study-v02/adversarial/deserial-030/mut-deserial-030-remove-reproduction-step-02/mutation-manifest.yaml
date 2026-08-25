@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-deserial-030-remove-reproduction-step-02
+parent_id: canonical-deserial-030
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Export a legitimate settings blob from an existing demo
+      connector.
+    mode: single_step
+seed: 11977184041023968192
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.2
+  evidence_completeness: 0.37
+  claim_evidence_consistency: 0.68
+  impact_calibration: 0.58
+  scope_consistency: 0.66
+generator_version: 0.1.0
+report:
+  path: adversarial/deserial-030/mut-deserial-030-remove-reproduction-step-02/report.md

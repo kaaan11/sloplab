@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-xssref-016-invent-api-identifier-01
+parent_id: canonical-xssref-016
+operator: invent_api_identifier
+category: technical_consistency
+parameters:
+  choices:
+    inserted_identifier_claim: This matches the vendor advisory identifier VND-9868
+      referenced in the component changelog.
+    target_section_heading: Summary
+seed: 14823917973951659957
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.8
+  evidence_completeness: 0.87
+  claim_evidence_consistency: 0.47
+  impact_calibration: 0.8
+  scope_consistency: 0.88
+generator_version: 0.1.0
+report:
+  path: adversarial/xssref-016/mut-xssref-016-invent-api-identifier-01/report.md

@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-filetype-023-remove-reproduction-step-01
+parent_id: canonical-filetype-023
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 4
+    removed_step_text: 4. Request each stored file and record served Content-Type
+      headers.
+    mode: single_step
+seed: 4399565496645589776
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.2
+  evidence_completeness: 0.41
+  claim_evidence_consistency: 0.62
+  impact_calibration: 0.5
+  scope_consistency: 0.58
+generator_version: 0.1.0
+report:
+  path: adversarial/filetype-023/mut-filetype-023-remove-reproduction-step-01/report.md

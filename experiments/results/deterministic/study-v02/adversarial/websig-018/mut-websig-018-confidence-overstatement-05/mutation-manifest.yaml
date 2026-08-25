@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-websig-018-confidence-overstatement-05
+parent_id: canonical-websig-018
+operator: confidence_overstatement
+category: presentation
+parameters:
+  choices:
+    certainty_upgrades: []
+seed: 5615545443126669614
+variant_index: 4
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.93
+  evidence_completeness: 0.9
+  claim_evidence_consistency: 0.67
+  impact_calibration: 0.57
+  scope_consistency: 0.85
+generator_version: 0.1.0
+report:
+  path: adversarial/websig-018/mut-websig-018-confidence-overstatement-05/report.md

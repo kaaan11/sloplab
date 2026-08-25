@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-selfreg-023-scope-expansion-01
+parent_id: canonical-selfreg-023
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: The same flaw is also present in the administrative
+      API and the public marketing site of this product.
+    expanded_version_claim: Every version ever released is affected, including builds
+      distributed through unofficial mirrors.
+seed: 13726676533138708635
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.88
+  evidence_completeness: 0.46
+  claim_evidence_consistency: 0.15
+  impact_calibration: 0.12
+  scope_consistency: 0.0
+generator_version: 0.1.0
+report:
+  path: adversarial/selfreg-023/mut-selfreg-023-scope-expansion-01/report.md

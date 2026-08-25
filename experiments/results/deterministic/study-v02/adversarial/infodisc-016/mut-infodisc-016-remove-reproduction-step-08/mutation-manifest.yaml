@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-infodisc-016-remove-reproduction-step-08
+parent_id: canonical-infodisc-016
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Send `POST /api/connectors/test` with body `{invalid` (truncated
+      JSON).
+    mode: single_step
+seed: 4602926777085473455
+variant_index: 7
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.35
+  evidence_completeness: 0.61
+  claim_evidence_consistency: 0.9
+  impact_calibration: 0.75
+  scope_consistency: 0.87
+generator_version: 0.1.0
+report:
+  path: adversarial/infodisc-016/mut-infodisc-016-remove-reproduction-step-08/report.md

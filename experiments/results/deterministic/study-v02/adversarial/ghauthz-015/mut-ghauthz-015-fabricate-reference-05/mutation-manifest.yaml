@@ -1,0 +1,33 @@
+schema_version: 1
+id: mut-ghauthz-015-fabricate-reference-05
+parent_id: canonical-ghauthz-015
+operator: fabricate_reference
+category: reference
+parameters:
+  choices:
+    appended_reference_block: '### References
+
+
+      - Vendor advisory: https://security.example.org/advisories/SA-7946
+
+      - Related write-up: https://blog.example.org/posts/session-handling-gone-wrong
+
+      - Internal tracker: https://issues.example.org/browse/DEMO-4192'
+    target_heading: Impact
+seed: 15505407274427150646
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.94
+  evidence_completeness: 0.74
+  claim_evidence_consistency: 0.58
+  impact_calibration: 0.82
+  scope_consistency: 0.88
+generator_version: 0.1.0
+report:
+  path: adversarial/ghauthz-015/mut-ghauthz-015-fabricate-reference-05/report.md

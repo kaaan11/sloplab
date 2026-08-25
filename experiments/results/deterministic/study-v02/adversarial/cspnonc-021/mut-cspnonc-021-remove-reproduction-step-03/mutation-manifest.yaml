@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-cspnonc-021-remove-reproduction-step-03
+parent_id: canonical-cspnonc-021
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Load `/admin/` under both bundled profiles and record response
+      headers.
+    mode: single_step
+seed: 11671574162428161508
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.25
+  evidence_completeness: 0.45
+  claim_evidence_consistency: 0.66
+  impact_calibration: 0.55
+  scope_consistency: 0.6
+generator_version: 0.1.0
+report:
+  path: adversarial/cspnonc-021/mut-cspnonc-021-remove-reproduction-step-03/report.md
