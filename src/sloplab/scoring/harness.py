@@ -38,24 +38,29 @@ class SuiteCase:
     canonical_fixture: CanonicalFixture | None = None
 
 
-def read_suite_index(index_path: Path) -> list[dict[str, Any]]:
-    lines: list[dict[str, Any]] = []
+def read_suite_index(index_path: Path) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """Return ``(header, case_entries)`` from a suite index file."""
+    header: dict[str, Any] | None = None
+    entries: list[dict[str, Any]] = []
     for raw in index_path.read_text(encoding="utf-8").splitlines():
-        if raw.strip():
-            line = json.loads(raw)
-            if line.get("record_type") != "suite_case":
-                raise ValueError(
-                    f"{index_path}: unexpected record_type {line.get('record_type')!r}"
-                )
-            lines.append(line)
-    if not lines:
-        raise ValueError(f"{index_path}: suite index is empty")
-    return lines
+        if not raw.strip():
+            continue
+        line = json.loads(raw)
+        record_type = line.get("record_type")
+        if record_type == "suite_header":
+            header = line
+        elif record_type == "suite_case":
+            entries.append(line)
+        else:
+            raise ValueError(f"{index_path}: unexpected record_type {record_type!r}")
+    if not entries:
+        raise ValueError(f"{index_path}: suite index contains no cases")
+    return header, entries
 
 
 def build_cases(index_path: Path, corpus_root: Path, materialized_root: Path) -> list[SuiteCase]:
     """Resolve suite-index entries into loadable cases."""
-    entries = read_suite_index(index_path)
+    _header, entries = read_suite_index(index_path)
     canonical, _derived = discover_fixtures(corpus_root)
     canonical_by_id = {canon.fixture_id: canon for canon in canonical}
 

@@ -112,9 +112,12 @@ def materialize(suite: str, out: str) -> None:
 def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
     """Return (index_path, corpus_root, materialized_root) from a cases argument.
 
-    Accepts a suite-index.jsonl file or any directory containing one.
+    Accepts a suite-index.jsonl file or any directory containing one. The corpus
+    root is read from the index header when present (written by ``materialize``),
+    otherwise the current working directory is assumed.
     """
     from sloplab.mutations.materialize import SUITE_INDEX_NAME
+    from sloplab.scoring.harness import read_suite_index
 
     path = Path(cases)
     if path.is_file() and path.name == SUITE_INDEX_NAME:
@@ -130,7 +133,11 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
         raise click.ClickException(
             f"'{cases}' must be a {SUITE_INDEX_NAME} file or a directory containing one"
         )
-    return index_path, Path.cwd(), materialized_root
+
+    header, _entries = read_suite_index(index_path)
+    corpus_root_str = (header or {}).get("corpus_root")
+    corpus_root = Path(corpus_root_str) if corpus_root_str else Path.cwd()
+    return index_path, corpus_root, materialized_root
 
 
 def _run_evaluators_over_suite(
@@ -154,6 +161,7 @@ def _run_evaluators_over_suite(
     from sloplab.scoring.metrics import compute_metrics
 
     cases = build_cases(index_path, corpus_root, materialized_root)
+    out_dir.mkdir(parents=True, exist_ok=True)
     records: list[Any] = []
     infos: list[EvaluatorInfo] = []
     bundles: list[Any] = []
@@ -267,8 +275,8 @@ def compare(results: tuple[str, ...]) -> None:
     import json
     from pathlib import Path as _Path
 
-    if len(results) < 2:
-        raise click.ClickException("compare needs at least two result files")
+    if len(results) < 1:
+        raise click.ClickException("compare needs at least one result file or directory")
 
     summaries: dict[str, dict[str, Any]] = {}
     for result_path in results:

@@ -17,7 +17,7 @@ from sloplab.mutations.base import get_operator
 from sloplab.mutations.planner import PlannedMutation, plan_suite
 from sloplab.safety.policy import validate_content_safety
 
-SUITE_INDEX_NAME = "suite-index.jsonl"
+SUITE_INDEX_NAME = "suite-index.jsonl"  # re-exported from corpus.loader
 
 
 @dataclass
@@ -142,8 +142,17 @@ def materialize_suite(
             )
 
     index_lines.sort(key=lambda line: line["case_id"])
+    header = {
+        "record_type": "suite_header",
+        "suite_name": config.name,
+        "corpus_root": config.corpus_root,
+        "base_seed": config.base_seed,
+        "generator_version": __version__,
+    }
     (out_root / SUITE_INDEX_NAME).write_text(
-        "".join(json.dumps(line, sort_keys=True) + "\n" for line in index_lines),
+        json.dumps(header, sort_keys=True)
+        + "\n"
+        + "".join(json.dumps(line, sort_keys=True) + "\n" for line in index_lines),
         encoding="utf-8",
     )
     return result

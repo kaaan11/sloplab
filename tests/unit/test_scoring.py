@@ -6,8 +6,8 @@ import csv
 import json
 from pathlib import Path
 
-from sloplab.models.evaluation import DimensionScores, EvaluationResult
 from sloplab.models.enums import Decision
+from sloplab.models.evaluation import DimensionScores, EvaluationResult
 from sloplab.models.run import CaseRecord
 from sloplab.reporting.writers import (
     default_run_metadata,

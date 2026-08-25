@@ -18,6 +18,10 @@ CANONICAL_MANIFEST_NAME = "manifest.yaml"
 MUTATION_MANIFEST_NAME = "mutation-manifest.yaml"
 REPORT_FILE_NAME = "report.md"
 
+#: Marker file identifying a generated benchmark-suite output directory; such
+#: directories are pruned from corpus discovery.
+SUITE_INDEX_NAME = "suite-index.jsonl"
+
 
 class FixtureError(Exception):
     """Raised when a fixture directory cannot be loaded, with an actionable message."""
@@ -152,11 +156,18 @@ def load_derived_fixture(case_dir: Path, corpus_root: Path | None = None) -> Der
 
 
 def discover_fixtures(corpus_root: Path) -> tuple[list[CanonicalFixture], list[DerivedFixture]]:
-    """Recursively discover canonical fixtures and derived cases under a root."""
+    """Recursively discover canonical fixtures and derived cases under a root.
+
+    Directories containing a generated ``suite-index.jsonl`` (benchmark outputs) are
+    skipped entirely so that re-running over an extended corpus stays consistent.
+    """
     canonical: list[CanonicalFixture] = []
     derived: list[DerivedFixture] = []
     for dirpath, dirnames, filenames in os.walk(corpus_root):
         dirnames.sort()
+        if SUITE_INDEX_NAME in filenames:
+            dirnames[:] = []  # generated benchmark output; do not descend
+            continue
         path = Path(dirpath)
         if CANONICAL_MANIFEST_NAME in filenames:
             canonical.append(load_canonical_fixture(path, corpus_root))
