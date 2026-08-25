@@ -11,7 +11,7 @@
   "mutation_detection_total": 64,
   "robustness_delta": 0.014492753623188406,
   "presentation_susceptibility": -0.023809523809523808,
-  "calibration_error": 0.32342800000000005,
+  "calibration_error": 0.31342800000000004,
   "dimension_mae": {
     "claim_evidence_consistency": 0.4354,
     "evidence_completeness": 0.2908,
@@ -25,5 +25,5 @@
     "valid": 0.8333333333333334,
     "canonical_overall": 0.7708333333333334
   },
-  "robustness_score": 0.8136
+  "robustness_score": 0.8146
 }

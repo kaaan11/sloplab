@@ -66,7 +66,7 @@ Example v1-core numbers (rules-baseline, see methodology.md for definitions):
 | mutation detection rate | 0.766 |
 | false reassurance rate | 0.126 |
 | over-rejection rate | 0.000 |
-| calibration error | 0.323 |
+| calibration error | 0.313 |
 
 ## Architecture
 

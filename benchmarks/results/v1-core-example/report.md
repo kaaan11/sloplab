@@ -32,7 +32,7 @@
 - Mutation detection rate: 0.766 (of 64 degrading mutations)
 - Robustness delta (canonical - mutated): +0.014
 - Presentation susceptibility: -0.024
-- Calibration error (ECE): 0.323
+- Calibration error (ECE): 0.313
 - Dimension MAE:
   - claim_evidence_consistency: 0.435
   - evidence_completeness: 0.291
@@ -44,4 +44,4 @@
   - review: 0.817
   - valid: 0.833
   - canonical_overall: 0.771
-- Auxiliary Robustness Score: 0.8136
+- Auxiliary Robustness Score: 0.8146

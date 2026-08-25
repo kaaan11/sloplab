@@ -153,17 +153,25 @@ def compute_presentation_susceptibility(records: list[CaseRecord]) -> float | No
 
 
 def compute_calibration_error(records: list[CaseRecord]) -> float | None:
-    """Expected calibration error over equal-width confidence bins."""
+    """Expected calibration error over equal-width confidence bins.
+
+    Bin boundaries are computed by division (``b / bins``), never multiplication
+    (``b * 0.1``): multiplication accumulates IEEE-754 error (e.g. ``6 * 0.1``
+    yields 0.6000000000000001), which silently moves boundary confidences such as
+    0.6 into the wrong bin. Division is correctly rounded, so a confidence whose
+    nearest double equals the literal boundary value lands in its intended bin.
+    The final bin is closed on the right so confidence 1.0 is always captured.
+    """
     scored = [(r.confidence, int(decision_correct(r))) for r in records]
     if not scored:
         return None
-    bin_size = 1.0 / _CALIBRATION_BINS
     total_error = 0.0
     for b in range(_CALIBRATION_BINS):
-        lo, hi = b * bin_size, (b + 1) * bin_size
-        members = [(c, ok) for c, ok in scored if lo <= c < hi] or (
-            [(c, ok) for c, ok in scored if lo <= c <= hi] if b == _CALIBRATION_BINS - 1 else []
-        )
+        lo = b / _CALIBRATION_BINS
+        hi = (b + 1) / _CALIBRATION_BINS
+        members = [(c, ok) for c, ok in scored if lo <= c < hi]
+        if b == _CALIBRATION_BINS - 1 and not members:
+            members = [(c, ok) for c, ok in scored if lo <= c <= hi]
         if not members:
             continue
         avg_conf = sum(c for c, _ in members) / len(members)
