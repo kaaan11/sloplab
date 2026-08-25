@@ -48,9 +48,11 @@ def list_evaluators() -> list[str]:
 
 from sloplab.evaluators.oracle import OracleEvaluator
 from sloplab.evaluators.rules.baseline import RulesBaselineEvaluator
+from sloplab.evaluators.rules.evidence_graph import EvidenceGraphBaselineEvaluator
 
 register_evaluator(OracleEvaluator())
 register_evaluator(RulesBaselineEvaluator())
+register_evaluator(EvidenceGraphBaselineEvaluator())
 
 __all__ = [
     "Evaluator",
