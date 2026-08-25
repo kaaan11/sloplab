@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-xssref-016
+title: Search error page renders raw query fragment in ToyTracker demo
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - cookie_exfiltration_demonstrated
+  expected_dimensions:
+    reproducibility: 0.95
+    evidence_completeness: 0.87
+    claim_evidence_consistency: 0.92
+    impact_calibration: 0.8
+    scope_consistency: 0.88
+  rationale: >
+    Reflected injection with precise output-context analysis (attribute breakout)
+    and an inert style-based proof instead of credential theft.
+sanitization_note: >-
+  Fully synthetic scenario; proof payload only toggles a CSS color property.
+report:
+  path: canonical/xssref-016/report.md

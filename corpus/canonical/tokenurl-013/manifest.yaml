@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-tokenurl-013
+title: Session token echoed in redirect query parameter in MockMart checkout
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - account_takeover_demonstrated
+  expected_dimensions:
+    reproducibility: 0.93
+    evidence_completeness: 0.9
+    claim_evidence_consistency: 0.94
+    impact_calibration: 0.83
+    scope_consistency: 0.89
+  rationale: >
+    Credential-in-URL finding verified end to end against the sandbox flow with an
+    honest boundary statement and calibrated severity limited by demo scope.
+sanitization_note: >-
+  Fully synthetic scenario; MockMart is fictional. Token values are sandbox-local.
+report:
+  path: canonical/tokenurl-013/report.md
