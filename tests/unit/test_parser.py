@@ -54,11 +54,27 @@ def test_section_text_contains_body() -> None:
     assert "without authorization check" in text
 
 
-def test_preamble_section_has_no_heading() -> None:
+def test_content_after_h1_belongs_to_h1_section() -> None:
     doc = parse_report(SAMPLE, fixture_id="canonical-test-001", path="x/report.md")
+    h1 = doc.find_sections(r"^Missing authorization")[0]
+    assert "Some summary text here." in h1.text
+
+
+def test_text_before_first_heading_is_preamble() -> None:
+    doc = parse_report(
+        "Intro paragraph.\n\n## Section A\n\nbody\n",
+        fixture_id="canonical-test-002",
+        path="x/report.md",
+    )
     preamble = [s for s in doc.sections if s.heading is None]
     assert len(preamble) == 1
-    assert "Some summary text here." in preamble[0].text
+    assert "Intro paragraph." in preamble[0].text
+
+
+def test_document_starting_with_heading_has_no_preamble() -> None:
+    doc = parse_report("# Title\n\ntext\n", fixture_id="canonical-test-003", path="x/report.md")
+    assert all(s.heading is not None or s.text for s in doc.sections)
+    assert not any(s.heading is None and not s.text.strip() for s in doc.sections)
 
 
 def test_document_without_h1_falls_back_to_fixture_id() -> None:
