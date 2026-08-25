@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-csvinj-017-invent-api-identifier-03
+parent_id: canonical-csvinj-017
+operator: invent_api_identifier
+category: technical_consistency
+parameters:
+  choices:
+    inserted_identifier_claim: The affected route is `/api/v4/legacy-export` according
+      to the deployment manifest used during testing.
+    target_section_heading: Summary
+seed: 7230833068372472805
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.75
+  evidence_completeness: 0.88
+  claim_evidence_consistency: 0.45
+  impact_calibration: 0.78
+  scope_consistency: 0.86
+generator_version: 0.1.0
+report:
+  path: adversarial/csvinj-017/mut-csvinj-017-invent-api-identifier-03/report.md

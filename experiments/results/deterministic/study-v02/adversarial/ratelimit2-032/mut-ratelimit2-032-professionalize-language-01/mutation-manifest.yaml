@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-ratelimit2-032-professionalize-language-01
+parent_id: canonical-ratelimit2-032
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations: []
+seed: 7158875418227257758
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.45
+  evidence_completeness: 0.68
+  claim_evidence_consistency: 0.62
+  impact_calibration: 0.52
+  scope_consistency: 0.6
+generator_version: 0.1.0
+report:
+  path: adversarial/ratelimit2-032/mut-ratelimit2-032-professionalize-language-01/report.md

@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-wstoken-022-remove-reproduction-step-01
+parent_id: canonical-wstoken-022
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 2
+    removed_step_text: 2. Initiate socket connections at 5, 30, 55, and 59 seconds
+      of token life.
+    mode: single_step
+seed: 10805341089416392882
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.43
+  claim_evidence_consistency: 0.6
+  impact_calibration: 0.52
+  scope_consistency: 0.6
+generator_version: 0.1.0
+report:
+  path: adversarial/wstoken-022/mut-wstoken-022-remove-reproduction-step-01/report.md

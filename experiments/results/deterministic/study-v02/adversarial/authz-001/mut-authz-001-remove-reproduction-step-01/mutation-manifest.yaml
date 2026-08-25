@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-authz-001-remove-reproduction-step-01
+parent_id: canonical-authz-001
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 3
+    removed_step_text: 3. Sign out, then sign in as a viewer-tier user of tenant A.
+    mode: single_step
+seed: 17263239491154672831
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.34
+  evidence_completeness: 0.67
+  claim_evidence_consistency: 0.96
+  impact_calibration: 0.9
+  scope_consistency: 0.95
+generator_version: 0.1.0
+report:
+  path: adversarial/authz-001/mut-authz-001-remove-reproduction-step-01/report.md

@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-dup-007-scope-expansion-03
+parent_id: canonical-dup-007
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: All services sharing this codebase, including batch
+      jobs and internal tooling, are affected as well.
+    expanded_version_claim: All earlier releases since 0.1.0 and all future releases,
+      including the upcoming 9.x line, are equally affected.
+seed: 14271723460807090359
+variant_index: 2
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.9
+  evidence_completeness: 0.55
+  claim_evidence_consistency: 0.25
+  impact_calibration: 0.12
+  scope_consistency: 0.0
+generator_version: 0.1.0
+report:
+  path: adversarial/dup-007/mut-dup-007-scope-expansion-03/report.md

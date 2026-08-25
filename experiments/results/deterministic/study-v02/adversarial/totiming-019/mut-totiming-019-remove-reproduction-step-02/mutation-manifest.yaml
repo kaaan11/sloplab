@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-totiming-019-remove-reproduction-step-02
+parent_id: canonical-totiming-019
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Send 40 failed sign-ins for an existing username and 40
+      for a fabricated one,
+    mode: single_step
+seed: 3132658305008344845
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.45
+  claim_evidence_consistency: 0.62
+  impact_calibration: 0.58
+  scope_consistency: 0.66
+generator_version: 0.1.0
+report:
+  path: adversarial/totiming-019/mut-totiming-019-remove-reproduction-step-02/report.md

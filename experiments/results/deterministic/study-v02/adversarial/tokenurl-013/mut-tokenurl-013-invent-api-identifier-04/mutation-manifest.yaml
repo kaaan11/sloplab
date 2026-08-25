@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-tokenurl-013-invent-api-identifier-04
+parent_id: canonical-tokenurl-013
+operator: invent_api_identifier
+category: technical_consistency
+parameters:
+  choices:
+    inserted_identifier_claim: This matches the vendor advisory identifier VND-1431
+      referenced in the component changelog.
+    target_section_heading: Summary
+seed: 7500115009052695789
+variant_index: 3
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.78
+  evidence_completeness: 0.9
+  claim_evidence_consistency: 0.49
+  impact_calibration: 0.83
+  scope_consistency: 0.89
+generator_version: 0.1.0
+report:
+  path: adversarial/tokenurl-013/mut-tokenurl-013-invent-api-identifier-04/report.md

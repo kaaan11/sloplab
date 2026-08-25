@@ -1,0 +1,32 @@
+# V0.2 FULL LLM STUDY - manual, metered, opt-in only.
+#
+# Runs only AFTER a successful pilot review. Same budget mechanics as the pilot;
+# supports up to two models via separate dispatch invocations.
+
+schema_version: 2
+name: llm-full-v0.2
+description: >
+  Full study over the complete v1-core suite (canonical + derived), 3 repeats,
+  per model. Dispatch once per model; budgets apply per invocation.
+
+suite:
+  config_path: benchmarks/suites/v1-core.yaml
+  corpus_root: corpus
+
+base_seed: 20260825
+repeats: 3
+max_cases: null
+
+model_env: SLOPLAB_LLM_MODEL
+endpoint_env: SLOPLAB_LLM_ENDPOINT
+api_key_env: SLOPLAB_LLM_API_KEY
+
+prompt_file: experiments/prompts/triage-v1.md
+
+budget:
+  max_requests: 1000
+  request_timeout_s: 60
+  max_retries_per_case: 2
+  min_interval_ms: 250
+
+case_selection: canonical_first

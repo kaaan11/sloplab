@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-saml-019-remove-reproduction-step-03
+parent_id: canonical-saml-019
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 2
+    removed_step_text: 2. Post a form-encoded SAMLResponse built from the sample template
+      with the NameID
+    mode: single_step
+seed: 15411442312663487416
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.32
+  evidence_completeness: 0.65
+  claim_evidence_consistency: 0.94
+  impact_calibration: 0.86
+  scope_consistency: 0.89
+generator_version: 0.1.0
+report:
+  path: adversarial/saml-019/mut-saml-019-remove-reproduction-step-03/report.md

@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-openred-015-impossible-precondition-03
+parent_id: canonical-openred-015
+operator: impossible_precondition
+category: technical_consistency
+parameters:
+  choices:
+    inserted_precondition: Requires an authenticated administrator session established
+      with read-only guest credentials.
+    target_heading: Preconditions
+seed: 10000327193193339867
+variant_index: 2
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.39
+  evidence_completeness: 0.88
+  claim_evidence_consistency: 0.52
+  impact_calibration: 0.78
+  scope_consistency: 0.9
+generator_version: 0.1.0
+report:
+  path: adversarial/openred-015/mut-openred-015-impossible-precondition-03/report.md

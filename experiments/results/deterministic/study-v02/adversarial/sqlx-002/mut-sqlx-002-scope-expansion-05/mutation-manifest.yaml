@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-sqlx-002-scope-expansion-05
+parent_id: canonical-sqlx-002
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: All services sharing this codebase, including batch
+      jobs and internal tooling, are affected as well.
+    expanded_version_claim: Every version ever released is affected, including builds
+      distributed through unofficial mirrors.
+seed: 3314535466056876041
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.95
+  evidence_completeness: 0.7
+  claim_evidence_consistency: 0.77
+  impact_calibration: 0.85
+  scope_consistency: 0.4
+generator_version: 0.1.0
+report:
+  path: adversarial/sqlx-002/mut-sqlx-002-scope-expansion-05/report.md

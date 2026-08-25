@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-authz2-014-invent-api-identifier-04
+parent_id: canonical-authz2-014
+operator: invent_api_identifier
+category: technical_consistency
+parameters:
+  choices:
+    inserted_identifier_claim: The affected route is `/api/v7/session-bridge` according
+      to the deployment manifest used during testing.
+    target_section_heading: Summary
+seed: 12945225660998583586
+variant_index: 3
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.77
+  evidence_completeness: 0.9
+  claim_evidence_consistency: 0.49
+  impact_calibration: 0.8
+  scope_consistency: 0.88
+generator_version: 0.1.0
+report:
+  path: adversarial/authz2-014/mut-authz2-014-invent-api-identifier-04/report.md

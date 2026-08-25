@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-saml-019-impact-inflation-05
+parent_id: canonical-saml-019
+operator: impact_inflation
+category: impact
+parameters:
+  choices:
+    calibration_replacements: []
+    appended_sentence: This vulnerability exposes every customer record in the deployment
+      and must be treated as a critical, actively exploited data breach.
+seed: 3748780013063848731
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.92
+  evidence_completeness: 0.9
+  claim_evidence_consistency: 0.64
+  impact_calibration: 0.31
+  scope_consistency: 0.89
+generator_version: 0.1.0
+report:
+  path: adversarial/saml-019/mut-saml-019-impact-inflation-05/report.md

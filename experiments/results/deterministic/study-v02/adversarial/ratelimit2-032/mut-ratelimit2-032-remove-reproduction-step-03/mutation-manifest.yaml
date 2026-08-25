@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-ratelimit2-032-remove-reproduction-step-03
+parent_id: canonical-ratelimit2-032
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 3
+    removed_step_text: 3. Poll `/v1/usage` at varied intervals, recording counter
+      values and timestamps.
+    mode: single_step
+seed: 11423278580814047554
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.43
+  claim_evidence_consistency: 0.62
+  impact_calibration: 0.52
+  scope_consistency: 0.6
+generator_version: 0.1.0
+report:
+  path: adversarial/ratelimit2-032/mut-ratelimit2-032-remove-reproduction-step-03/report.md

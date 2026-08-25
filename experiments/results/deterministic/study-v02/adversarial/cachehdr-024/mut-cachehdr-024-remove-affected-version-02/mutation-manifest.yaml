@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-cachehdr-024-remove-affected-version-02
+parent_id: canonical-cachehdr-024
+operator: remove_affected_version
+category: evidence_removal
+parameters:
+  choices:
+    removed_section_heading: Affected Versions
+seed: 9672170911055217031
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.4
+  evidence_completeness: 0.55
+  claim_evidence_consistency: 0.53
+  impact_calibration: 0.6
+  scope_consistency: 0.31
+generator_version: 0.1.0
+report:
+  path: adversarial/cachehdr-024/mut-cachehdr-024-remove-affected-version-02/report.md

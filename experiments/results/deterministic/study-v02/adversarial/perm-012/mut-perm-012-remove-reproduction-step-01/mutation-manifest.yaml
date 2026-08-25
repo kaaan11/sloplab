@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-perm-012-remove-reproduction-step-01
+parent_id: canonical-perm-012
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 3
+    removed_step_text: 3. Repeat the job several times, alternating documented page
+      sizes.
+    mode: single_step
+seed: 12222962526939519005
+variant_index: 0
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.35
+  claim_evidence_consistency: 0.6
+  impact_calibration: 0.65
+  scope_consistency: 0.7
+generator_version: 0.1.0
+report:
+  path: adversarial/perm-012/mut-perm-012-remove-reproduction-step-01/report.md

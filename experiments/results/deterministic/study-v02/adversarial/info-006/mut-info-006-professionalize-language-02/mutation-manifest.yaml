@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-info-006-professionalize-language-02
+parent_id: canonical-info-006
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations: []
+seed: 14972441374015467729
+variant_index: 1
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.85
+  evidence_completeness: 0.7
+  claim_evidence_consistency: 0.35
+  impact_calibration: 0.1
+  scope_consistency: 0.4
+generator_version: 0.1.0
+report:
+  path: adversarial/info-006/mut-info-006-professionalize-language-02/report.md

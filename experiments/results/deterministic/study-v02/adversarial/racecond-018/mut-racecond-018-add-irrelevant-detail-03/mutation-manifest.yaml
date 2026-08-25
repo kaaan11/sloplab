@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-racecond-018-add-irrelevant-detail-03
+parent_id: canonical-racecond-018
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 17425497658758018663
+variant_index: 2
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.85
+  evidence_completeness: 0.77
+  claim_evidence_consistency: 0.89
+  impact_calibration: 0.76
+  scope_consistency: 0.85
+generator_version: 0.1.0
+report:
+  path: adversarial/racecond-018/mut-racecond-018-add-irrelevant-detail-03/report.md

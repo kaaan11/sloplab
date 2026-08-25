@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-authz-001-impact-inflation-03
+parent_id: canonical-authz-001
+operator: impact_inflation
+category: impact
+parameters:
+  choices:
+    calibration_replacements:
+    - medium->critical
+    appended_sentence: An unauthenticated attacker can fully compromise the entire
+      platform, all tenant data, and underlying infrastructure through this flaw.
+seed: 13370202694092394993
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.94
+  evidence_completeness: 0.92
+  claim_evidence_consistency: 0.66
+  impact_calibration: 0.35
+  scope_consistency: 0.95
+generator_version: 0.1.0
+report:
+  path: adversarial/authz-001/mut-authz-001-impact-inflation-03/report.md

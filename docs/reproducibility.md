@@ -46,3 +46,18 @@ The optional LLM adapter is excluded from all of the above. If you enable it,
 record model id, decoding parameters, retry policy, and date; results are reported
 separately from deterministic baselines and require multiple repetitions per
 methodology.md.
+
+## Experiment studies (v0.2)
+
+Deterministic evaluator studies add one more reproducibility layer:
+
+```bash
+uv run sloplab study experiments/configs/deterministic-study-v0.2.yaml \
+    --out experiments/results/deterministic/study-v02
+```
+
+For a fixed commit + corpus + seed, `records.jsonl` inside the study output is
+byte-identical across runs; `manifest.json` additionally records the commit SHA,
+suite hash, evaluator config hashes, and wall-clock times (excluded from identity
+comparison by design). Bootstrap confidence intervals are seeded from the study's
+base seed and therefore reproduce exactly.

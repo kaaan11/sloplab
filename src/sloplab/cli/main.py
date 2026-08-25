@@ -8,6 +8,7 @@ from typing import Any
 import click
 
 from sloplab import __version__
+from sloplab.scoring.metrics import MetricBundle
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -308,6 +309,131 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
     write_records_csv(out_dir / "results.csv", records)
     write_markdown_report(out_dir / "report.md", bundles, f"SlopLab benchmark: {config.name}")
     click.echo(f"benchmark complete; results in {out_dir}")
+
+
+@cli.command()
+@click.argument("config", type=click.Path(exists=True, path_type=str))
+@click.option("--out", type=click.Path(path_type=str), required=True)
+def study(config: str, out: str) -> None:
+    """Run a deterministic evaluator study with comparative analysis (V0.2)."""
+    import json
+    from dataclasses import asdict
+    from pathlib import Path as _Path
+
+    from sloplab.experiments.runner import load_study_config
+    from sloplab.experiments.study import run_deterministic_study
+    from sloplab.reporting.writers import read_run_jsonl, write_records_csv
+    from sloplab.scoring.comparison import (
+        bootstrap_accuracy_ci,
+        error_taxonomy,
+        paired_win_loss,
+        per_class_metrics,
+        per_operator_metrics,
+    )
+    from sloplab.scoring.metrics import compute_metrics
+
+    cfg = load_study_config(_Path(config))
+    out_dir = _Path(out)
+    result = run_deterministic_study(cfg, _Path.cwd(), _Path(cfg.suite.config_path), out_dir)
+
+    _meta, records = read_run_jsonl(result.records_path)
+    by_evaluator: dict[str, list[Any]] = {}
+    for record in records:
+        by_evaluator.setdefault(record.evaluator_name, []).append(record)
+
+    bundles: dict[str, MetricBundle] = {
+        n: compute_metrics(rs, n) for n, rs in sorted(by_evaluator.items())
+    }
+    names = sorted(by_evaluator)
+    comparisons = [
+        paired_win_loss(by_evaluator[a], by_evaluator[b])
+        for i, a in enumerate(names)
+        for b in names[i + 1 :]
+    ]
+    taxonomy_counts = {n: error_taxonomy(rs).counts for n, rs in sorted(by_evaluator.items())}
+    taxonomies_full = {n: error_taxonomy(rs).as_dict() for n, rs in sorted(by_evaluator.items())}
+    per_op = {
+        n: {op: asdict(bundle) for op, bundle in per_operator_metrics(rs).items()}
+        for n, rs in sorted(by_evaluator.items())
+    }
+    per_cls = {
+        n: {cls: asdict(bundle) for cls, bundle in per_class_metrics(rs).items()}
+        for n, rs in sorted(by_evaluator.items())
+    }
+    cis = {
+        n: bootstrap_accuracy_ci(
+            rs,
+            resamples=cfg.analysis.bootstrap_resamples,
+            ci=cfg.analysis.bootstrap_ci,
+            seed=cfg.base_seed,
+        )
+        for n, rs in sorted(by_evaluator.items())
+    }
+
+    analysis = {
+        "bundles": {n: asdict(b) for n, b in bundles.items()},
+        "paired_comparisons": [c.as_dict() for c in comparisons],
+        "error_taxonomy": taxonomies_full,
+        "per_operator": per_op,
+        "per_class": per_cls,
+        "bootstrap_accuracy_ci": {
+            n: {"low": lo, "point": pt, "high": hi} for n, (lo, pt, hi) in cis.items()
+        },
+    }
+    analysis_path = out_dir / "analysis.json"
+    analysis_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+
+    write_records_csv(out_dir / "results.csv", records)
+    _write_comparison_markdown(
+        out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, cfg.name
+    )
+    click.echo(f"study complete -> {out_dir} ({result.case_count} cases, {len(names)} evaluators)")
+
+
+def _write_comparison_markdown(
+    path: Path,
+    bundles: dict[str, MetricBundle],
+    comparisons: list[Any],
+    cis: dict[str, tuple[float, float, float]],
+    taxonomies: dict[str, dict[str, int]],
+    title: str,
+) -> None:
+    lines: list[str] = [f"# Evaluator study: {title}", ""]
+    for name, b in sorted(bundles.items()):
+        lo, point, hi = cis.get(name, (0.0, 0.0, 0.0))
+        lines += [
+            f"## `{name}`",
+            "",
+            f"- Decision accuracy: **{point:.3f}** (95% bootstrap CI {lo:.3f}-{hi:.3f})",
+            f"- Mutation detection rate: {b.mutation_detection_rate}",
+            f"- False reassurance rate: **{b.false_reassurance_rate}**",
+            f"- Over-rejection rate: {b.over_rejection_rate}",
+            f"- Robustness delta (drift): {b.robustness_delta}",
+            f"- Presentation susceptibility: {b.presentation_susceptibility}",
+            f"- Calibration error (ECE): {b.calibration_error}",
+        ]
+        if b.per_class_accuracy:
+            lines.append("- Accuracy by report class:")
+            for cls, acc in b.per_class_accuracy.items():
+                lines.append(f"    - {cls}: {acc:.3f}")
+        tax_counts = taxonomies.get(name, {})
+        if tax_counts:
+            lines.append("- Error taxonomy:")
+            for code, count in sorted(tax_counts.items()):
+                lines.append(f"    - {code}: {count}")
+        lines.append("")
+
+    if comparisons:
+        lines += ["## Paired comparison", ""]
+        for c in comparisons:
+            d = c.as_dict()
+            lines.append(
+                f"- `{d['evaluator_a']}` vs `{d['evaluator_b']}`: "
+                f"{d['a_wins']} wins / {d['b_wins']} losses / {d['ties']} ties "
+                f"(win rate {d['a_win_rate']:.3f})"
+            )
+        lines.append("")
+    path.write_text("\n".join(lines), encoding="utf-8")
 
 
 @cli.command()
