@@ -4,14 +4,14 @@ Build queue status. Updated after every completed queue item.
 
 ## V1 acceptance criteria
 
-- [ ] At least 40 controlled canonical fixtures (valid / invalid / review / presentation-paired).
-- [ ] At least 12 mutation operators, each with expected-effect tests.
-- [ ] At least 2 evaluator baselines (rules-baseline + oracle; optional LLM adapter excluded from CI).
-- [ ] One-command reproducible benchmark.
-- [ ] Mutation-level, report-level, and evaluator-level metrics.
-- [ ] JSONL, CSV, and Markdown outputs.
-- [ ] Safety policy and dataset provenance records.
-- [ ] Benchmark example results committed under `benchmarks/results/`.
+- [x] 48 controlled canonical fixtures (12 valid / 10 invalid / 10 review / 8 presentation pairs as 16 files).
+- [x] 12 mutation operators, each with behavior + determinism + safety tests.
+- [x] Oracle + rules-baseline evaluators; optional LLM adapter tracked in Q13.
+- [x] One-command reproducible benchmark (`sloplab benchmark`).
+- [x] Mutation-level, report-class-level, and evaluator-level metrics.
+- [x] JSONL, CSV, and Markdown outputs.
+- [x] Safety policy enforced by validation; dataset card committed.
+- [x] Full v1-core results committed under `benchmarks/results/v1-core-example/`.
 - [ ] Clean-install reproduction verified.
 
 ## Queue status
@@ -25,12 +25,12 @@ Build queue status. Updated after every completed queue item.
 | Q04 12 canonical reports | complete | |
 | Q05 six mutation operators | complete | |
 | Q06 planner + materialization | complete | |
-| Q07 evaluator protocol + oracle | pending | |
-| Q08 rules baseline | pending | |
-| Q09 scoring + reporting | pending | |
-| Q10 integration tests | pending | |
-| Q11 corpus 40 + 12 operators | pending | |
-| Q12 regression/property/examples/docs | pending | |
+| Q07 evaluator protocol + oracle | complete | |
+| Q08 rules baseline | complete | |
+| Q09 scoring + reporting | complete | |
+| Q10 integration tests | complete | |
+| Q11 corpus 40 + 12 operators | complete | |
+| Q12 regression/property/examples/docs | complete | |
 | Q13 optional LLM adapter | pending | |
 | Q14 release audit | pending | |
 
@@ -63,3 +63,23 @@ Build queue status. Updated after every completed queue item.
 - **Known limitations:** presentation pairs not yet in corpus (Q11); evaluators and
   scoring not yet implemented (Q07-Q09); `add_irrelevant_detail` deferred to Q11.
 - **Next:** Q07 - evaluator protocol + oracle evaluator.
+
+---
+
+## Q07-Q12 progress checkpoint (2026-08-25)
+
+- **Status:** complete
+- **Changed:** evaluator protocol/oracle/rules-baseline, scoring harness and metrics,
+  JSONL/CSV/Markdown writers, CLI evaluate/benchmark/compare/report, 36 additional
+  canonical fixtures (corpus now 48 files incl. presentation pairs), 5 remaining
+  mutation operators (12 total), v1-core suite (~250 evaluations), docs package
+  (methodology, dataset-card, evaluator-contract, reproducibility, adding-mutations,
+  SECURITY, CONTRIBUTING), property + regression tests, worked example.
+- **Verification:** 108 tests green offline; ruff + mypy strict clean; full v1-core
+  benchmark runs end to end; oracle scores perfectly on all metrics (scoring plumbing
+  validated); rules-baseline results manually inspected.
+- **Known limitations (documented):** baseline misses ~23% of degrading mutations;
+  residual FAR 0.126 concentrated on polished presentation pairs (the measured
+  phenomenon); uncertainty-detector phrasing overlap with review class noted in
+  methodology and code.
+- **Next:** Q13 - optional strict-JSON LLM adapter behind a config flag.
