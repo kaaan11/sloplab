@@ -1,5 +1,11 @@
 # SlopLab
 
+[![CI](https://github.com/kaaan11/sloplab/actions/workflows/ci.yml/badge.svg)](https://github.com/kaaan11/sloplab/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/kaaan11/sloplab)](https://github.com/kaaan11/sloplab/releases)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Corpus: CC0-1.0](https://img.shields.io/badge/corpus-CC0--1.0-lightgrey.svg)](docs/dataset-card.md)
+![Python](https://img.shields.io/badge/python-3.11%2B-informational)
+
 **An adversarial testing framework for vulnerability-report triage evaluators.**
 
 SlopLab measures one question:
@@ -8,8 +14,11 @@ SlopLab measures one question:
 > with missing evidence, inflated impact, or fabricated detail, does it still
 > classify the report correctly?
 
-SlopLab is a benchmark and evaluation harness. It is **not** a live triage
-product, a scanner, or an exploit framework.
+SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
+a scanner, or an exploit framework.
+
+**Current release: [v0.1.0](https://github.com/kaaan11/sloplab/releases/tag/v0.1.0)**
+([release notes](docs/release-notes-v0.1.0.md))
 
 ## What it does
 

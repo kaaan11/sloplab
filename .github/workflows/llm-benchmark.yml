@@ -1,0 +1,67 @@
+# MANUAL-ONLY workflow. This file must never gain push/pull_request/schedule
+# triggers: live LLM calls cost money and are excluded from all automated flows.
+#
+# Requirements enforced by design:
+# - triggers: workflow_dispatch only
+# - execution gated to the "llm-bench" GitHub Environment (which owns the secret)
+# - no secrets or raw model responses printed to logs (results go to an artifact)
+
+name: llm-benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_cases:
+        description: "Max canonical cases to evaluate (each case costs API tokens)"
+        required: false
+        default: "3"
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    environment: llm-bench
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install
+        run: uv sync --group dev
+
+      - name: Verify environment configuration (no values printed)
+        env:
+          SLOPLAB_LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          SLOPLAB_LLM_MODEL: ${{ vars.LLM_MODEL }}
+          SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
+        run: |
+          if [ -z "$SLOPLAB_LLM_API_KEY" ]; then
+            echo "::error::secret LLM_API_KEY is not configured on environment 'llm-bench'"
+            exit 1
+          fi
+          if [ -z "$SLOPLAB_LLM_MODEL" ] || [ -z "$SLOPLAB_LLM_ENDPOINT" ]; then
+            echo "::error::variables LLM_MODEL / LLM_ENDPOINT are not configured on environment 'llm-bench'"
+            exit 1
+          fi
+          echo "configuration present: key=<redacted>, model=<configured>, endpoint=<configured>"
+
+      - name: Run metered LLM benchmark
+        env:
+          SLOPLAB_LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          SLOPLAB_LLM_MODEL: ${{ vars.LLM_MODEL }}
+          SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
+        run: |
+          uv run python scripts/llm_bench.py \
+            --max-cases "${{ inputs.max_cases }}" \
+            --out llm-bench-results.jsonl
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: llm-bench-results
+          path: llm-bench-results.jsonl
+          retention-days: 30
