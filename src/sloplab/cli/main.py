@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import click
 
 from sloplab import __version__
@@ -17,7 +19,25 @@ def cli() -> None:
 @click.argument("path", type=click.Path(exists=True, path_type=str))
 def validate(path: str) -> None:
     """Validate a corpus fixture or directory of fixtures."""
-    click.echo(f"validate: not implemented yet (path={path})")
+    from sloplab.corpus.loader import FixtureError, discover_fixtures
+    from sloplab.corpus.validation import validate_corpus
+
+    root = Path(path)
+    try:
+        canonical, derived = discover_fixtures(root)
+    except FixtureError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    if not canonical and not derived:
+        raise click.ClickException(
+            f"no fixtures found under '{path}' (expected */{'manifest.yaml'} or "
+            f"*/mutation-manifest.yaml directories)"
+        )
+
+    result = validate_corpus(canonical, derived, corpus_root=root)
+    click.echo(result.render())
+    if not result.ok:
+        raise SystemExit(1)
 
 
 @cli.command()
