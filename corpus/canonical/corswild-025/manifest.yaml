@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-corswild-025
+title: Public catalog endpoint returns wildcard CORS header in MockMart
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - credentialed_data_exposure
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.72
+    claim_evidence_consistency: 0.35
+    impact_calibration: 0.1
+    scope_consistency: 0.38
+  rationale: >
+    Accurate observation with no vulnerability behind it: wildcard CORS on
+    public, unauthenticated data crosses no boundary. Reject is correct.
+sanitization_note: >-
+  Fully synthetic scenario; test origin is a reserved example.org subdomain.
+report:
+  path: canonical/corswild-025/report.md

@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-authz2-014
+title: Team export endpoint skips role verification in AcmePortal workspace
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - privilege_escalation_demonstrated
+  expected_dimensions:
+    reproducibility: 0.92
+    evidence_completeness: 0.9
+    claim_evidence_consistency: 0.94
+    impact_calibration: 0.8
+    scope_consistency: 0.88
+  rationale: >
+    Function-level access control gap demonstrated cleanly with both role accounts;
+    impact honestly scoped to roster disclosure only.
+sanitization_note: >-
+  Fully synthetic scenario; AcmePortal and portal.example.org are fictional.
+report:
+  path: canonical/authz2-014/report.md

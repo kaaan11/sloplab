@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-crypto-011-remove-reproduction-step-05
+parent_id: canonical-crypto-011
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Start the two-node demo deployment with the bundled compose
+      file.
+    mode: single_step
+seed: 9317019685045272482
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.15
+  evidence_completeness: 0.43
+  claim_evidence_consistency: 0.7
+  impact_calibration: 0.55
+  scope_consistency: 0.5
+generator_version: 0.1.0
+report:
+  path: adversarial/crypto-011/mut-crypto-011-remove-reproduction-step-05/report.md

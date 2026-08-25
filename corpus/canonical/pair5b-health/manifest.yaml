@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-pair5b-health
+title: Operational status endpoint enumerates component revisions in DemoVault demonstration
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-005
+pair_role: polished
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - targeted_fingerprinting_value
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.64
+    claim_evidence_consistency: 0.26
+    impact_calibration: 0.07
+    scope_consistency: 0.31
+  rationale: >
+    Polished twin of pair-005 plain member; identical substance and ground truth.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault is fictional.
+report:
+  path: canonical/pair5b-health/report.md

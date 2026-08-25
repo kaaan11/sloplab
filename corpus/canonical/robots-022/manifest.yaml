@@ -1,0 +1,30 @@
+schema_version: 1
+id: canonical-robots-022
+title: Robots.txt file lists the admin console path in ToyTracker demo
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - unauthorized_admin_access
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.62
+    claim_evidence_consistency: 0.25
+    impact_calibration: 0.08
+    scope_consistency: 0.28
+  rationale: >
+    Public crawler directives describing an authenticated (not exposed) surface;
+    security-by-obscurity is not a claimed control. Reject is correct.
+sanitization_note: >-
+  Fully synthetic scenario; ToyTracker is fictional.
+report:
+  path: canonical/robots-022/report.md

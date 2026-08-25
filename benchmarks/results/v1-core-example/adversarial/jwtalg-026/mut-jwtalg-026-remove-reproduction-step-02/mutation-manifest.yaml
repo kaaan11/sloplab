@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-jwtalg-026-remove-reproduction-step-02
+parent_id: canonical-jwtalg-026
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 3
+    removed_step_text: 3. Submit the re-signed token and compare responses.
+    mode: single_step
+seed: 12439524483220436248
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.47
+  claim_evidence_consistency: 0.62
+  impact_calibration: 0.6
+  scope_consistency: 0.65
+generator_version: 0.1.0
+report:
+  path: adversarial/jwtalg-026/mut-jwtalg-026-remove-reproduction-step-02/report.md

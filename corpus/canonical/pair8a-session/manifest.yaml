@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-pair8a-session
+title: SampleStack demo session stays valid for 24 hours
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-008
+pair_role: plain
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - production_session_risk
+  expected_dimensions:
+    reproducibility: 0.87
+    evidence_completeness: 0.66
+    claim_evidence_consistency: 0.27
+    impact_calibration: 0.08
+    scope_consistency: 0.31
+  rationale: >
+    Documented demonstration default for placeholder principals; session lifetime
+    policy is product governance, not a boundary violation here. Reject.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack is fictional.
+report:
+  path: canonical/pair8a-session/report.md

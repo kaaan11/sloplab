@@ -1,0 +1,31 @@
+schema_version: 1
+id: mut-authz2-014-fabricate-reference-07
+parent_id: canonical-authz2-014
+operator: fabricate_reference
+category: reference
+parameters:
+  choices:
+    appended_reference_block: '### References
+
+
+      - Conference talk covering this flaw: https://talks.example.edu/events/3004
+
+      - Patch announcement: https://releases.example.org/auth-bypass-deep-dive/notes'
+    target_heading: Impact
+seed: 8066524023505578674
+variant_index: 6
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.92
+  evidence_completeness: 0.75
+  claim_evidence_consistency: 0.59
+  impact_calibration: 0.8
+  scope_consistency: 0.88
+generator_version: 0.1.0
+report:
+  path: adversarial/authz2-014/mut-authz2-014-fabricate-reference-07/report.md

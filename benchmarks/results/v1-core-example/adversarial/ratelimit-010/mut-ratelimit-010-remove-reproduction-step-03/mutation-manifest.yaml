@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-ratelimit-010-remove-reproduction-step-03
+parent_id: canonical-ratelimit-010
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 2
+    removed_step_text: 2. Send 60 consecutive `POST /login` requests with an incorrect
+      password for one
+    mode: single_step
+seed: 10693891894679023625
+variant_index: 2
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.2
+  evidence_completeness: 0.47
+  claim_evidence_consistency: 0.75
+  impact_calibration: 0.6
+  scope_consistency: 0.55
+generator_version: 0.1.0
+report:
+  path: adversarial/ratelimit-010/mut-ratelimit-010-remove-reproduction-step-03/report.md

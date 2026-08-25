@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-graphql-028-add-irrelevant-detail-02
+parent_id: canonical-graphql-028
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 11200059226901579534
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.8
+  evidence_completeness: 0.6
+  claim_evidence_consistency: 0.65
+  impact_calibration: 0.5
+  scope_consistency: 0.55
+generator_version: 0.1.0
+report:
+  path: adversarial/graphql-028/mut-graphql-028-add-irrelevant-detail-02/report.md

@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-ssrf-005-impossible-precondition-01
+parent_id: canonical-ssrf-005
+operator: impossible_precondition
+category: technical_consistency
+parameters:
+  choices:
+    inserted_precondition: Requires an authenticated administrator session established
+      with read-only guest credentials.
+    target_heading: Preconditions
+seed: 7771336252336042730
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.33
+  evidence_completeness: 0.87
+  claim_evidence_consistency: 0.5
+  impact_calibration: 0.78
+  scope_consistency: 0.86
+generator_version: 0.1.0
+report:
+  path: adversarial/ssrf-005/mut-ssrf-005-impossible-precondition-01/report.md

@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-ratelimit-010-add-irrelevant-detail-02
+parent_id: canonical-ratelimit-010
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 9666658454062835381
+variant_index: 1
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.75
+  evidence_completeness: 0.62
+  claim_evidence_consistency: 0.75
+  impact_calibration: 0.6
+  scope_consistency: 0.55
+generator_version: 0.1.0
+report:
+  path: adversarial/ratelimit-010/mut-ratelimit-010-add-irrelevant-detail-02/report.md

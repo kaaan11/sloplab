@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-verb-021-professionalize-language-01
+parent_id: canonical-verb-021
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations: []
+seed: 13409504928794694156
+variant_index: 0
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.85
+  evidence_completeness: 0.6
+  claim_evidence_consistency: 0.15
+  impact_calibration: 0.05
+  scope_consistency: 0.3
+generator_version: 0.1.0
+report:
+  path: adversarial/verb-021/mut-verb-021-professionalize-language-01/report.md

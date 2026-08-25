@@ -78,12 +78,37 @@ _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     for p in (
         r"no security boundary",
         r"does not identify one",
-        r"no boundary .* is crossed",
+        r"no boundary [^.]*crossed",
+        r"identifies none",
         r"no boundary between .+ is crossed",
         r"intended behavior",
         r"product preference",
         r"hardening (opportunity|suggestion)",
         r"cosmetic observation",
+        r"usability tradeoff rather than a remediation",
+    )
+)
+
+# Self-declared uncertainty. Reports that openly say their findings are unresolved
+# should route to manual review rather than accept/reject. NOTE (v0.1.0): these
+# patterns overlap with the phrasing style of this corpus's review-class fixtures;
+# future corpora should include uncertain reports phrased differently so that
+# baseline performance on them reflects generality rather than familiarity.
+_UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"manual review requested",
+        r"maintainer (?:confirmation|input|assistance|reproduction) requested",
+        r"happy to coordinate",
+        r"undetermined without maintainer",
+        r"cannot (?:be |)(?:determined|established|confirmed|explained|classified)",
+        r"could not (?:be )?(?:determined|conclusively determine)",
+        r"unclear whether",
+        r"severity cannot be (?:set|determined)",
+        r"evidence is insufficient",
+        r"insufficient to distinguish",
+        r"genuinely unknown",
+        r"hinges on undocumented",
     )
 )
 
@@ -239,6 +264,15 @@ class RulesBaselineEvaluator:
                     evidence=noise_sections[0],
                 )
             )
+        uncertainty_hits = _count_pattern_hits(full, _UNCERTAINTY_PATTERNS)
+        if uncertainty_hits:
+            findings.append(
+                Finding(
+                    code="SELF_DECLARED_UNCERTAINTY",
+                    severity=Severity.MEDIUM,
+                    evidence=uncertainty_hits[0][:80],
+                )
+            )
 
         # --- dimension scoring (transparent arithmetic) ---
         present_ratio = 1.0 - len(missing_core) / len(_CORE_SECTION_KEYS)
@@ -308,6 +342,10 @@ class RulesBaselineEvaluator:
             or overall < 0.78 - noise_penalty
         ):
             decision = Decision.NEEDS_MANUAL_REVIEW
+        elif uncertainty_hits:
+            # The report itself declares its conclusions unresolved; automation
+            # should defer to humans regardless of structural quality.
+            decision = Decision.NEEDS_MANUAL_REVIEW
         else:
             decision = Decision.ACCEPT
 
@@ -316,7 +354,7 @@ class RulesBaselineEvaluator:
         elif decision == Decision.REJECT:
             confidence = min(0.9, 0.6 + max(0.0, 0.45 - consistency) * 0.5)
         else:
-            confidence = 0.45
+            confidence = 0.45 if not uncertainty_hits else 0.5
 
         rationale_parts = [
             f"missing_core_sections={len(missing_core)}",
@@ -327,6 +365,7 @@ class RulesBaselineEvaluator:
             f"attribution_hits={len(attribution_hits)}",
             f"reference_block={has_reference_section}",
             f"noise_sections={len(noise_sections)}",
+            f"uncertainty={len(uncertainty_hits)}",
             f"no_boundary={bool(no_boundary_hits)}",
             f"contradiction={bool(contradiction_hits)}",
             f"overall={overall:.2f}",

@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-sqlx-002-scope-expansion-08
+parent_id: canonical-sqlx-002
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: The same flaw is also present in the administrative
+      API and the public marketing site of this product.
+    expanded_version_claim: All earlier releases since 0.1.0 and all future releases,
+      including the upcoming 9.x line, are equally affected.
+seed: 18196287158813764900
+variant_index: 7
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.95
+  evidence_completeness: 0.7
+  claim_evidence_consistency: 0.77
+  impact_calibration: 0.85
+  scope_consistency: 0.4
+generator_version: 0.1.0
+report:
+  path: adversarial/sqlx-002/mut-sqlx-002-scope-expansion-08/report.md

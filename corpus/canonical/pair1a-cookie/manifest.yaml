@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-pair1a-cookie
+title: DemoVault login page sets a cookie without the Secure attribute
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-001
+pair_role: plain
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - tls_downgrade_possible
+  expected_dimensions:
+    reproducibility: 0.88
+    evidence_completeness: 0.72
+    claim_evidence_consistency: 0.3
+    impact_calibration: 0.1
+    scope_consistency: 0.36
+  rationale: >
+    Cookie flag recommendation is meaningless on a deliberately HTTP-only sandbox;
+    no transport security boundary exists to violate. Reject.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault is fictional.
+report:
+  path: canonical/pair1a-cookie/report.md

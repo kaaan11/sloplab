@@ -1,0 +1,29 @@
+{
+  "evaluator_name": "oracle",
+  "total_cases": 250,
+  "correct_cases": 250,
+  "decision_accuracy": 1.0,
+  "false_reassurance_rate": 0.0,
+  "false_reassurance_count": 0,
+  "over_rejection_rate": 0.0,
+  "over_rejection_count": 0,
+  "mutation_detection_rate": 1.0,
+  "mutation_detection_total": 64,
+  "robustness_delta": 0.0,
+  "presentation_susceptibility": 0.0,
+  "calibration_error": 0.0,
+  "dimension_mae": {
+    "claim_evidence_consistency": 0.0,
+    "evidence_completeness": 0.0,
+    "impact_calibration": 0.0,
+    "reproducibility": 0.0,
+    "scope_consistency": 0.0
+  },
+  "per_class_accuracy": {
+    "invalid": 1.0,
+    "review": 1.0,
+    "valid": 1.0,
+    "canonical_overall": 1.0
+  },
+  "robustness_score": 1.0
+}

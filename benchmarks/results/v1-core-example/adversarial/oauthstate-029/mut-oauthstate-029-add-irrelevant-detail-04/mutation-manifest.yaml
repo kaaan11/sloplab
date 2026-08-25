@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-oauthstate-029-add-irrelevant-detail-04
+parent_id: canonical-oauthstate-029
+operator: add_irrelevant_detail
+category: noise
+parameters:
+  choices:
+    appended_noise_block_heading: Additional Context
+seed: 10205847181687490064
+variant_index: 3
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.35
+  evidence_completeness: 0.54
+  claim_evidence_consistency: 0.58
+  impact_calibration: 0.55
+  scope_consistency: 0.62
+generator_version: 0.1.0
+report:
+  path: adversarial/oauthstate-029/mut-oauthstate-029-add-irrelevant-detail-04/report.md

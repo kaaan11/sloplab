@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-xsssto-013-remove-affected-version-03
+parent_id: canonical-xsssto-013
+operator: remove_affected_version
+category: evidence_removal
+parameters:
+  choices:
+    removed_section_heading: Affected Versions
+seed: 7839262557084717283
+variant_index: 2
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.91
+  evidence_completeness: 0.74
+  claim_evidence_consistency: 0.83
+  impact_calibration: 0.84
+  scope_consistency: 0.55
+generator_version: 0.1.0
+report:
+  path: adversarial/xsssto-013/mut-xsssto-013-remove-affected-version-03/report.md

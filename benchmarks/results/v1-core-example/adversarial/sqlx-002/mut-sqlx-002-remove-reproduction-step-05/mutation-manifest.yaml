@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-sqlx-002-remove-reproduction-step-05
+parent_id: canonical-sqlx-002
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Start the MockMart demo instance with the seeded sample
+      catalog.
+    mode: single_step
+seed: 5089160456614497047
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.35
+  evidence_completeness: 0.65
+  claim_evidence_consistency: 0.92
+  impact_calibration: 0.85
+  scope_consistency: 0.9
+generator_version: 0.1.0
+report:
+  path: adversarial/sqlx-002/mut-sqlx-002-remove-reproduction-step-05/report.md

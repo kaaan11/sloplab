@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-xsrf-003-scope-expansion-06
+parent_id: canonical-xsrf-003
+operator: scope_expansion
+category: impact
+parameters:
+  choices:
+    expanded_component_claim: All services sharing this codebase, including batch
+      jobs and internal tooling, are affected as well.
+    expanded_version_claim: All earlier releases since 0.1.0 and all future releases,
+      including the upcoming 9.x line, are equally affected.
+seed: 1185351957308726171
+variant_index: 5
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: degraded
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.9
+  evidence_completeness: 0.68
+  claim_evidence_consistency: 0.78
+  impact_calibration: 0.82
+  scope_consistency: 0.4
+generator_version: 0.1.0
+report:
+  path: adversarial/xsrf-003/mut-xsrf-003-scope-expansion-06/report.md

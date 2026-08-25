@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-racecond-018-confidence-overstatement-01
+parent_id: canonical-racecond-018
+operator: confidence_overstatement
+category: presentation
+parameters:
+  choices:
+    certainty_upgrades: []
+seed: 8291544827338579716
+variant_index: 0
+base_seed: 20260825
+expected_decision: accept
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.9
+  evidence_completeness: 0.87
+  claim_evidence_consistency: 0.64
+  impact_calibration: 0.56
+  scope_consistency: 0.85
+generator_version: 0.1.0
+report:
+  path: adversarial/racecond-018/mut-racecond-018-confidence-overstatement-01/report.md

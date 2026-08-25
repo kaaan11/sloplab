@@ -1,0 +1,34 @@
+schema_version: 1
+id: canonical-infodisc-016
+title: Unhandled exceptions expose framework internals in SampleStack API
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - remote_code_execution
+  expected_dimensions:
+    reproducibility: 0.95
+    evidence_completeness: 0.86
+    claim_evidence_consistency: 0.9
+    impact_calibration: 0.75
+    scope_consistency: 0.87
+  rationale: >
+    Verbose-error report with concrete reproduction, explicit inventory of leaked
+    detail classes, and calibrated low impact.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack is fictional. Traceback contents describe
+  sandbox paths only.
+report:
+  path: canonical/infodisc-016/report.md

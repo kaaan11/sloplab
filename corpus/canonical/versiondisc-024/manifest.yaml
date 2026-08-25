@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-versiondisc-024
+title: HTTP responses include a Server header with framework version in PlaygroundAPI
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - targeted_attack_enablement
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.28
+    impact_calibration: 0.06
+    scope_consistency: 0.3
+  rationale: >
+    Header value duplicates version information already published in project docs;
+    no boundary or confidentiality expectation applies. Reject.
+sanitization_note: >-
+  Fully synthetic scenario; PlaygroundAPI and api.example.org are fictional.
+report:
+  path: canonical/versiondisc-024/report.md

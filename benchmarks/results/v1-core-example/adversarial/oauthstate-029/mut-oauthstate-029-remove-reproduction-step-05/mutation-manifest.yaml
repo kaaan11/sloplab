@@ -1,0 +1,28 @@
+schema_version: 1
+id: mut-oauthstate-029-remove-reproduction-step-05
+parent_id: canonical-oauthstate-029
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Begin an OAuth flow in session A and capture the issued
+      state value.
+    mode: single_step
+seed: 7547111545085867408
+variant_index: 4
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.0
+  evidence_completeness: 0.39
+  claim_evidence_consistency: 0.58
+  impact_calibration: 0.55
+  scope_consistency: 0.62
+generator_version: 0.1.0
+report:
+  path: adversarial/oauthstate-029/mut-oauthstate-029-remove-reproduction-step-05/report.md

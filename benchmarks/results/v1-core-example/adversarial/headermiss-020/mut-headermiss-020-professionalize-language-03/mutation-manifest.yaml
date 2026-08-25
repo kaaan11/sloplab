@@ -1,0 +1,25 @@
+schema_version: 1
+id: mut-headermiss-020-professionalize-language-03
+parent_id: canonical-headermiss-020
+operator: professionalize_language
+category: presentation
+parameters:
+  choices:
+    transformations: []
+seed: 10003528917070044732
+variant_index: 2
+base_seed: 20260825
+expected_decision: reject
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: increased
+expected_dimensions:
+  reproducibility: 0.87
+  evidence_completeness: 0.68
+  claim_evidence_consistency: 0.32
+  impact_calibration: 0.1
+  scope_consistency: 0.35
+generator_version: 0.1.0
+report:
+  path: adversarial/headermiss-020/mut-headermiss-020-professionalize-language-03/report.md

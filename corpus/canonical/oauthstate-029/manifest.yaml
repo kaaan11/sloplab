@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-oauthstate-029
+title: OAuth demo accepts partially validated state parameter in ToyTracker flow
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: false
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - csrf_bypass_confirmed
+  expected_dimensions:
+    reproducibility: 0.4
+    evidence_completeness: 0.64
+    claim_evidence_consistency: 0.58
+    impact_calibration: 0.55
+    scope_consistency: 0.62
+  rationale: >
+    Ambiguous expiry-window behavior honestly reported without a definitive
+    defect claim; needs maintainer reproduction to classify. Review is correct.
+sanitization_note: >-
+  Fully synthetic scenario; the OAuth provider is a bundled fake server.
+report:
+  path: canonical/oauthstate-029/report.md

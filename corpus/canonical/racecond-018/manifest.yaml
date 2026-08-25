@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-racecond-018
+title: Coupon apply accepts duplicate submissions in PlaygroundAPI checkout demo
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - real_financial_impact
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.87
+    claim_evidence_consistency: 0.89
+    impact_calibration: 0.76
+    scope_consistency: 0.85
+  rationale: >
+    Business-logic flaw with careful sequential methodology note and honest scoping
+    of monetary relevance to demo currency only.
+sanitization_note: >-
+  Fully synthetic scenario; coupons and totals are sandbox fixture values.
+report:
+  path: canonical/racecond-018/report.md

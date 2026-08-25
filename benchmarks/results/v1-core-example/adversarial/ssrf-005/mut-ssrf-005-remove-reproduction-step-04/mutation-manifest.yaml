@@ -1,0 +1,27 @@
+schema_version: 1
+id: mut-ssrf-005-remove-reproduction-step-04
+parent_id: canonical-ssrf-005
+operator: remove_reproduction_step
+category: evidence_removal
+parameters:
+  choices:
+    removed_step_number: 1
+    removed_step_text: 1. Start SampleStack with the bundled docker-compose file.
+    mode: single_step
+seed: 472541291623028447
+variant_index: 3
+base_seed: 20260825
+expected_decision: needs_manual_review
+expected_effect:
+  report_validity: unchanged
+  claim_quality: unchanged
+  presentation_strength: unchanged
+expected_dimensions:
+  reproducibility: 0.28
+  evidence_completeness: 0.62
+  claim_evidence_consistency: 0.9
+  impact_calibration: 0.78
+  scope_consistency: 0.86
+generator_version: 0.1.0
+report:
+  path: adversarial/ssrf-005/mut-ssrf-005-remove-reproduction-step-04/report.md

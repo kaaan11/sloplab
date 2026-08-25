@@ -1,0 +1,44 @@
+name: v1-core
+description: >
+  Full V1 benchmark suite: 48 canonical fixtures (12 valid, 10 invalid, 10 review,
+  8 presentation pairs as 16 files) expanded to approximately 202 derived cases,
+  for a total of roughly 250 evaluations.
+base_seed: 20260825
+corpus_root: corpus
+include_canonical_cases: true
+policies:
+  valid:
+    variants_per_fixture: 8
+    operators:
+      - remove_reproduction_step
+      - remove_affected_version
+      - impact_inflation
+      - scope_expansion
+      - invent_api_identifier
+      - professionalize_language
+      - confidence_overstatement
+      - fabricate_reference
+      - misattribute_cve
+      - impossible_precondition
+      - contradict_observed_result
+      - add_irrelevant_detail
+  invalid:
+    variants_per_fixture: 4
+    operators:
+      - professionalize_language
+      - confidence_overstatement
+      - add_irrelevant_detail
+      - scope_expansion
+  review:
+    variants_per_fixture: 5
+    operators:
+      - remove_reproduction_step
+      - remove_affected_version
+      - confidence_overstatement
+      - professionalize_language
+      - add_irrelevant_detail
+  presentation_pair:
+    variants_per_fixture: 1
+    operators:
+      - professionalize_language
+      - confidence_overstatement
