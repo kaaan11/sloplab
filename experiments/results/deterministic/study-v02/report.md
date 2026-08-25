@@ -22,25 +22,25 @@
 
 ## `rules-baseline`
 
-- Decision accuracy: **0.759** (95% bootstrap CI 0.715-0.806)
+- Decision accuracy: **0.824** (95% bootstrap CI 0.782-0.865)
 - Mutation detection rate: 0.8020833333333334
-- False reassurance rate: **0.1678832116788321**
+- False reassurance rate: **0.08759124087591241**
 - Over-rejection rate: 0.0
-- Robustness delta (drift): 0.016304347826086956
-- Presentation susceptibility: -0.008403361344537813
-- Calibration error (ECE): 0.3052176470588235
+- Robustness delta (drift): 0.005434782608695652
+- Presentation susceptibility: -0.030812324929971976
+- Calibration error (ECE): 0.2836529411764706
 - Accuracy by report class:
     - invalid: 0.768
-    - review: 0.583
+    - review: 0.812
     - valid: 0.858
-    - canonical_overall: 0.733
+    - canonical_overall: 0.800
 - Error taxonomy:
     - deferred_invalid: 8
     - false_reassurance: 23
     - over_strict_reject: 24
-    - premature_accept: 23
+    - premature_accept: 1
     - premature_deferral: 4
 
 ## Paired comparison
 
-- `evidence-graph-baseline` vs `rules-baseline`: 26 wins / 98 losses / 216 ties (win rate 0.210)
+- `evidence-graph-baseline` vs `rules-baseline`: 10 wins / 104 losses / 226 ties (win rate 0.088)

@@ -98,9 +98,12 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
         r"manual review requested",
-        r"maintainer (?:confirmation|input|assistance|reproduction) requested",
+        r"maintainer (?:confirmation|input|assistance|reproduction|ruling) requested",
         r"happy to coordinate",
-        r"undetermined without maintainer",
+        r"undetermined",
+        r"inconclusive",
+        r"unresolved",
+        r"withheld pending",
         r"cannot (?:be |)(?:determined|established|confirmed|explained|classified)",
         r"could not (?:be )?(?:determined|conclusively determine)",
         r"unclear whether",
@@ -111,6 +114,12 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"hinges on undocumented",
     )
 )
+
+#: A boundary negation stated inside a conditional clause ("If X were enabled...")
+# does not assert that the report's own subject crosses no boundary.
+#: A boundary negation stated inside a conditional clause ("If X were enabled...")
+# does not assert that the report's own subject crosses no boundary.
+_CONDITIONAL_SENTENCE_RE = re.compile(r"\b(?:if|when|whether|unless)\b[^.?!]*$", re.IGNORECASE)
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
@@ -223,15 +232,32 @@ class RulesBaselineEvaluator:
             )
 
         # --- boundary / validity reasoning ---
-        no_boundary_hits = _count_pattern_hits(full, _NO_BOUNDARY_PATTERNS)
+        # Boundary negations stated conditionally ("if profile B were exposed...")
+        # do not assert the report's own subject is safe; they describe a
+        # hypothetical and should route to review, not reject.
+        no_boundary_matches = [m for rx in _NO_BOUNDARY_PATTERNS for m in rx.finditer(full)]
+        conditional_negation = any(
+            _CONDITIONAL_SENTENCE_RE.search(full[max(0, m.start() - 80) : m.start() + 1])
+            for m in no_boundary_matches
+        )
+        unconditional_negation = bool(no_boundary_matches) and not conditional_negation
         contradiction_hits = _count_pattern_hits(full, _CLAIM_CONTRADICTION_PATTERNS)
         summary_claimed = bool(_STRONG_CLAIM_PATTERN.search(_section_text(report, "summary") or ""))
 
-        for hit in no_boundary_hits[:1]:
+        if unconditional_negation:
+            hit = next(
+                (m.group(0) for rx in _NO_BOUNDARY_PATTERNS for m in [rx.search(full)] if m), ""
+            )
             findings.append(
                 Finding(
-                    code="NO_SECURITY_BOUNDARY_STATED", severity=Severity.HIGH, evidence=hit[:80]
+                    code="NO_SECURITY_BOUNDARY_STATED",
+                    severity=Severity.HIGH,
+                    evidence=hit[:80],
                 )
+            )
+        elif conditional_negation:
+            findings.append(
+                Finding(code="CONDITIONAL_BOUNDARY_STATEMENT", severity=Severity.MEDIUM)
             )
         for hit in contradiction_hits[:1]:
             findings.append(
@@ -301,7 +327,7 @@ class RulesBaselineEvaluator:
         )
 
         calibration = 1.0 - 0.35 * bool(inflation_hits) - 0.1 * len(inflation_hits)
-        if no_boundary_hits and inflation_hits:
+        if unconditional_negation and inflation_hits:
             calibration -= 0.2
         calibration = max(0.0, calibration)
 
@@ -332,7 +358,7 @@ class RulesBaselineEvaluator:
             + (1 if has_reference_section else 0)
         )
         noise_penalty = 0.02 * len(noise_sections)
-        if consistency <= 0.45 or no_boundary_hits or contradiction_hits:
+        if consistency <= 0.45 or unconditional_negation or contradiction_hits:
             decision = Decision.REJECT
         elif (
             quality_flags > 0
@@ -365,7 +391,7 @@ class RulesBaselineEvaluator:
             f"reference_block={has_reference_section}",
             f"noise_sections={len(noise_sections)}",
             f"uncertainty={len(uncertainty_hits)}",
-            f"no_boundary={bool(no_boundary_hits)}",
+            f"no_boundary={unconditional_negation} cond_boundary={conditional_negation}",
             f"contradiction={bool(contradiction_hits)}",
             f"overall={overall:.2f}",
         ]
