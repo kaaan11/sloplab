@@ -48,8 +48,9 @@ class GraphNode:
 
 _SEVERITY_WORDS = re.compile(r"\b(critical|high|medium|low|severe|moderate|minor)\b", re.IGNORECASE)
 _CONSEQUENCE_WORDS = re.compile(
-    r"\b(disclosure|bypass|injection|takeover|exposure|compromise|tampering|"
-    r"escalation|denial)\b",
+    r"\b(disclosure|bypass\w*|injection|takeover|exposure|compromise\w*|tamper\w*|"
+    r"escalation|denial|unauthorized|unauthenticated|forg\w*|leak\w*|reveal\w*|"
+    r"allow\w*|accept\w*|skip\w*|persist\w*|execut\w*)\b",
     re.IGNORECASE,
 )
 
