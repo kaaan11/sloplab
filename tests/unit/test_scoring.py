@@ -6,6 +6,7 @@ import csv
 import json
 from pathlib import Path
 
+from sloplab.models.evaluation import EvaluationResult
 from sloplab.models.enums import Decision
 from sloplab.models.run import CaseRecord
 from sloplab.reporting.writers import (
@@ -56,9 +57,7 @@ def _result(
     decision: Decision,
     confidence: float,
     dims: dict[str, float],
-) -> "object":  # EvaluationResult; quoted to keep helper signature simple
-    from sloplab.models.evaluation import DimensionScores, EvaluationResult
-
+) -> EvaluationResult:
     return EvaluationResult(
         evaluator_name="test-eval",
         evaluator_version="0.1.0",
