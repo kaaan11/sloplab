@@ -12,7 +12,7 @@ Build queue status. Updated after every completed queue item.
 - [x] JSONL, CSV, and Markdown outputs.
 - [x] Safety policy enforced by validation; dataset card committed.
 - [x] Full v1-core results committed under `benchmarks/results/v1-core-example/`.
-- [ ] Clean-install reproduction verified.
+- [x] Clean-install reproduction verified.
 
 ## Queue status
 
@@ -31,8 +31,8 @@ Build queue status. Updated after every completed queue item.
 | Q10 integration tests | complete | |
 | Q11 corpus 40 + 12 operators | complete | |
 | Q12 regression/property/examples/docs | complete | |
-| Q13 optional LLM adapter | pending | |
-| Q14 release audit | pending | |
+| Q13 optional LLM adapter | complete | |
+| Q14 release audit | complete | |
 
 ---
 
@@ -83,3 +83,18 @@ Build queue status. Updated after every completed queue item.
   phenomenon); uncertainty-detector phrasing overlap with review class noted in
   methodology and code.
 - **Next:** Q13 - optional strict-JSON LLM adapter behind a config flag.
+
+---
+
+## Q13-Q14 release checkpoint (2026-08-25)
+
+- **Status:** complete
+- **Changed:** optional strict-JSON LLM adapter (mock-tested, disabled by default),
+  corpus-root resolution fixes with regression tests, release notes, final audit,
+  SECURITY/CONTRIBUTING, worked example, README quick start with real numbers.
+- **Verification:** 127 tests green; ruff+mypy strict clean; clean-venv install +
+  foreign-CWD benchmark reproduce committed rules-baseline records byte-for-byte;
+  oracle perfect on all metrics; audit found and fixed 2 path-resolution defects.
+- **Known limitations:** see docs/final-audit.md (baseline gaps by design, English-
+  only corpus, live-LLM path unexercised per policy).
+- **Next:** human review (release decision).
