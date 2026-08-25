@@ -31,19 +31,33 @@ See [docs/safety.md](docs/safety.md) and [docs/threat-model.md](docs/threat-mode
 ## Quick start
 
 ```bash
-# install
-uv sync                      # or: pip install -e .
+git clone <repo-url> && cd sloplab
+uv sync --group dev          # or: pip install -e .
 
-# run the built-in V1 benchmark suite with the rules baseline evaluator
-sloplab benchmark benchmarks/suites/v1-core.yaml --evaluator rules-baseline \
-    --out benchmarks/results/example
+# validate the committed corpus (48 synthetic fixtures)
+sloplab validate corpus/
 
-# inspect results
-sloplab report benchmarks/results/example/run.jsonl --format markdown
+# run the full V1 benchmark with the deterministic rules baseline (~250 cases)
+sloplab benchmark benchmarks/suites/v1-core.yaml \
+    --evaluator rules-baseline --out benchmarks/results/my-run
+
+# human-readable metrics summary
+sloplab report benchmarks/results/my-run/run.jsonl
 ```
 
-*(Full quick-start walkthrough with example output appears in Q12/Q14 of the build plan;
-see docs/progress.md for current status.)*
+A step-by-step walkthrough with real output lives in
+[examples/walkthrough.md](examples/walkthrough.md). Committed reference results are
+in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-example/).
+
+Example v1-core numbers (rules-baseline, see methodology.md for definitions):
+
+| metric | value |
+|---|---|
+| decision accuracy | 0.808 |
+| mutation detection rate | 0.766 |
+| false reassurance rate | 0.126 |
+| over-rejection rate | 0.000 |
+| calibration error | 0.389 |
 
 ## Architecture
 
