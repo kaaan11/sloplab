@@ -23,8 +23,6 @@ def parse_report(
     """Parse Markdown text into a ReportDocument with per-section line ranges."""
     lines = raw_text.splitlines()
     sections: list[ReportSection] = []
-
-    preamble_start = 1
     current_heading: str | None = None
     current_level = 0
     section_start = 1

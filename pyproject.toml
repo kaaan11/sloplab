@@ -52,6 +52,12 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.per-file-ignores]
+# Registration imports intentionally follow definitions to avoid circular imports
+# (operator/evaluator modules import the registry they register into).
+"src/sloplab/evaluators/base.py" = ["E402"]
+"src/sloplab/mutations/base.py" = ["E402"]
+
 [tool.mypy]
 python_version = "3.11"
 mypy_path = "src"

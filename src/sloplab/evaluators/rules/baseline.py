@@ -223,7 +223,6 @@ class RulesBaselineEvaluator:
             )
 
         # --- boundary / validity reasoning ---
-        boundary_text = report.section_text(EVIDENCE_SECTION_PATTERNS["expected_security_boundary"])
         no_boundary_hits = _count_pattern_hits(full, _NO_BOUNDARY_PATTERNS)
         contradiction_hits = _count_pattern_hits(full, _CLAIM_CONTRADICTION_PATTERNS)
         summary_claimed = bool(_STRONG_CLAIM_PATTERN.search(_section_text(report, "summary") or ""))

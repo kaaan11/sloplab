@@ -107,7 +107,7 @@ class LlmEvaluator:
         prompt = PROMPT_TEMPLATE.format(report_text=report.raw_text)
 
         last_error = ""
-        for attempt in range(self._max_retries + 1):
+        for _attempt in range(self._max_retries + 1):
             try:
                 response = self._client.complete(prompt)
                 payload = self._parse_json(response.text)

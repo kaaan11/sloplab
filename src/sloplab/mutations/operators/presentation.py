@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import random
 import re
+from functools import partial
 from typing import Any
 
 from sloplab.models.enums import (
@@ -81,13 +82,14 @@ class ProfessionalizeLanguage:
                 text = text.replace(old, new)
                 applied.append(f"contraction:{old}")
 
+        def _match_case(match: re.Match[str], replacement: str) -> str:
+            # Preserve capitalization of the first letter where needed.
+            return replacement if match.group(0).islower() else replacement.capitalize()
+
         for old, new in _REGISTER_UPGRADES:
             pattern = re.compile(r"\b" + re.escape(old) + r"\b", re.IGNORECASE)
             if pattern.search(text):
-                # Preserve capitalization of the first letter where needed.
-                text = pattern.sub(
-                    lambda m: new if m.group(0).islower() else new.capitalize(), text
-                )
+                text = pattern.sub(partial(_match_case, replacement=new), text)
                 applied.append(f"register:{old}")
 
         text = text.replace("!", ".").replace("!!", ".")
