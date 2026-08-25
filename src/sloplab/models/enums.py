@@ -34,7 +34,13 @@ class ReportClass(StrEnum):
     VALID = "valid"
     INVALID = "invalid"
     REVIEW = "review"
-    PRESENTATION_PAIR = "presentation_pair"
+
+
+#: Suite-policy key grouping fixtures that participate in presentation pairs.
+PRESENTATION_PAIR_KEY = "presentation_pair"
+
+#: Allowed keys for SuiteConfig.policies.
+SUITE_POLICY_KEYS: tuple[str, ...] = ("valid", "invalid", "review", PRESENTATION_PAIR_KEY)
 
 
 class Severity(StrEnum):
@@ -68,8 +74,6 @@ CANONICAL_EXPECTED_DECISION: dict[ReportClass, Decision] = {
     ReportClass.VALID: Decision.ACCEPT,
     ReportClass.INVALID: Decision.REJECT,
     ReportClass.REVIEW: Decision.NEEDS_MANUAL_REVIEW,
-    # Presentation-pair members carry their own expected decision via ground truth;
-    # the plain member defaults like a normal class below.
 }
 
 

@@ -62,24 +62,21 @@ class CanonicalManifest(StrictModel):
     license: str = "CC0-1.0"
     report_class: ReportClass
     pair_id: str | None = None
+    pair_role: Literal["plain", "polished"] | None = None
     ground_truth: GroundTruth
     report: ReportRef
     sanitization_note: str = ""
 
     @model_validator(mode="after")
     def _check_pair(self) -> CanonicalManifest:
-        if self.report_class == ReportClass.PRESENTATION_PAIR and not self.pair_id:
+        if (self.pair_id is None) != (self.pair_role is None):
             raise ValueError(
-                f"manifest {self.id!r}: report_class 'presentation_pair' requires 'pair_id'"
+                f"manifest {self.id!r}: 'pair_id' and 'pair_role' must be provided together"
             )
         return self
 
     def expected_decision(self) -> Decision:
         """Ground-truth triage decision for this canonical fixture."""
-        if self.report_class == ReportClass.PRESENTATION_PAIR:
-            # Presentation pairs encode their class in ground truth rationale via
-            # pair membership; harness resolves using the sibling's class.
-            return Decision.NEEDS_MANUAL_REVIEW  # overridden by harness when paired
         return canonical_expected_decision(self.report_class)
 
 

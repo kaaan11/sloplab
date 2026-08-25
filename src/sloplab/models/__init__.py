@@ -2,6 +2,8 @@
 
 from sloplab.models.enums import (
     DIMENSIONS,
+    PRESENTATION_PAIR_KEY,
+    SUITE_POLICY_KEYS,
     Decision,
     ImpactClass,
     MutationCategory,
@@ -31,12 +33,14 @@ __all__ = [
     "ImpactClass",
     "MutationCategory",
     "MutationManifest",
+    "PRESENTATION_PAIR_KEY",
     "ReportClass",
     "ReportDocument",
     "ReportSection",
     "RunMetadata",
     "Severity",
     "SourceLocation",
+    "SUITE_POLICY_KEYS",
     "SuiteConfig",
     "canonical_expected_decision",
 ]

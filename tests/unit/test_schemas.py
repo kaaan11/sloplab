@@ -56,14 +56,14 @@ class TestCanonicalManifest:
         with pytest.raises(ValidationError):
             CanonicalManifest.model_validate(canonical_manifest_data(id="Canonical_Authz"))
 
-    def test_presentation_pair_requires_pair_id(self) -> None:
+    def test_pair_fields_required_together(self) -> None:
         from sloplab.models import CanonicalManifest
 
         with pytest.raises(ValidationError) as excinfo:
             CanonicalManifest.model_validate(
-                canonical_manifest_data(report_class="presentation_pair")
+                canonical_manifest_data(pair_id="pair-001", pair_role=None)
             )
-        assert "pair_id" in str(excinfo.value)
+        assert "pair_role" in str(excinfo.value)
 
     def test_expected_dimension_validation(self) -> None:
         gt = GroundTruth(expected_dimensions={"reproducibility": 0.9})
@@ -166,7 +166,14 @@ class TestSuiteConfig:
 
     def test_suite_loads(self) -> None:
         suite = SuiteConfig.model_validate(self.suite_data())
-        assert suite.policies[ReportClass.VALID].variants_per_fixture == 8
+        assert suite.policies["valid"].variants_per_fixture == 8
+
+    def test_policy_for_fixture_resolves_pair(self) -> None:
+        suite = SuiteConfig.model_validate(self.suite_data())
+        key, _policy = suite.policy_for_fixture(ReportClass.VALID, "pair-x")
+        assert key == "valid"
+        key, _policy = suite.policy_for_fixture(ReportClass.INVALID, None)
+        assert key == "invalid"
 
     def test_duplicate_operators_rejected(self) -> None:
         with pytest.raises(ValidationError):
