@@ -1,0 +1,33 @@
+# SlopLab V0.2 deterministic evaluator study.
+#
+# Runs every listed evaluator over the full materialized v1-core suite and produces
+# comparative analysis (paired win/loss, per-operator/per-class breakdowns, error
+# taxonomy, bootstrap CIs). Fully offline; byte-identical for a given commit+seed.
+
+schema_version: 2
+name: deterministic-study-v0.2
+description: >
+  Comparative robustness study of the two deterministic baselines over the
+  v0.1.1 v1-core suite (250 cases), with seeded bootstrap confidence intervals.
+
+suite:
+  config_path: benchmarks/suites/v1-core.yaml
+  corpus_root: corpus
+
+base_seed: 20260825
+repeat_index: 0
+
+evaluators:
+  - name: rules-baseline
+  - name: evidence-graph-baseline
+
+analysis:
+  bootstrap_resamples: 2000
+  bootstrap_ci: 0.95
+  paired_comparison: true
+  error_taxonomy: true
+
+provenance:
+  record_commit_sha: true
+  record_suite_hash: true
+  record_evaluator_config_hash: true

@@ -1,0 +1,19 @@
+{
+  "study": "evaluator-study-v0.2",
+  "suite": "v1-core",
+  "base_seed": 20260825,
+  "repeat_index": 0,
+  "evaluators": [
+    {"name": "rules-baseline", "kind": "deterministic", "version": "0.1.0"},
+    {"name": "evidence-graph-baseline", "kind": "deterministic", "version": "0.2.0"},
+    {"name": "oracle", "kind": "test-only", "version": "0.1.0"},
+    {
+      "name": "llm-json",
+      "kind": "optional-live",
+      "enabled_by_default": false,
+      "pilot_config": "experiments/configs/llm-pilot-v0.2.yaml",
+      "full_config": "experiments/configs/llm-full-v0.2.yaml"
+    }
+  ],
+  "notes": "LLM entries are declarations only; live runs require the llm-bench environment secret and explicit human dispatch."
+}

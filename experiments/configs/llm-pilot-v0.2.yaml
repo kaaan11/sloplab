@@ -1,0 +1,33 @@
+# V0.2 LLM PILOT - manual, metered, opt-in only.
+#
+# This config is consumed ONLY by the workflow_dispatch 'llm-benchmark' pipeline
+# after the maintainer adds the LLM_API_KEY secret to the 'llm-bench' environment.
+# Budgets here are hard limits: the runner must stop at the first exceeded limit.
+
+schema_version: 2
+name: llm-pilot-v0.2
+description: >
+  One-model pilot over canonical cases only: 60 selected cases x 3 repeats,
+  capped at 180 evaluations total.
+
+suite:
+  config_path: benchmarks/suites/v1-core.yaml
+  corpus_root: corpus
+
+base_seed: 20260825
+repeats: 3
+max_cases: 60
+
+model_env: SLOPLAB_LLM_MODEL
+endpoint_env: SLOPLAB_LLM_ENDPOINT
+api_key_env: SLOPLAB_LLM_API_KEY
+
+prompt_file: experiments/prompts/triage-v1.md
+
+budget:
+  max_requests: 180
+  request_timeout_s: 60
+  max_retries_per_case: 2
+  min_interval_ms: 500
+
+case_selection: canonical_first
