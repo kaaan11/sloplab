@@ -150,3 +150,9 @@ annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
   baseline generality fixes documented as corpus-adjacent calibration; live LLM
   pilot intentionally not executed.
 - **Next:** human review of V22/V26 deliverables; V30 secret decision.
+- **Post-audit addendum (V26 results audit):** root-caused evidence-graph MDR=0.0 /
+  FAR=0.44 - one contract-conformance defect fixed (undermined observations now break
+  the support edge) + eleven-family blindness confirmed as by-design; evaluator
+  repositioned as negative control in README/study docs. Post-fix study: graph
+  acc 0.582 / MDR 0.125 / FAR 0.394. Evidence: docs/v26-results-audit.md,
+  tests/unit/test_evidence_graph_families.py (`ca731f0`).
