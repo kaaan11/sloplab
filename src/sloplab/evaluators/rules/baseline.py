@@ -95,7 +95,25 @@ _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"contradict",
         r"identical `?location`?",
         r"contain(s|ed)? no admin content",
+        r"returned 403 forbidden and no cross-tenant data",
+        r"could not reproduce any anomalous response",
+        r"boundary held in every configuration",
     )
+)
+
+_UNVERIFIABLE_ATTRIBUTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"vendor has confirmed this issue as CVE-",
+        r"previously disclosed and tracked as CVE-",
+        r"tracking lists this defect as CVE-.*with fix status confirmed",
+        r"fix status confirmed",
+    )
+)
+
+_REFERENCE_STUFFING_PATTERN = re.compile(r"^#{1,3}\s+references\s*$", re.MULTILINE | re.IGNORECASE)
+_NOISE_SECTION_PATTERN = re.compile(
+    r"^#{1,3}\s+(additional context|background information)\s*$", re.MULTILINE | re.IGNORECASE
 )
 
 _STRONG_CLAIM_PATTERN = re.compile(
@@ -200,6 +218,28 @@ class RulesBaselineEvaluator:
         if "affected_versions" in missing_core:
             findings.append(Finding(code="MISSING_AFFECTED_VERSIONS", severity=Severity.LOW))
 
+        attribution_hits = _count_pattern_hits(full, _UNVERIFIABLE_ATTRIBUTION_PATTERNS)
+        for hit in attribution_hits[:1]:
+            findings.append(
+                Finding(
+                    code="ATTRIBUTION_CLAIM_UNVERIFIED",
+                    severity=Severity.MEDIUM,
+                    evidence=hit[:80],
+                )
+            )
+        has_reference_section = bool(_REFERENCE_STUFFING_PATTERN.search(full))
+        if has_reference_section:
+            findings.append(Finding(code="UNVERIFIED_REFERENCE_BLOCK", severity=Severity.LOW))
+        noise_sections = _NOISE_SECTION_PATTERN.findall(full)
+        if noise_sections:
+            findings.append(
+                Finding(
+                    code="TANGENTIAL_CONTENT_SECTION",
+                    severity=Severity.INFO,
+                    evidence=noise_sections[0],
+                )
+            )
+
         # --- dimension scoring (transparent arithmetic) ---
         present_ratio = 1.0 - len(missing_core) / len(_CORE_SECTION_KEYS)
         if repro_section is None:
@@ -216,12 +256,16 @@ class RulesBaselineEvaluator:
 
         penalty_fab = 0.45 * len(fab_hits)
         penalty_contra = 0.55 * len(contradiction_hits)
-        consistency = max(0.0, 1.0 - penalty_fab - penalty_contra)
+        penalty_attr = 0.3 * len(attribution_hits)
+        consistency = max(0.0, 1.0 - penalty_fab - penalty_contra - penalty_attr)
         if summary_claimed and contradiction_hits:
             consistency = max(0.0, consistency - 0.15)
 
         completeness = present_ratio * 0.7 + (1.0 if not fab_hits else 0.6) * 0.3
-        completeness = max(0.0, min(1.0, completeness - 0.05 * len(fab_hits)))
+        completeness = max(
+            0.0,
+            min(1.0, completeness - 0.05 * len(fab_hits) - (0.1 if has_reference_section else 0.0)),
+        )
 
         calibration = 1.0 - 0.35 * bool(inflation_hits) - 0.1 * len(inflation_hits)
         if no_boundary_hits and inflation_hits:
@@ -244,12 +288,25 @@ class RulesBaselineEvaluator:
         # --- decision policy (documented thresholds) ---
         # Hard-reject signals: explicit no-boundary statements, claim/evidence
         # contradictions, or collapsed consistency.
-        # Manual-review signals: any fabrication/scope/inflation flag, thin evidence,
-        # or mediocre dimension scores - anything that should stop automation.
-        quality_flags = len(fab_hits) + len(scope_hits) + len(inflation_hits)
+        # Manual-review signals: any fabrication/scope/inflation/attribution flag,
+        # thin evidence, or mediocre dimension scores - anything that should stop
+        # automation.
+        quality_flags = (
+            len(fab_hits)
+            + len(scope_hits)
+            + len(inflation_hits)
+            + len(attribution_hits)
+            + (1 if has_reference_section else 0)
+        )
+        noise_penalty = 0.02 * len(noise_sections)
         if consistency <= 0.45 or no_boundary_hits or contradiction_hits:
             decision = Decision.REJECT
-        elif quality_flags > 0 or reproducibility < 0.8 or completeness < 0.8 or overall < 0.78:
+        elif (
+            quality_flags > 0
+            or reproducibility < 0.8 - noise_penalty
+            or completeness < 0.8 - noise_penalty
+            or overall < 0.78 - noise_penalty
+        ):
             decision = Decision.NEEDS_MANUAL_REVIEW
         else:
             decision = Decision.ACCEPT
@@ -267,6 +324,9 @@ class RulesBaselineEvaluator:
             f"fabrication_hits={len(fab_hits)}",
             f"scope_expansion_hits={len(scope_hits)}",
             f"inflation_hits={len(inflation_hits)}",
+            f"attribution_hits={len(attribution_hits)}",
+            f"reference_block={has_reference_section}",
+            f"noise_sections={len(noise_sections)}",
             f"no_boundary={bool(no_boundary_hits)}",
             f"contradiction={bool(contradiction_hits)}",
             f"overall={overall:.2f}",

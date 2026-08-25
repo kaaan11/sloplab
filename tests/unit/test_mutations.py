@@ -18,6 +18,13 @@ from sloplab.mutations.operators.presentation import (
     ConfidenceOverstatement,
     ProfessionalizeLanguage,
 )
+from sloplab.mutations.operators.references import (
+    AddIrrelevantDetail,
+    ContradictObservedResult,
+    FabricateReference,
+    ImpossiblePrecondition,
+    MisattributeCve,
+)
 from sloplab.mutations.operators.technical import InventApiIdentifier
 from sloplab.safety.policy import validate_content_safety
 
@@ -44,22 +51,17 @@ ALL_OPS = (
     InventApiIdentifier,
     ProfessionalizeLanguage,
     ConfidenceOverstatement,
+    FabricateReference,
+    MisattributeCve,
+    ImpossiblePrecondition,
+    ContradictObservedResult,
+    AddIrrelevantDetail,
 )
 
 
 class TestRegistry:
-    def test_six_core_operators_registered(self) -> None:
-        names = list_operators()
-        for name in (
-            "remove_reproduction_step",
-            "remove_affected_version",
-            "impact_inflation",
-            "scope_expansion",
-            "invent_api_identifier",
-            "professionalize_language",
-            "confidence_overstatement",
-        ):
-            assert name in names
+    def test_twelve_operators_registered(self) -> None:
+        assert len(list_operators()) == 12
 
     def test_unknown_operator_lists_known(self) -> None:
         with pytest.raises(KeyError, match="registered:"):
@@ -88,6 +90,39 @@ class TestDeterminism:
 
 
 class TestOperatorBehavior:
+    def test_fabricate_reference_uses_reserved_domains(self, valid_report: Any) -> None:
+        doc = valid_report
+        mutated, params = FabricateReference().apply(doc, random.Random(3))
+        assert "### References" in mutated or "References" in params.get(
+            "appended_reference_block", ""
+        )
+        assert validate_content_safety(mutated) == []
+
+    def test_misattribute_cve_inserts_fake_year(self, valid_report: Any) -> None:
+        doc = valid_report
+        mutated, params = MisattributeCve().apply(doc, random.Random(3))
+        assert "CVE-2099-" in params["inserted_attribution"]
+        assert validate_content_safety(mutated) == []
+
+    def test_impossible_precondition_adds_contradiction(self, valid_report: Any) -> None:
+        doc = valid_report
+        mutated, params = ImpossiblePrecondition().apply(doc, random.Random(3))
+        assert params["inserted_precondition"] in mutated
+        precond = _section(mutated, r"preconditions")
+        assert precond is not None and params["inserted_precondition"] in precond
+
+    def test_contradict_observed_negates_outcome(self, valid_report: Any) -> None:
+        doc = valid_report
+        mutated, _ = ContradictObservedResult().apply(doc, random.Random(3))
+        observed = _section(mutated, r"observed")
+        assert observed is not None and "403" in observed or "could not reproduce" in observed
+
+    def test_add_irrelevant_detail_appends_section(self, valid_report: Any) -> None:
+        doc = valid_report
+        mutated, params = AddIrrelevantDetail().apply(doc, random.Random(3))
+        assert len(mutated) > len(doc.raw_text)
+        assert params["appended_noise_block_heading"]
+
     def test_remove_reproduction_step_removes_one_step(self, valid_report: Any) -> None:
         doc = valid_report
         before = doc.section_text(r"reproduction")
