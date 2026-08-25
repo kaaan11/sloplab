@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.79
   impact_calibration: 0.86
   scope_consistency: 0.39
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/saml-019/mut-saml-019-scope-expansion-06/report.md

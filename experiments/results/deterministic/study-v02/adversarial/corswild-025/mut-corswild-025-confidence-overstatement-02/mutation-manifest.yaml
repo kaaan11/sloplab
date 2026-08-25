@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.1
   impact_calibration: 0.0
   scope_consistency: 0.38
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/corswild-025/mut-corswild-025-confidence-overstatement-02/report.md

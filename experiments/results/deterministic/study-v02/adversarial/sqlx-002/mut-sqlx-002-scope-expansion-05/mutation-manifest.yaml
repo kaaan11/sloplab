@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.77
   impact_calibration: 0.85
   scope_consistency: 0.4
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/sqlx-002/mut-sqlx-002-scope-expansion-05/report.md

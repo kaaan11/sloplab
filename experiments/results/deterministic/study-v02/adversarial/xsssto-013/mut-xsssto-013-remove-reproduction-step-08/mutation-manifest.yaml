@@ -22,6 +22,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.93
   impact_calibration: 0.84
   scope_consistency: 0.9
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/xsssto-013/mut-xsssto-013-remove-reproduction-step-08/report.md

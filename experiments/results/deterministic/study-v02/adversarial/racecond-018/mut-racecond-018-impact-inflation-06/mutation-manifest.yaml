@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.59
   impact_calibration: 0.21
   scope_consistency: 0.85
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/racecond-018/mut-racecond-018-impact-inflation-06/report.md

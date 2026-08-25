@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.79
   impact_calibration: 0.76
   scope_consistency: 0.5
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/racecond-018/mut-racecond-018-remove-affected-version-05/report.md

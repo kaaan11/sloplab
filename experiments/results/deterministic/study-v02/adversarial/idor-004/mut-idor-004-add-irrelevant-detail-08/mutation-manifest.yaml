@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.94
   impact_calibration: 0.8
   scope_consistency: 0.88
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/idor-004/mut-idor-004-add-irrelevant-detail-08/report.md

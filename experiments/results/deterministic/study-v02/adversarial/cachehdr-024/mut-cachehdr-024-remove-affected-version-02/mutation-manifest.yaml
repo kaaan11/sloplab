@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.53
   impact_calibration: 0.6
   scope_consistency: 0.31
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/cachehdr-024/mut-cachehdr-024-remove-affected-version-02/report.md

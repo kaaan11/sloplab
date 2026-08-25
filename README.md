@@ -43,7 +43,7 @@ See [docs/safety.md](docs/safety.md) and [docs/threat-model.md](docs/threat-mode
 git clone <repo-url> && cd sloplab
 uv sync --group dev          # or: pip install -e .
 
-# validate the committed corpus (48 synthetic fixtures)
+# validate the committed corpus (52 synthetic fixtures)
 sloplab validate corpus/
 
 # run the full V1 benchmark with the deterministic rules baseline (~250 cases)
@@ -53,6 +53,15 @@ sloplab benchmark benchmarks/suites/v1-core.yaml \
 # human-readable metrics summary
 sloplab report benchmarks/results/my-run/run.jsonl
 ```
+
+## Evaluators
+
+| Evaluator | Role | Notes |
+|---|---|---|
+| `rules-baseline` | **competitive baseline** | deterministic lexical heuristics; the floor to beat |
+| `evidence-graph-baseline` | **negative control** | structure-only claim-evidence graph; intentionally blind to content-quality mutations - it exists to prove the benchmark detects such blindness, not to win |
+| `oracle` | test-only | echoes ground truth; validates scoring plumbing |
+| `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
 
 A step-by-step walkthrough with real output lives in
 [examples/walkthrough.md](examples/walkthrough.md). Committed reference results are

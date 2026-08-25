@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.69
   impact_calibration: 0.6
   scope_consistency: 0.88
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/idor-004/mut-idor-004-confidence-overstatement-03/report.md

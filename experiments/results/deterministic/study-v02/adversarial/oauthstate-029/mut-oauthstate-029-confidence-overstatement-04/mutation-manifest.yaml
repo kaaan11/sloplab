@@ -21,6 +21,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.33
   impact_calibration: 0.35
   scope_consistency: 0.62
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/oauthstate-029/mut-oauthstate-029-confidence-overstatement-04/report.md

@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.62
   impact_calibration: 0.52
   scope_consistency: 0.6
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/ratelimit2-032/mut-ratelimit2-032-add-irrelevant-detail-02/report.md

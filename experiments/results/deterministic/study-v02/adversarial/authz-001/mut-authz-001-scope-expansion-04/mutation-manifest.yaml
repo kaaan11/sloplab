@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.81
   impact_calibration: 0.9
   scope_consistency: 0.45
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/authz-001/mut-authz-001-scope-expansion-04/report.md

@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.25
   impact_calibration: 0.08
   scope_consistency: 0.28
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/robots-022/mut-robots-022-professionalize-language-03/report.md

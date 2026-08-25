@@ -59,4 +59,5 @@ On this exact corpus and seed (`deterministic-study-v0.2`, 340 cases):
   quality has been degraded. Competitive on review-class fixtures (hedging breaks
   its accept path).
 
-Full details: docs/evaluator-study-v0.2.md.
+Full details: docs/evaluator-study-v0.2.md, including the V26 results audit
+(docs/v26-results-audit.md) that root-caused the negative control's blindness.

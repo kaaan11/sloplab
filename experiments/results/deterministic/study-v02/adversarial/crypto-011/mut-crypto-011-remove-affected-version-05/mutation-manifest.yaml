@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.6
   impact_calibration: 0.55
   scope_consistency: 0.15
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/crypto-011/mut-crypto-011-remove-affected-version-05/report.md

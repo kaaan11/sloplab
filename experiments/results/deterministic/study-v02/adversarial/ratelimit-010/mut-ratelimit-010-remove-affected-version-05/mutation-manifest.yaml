@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.65
   impact_calibration: 0.6
   scope_consistency: 0.2
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/ratelimit-010/mut-ratelimit-010-remove-affected-version-05/report.md

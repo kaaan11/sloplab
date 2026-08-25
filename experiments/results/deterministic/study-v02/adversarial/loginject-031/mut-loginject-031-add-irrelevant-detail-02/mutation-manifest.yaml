@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.6
   impact_calibration: 0.58
   scope_consistency: 0.64
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/loginject-031/mut-loginject-031-add-irrelevant-detail-02/report.md

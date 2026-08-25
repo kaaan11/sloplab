@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.2
   impact_calibration: 0.1
   scope_consistency: 0.0
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/corswild-025/mut-corswild-025-scope-expansion-04/report.md

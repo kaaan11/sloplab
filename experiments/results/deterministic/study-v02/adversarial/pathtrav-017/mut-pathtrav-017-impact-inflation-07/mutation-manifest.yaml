@@ -22,6 +22,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.61
   impact_calibration: 0.27
   scope_consistency: 0.86
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/pathtrav-017/mut-pathtrav-017-impact-inflation-07/report.md

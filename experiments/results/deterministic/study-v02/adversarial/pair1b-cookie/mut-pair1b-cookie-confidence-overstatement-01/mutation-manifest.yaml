@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.05
   impact_calibration: 0.0
   scope_consistency: 0.36
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/pair1b-cookie/mut-pair1b-cookie-confidence-overstatement-01/report.md

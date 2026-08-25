@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.6
   impact_calibration: 0.62
   scope_consistency: 0.68
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/cachepois-027/mut-cachepois-027-remove-reproduction-step-05/report.md

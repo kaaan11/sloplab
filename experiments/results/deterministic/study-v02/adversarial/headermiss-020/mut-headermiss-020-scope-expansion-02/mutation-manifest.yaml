@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.17
   impact_calibration: 0.1
   scope_consistency: 0.0
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/headermiss-020/mut-headermiss-020-scope-expansion-02/report.md

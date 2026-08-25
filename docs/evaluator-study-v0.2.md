@@ -1,16 +1,21 @@
-# Deterministic Evaluator Study - v0.2 results and notes (V26)
+# Deterministic Evaluator Study - v0.2 results and notes (V26, audited)
+
+> **Positioning note:** `evidence-graph-baseline` is a **negative control**, not a
+> competitive baseline. It models structure-only triage and is intentionally blind
+> to content-quality mutations; its results demonstrate that SlopLab detects such
+> blindness. See docs/v26-results-audit.md for the root-cause analysis.
 
 Run: `experiments/configs/deterministic-study-v0.2.yaml` over the 52-fixture corpus.
 Population: **340 cases** (52 canonical + 288 derived). Seed `20260825`; records are
 byte-identical across re-runs at this commit.
 
-## Headline metrics
+## Headline metrics (post-audit run)
 
-| Metric | rules-baseline | evidence-graph-baseline |
+| Metric | rules-baseline | evidence-graph-baseline (negative control) |
 |---|---|---|
-| Decision accuracy | **0.824** | 0.547 |
-| Mutation detection rate | **0.802** | 0.000 |
-| False reassurance rate | **0.088** | 0.438 |
+| Decision accuracy | **0.824** | 0.582 |
+| Mutation detection rate | **0.802** | 0.125 |
+| False reassurance rate | **0.088** | 0.394 |
 | Over-rejection rate | 0.000 | 0.000 |
 | Robustness delta (drift) | 0.016 | 0.000 |
 | Calibration error | 0.305 | 0.260 |
@@ -18,8 +23,12 @@ byte-identical across re-runs at this commit.
 Accuracy by class (rules / graph): valid 0.86/0.41 · invalid 0.77/0.59 ·
 review 0.81/0.75.
 
-Paired comparison (340 shared cases): rules-baseline 104 wins vs evidence-graph 10,
-226 ties.
+Paired comparison (340 shared cases): rules-baseline 92 wins vs evidence-graph 10,
+238 ties.
+
+The nonzero-but-tiny graph MDR (0.125 = 8/64) comes entirely from the
+contradict-observed-result family after the contract-conformance fix below; the
+other eleven mutation families remain invisible to it by design.
 
 ## Interpretation (scoped to this benchmark)
 

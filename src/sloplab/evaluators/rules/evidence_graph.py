@@ -1,7 +1,12 @@
-"""Evidence-graph baseline evaluator.
+"""Evidence-graph baseline evaluator (NEGATIVE CONTROL).
 
-A second deterministic, label-independent baseline that models the minimal
-claim-evidence graph every credible vulnerability report must contain:
+This evaluator is a deliberate **negative control**, not a competitive baseline:
+it models structure-only triage and is intentionally blind to content-quality
+mutations. Its poor detection/FAR numbers in studies demonstrate that SlopLab
+detects such blindness.
+
+A deterministic, label-independent model of the minimal claim-evidence graph
+every credible vulnerability report must contain:
 
     Impact claim
       |- supported by an affected-component statement
@@ -65,6 +70,19 @@ _HEDGED_UNRESOLVED = re.compile(
     re.IGNORECASE,
 )
 
+#: Observation prose that undermines rather than supports the claimed consequence.
+#: An edge named "supports" must break when the report's own observation contradicts
+#: its summary claim (contract conformance; see V26 results audit).
+_UNDERMINES_CLAIM = re.compile(
+    r"\b(however|could not reproduce|contradict\w*|behaved identically|"
+    r"boundary held|no \w+ was returned|returned 403)\b",
+    re.IGNORECASE,
+)
+
+#: Full reproduction support requires at least two ordered steps plus an observed
+#: result; fewer steps weaken the edge below acceptance strength.
+MIN_SUPPORT_STEPS = 2
+
 
 def _section(report: ReportDocument, key: str) -> str:
     return report.section_text(EVIDENCE_SECTION_PATTERNS[key])
@@ -111,6 +129,7 @@ class EvidenceGraphBaselineEvaluator:
         observed_text = _section(report, "observed_result")
         repro_node = step_count >= 1 and bool(observed_text.strip())
         observed_node = bool(observed_text.strip())
+        observed_undermines = bool(observed_text) and bool(_UNDERMINES_CLAIM.search(observed_text))
 
         boundary_text = _section(report, "expected_security_boundary")
         boundary_negated = bool(boundary_text) and bool(_NO_BOUNDARY_MARKERS.search(boundary_text))
@@ -119,9 +138,13 @@ class EvidenceGraphBaselineEvaluator:
         hedged = bool(_HEDGED_UNRESOLVED.search(report.raw_text))
 
         # ---- edges ----------------------------------------------------------
+        # Edge semantics are directional: an observation that undermines the claim
+        # does not count as support (contract conformance).
         e1 = impact_claims and component_node  # claim <- component
-        e2 = impact_claims and repro_node  # claim <- reproduction
-        e3 = impact_claims and observed_node  # claim <- observation
+        e2 = (
+            impact_claims and step_count >= MIN_SUPPORT_STEPS and bool(observed_text.strip())
+        )  # claim <- reproduction
+        e3 = impact_claims and observed_node and not observed_undermines
         e4 = (
             impact_claims and boundary_node and not boundary_negated  # claim ~ boundary consistency
         )
@@ -138,12 +161,31 @@ class EvidenceGraphBaselineEvaluator:
             if not present:
                 findings.append(Finding(code=code, severity=Severity.MEDIUM))
 
-        if boundary_negated:
+        if boundary_negated or observed_undermines:
+            # negated boundary OR self-undermining observation: the report's own
+            # content defeats its claim -> reject.
             findings.append(
                 Finding(
                     code="BOUNDARY_NEGATED_BY_AUTHOR",
                     severity=Severity.HIGH,
                     evidence=(boundary_text[:80]),
+                )
+            )
+        if observed_undermines:
+            hit = _UNDERMINES_CLAIM.search(observed_text)
+            findings.append(
+                Finding(
+                    code="GRAPH_OBSERVED_UNDERMINES_CLAIM",
+                    severity=Severity.HIGH,
+                    evidence=hit.group(0) if hit else "",
+                )
+            )
+        if repro_section is not None and 0 < step_count < MIN_SUPPORT_STEPS + 1:
+            findings.append(
+                Finding(
+                    code="GRAPH_THIN_REPRO_SUPPORT",
+                    severity=Severity.LOW,
+                    message=f"only {step_count} ordered step(s)",
                 )
             )
 
@@ -169,7 +211,7 @@ class EvidenceGraphBaselineEvaluator:
         # ---- decision policy ------------------------------------------------
         # Precedence: hard-reject on negated boundary; never accept a report that
         # declares itself unresolved; a complete, strong graph may accept.
-        if boundary_negated:
+        if boundary_negated or observed_undermines:
             decision = Decision.REJECT
         elif hedged:
             decision = Decision.NEEDS_MANUAL_REVIEW

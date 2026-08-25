@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.76
   impact_calibration: 0.82
   scope_consistency: 0.36
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/pathtrav-017/mut-pathtrav-017-scope-expansion-08/report.md

@@ -21,6 +21,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.35
   impact_calibration: 0.38
   scope_consistency: 0.64
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/loginject-031/mut-loginject-031-confidence-overstatement-05/report.md

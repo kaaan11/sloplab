@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.0
   impact_calibration: 0.0
   scope_consistency: 0.35
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/norepro-009/mut-norepro-009-confidence-overstatement-02/report.md

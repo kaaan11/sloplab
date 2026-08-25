@@ -22,6 +22,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.47
   impact_calibration: 0.8
   scope_consistency: 0.88
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/xssref-016/mut-xssref-016-invent-api-identifier-01/report.md

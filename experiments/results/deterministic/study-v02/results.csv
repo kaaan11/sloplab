@@ -462,7 +462,7 @@ mut-filetype-023-professionalize-language-04,mutated,canonical-filetype-023,prof
 mut-filetype-023-remove-affected-version-02,mutated,canonical-filetype-023,remove_affected_version,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
 mut-filetype-023-remove-reproduction-step-01,mutated,canonical-filetype-023,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
 mut-ghauthz-015-confidence-overstatement-04,mutated,canonical-ghauthz-015,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-ghauthz-015-contradict-observed-result-08,mutated,canonical-ghauthz-015,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-ghauthz-015-contradict-observed-result-08,mutated,canonical-ghauthz-015,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-ghauthz-015-fabricate-reference-05,mutated,canonical-ghauthz-015,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-ghauthz-015-impossible-precondition-07,mutated,canonical-ghauthz-015,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-ghauthz-015-invent-api-identifier-02,mutated,canonical-ghauthz-015,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -473,14 +473,14 @@ mut-graphql-028-add-irrelevant-detail-04,mutated,canonical-graphql-028,add_irrel
 mut-graphql-028-confidence-overstatement-02,mutated,canonical-graphql-028,confidence_overstatement,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,0.7666666666666666,0.8,0.85
 mut-graphql-028-professionalize-language-03,mutated,canonical-graphql-028,professionalize_language,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,0.7666666666666666,0.8,0.85
 mut-graphql-028-remove-affected-version-01,mutated,canonical-graphql-028,remove_affected_version,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,0.7666666666666666,0.8,0.85
-mut-graphql-028-remove-reproduction-step-05,mutated,canonical-graphql-028,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,0.5333333333333333,0.8,0.85
+mut-graphql-028-remove-reproduction-step-05,mutated,canonical-graphql-028,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,reject,0,0.15,0.55,0.5,0.2333333333333333,0.8,0.85
 mut-headermiss-020-add-irrelevant-detail-01,mutated,canonical-headermiss-020,add_irrelevant_detail,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.4666666666666666,0.8,0.5
 mut-headermiss-020-confidence-overstatement-04,mutated,canonical-headermiss-020,confidence_overstatement,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.4666666666666666,0.8,0.5
 mut-headermiss-020-professionalize-language-03,mutated,canonical-headermiss-020,professionalize_language,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.4666666666666666,0.8,0.5
 mut-headermiss-020-scope-expansion-02,mutated,canonical-headermiss-020,scope_expansion,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.4666666666666666,0.8,0.5
 mut-idor-004-add-irrelevant-detail-08,mutated,canonical-idor-004,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
 mut-idor-004-confidence-overstatement-03,mutated,canonical-idor-004,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-idor-004-contradict-observed-result-07,mutated,canonical-idor-004,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-idor-004-contradict-observed-result-07,mutated,canonical-idor-004,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-idor-004-fabricate-reference-04,mutated,canonical-idor-004,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-idor-004-impossible-precondition-06,mutated,canonical-idor-004,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-idor-004-invent-api-identifier-01,mutated,canonical-idor-004,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -492,12 +492,12 @@ mut-info-006-professionalize-language-02,mutated,canonical-info-006,professional
 mut-info-006-scope-expansion-01,mutated,canonical-info-006,scope_expansion,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.7,0.8,0.5
 mut-infodisc-016-add-irrelevant-detail-07,mutated,canonical-infodisc-016,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
 mut-infodisc-016-confidence-overstatement-02,mutated,canonical-infodisc-016,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
-mut-infodisc-016-contradict-observed-result-06,mutated,canonical-infodisc-016,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
+mut-infodisc-016-contradict-observed-result-06,mutated,canonical-infodisc-016,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,0.7666666666666666,0.8,0.85
 mut-infodisc-016-fabricate-reference-03,mutated,canonical-infodisc-016,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
 mut-infodisc-016-impossible-precondition-05,mutated,canonical-infodisc-016,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
 mut-infodisc-016-misattribute-cve-04,mutated,canonical-infodisc-016,misattribute_cve,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
 mut-infodisc-016-professionalize-language-01,mutated,canonical-infodisc-016,professionalize_language,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,0.7666666666666666,0.8,0.643
-mut-infodisc-016-remove-reproduction-step-08,mutated,canonical-infodisc-016,remove_reproduction_step,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,0.5333333333333333,0.8,0.597
+mut-infodisc-016-remove-reproduction-step-08,mutated,canonical-infodisc-016,remove_reproduction_step,valid,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.45,0.6,0.875,0.2333333333333333,0.8,0.5
 mut-jwtalg-026-add-irrelevant-detail-03,mutated,canonical-jwtalg-026,add_irrelevant_detail,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
 mut-jwtalg-026-confidence-overstatement-01,mutated,canonical-jwtalg-026,confidence_overstatement,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
 mut-jwtalg-026-professionalize-language-02,mutated,canonical-jwtalg-026,professionalize_language,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
@@ -510,7 +510,7 @@ mut-loginject-031-remove-affected-version-04,mutated,canonical-loginject-031,rem
 mut-loginject-031-remove-reproduction-step-03,mutated,canonical-loginject-031,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,0.7666666666666666,0.8,0.5
 mut-massign-014-add-irrelevant-detail-06,mutated,canonical-massign-014,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
 mut-massign-014-confidence-overstatement-01,mutated,canonical-massign-014,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-massign-014-contradict-observed-result-05,mutated,canonical-massign-014,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-massign-014-contradict-observed-result-05,mutated,canonical-massign-014,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-massign-014-fabricate-reference-02,mutated,canonical-massign-014,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-massign-014-impossible-precondition-04,mutated,canonical-massign-014,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-massign-014-misattribute-cve-03,mutated,canonical-massign-014,misattribute_cve,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -530,7 +530,7 @@ mut-oob-008-confidence-overstatement-01,mutated,canonical-oob-008,confidence_ove
 mut-oob-008-professionalize-language-04,mutated,canonical-oob-008,professionalize_language,invalid,reject,evidence-graph-baseline,reject,1,0.15,0.0,0.5,0.7,0.8,0.85
 mut-oob-008-scope-expansion-03,mutated,canonical-oob-008,scope_expansion,invalid,reject,evidence-graph-baseline,reject,1,0.15,0.0,0.5,0.7,0.8,0.85
 mut-openred-015-add-irrelevant-detail-05,mutated,canonical-openred-015,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-openred-015-contradict-observed-result-04,mutated,canonical-openred-015,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-openred-015-contradict-observed-result-04,mutated,canonical-openred-015,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-openred-015-fabricate-reference-01,mutated,canonical-openred-015,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-openred-015-impact-inflation-08,mutated,canonical-openred-015,impact_inflation,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-openred-015-impossible-precondition-03,mutated,canonical-openred-015,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -554,7 +554,7 @@ mut-pair7b-404-confidence-overstatement-01,mutated,canonical-pair7b-404,confiden
 mut-pair8a-session-professionalize-language-01,mutated,canonical-pair8a-session,professionalize_language,invalid,reject,evidence-graph-baseline,needs_manual_review,0,0.15,0.0,0.5,0.7,0.8,0.5
 mut-pair8b-session-confidence-overstatement-01,mutated,canonical-pair8b-session,confidence_overstatement,invalid,reject,evidence-graph-baseline,reject,1,0.15,0.0,0.5,0.7,0.8,0.85
 mut-pathtrav-017-add-irrelevant-detail-04,mutated,canonical-pathtrav-017,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-pathtrav-017-contradict-observed-result-03,mutated,canonical-pathtrav-017,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-pathtrav-017-contradict-observed-result-03,mutated,canonical-pathtrav-017,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-pathtrav-017-impact-inflation-07,mutated,canonical-pathtrav-017,impact_inflation,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-pathtrav-017-impossible-precondition-02,mutated,canonical-pathtrav-017,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-pathtrav-017-misattribute-cve-01,mutated,canonical-pathtrav-017,misattribute_cve,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -572,7 +572,7 @@ mut-permdiff-020-professionalize-language-03,mutated,canonical-permdiff-020,prof
 mut-permdiff-020-remove-affected-version-01,mutated,canonical-permdiff-020,remove_affected_version,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,1.0,0.8,0.5
 mut-permdiff-020-remove-reproduction-step-05,mutated,canonical-permdiff-020,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,needs_manual_review,1,0.65,1.0,0.75,0.7666666666666666,0.8,0.5
 mut-racecond-018-add-irrelevant-detail-03,mutated,canonical-racecond-018,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-racecond-018-contradict-observed-result-02,mutated,canonical-racecond-018,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-racecond-018-contradict-observed-result-02,mutated,canonical-racecond-018,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-racecond-018-impact-inflation-06,mutated,canonical-racecond-018,impact_inflation,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-racecond-018-impossible-precondition-01,mutated,canonical-racecond-018,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-racecond-018-invent-api-identifier-08,mutated,canonical-racecond-018,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -594,7 +594,7 @@ mut-robots-022-confidence-overstatement-04,mutated,canonical-robots-022,confiden
 mut-robots-022-professionalize-language-03,mutated,canonical-robots-022,professionalize_language,invalid,reject,evidence-graph-baseline,reject,1,0.35,0.95,0.875,1.0,0.8,0.85
 mut-robots-022-scope-expansion-02,mutated,canonical-robots-022,scope_expansion,invalid,reject,evidence-graph-baseline,reject,1,0.35,0.95,0.875,1.0,0.8,0.85
 mut-saml-019-add-irrelevant-detail-02,mutated,canonical-saml-019,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-saml-019-contradict-observed-result-01,mutated,canonical-saml-019,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-saml-019-contradict-observed-result-01,mutated,canonical-saml-019,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-saml-019-impact-inflation-05,mutated,canonical-saml-019,impact_inflation,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-saml-019-invent-api-identifier-07,mutated,canonical-saml-019,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-saml-019-professionalize-language-08,mutated,canonical-saml-019,professionalize_language,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
@@ -656,7 +656,7 @@ mut-wstoken-022-professionalize-language-04,mutated,canonical-wstoken-022,profes
 mut-wstoken-022-remove-affected-version-02,mutated,canonical-wstoken-022,remove_affected_version,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,1.0,0.8,0.85
 mut-wstoken-022-remove-reproduction-step-01,mutated,canonical-wstoken-022,remove_reproduction_step,review,needs_manual_review,evidence-graph-baseline,reject,0,0.35,0.95,0.625,0.7666666666666666,0.8,0.85
 mut-xsrf-003-confidence-overstatement-04,mutated,canonical-xsrf-003,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-xsrf-003-contradict-observed-result-08,mutated,canonical-xsrf-003,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-xsrf-003-contradict-observed-result-08,mutated,canonical-xsrf-003,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-xsrf-003-fabricate-reference-05,mutated,canonical-xsrf-003,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsrf-003-impossible-precondition-07,mutated,canonical-xsrf-003,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsrf-003-invent-api-identifier-02,mutated,canonical-xsrf-003,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -665,7 +665,7 @@ mut-xsrf-003-professionalize-language-03,mutated,canonical-xsrf-003,professional
 mut-xsrf-003-scope-expansion-01,mutated,canonical-xsrf-003,scope_expansion,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xssref-016-add-irrelevant-detail-08,mutated,canonical-xssref-016,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xssref-016-confidence-overstatement-03,mutated,canonical-xssref-016,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-xssref-016-contradict-observed-result-07,mutated,canonical-xssref-016,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-xssref-016-contradict-observed-result-07,mutated,canonical-xssref-016,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-xssref-016-fabricate-reference-04,mutated,canonical-xssref-016,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xssref-016-impossible-precondition-06,mutated,canonical-xssref-016,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xssref-016-invent-api-identifier-01,mutated,canonical-xssref-016,invent_api_identifier,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
@@ -673,7 +673,7 @@ mut-xssref-016-misattribute-cve-05,mutated,canonical-xssref-016,misattribute_cve
 mut-xssref-016-professionalize-language-02,mutated,canonical-xssref-016,professionalize_language,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsssto-013-add-irrelevant-detail-07,mutated,canonical-xsssto-013,add_irrelevant_detail,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsssto-013-confidence-overstatement-02,mutated,canonical-xsssto-013,confidence_overstatement,valid,accept,evidence-graph-baseline,accept,1,0.65,1.0,1.0,1.0,0.8,0.69
-mut-xsssto-013-contradict-observed-result-06,mutated,canonical-xsssto-013,contradict_observed_result,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
+mut-xsssto-013-contradict-observed-result-06,mutated,canonical-xsssto-013,contradict_observed_result,valid,reject,evidence-graph-baseline,reject,1,0.65,0.75,0.875,1.0,0.8,0.85
 mut-xsssto-013-fabricate-reference-03,mutated,canonical-xsssto-013,fabricate_reference,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsssto-013-impossible-precondition-05,mutated,canonical-xsssto-013,impossible_precondition,valid,reject,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69
 mut-xsssto-013-misattribute-cve-04,mutated,canonical-xsssto-013,misattribute_cve,valid,needs_manual_review,evidence-graph-baseline,accept,0,0.65,1.0,1.0,1.0,0.8,0.69

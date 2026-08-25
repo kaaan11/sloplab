@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.54
   impact_calibration: 0.55
   scope_consistency: 0.27
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/permdiff-020/mut-permdiff-020-remove-affected-version-01/report.md

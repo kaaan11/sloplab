@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.75
   impact_calibration: 0.78
   scope_consistency: 0.36
-generator_version: 0.1.0
+generator_version: 0.2.0rc1
 report:
   path: adversarial/ssrf-005/mut-ssrf-005-scope-expansion-04/report.md
