@@ -34,7 +34,7 @@ def make_context() -> EvaluationContext:
     )
 
 
-VALID_PAYLOAD = {
+VALID_PAYLOAD: dict[str, Any] = {
     "decision": "needs_manual_review",
     "confidence": 0.62,
     "dimensions": {
