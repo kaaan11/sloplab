@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-massign-014
+title: Profile update endpoint accepts privileged fields from regular users in SampleStack
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - privilege_escalation_confirmed
+  expected_dimensions:
+    reproducibility: 0.92
+    evidence_completeness: 0.88
+    claim_evidence_consistency: 0.91
+    impact_calibration: 0.79
+    scope_consistency: 0.87
+  rationale: >
+    Mass-assignment pattern demonstrated precisely, with the honest clarification
+    that persistence is cosmetic and confers no real privilege.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack is fictional.
+report:
+  path: canonical/massign-014/report.md
