@@ -100,3 +100,33 @@ Each entry records a material engineering decision, its context, and consequence
   3. No git tag and no remote push for V0.1.0; publication decisions (visibility,
      tag, CI/secret strategy) are deferred to a subsequent human checkpoint.
 - **Consequences:** Release-candidate state stands as committed at HEAD of `main`.
+
+## D-0012 - V0.2 scope lock and evaluation-discrimination mission
+
+- **Date:** 2026-08-25
+- **Decision:** V0.2 proves the framework can discriminate robustness differences
+  between evaluators. Binding constraints:
+  - Corpus grows to AT MOST 60 canonical fixtures (48 existing + <= 12 new), balanced
+    across classes; all synthetic, English, CC0-1.0, safety-policy compliant.
+  - The 12 existing mutation operators are frozen: no additions, no semantic changes,
+    no label adjustments to flatter results. Verified-defect fixes only, each with a
+    regression test.
+  - One new evaluator (`evidence-graph-baseline`) joins the deterministic set. It must
+    be label-independent and explainable; independence is enforced by tests.
+  - Comparative analysis becomes first-class: paired win/loss, per-operator and
+    per-report-class breakdowns, error taxonomy, bootstrap confidence intervals
+    (seeded -> reproducible), and repeat-stability measures for stochastic evaluators.
+  - Experiment infrastructure lands under `experiments/` with versioned configs,
+    prompt registry, run manifests, and full provenance (commit SHA, hashes, seed,
+    repeat index, request/error/timeout counters). Raw LLM responses are never stored;
+    only schema-validated normalized results.
+  - Live LLM calls remain opt-in behind the `llm-bench` environment; the single manual
+    step for the pilot is adding that environment secret. Pilot protocol: 1 model,
+    60 selected cases, 3 repeats, hard request/timeout budgets from config.
+  - Robustness Score stays auxiliary; dimensional metrics lead all reporting.
+- **Non-goals (unchanged):** no web UI, no real-target integration, no exploitation,
+  no RAG, no agent orchestration, no real bug-bounty collection.
+- **Branch layout:** feat/v0.2-audit-corpus, feat/evidence-graph-baseline,
+  feat/evaluator-study-analysis, feat/llm-pilot-preparation, release/v0.2.0-rc1;
+  merges happen locally, pushes executed by the maintainer at checkpoints (session
+  push-permission constraint, consistent with D-0005).
