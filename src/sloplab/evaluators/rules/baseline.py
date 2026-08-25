@@ -249,12 +249,7 @@ class RulesBaselineEvaluator:
         quality_flags = len(fab_hits) + len(scope_hits) + len(inflation_hits)
         if consistency <= 0.45 or no_boundary_hits or contradiction_hits:
             decision = Decision.REJECT
-        elif (
-            quality_flags > 0
-            or reproducibility < 0.8
-            or completeness < 0.8
-            or overall < 0.78
-        ):
+        elif quality_flags > 0 or reproducibility < 0.8 or completeness < 0.8 or overall < 0.78:
             decision = Decision.NEEDS_MANUAL_REVIEW
         else:
             decision = Decision.ACCEPT

@@ -52,6 +52,8 @@ class CaseRecord(BaseModel):
     operator: str | None = None
     report_class: str
     expected_decision: Decision | None
+    expected_dimensions: dict[str, float] = Field(default_factory=dict)
+    seed: int | None = None
     evaluator_name: str
     evaluator_version: str
     decision: Decision
@@ -73,6 +75,8 @@ class CaseRecord(BaseModel):
         expected_decision: Decision | None,
         parent_id: str | None = None,
         operator: str | None = None,
+        expected_dimensions: dict[str, float] | None = None,
+        seed: int | None = None,
     ) -> CaseRecord:
         return cls(
             case_id=case_id,
@@ -81,6 +85,8 @@ class CaseRecord(BaseModel):
             operator=operator,
             report_class=report_class,
             expected_decision=expected_decision,
+            expected_dimensions=expected_dimensions or {},
+            seed=seed,
             evaluator_name=result.evaluator_name,
             evaluator_version=result.evaluator_version,
             decision=result.decision,

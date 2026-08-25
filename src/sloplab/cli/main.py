@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import click
 
@@ -108,37 +109,228 @@ def materialize(suite: str, out: str) -> None:
         raise SystemExit(1)
 
 
+def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
+    """Return (index_path, corpus_root, materialized_root) from a cases argument.
+
+    Accepts a suite-index.jsonl file or any directory containing one.
+    """
+    from sloplab.mutations.materialize import SUITE_INDEX_NAME
+
+    path = Path(cases)
+    if path.is_file() and path.name == SUITE_INDEX_NAME:
+        index_path = path
+        materialized_root = path.parent
+    elif path.is_dir():
+        candidate = path / SUITE_INDEX_NAME
+        if not candidate.is_file():
+            raise click.ClickException(f"no {SUITE_INDEX_NAME} found under '{cases}'")
+        index_path = candidate
+        materialized_root = path
+    else:
+        raise click.ClickException(
+            f"'{cases}' must be a {SUITE_INDEX_NAME} file or a directory containing one"
+        )
+    return index_path, Path.cwd(), materialized_root
+
+
+def _run_evaluators_over_suite(
+    evaluators: tuple[str, ...],
+    index_path: Path,
+    corpus_root: Path,
+    materialized_root: Path,
+    out_dir: Path,
+    suite_name: str,
+    base_seed: int,
+) -> list[Any]:
+    import json
+
+    from sloplab.evaluators.base import get_evaluator
+    from sloplab.models.run import EvaluatorInfo
+    from sloplab.reporting.writers import (
+        default_run_metadata,
+        write_run_jsonl,
+    )
+    from sloplab.scoring.harness import build_cases, run_suite
+    from sloplab.scoring.metrics import compute_metrics
+
+    cases = build_cases(index_path, corpus_root, materialized_root)
+    records: list[Any] = []
+    infos: list[EvaluatorInfo] = []
+    bundles: list[Any] = []
+
+    for evaluator_name in evaluators:
+        evaluator = get_evaluator(evaluator_name)
+        run_records = run_suite(evaluator, cases)
+        records.extend(run_records)
+        infos.append(EvaluatorInfo(name=evaluator.name, version=evaluator.version))
+        bundle = compute_metrics(run_records, evaluator.name)
+        bundles.append(bundle)
+
+        metrics_path = out_dir / f"metrics-{evaluator_name}.json"
+        from sloplab.reporting.writers import metrics_to_dict
+
+        metrics_path.write_text(json.dumps(metrics_to_dict(bundle), indent=2), encoding="utf-8")
+
+    metadata = default_run_metadata(
+        suite_name=suite_name,
+        base_seed=base_seed,
+        evaluators=infos,
+        suite_config={"index": str(index_path), "corpus_root": str(corpus_root)},
+        suite_hash=_hash_file(index_path),
+    )
+    write_run_jsonl(out_dir / "run.jsonl", metadata, records)
+    return bundles
+
+
+def _hash_file(path: Path) -> str:
+    import hashlib
+
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 @cli.command()
 @click.argument("cases", type=click.Path(exists=True, path_type=str))
 @click.option("--evaluator", "evaluators", multiple=True, required=True)
-@click.option("--out", type=click.Path(path_type=str), default=None)
-def evaluate(cases: str, evaluators: tuple[str, ...], out: str | None) -> None:
-    """Run evaluators over a case directory or JSONL file."""
-    click.echo(f"evaluate: not implemented yet (cases={cases})")
+@click.option("--out", type=click.Path(path_type=str), required=True)
+def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
+    """Run evaluators over a materialized suite (directory with suite-index.jsonl)."""
+    from pathlib import Path as _Path
+
+    from sloplab.reporting.writers import write_markdown_report
+
+    index_path, corpus_root, materialized_root = _resolve_suite_index(cases)
+    out_dir = _Path(out)
+    bundles = _run_evaluators_over_suite(
+        evaluators, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
+    )
+    write_markdown_report(out_dir / "report.md", bundles, "SlopLab evaluation results")
+    click.echo(f"wrote {out_dir / 'run.jsonl'}, metrics and report.md")
 
 
 @cli.command()
 @click.argument("suite", type=click.Path(exists=True, path_type=str))
 @click.option("--evaluator", "evaluators", multiple=True, required=True)
 @click.option("--out", type=click.Path(path_type=str), required=True)
-def benchmark(suite: str, evaluators: tuple[str, ...], out: str) -> None:
+@click.option(
+    "--materialize/--no-materialize",
+    "do_materialize",
+    default=True,
+    help="Re-materialize the suite before evaluating.",
+)
+def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize: bool) -> None:
     """Materialize and evaluate a full suite, then score it."""
-    click.echo(f"benchmark: not implemented yet (suite={suite})")
+    from pathlib import Path as _Path
+
+    from sloplab.corpus.loader import FixtureError, discover_fixtures
+    from sloplab.mutations.materialize import SUITE_INDEX_NAME, load_suite_config, materialize_suite
+    from sloplab.reporting.writers import write_markdown_report, write_records_csv
+
+    suite_path = _Path(suite)
+    config = load_suite_config(suite_path)
+    out_dir = _Path(out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if do_materialize:
+        try:
+            canonical, _derived = discover_fixtures(_Path(config.corpus_root))
+        except FixtureError as exc:
+            raise click.ClickException(str(exc)) from exc
+        result = materialize_suite(config, canonical, out_dir)
+        click.echo(result.summary())
+
+    index_path = out_dir / SUITE_INDEX_NAME
+    bundles = _run_evaluators_over_suite(
+        evaluators,
+        index_path,
+        _Path(config.corpus_root),
+        out_dir,
+        out_dir,
+        config.name,
+        config.base_seed,
+    )
+    _, records = __import__(
+        "sloplab.reporting.writers", fromlist=["read_run_jsonl"]
+    ).read_run_jsonl(out_dir / "run.jsonl")
+    write_records_csv(out_dir / "results.csv", records)
+    write_markdown_report(out_dir / "report.md", bundles, f"SlopLab benchmark: {config.name}")
+    click.echo(f"benchmark complete; results in {out_dir}")
 
 
 @cli.command()
 @click.argument("results", nargs=-1, required=True, type=click.Path(exists=True, path_type=str))
 def compare(results: tuple[str, ...]) -> None:
     """Compare metric summaries from two or more result files."""
-    click.echo("compare: not implemented yet")
+    import json
+    from pathlib import Path as _Path
+
+    if len(results) < 2:
+        raise click.ClickException("compare needs at least two result files")
+
+    summaries: dict[str, dict[str, Any]] = {}
+    for result_path in results:
+        path = _Path(result_path)
+        metrics_dir = path.parent if path.name == "run.jsonl" else path
+        metric_files = sorted(metrics_dir.glob("metrics-*.json"))
+        for mfile in metric_files:
+            data = json.loads(mfile.read_text())
+            name = data.get("evaluator_name", mfile.stem)
+            summaries[f"{name} ({mfile.parent.name})"] = data
+
+    if not summaries:
+        raise click.ClickException(f"no metrics-*.json files found for {results}")
+
+    keys = [
+        ("decision_accuracy", "accuracy"),
+        ("mutation_detection_rate", "mutation detection"),
+        ("false_reassurance_rate", "false reassurance (lower=better)"),
+        ("over_rejection_rate", "over-rejection (lower=better)"),
+        ("robustness_delta", "robustness delta"),
+        ("presentation_susceptibility", "presentation susceptibility (lower=better)"),
+        ("calibration_error", "calibration error (lower=better)"),
+        ("robustness_score", "aux robustness score"),
+    ]
+    header = f"{'metric':<38}" + "".join(f"{n[:28]:>30}" for n in summaries)
+    click.echo(header)
+    click.echo("-" * len(header))
+    for key, label in keys:
+        row = f"{label:<38}"
+        for name in summaries:
+            value = summaries[name].get(key)
+            row += f"{('n/a' if value is None else format(value, '.3f')):>30}"
+        click.echo(row)
 
 
 @cli.command()
 @click.argument("results", type=click.Path(exists=True, path_type=str))
 @click.option("--format", "fmt", type=click.Choice(["markdown"]), default="markdown")
-def report(results: str, fmt: str) -> None:
-    """Render a human-readable report from result files."""
-    click.echo(f"report: not implemented yet (results={results}, format={fmt})")
+@click.option("--out", type=click.Path(path_type=str), default=None)
+def report(results: str, fmt: str, out: str | None) -> None:
+    """Render a human-readable report from a run.jsonl file."""
+    from pathlib import Path as _Path
+
+    _ = fmt
+    from sloplab.reporting.writers import read_run_jsonl, write_markdown_report
+    from sloplab.scoring.metrics import compute_metrics
+
+    metadata, records = read_run_jsonl(_Path(results))
+    if not records:
+        raise click.ClickException(f"no case records found in {results}")
+
+    by_evaluator: dict[str, list[Any]] = {}
+    for record in records:
+        by_evaluator.setdefault(record.evaluator_name, []).append(record)
+
+    bundles = [compute_metrics(recs, name) for name, recs in sorted(by_evaluator.items())]
+    rendered = write_markdown_report(
+        _Path(out) if out else _Path(results).parent / "report.md",
+        bundles,
+        f"SlopLab results ({metadata.suite_name if metadata else 'unknown suite'})",
+    )
+    click.echo(rendered.read_text())
 
 
 def main() -> None:  # pragma: no cover - console entry point
