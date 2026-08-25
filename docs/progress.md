@@ -6,7 +6,7 @@ Build queue status. Updated after every completed queue item.
 
 - [x] 48 controlled canonical fixtures (12 valid / 10 invalid / 10 review / 8 presentation pairs as 16 files).
 - [x] 12 mutation operators, each with behavior + determinism + safety tests.
-- [x] Oracle + rules-baseline evaluators; optional LLM adapter tracked in Q13.
+- [x] Oracle + rules-baseline evaluators; optional LLM adapter delivered in Q13.
 - [x] One-command reproducible benchmark (`sloplab benchmark`).
 - [x] Mutation-level, report-class-level, and evaluator-level metrics.
 - [x] JSONL, CSV, and Markdown outputs.
@@ -19,7 +19,7 @@ Build queue status. Updated after every completed queue item.
 | Item | Status | Notes |
 |---|---|---|
 | Q00 charter | complete | README skeleton, threat model, safety policy, decision log, backlog |
-| Q01 scaffold | pending | |
+| Q01 scaffold | complete | package, CLI, ruff/mypy/pytest config, CI workflow (see evidence map) |
 | Q02 schemas | complete | |
 | Q03 corpus loading | complete | |
 | Q04 12 canonical reports | complete | |
@@ -98,3 +98,34 @@ Build queue status. Updated after every completed queue item.
 - **Known limitations:** see docs/final-audit.md (baseline gaps by design, English-
   only corpus, live-LLM path unexercised per policy).
 - **Next:** human review (release decision).
+
+---
+
+## Evidence map: Q00-Q14 (added post-release, 2026-08-25)
+
+Single-table mapping of every queue item to its progress record and commit/output
+evidence. All items are complete; no queue item is missing.
+
+| Item | progress.md | Primary commits | Output evidence |
+|---|---|---|---|
+| Q00 charter | Q00 section + D-0001..D-0011 | `19aae78` | README skeleton; docs/threat-model.md, safety.md, decision-log.md, backlog.md |
+| Q01 scaffold | (row above; was mislabeled pending, fixed) | `45c0b4e` | pyproject.toml; CLI group with 7 subcommands; CI workflow; first 3 CLI tests |
+| Q02 schemas | Q02-Q06 checkpoint | `3b5bee4` | models/* (manifests, evaluation contract); tests/unit/test_schemas.py |
+| Q03 corpus loading | Q02-Q06 checkpoint | `d142c8d`, `f85d03a` | parser with line locations; loader/validation; safety policy; 12 parser+corpus+safety tests |
+| Q04 canonical reports (first 12) | Q02-Q06 checkpoint | `18c52d9` | corpus/canonical/{authz..perm}-00x (5 valid/4 invalid/3 review), all validating |
+| Q05 mutation operators (first 6) | Q02-Q06 checkpoint | `2f2a004` | engine + registry + seed derivation; test_mutations.py determinism/safety suites |
+| Q06 planner + materialization | Q02-Q06 checkpoint | `4870db9` | smoke suite -> 29 derived cases byte-stable; CLI materialize/mutate live |
+| Q07 evaluator protocol + oracle | Q07-Q12 checkpoint | `8b57a80` | normalized contract; oracle perfect on all v1-core metrics |
+| Q08 rules baseline | Q07-Q12 checkpoint | `8b57a80` | documented-limitations baseline; label-independence test |
+| Q09 scoring + reporting | Q07-Q12 checkpoint | `3ae5aac`, `58a527b`, `56e26b1` | 9 metrics; JSONL/CSV/Markdown writers; metric unit tests |
+| Q10 integration tests | Q07-Q12 checkpoint | `20dbc13`, `6db5fdb` | end-to-end pipeline incl. byte-identical re-run assertion |
+| Q11 corpus 40 + 12 operators | Q07-Q12 checkpoint | `9e9b5f9`, `f98107e` | 48 fixtures (16 pair files); v1-core.yaml -> 202 derived + 48 canonical = 250 cases |
+| Q12 docs + property/regression | Q07-Q12 checkpoint | `3492591`, `8cff0fd` | methodology/dataset-card/evaluator-contract/reproducibility/adding-mutations; SECURITY/CONTRIBUTING; examples/walkthrough.md; property+regression suites |
+| Q13 optional LLM adapter | Q13-Q14 checkpoint | `adab007`, `4f685a9` | strict-JSON adapter; disabled by default; 17 mock-based failure-mode tests; excluded from registry/CI |
+| Q14 release audit | Q13-Q14 checkpoint | `a5acb04`, `1a772fe`, `c3dd5ae`, `f3509df`, `0bfb7d2` | clean-venv foreign-CWD reproduction byte-identical; final-audit.md; release notes; 2 audit defects fixed |
+
+Post-audit additions outside the original queue (human-directed, not gaps):
+release engineering for v0.1.0/v0.1.1 (`dab8c09`, `7500d4e`) - repo publication,
+annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
+
+**Missing queue items: none.** Deferred ideas live in docs/backlog.md by design.
