@@ -47,7 +47,40 @@ def validate(path: str) -> None:
 @click.option("--out", type=click.Path(path_type=str), default=None, help="Output directory.")
 def mutate(fixture: str, operator: str, seed: int, out: str | None) -> None:
     """Apply one mutation operator to a fixture."""
-    click.echo(f"mutate: not implemented yet (fixture={fixture}, operator={operator})")
+    import random
+    from pathlib import Path as _Path
+
+    from sloplab.corpus.loader import FixtureError, load_canonical_fixture
+    from sloplab.mutations.base import derive_seed, get_operator
+
+    fixture_path = _Path(fixture)
+    try:
+        loaded = load_canonical_fixture(
+            fixture_path,
+            fixture_path.parent.parent if fixture_path.name != "canonical" else fixture_path.parent,
+        )
+    except FixtureError:
+        # Allow pointing directly at the report.md file too.
+        parent_dir = fixture_path.parent
+        try:
+            loaded = load_canonical_fixture(parent_dir, parent_dir.parent.parent)
+        except FixtureError as exc:
+            raise click.ClickException(str(exc)) from exc
+
+    op = get_operator(operator)
+    mutation_seed = derive_seed(seed, loaded.fixture_id, operator, 0)
+    mutated_text, params = op.apply(loaded.report, random.Random(mutation_seed))
+
+    if out:
+        out_dir = _Path(out)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "report.md").write_text(mutated_text, encoding="utf-8")
+        click.echo(f"wrote {out_dir / 'report.md'}")
+    else:
+        click.echo(mutated_text)
+    click.echo(f"# operator: {operator}", err=True)
+    click.echo(f"# seed: {mutation_seed}", err=True)
+    click.echo(f"# parameters: {params}", err=True)
 
 
 @cli.command("materialize")
@@ -55,7 +88,24 @@ def mutate(fixture: str, operator: str, seed: int, out: str | None) -> None:
 @click.option("--out", required=True, type=click.Path(path_type=str), help="Output directory.")
 def materialize(suite: str, out: str) -> None:
     """Materialize a benchmark suite from canonical fixtures."""
-    click.echo(f"materialize: not implemented yet (suite={suite})")
+    from pathlib import Path as _Path
+
+    from sloplab.corpus.loader import FixtureError, discover_fixtures
+    from sloplab.mutations.materialize import load_suite_config, materialize_suite
+
+    config = load_suite_config(_Path(suite))
+    corpus_root = _Path(config.corpus_root)
+    try:
+        canonical, _derived = discover_fixtures(corpus_root)
+    except FixtureError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if not canonical:
+        raise click.ClickException(f"no canonical fixtures found under '{config.corpus_root}'")
+
+    result = materialize_suite(config, canonical, _Path(out))
+    click.echo(result.summary())
+    if result.safety_violations:
+        raise SystemExit(1)
 
 
 @cli.command()
