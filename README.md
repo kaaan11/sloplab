@@ -17,8 +17,8 @@ SlopLab measures one question:
 SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
 a scanner, or an exploit framework.
 
-**Current release: [v0.1.1](https://github.com/kaaan11/sloplab/releases/tag/v0.1.1)**
-([release notes](docs/release-notes-v0.1.1.md))
+**Current release: [v0.2.0](https://github.com/kaaan11/sloplab/releases/tag/v0.2.0)**
+([release notes](docs/release-notes-v0.2.0.md))
 
 ## What it does
 
@@ -133,8 +133,8 @@ documented in [docs/methodology.md](docs/methodology.md).
 
 ## Status
 
-V0.1.1 patch release (fixes v0.1.0's CI/lint-gate failure; no runtime changes). See
-[docs/release-notes-v0.1.1.md](docs/release-notes-v0.1.1.md).
+v0.2.0 - comparative evaluator study release (deterministic scope; live LLM pilot
+deferred). See [docs/release-notes-v0.2.0.md](docs/release-notes-v0.2.0.md).
 
 ## License
 

@@ -12,3 +12,7 @@ to a future release's acceptance criteria.
 - Plugin discovery of third-party evaluators via entry points.
 - Localization of fixture prose beyond English.
 - Corpus contribution workflow with automated safety review gate.
+- Live LLM pilot (deferred from V0.2): add `LLM_API_KEY` secret to the `llm-bench`
+  GitHub Environment and dispatch the manual workflow; protocol, budgets, prompt,
+  and stability metrics are ready in experiments/configs/llm-pilot-v0.2.yaml and
+  docs/llm-pilot-runbook.md.

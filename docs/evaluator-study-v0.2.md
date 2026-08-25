@@ -1,5 +1,11 @@
 # Deterministic Evaluator Study - v0.2 results and notes (V26, audited)
 
+> **Live LLM scope statement (V0.2 closure):** the live LLM experiment was NOT
+> executed in V0.2. The strict-JSON adapter, its mock-based failure tests, and the
+> full experiment/reproducibility infrastructure are implemented and green; running
+> the pilot requires only adding the `llm-bench` environment secret and remains a
+> documented future opt-in study (docs/backlog.md, docs/llm-pilot-runbook.md).
+
 > **Positioning note:** `evidence-graph-baseline` is a **negative control**, not a
 > competitive baseline. It models structure-only triage and is intentionally blind
 > to content-quality mutations; its results demonstrate that SlopLab detects such

@@ -130,3 +130,13 @@ Each entry records a material engineering decision, its context, and consequence
   feat/evaluator-study-analysis, feat/llm-pilot-preparation, release/v0.2.0-rc1;
   merges happen locally, pushes executed by the maintainer at checkpoints (session
   push-permission constraint, consistent with D-0005).
+
+## D-0013 - V0.2 closes without the live LLM pilot
+
+- **Date:** 2026-08-25
+- **Decision:** No API key is available, so V0.2 finalizes on the deterministic
+  evaluator study alone. The pilot infrastructure ships complete (adapter, budgets,
+  mock tests, runbook) and is explicitly recorded as a future opt-in study in
+  docs/backlog.md. v0.2.0 is tagged on the latest green main commit; the rc1/rc2
+  pre-releases remain untouched. Final v0.2.0 must not be presented as including any
+  live-model observation.
