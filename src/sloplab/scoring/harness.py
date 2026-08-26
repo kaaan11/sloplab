@@ -3,10 +3,18 @@
 The harness is the ONLY component that reads ground-truth labels from manifests and
 passes them to evaluators via ``EvaluationContext.labels``. Content-based evaluators
 must ignore labels; the oracle consumes them.
+
+Identity hygiene (v0.2.2, R04): evaluators never see case identifiers or report
+paths that encode mutation identity. Each evaluation receives an opaque,
+deterministic handle (``case-<sha256[:16]>``) as ``context.case_id`` and as the
+report's ``fixture_id``/``path``. The true case identifier is restored when the
+result is recorded into benchmark provenance (``CaseRecord``), so records remain
+fully traceable while evaluator-visible input stays identity-free.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +30,11 @@ from sloplab.evaluators.base import Evaluator
 from sloplab.models.enums import Decision
 from sloplab.models.evaluation import EvaluationContext
 from sloplab.models.run import CaseRecord
+
+
+def opaque_case_handle(case_id: str) -> str:
+    """Deterministic, non-reversible handle that hides mutation identity."""
+    return "case-" + hashlib.sha256(case_id.encode("utf-8")).hexdigest()[:16]
 
 
 @dataclass(frozen=True)
@@ -112,7 +125,11 @@ def build_cases(index_path: Path, corpus_root: Path, materialized_root: Path) ->
 
 
 def run_case(evaluator: Evaluator, case: SuiteCase) -> CaseRecord:
-    """Evaluate one case with one evaluator and normalize into a record."""
+    """Evaluate one case with one evaluator and normalize into a record.
+
+    The evaluator-visible report and case handle carry no mutation identity
+    (R04); the true case identifier is restored on the returned record.
+    """
     if case.kind == "canonical" and case.canonical_fixture is not None:
         document = case.canonical_fixture.report
     elif case.fixture_dir is not None:
@@ -120,12 +137,15 @@ def run_case(evaluator: Evaluator, case: SuiteCase) -> CaseRecord:
     else:  # pragma: no cover - build_cases guarantees one branch holds
         raise ValueError(f"case {case.case_id} is not loadable")
 
+    handle = opaque_case_handle(case.case_id)
+    sanitized_document = document.model_copy(update={"fixture_id": handle, "path": handle})
+
     labels: dict[str, Any] = {
         "expected_decision": case.expected_decision,
         "expected_dimensions": dict(case.expected_dimensions),
     }
-    context = EvaluationContext(report=document, case_id=case.case_id, labels=labels)
-    result = evaluator.evaluate(document, context)
+    context = EvaluationContext(report=sanitized_document, case_id=handle, labels=labels)
+    result = evaluator.evaluate(sanitized_document, context)
 
     expected = Decision(case.expected_decision) if case.expected_decision else None
     return CaseRecord.from_result(

@@ -7,9 +7,9 @@ misattributed advisory identifiers - while leaving the technical narrative intac
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
-from sloplab.corpus.parser import parse_report
 from sloplab.models.enums import (
     CLAIM_EVIDENCE_CONSISTENCY,
     EVIDENCE_COMPLETENESS,
@@ -267,13 +267,13 @@ class AddIrrelevantDetail:
         _ = parameters
         block = self._BLOCKS[rng.randrange(len(self._BLOCKS))]
         mutated_text = document.raw_text.rstrip() + "\n" + block
-        reparsed = parse_report(mutated_text, fixture_id=document.fixture_id, path=document.path)
-        _ = reparsed
+        heading_match = re.search(r"^##\s+(.+?)\s*$", block.strip(), re.MULTILINE)
         rng.getrandbits(1)
-        return mutated_text, {"appended_noise_block_heading": "Additional Context"}
+        return mutated_text, {
+            "appended_noise_block_heading": heading_match.group(1) if heading_match else None
+        }
 
 
-_ = parse_report
 register(FabricateReference())
 register(MisattributeCve())
 register(ImpossiblePrecondition())

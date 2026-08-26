@@ -8,6 +8,7 @@ the claim*.
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
 from sloplab.corpus.parser import parse_report
@@ -37,12 +38,15 @@ _INFLATION_SENTENCES: tuple[str, ...] = (
     "wild; immediate emergency response is required.",
 )
 
-_CALIBRATION_REPLACEMENTS: tuple[tuple[str, str], ...] = (
-    ("low to medium", "critical"),
-    ("medium", "critical"),
-    ("moderate", "critical"),
-    ("low", "critical"),
-    ("limited", "severe"),
+#: Word-boundary-anchored calibration replacements. The first matching pattern
+#: wins; only standalone severity words are replaced so that unrelated words such
+#: as "flow", "allow", or "below" can never be corrupted (v0.2.2 remediation R02).
+_CALIBRATION_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\blow\s+to\s+medium\b", re.IGNORECASE), "critical"),
+    (re.compile(r"\bmedium\b", re.IGNORECASE), "critical"),
+    (re.compile(r"\bmoderate\b", re.IGNORECASE), "critical"),
+    (re.compile(r"\blow\b", re.IGNORECASE), "critical"),
+    (re.compile(r"\blimited\b", re.IGNORECASE), "severe"),
 )
 
 _EXPANSION_COMPONENT_SENTENCES: tuple[str, ...] = (
@@ -89,12 +93,11 @@ class ImpactInflation:
 
         body = "\n".join(section.text.splitlines()[1:])  # drop heading line
         replacements_made: list[str] = []
-        for old, new in _CALIBRATION_REPLACEMENTS:
-            lowered = body.lower()
-            if old in lowered:
-                idx = lowered.find(old)
-                body = body[:idx] + new + body[idx + len(old) :]
-                replacements_made.append(f"{old}->{new}")
+        for pattern, new in _CALIBRATION_REPLACEMENTS:
+            match = pattern.search(body)
+            if match:
+                body = body[: match.start()] + new + body[match.end() :]
+                replacements_made.append(f"{match.group(0)}->{new}")
                 break
 
         sentence = _INFLATION_SENTENCES[rng.randrange(len(_INFLATION_SENTENCES))]

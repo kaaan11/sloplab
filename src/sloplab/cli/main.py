@@ -73,6 +73,17 @@ def mutate(fixture: str, operator: str, seed: int, out: str | None) -> None:
     mutation_seed = derive_seed(seed, loaded.fixture_id, operator, 0)
     mutated_text, params = op.apply(loaded.report, random.Random(mutation_seed))
 
+    from sloplab.safety.policy import validate_content_safety
+
+    violations = validate_content_safety(mutated_text)
+    if violations:
+        for violation in violations:
+            click.echo(f"SAFETY: {violation}", err=True)
+        raise click.ClickException(
+            f"mutation output for '{operator}' violates the content safety policy; "
+            f"no file was written"
+        )
+
     if out:
         out_dir = _Path(out)
         out_dir.mkdir(parents=True, exist_ok=True)

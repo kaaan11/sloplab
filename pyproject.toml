@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sloplab"
-version = "0.2.0rc1"
+version = "0.2.2"
 description = "Adversarial testing framework for vulnerability-report triage evaluators"
 readme = "README.md"
 license = { text = "MIT" }
@@ -28,7 +28,7 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://github.com/sloplab/sloplab/tree/main/docs"
+Documentation = "https://github.com/kaaan11/sloplab/tree/main/docs"
 
 [project.scripts]
 sloplab = "sloplab.cli.main:cli"

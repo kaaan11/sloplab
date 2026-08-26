@@ -109,6 +109,10 @@ def materialize_suite(
     plans, _group_counts = plan_suite(config, fixtures)
     header_corpus_root = str(corpus_root_resolved or config.corpus_root)
 
+    # R01 (v0.2.2): every plan may now be skipped (no-op/clone guard), so the
+    # output root can no longer rely on case writes to create directories.
+    out_root.mkdir(parents=True, exist_ok=True)
+
     seen_ids: set[str] = set()
     index_lines: list[dict[str, Any]] = []
 
@@ -122,6 +126,12 @@ def materialize_suite(
 
         if any(k == "note" for k in parameters):
             result.skipped.append((plan.case_id, str(parameters.get("note"))))
+            continue
+
+        if mutated_text == plan.parent.report.raw_text:
+            # R01 (v0.2.2): a derived case must always differ from its parent;
+            # never write an unmutated clone into the benchmark population.
+            result.skipped.append((plan.case_id, "no textual change"))
             continue
 
         violations = validate_content_safety(mutated_text)

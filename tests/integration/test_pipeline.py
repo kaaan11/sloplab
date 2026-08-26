@@ -95,7 +95,9 @@ def test_full_benchmark_pipeline(tmp_path: Path, make_fixture: Any) -> None:
     lines = [json.loads(line) for line in (out_dir / "run.jsonl").read_text().splitlines()]
     assert lines[0]["record_type"] == "run_metadata"
     case_lines = [line for line in lines if line["record_type"] == "case"]
-    derived_expected = 3 * 3 + 1 * 2 + 1 * 1  # per policy variants x fixtures
+    # R01 (v0.2.2): no-op mutations are skipped, so the invalid fixture's two
+    # confidence_overstatement variants (hedge-free default body) are not written.
+    derived_expected = 3 * 3 + 0 + 1 * 1  # per policy variants x fixtures, minus no-ops
     assert len(case_lines) == (5 + derived_expected) * 2  # canonicals + mutants, two evaluators
 
     # Oracle must be perfect - that validates the scoring plumbing end to end.

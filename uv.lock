@@ -678,7 +678,7 @@ wheels = [
 
 [[package]]
 name = "sloplab"
-version = "0.2.0rc1"
+version = "0.2.2"
 source = { editable = "." }
 dependencies = [
     { name = "click" },

@@ -117,8 +117,6 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 
 #: A boundary negation stated inside a conditional clause ("If X were enabled...")
 # does not assert that the report's own subject crosses no boundary.
-#: A boundary negation stated inside a conditional clause ("If X were enabled...")
-# does not assert that the report's own subject crosses no boundary.
 _CONDITIONAL_SENTENCE_RE = re.compile(r"\b(?:if|when|whether|unless)\b[^.?!]*$", re.IGNORECASE)
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
