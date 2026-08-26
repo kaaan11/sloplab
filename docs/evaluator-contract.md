@@ -20,9 +20,9 @@ class Evaluator(Protocol):
   (`report.find_sections(pattern)`, `report.section_text(pattern)`).
 - `context: EvaluationContext` - harness-supplied:
   - `context.case_id` - an **opaque case handle** (`case-<sha256[:16]>`) to echo
-    back. Since v0.2.2 the handle is deterministic but non-reversible and encodes
-    neither the fixture nor its mutation; do not attempt to parse it. The true
-    case identifier is restored automatically in recorded results.
+    back. Since v0.2.2 the handle is an opaque, deterministic identifier and
+    encodes neither the fixture nor its mutation; do not attempt to parse it.
+    The true case identifier is restored automatically in recorded results.
   - The report's `fixture_id`/`path` carry the same opaque handle (v0.2.2, R04).
   - `context.labels` - ground truth (expected decision/dimensions). **The oracle is
     the only built-in evaluator that reads labels.** Content-based evaluators must

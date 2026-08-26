@@ -33,7 +33,7 @@ from sloplab.models.run import CaseRecord
 
 
 def opaque_case_handle(case_id: str) -> str:
-    """Deterministic, non-reversible handle that hides mutation identity."""
+    """Opaque, deterministic handle that hides mutation identity."""
     return "case-" + hashlib.sha256(case_id.encode("utf-8")).hexdigest()[:16]
 
 

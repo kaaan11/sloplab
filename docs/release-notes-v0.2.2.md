@@ -28,8 +28,8 @@ docs/remediation-audit-v0.2.2.md for the finding-by-finding evidence map.
 
 ### Identity hygiene
 
-- **R04 - Opaque evaluator input.** Evaluators receive a deterministic,
-  non-reversible case handle (`case-<sha256[:16]>`) as `context.case_id` and as
+- **R04 - Opaque evaluator input.** Evaluators receive an opaque, deterministic
+  case handle (`case-<sha256[:16]>`) as `context.case_id` and as
   the report's `fixture_id`/`path`. Mutation identity is available only in
   recorded provenance. Contract, methodology, and threat model updated; leak
   tests added.
