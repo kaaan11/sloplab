@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import email.utils
 import json
 from pathlib import Path
 from typing import Any
 
-from sloplab.evaluators.llm.adapter import LlmEvaluator
+import pytest
+
+from sloplab.evaluators.llm.adapter import LlmEvaluator, LLMResponse
 from sloplab.experiments.config import LLMPilotConfig
-from sloplab.experiments.pilot import CountingClient, run_llm_pilot
+from sloplab.experiments.pilot import CountingClient, ThrottledClient, run_llm_pilot
 from sloplab.experiments.runner import load_pilot_config
 from sloplab.scoring.harness import build_cases
 
@@ -112,3 +115,137 @@ class TestFailureAccounting:
         assert result.counters["timeouts"] >= 1
         records = [json.loads(line) for line in result.records_path.read_text().splitlines()]
         assert records and all(r["evaluation_metadata"].get("failed") for r in records)
+
+
+# ---------------------------------------------------------------------------
+# Pacing (min_interval_ms) and HTTP 429 Retry-After handling
+# ---------------------------------------------------------------------------
+
+
+class FakeTime:
+    """Deterministic clock replacing ``time`` inside the pilot module."""
+
+    def __init__(self) -> None:
+        self.now = 1000.0
+        self.sleeps: list[float] = []
+
+    def monotonic(self) -> float:
+        return self.now
+
+    def time(self) -> float:
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.now += seconds
+
+
+class DispatchCounter:
+    """Inner transport recording dispatches; optionally raises a canned error."""
+
+    def __init__(self, fail_times: int = 0, error: Exception | None = None) -> None:
+        self.calls = 0
+        self.fail_times = fail_times
+        self.error = error
+
+    def complete(self, prompt: str) -> Any:
+        _ = prompt
+        self.calls += 1
+        if self.calls <= self.fail_times and self.error is not None:
+            raise self.error
+        return LLMResponse(text=VALID_PAYLOAD, latency_ms=1)
+
+
+class Http429(Exception):
+    """Stand-in for urllib.error.HTTPError carrying status code and headers."""
+
+    def __init__(self, retry_after: str | None) -> None:
+        super().__init__("too many requests")
+        self.code = 429
+        self.headers = {"Retry-After": retry_after} if retry_after else {}
+
+
+def test_throttle_sleeps_between_dispatches(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter()
+    client = ThrottledClient(inner, min_interval_ms=500)
+
+    client.complete("a")
+    client.complete("b")
+    client.complete("c")
+
+    assert inner.calls == 3
+    # First dispatch is free; each subsequent one waits out the interval.
+    assert fake_time.sleeps == [pytest.approx(0.5), pytest.approx(0.5)]
+
+
+def test_throttle_zero_interval_never_sleeps(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter()
+    client = ThrottledClient(inner, min_interval_ms=0)
+    for _ in range(3):
+        client.complete("x")
+    assert inner.calls == 3 and fake_time.sleeps == []
+
+
+def test_429_retry_after_is_honored_then_reraised(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter(fail_times=1, error=Http429(retry_after="7"))
+    client = ThrottledClient(inner, min_interval_ms=0)
+
+    with pytest.raises(Http429):
+        client.complete("x")
+
+    assert inner.calls == 1
+    assert fake_time.sleeps == [pytest.approx(7.0)]
+    # Second attempt succeeds after honoring the wait.
+    response = client.complete("x")
+    assert response.text == VALID_PAYLOAD
+
+
+def test_429_http_date_retry_after(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    when = email.utils.formatdate(fake_time.time() + 9, usegmt=True)
+    inner = DispatchCounter(fail_times=1, error=Http429(retry_after=when))
+    client = ThrottledClient(inner, min_interval_ms=0)
+
+    with pytest.raises(Http429):
+        client.complete("x")
+    assert fake_time.sleeps == [pytest.approx(9.0, abs=1.0)]
+
+
+def test_429_without_header_raises_without_extra_sleep(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter(fail_times=1, error=Http429(retry_after=None))
+    client = ThrottledClient(inner, min_interval_ms=0)
+
+    with pytest.raises(Http429):
+        client.complete("x")
+    assert inner.calls == 1 and fake_time.sleeps == []
+
+
+def test_non_429_errors_get_no_retry_after_sleep(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter(fail_times=1, error=TimeoutError("boom"))
+    client = ThrottledClient(inner, min_interval_ms=250)
+
+    with pytest.raises(TimeoutError):
+        client.complete("x")
+    assert inner.calls == 1 and fake_time.sleeps == []
+
+
+def test_sleep_cap_bounds_long_retry_after(monkeypatch: Any) -> None:
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    inner = DispatchCounter(fail_times=1, error=Http429(retry_after="9999"))
+    client = ThrottledClient(inner, min_interval_ms=0, sleep_cap_s=3.0)
+
+    with pytest.raises(Http429):
+        client.complete("x")
+    assert fake_time.sleeps == [pytest.approx(3.0)]
