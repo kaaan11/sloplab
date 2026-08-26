@@ -1,4 +1,4 @@
-# Release Notes - v0.2.2 (draft, branch `remediation/v0.2.2`)
+# Release Notes - v0.2.2
 
 Audit-remediation patch over the v0.2.x line. Scope is limited to findings from
 the independent v0.2.1 audit; **no new product features, no label changes, no
