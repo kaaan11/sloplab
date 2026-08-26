@@ -14,8 +14,11 @@ Live usage (NOT used by tests/CI)::
 
     from sloplab.evaluators.llm.adapter import LlmEvaluator, HttpLLMClient
 
-    client = HttpLLMClient(model="...", api_key_env="SLOPLAB_LLM_API_KEY")
-    evaluator = LlmEvaluator(client=client)
+    client = HttpLLMClient(
+        model="...", api_key_env="SLOPLAB_LLM_API_KEY",
+        endpoint="https://openrouter.ai/api/v1/chat/completions",
+    )
+    evaluator = LlmEvaluator(client=client, enabled=True)
 """
 
 from __future__ import annotations
@@ -227,14 +230,26 @@ class HttpLLMClient:
     """Minimal HTTP client for live use. Never imported by tests/CI paths.
 
     Requires an explicit API key via environment variable; performs a single
-    non-streaming completion call per ``complete`` invocation.
+    non-streaming completion call per ``complete`` invocation. ``timeout_s``
+    bounds each request; production wiring passes ``budget.request_timeout_s``
+    so the config file is the single source of truth.
     """
 
-    def __init__(self, *, model: str, api_key_env: str, endpoint: str) -> None:
+    def __init__(
+        self,
+        *,
+        model: str,
+        api_key_env: str,
+        endpoint: str,
+        timeout_s: float = 60.0,
+    ) -> None:
         import urllib.request
 
+        if timeout_s <= 0:
+            raise AdapterError("timeout_s must be positive")
         self._model = model
         self._endpoint = endpoint
+        self._timeout_s = timeout_s
         self._api_key = os.environ.get(api_key_env, "")
         if not self._api_key:
             raise AdapterError(f"environment variable {api_key_env!r} must contain an API key")
@@ -257,7 +272,7 @@ class HttpLLMClient:
             },
         )
         start = time.monotonic()
-        with urllib.request.urlopen(request, timeout=60) as response:  # noqa: S310
+        with urllib.request.urlopen(request, timeout=self._timeout_s) as response:  # noqa: S310
             payload = _json.loads(response.read().decode())
         latency = int((time.monotonic() - start) * 1000)
         text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")

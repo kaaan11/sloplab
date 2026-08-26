@@ -19,9 +19,7 @@ from sloplab.evaluators.llm.adapter import LLMResponse
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
-_spec = importlib.util.spec_from_file_location(
-    "llm_bench", REPO_ROOT / "scripts" / "llm_bench.py"
-)
+_spec = importlib.util.spec_from_file_location("llm_bench", REPO_ROOT / "scripts" / "llm_bench.py")
 assert _spec is not None and _spec.loader is not None
 llm_bench: ModuleType = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(llm_bench)
@@ -54,10 +52,18 @@ class FakeHttp:
     last: FakeHttp | None = None
     instances: list[FakeHttp] = []
 
-    def __init__(self, *, model: str, api_key_env: str, endpoint: str) -> None:
+    def __init__(
+        self,
+        *,
+        model: str,
+        api_key_env: str,
+        endpoint: str,
+        timeout_s: float = 60.0,
+    ) -> None:
         self.model = model
         self.api_key_env = api_key_env
         self.endpoint = endpoint
+        self.timeout_s = timeout_s
         self.calls = 0
         type(self).instances.append(self)
         type(self).last = self
@@ -153,6 +159,9 @@ class TestOutputsAndProvenance:
         assert manifest["budget"]["max_requests"] == 180
         assert manifest["counters"]["requests"] == 4
         assert manifest["prompt_hash"]
+        # P2-2: budget.request_timeout_s is the single source for HTTP timeouts.
+        assert fake_http.last is not None
+        assert fake_http.last.timeout_s == manifest["budget"]["request_timeout_s"] == 60
         records = [json.loads(line) for line in out.read_text().splitlines()]
         assert len(records) == 4
         repeats = sorted(r["evaluation_metadata"]["repeat_index"] for r in records)
@@ -173,6 +182,51 @@ class TestEnvGuard:
         assert "SLOPLAB_LLM_MODEL" in capsys.readouterr().err
 
 
+class TestNoLeakage:
+    """Secret and raw model responses must never reach stdout/stderr/files (P3)."""
+
+    RAW_CANARY = "RAW-MODEL-RESPONSE-CANARY-9f3a"
+    KEY_CANARY = "sk-canary-key-never-log-1c2b"
+
+    def test_key_and_raw_response_absent_from_outputs(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
+    ) -> None:
+        raw_text = self.RAW_CANARY + "\n" + VALID_PAYLOAD  # canary outside the JSON
+
+        class LeakyFakeHttp(FakeHttp):
+            def complete(self, prompt: str) -> LLMResponse:
+                _ = prompt
+                self.calls += 1
+                return LLMResponse(text=raw_text, latency_ms=1)
+
+        monkeypatch.setenv("SLOPLAB_LLM_MODEL", "openai/gpt-oss-20b:free")
+        monkeypatch.setenv("SLOPLAB_LLM_ENDPOINT", "https://example.invalid/v1")
+        monkeypatch.setenv("SLOPLAB_LLM_API_KEY", self.KEY_CANARY)
+        monkeypatch.setattr(llm_bench, "HttpLLMClient", LeakyFakeHttp)
+
+        out = tmp_path / "llm-bench-results.jsonl"
+        rc = llm_bench.main(["--max-cases", "2", "--out", str(out)])
+        assert rc == 0
+
+        captured = capsys.readouterr()
+        surfaces = {
+            "stdout": captured.out,
+            "stderr": captured.err,
+            "results": out.read_text(encoding="utf-8"),
+            "manifest": (tmp_path / "llm-bench-results.bundle" / "manifest.json").read_text(
+                encoding="utf-8"
+            ),
+        }
+        for surface_name, text in surfaces.items():
+            assert self.KEY_CANARY not in text, f"API key leaked into {surface_name}"
+            assert self.RAW_CANARY not in text, f"raw response leaked into {surface_name}"
+
+        # The parsed JSON payload itself is still evaluated normally.
+        records = [json.loads(line) for line in out.read_text().splitlines()]
+        assert len(records) == 2
+        assert not any(r["evaluation_metadata"].get("failed") for r in records)
+
+
 class TestWorkflowContract:
     def test_manual_only_and_wired_to_budget_runner(self) -> None:
         raw = WORKFLOW.read_text(encoding="utf-8")
@@ -190,3 +244,21 @@ class TestWorkflowContract:
         )
         assert "llm-bench-results.bundle/" in upload["with"]["path"]
         assert "MANUAL-ONLY" in raw
+
+    def test_dispatch_input_never_interpolated_into_shell(self) -> None:
+        """P2: max_cases reaches the shell only via a validated env var."""
+        raw = WORKFLOW.read_text(encoding="utf-8")
+        doc = yaml.safe_load(raw)
+        job = doc["jobs"]["run"]
+
+        metered = next(s for s in job["steps"] if "scripts/llm_bench.py" in s.get("run", ""))
+        assert "${{ inputs.max_cases }}" not in metered["run"], (
+            "dispatch input must not be shell-interpolated"
+        )
+        assert metered["env"]["MAX_CASES"] == "${{ inputs.max_cases }}"
+        assert '"$MAX_CASES"' in metered["run"], "variable must be quoted at use site"
+        assert "*[!0-9]*" in metered["run"], "numeric validation guard required"
+
+    def test_job_has_hard_timeout(self) -> None:
+        doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+        assert doc["jobs"]["run"]["timeout-minutes"] == 15

@@ -86,7 +86,8 @@ def main(argv: list[str] | None = None) -> int:
         f"plan: {config.max_cases} cases x {config.repeats} repeat(s), "
         f"worst-case {worst_case} requests incl. retries "
         f"(hard cap {config.budget.max_requests}, min interval "
-        f"{config.budget.min_interval_ms} ms)"
+        f"{config.budget.min_interval_ms} ms, per-request timeout "
+        f"{config.budget.request_timeout_s}s; Retry-After waits capped at the same bound)"
     )
     if worst_case > config.budget.max_requests:
         print(
@@ -101,12 +102,19 @@ def main(argv: list[str] | None = None) -> int:
             model=model_env,
             api_key_env=config.api_key_env,
             endpoint=endpoint,
+            timeout_s=config.budget.request_timeout_s,
         )
     except AdapterError as exc:
         print(f"configuration error: {exc}", file=sys.stderr)
         return 2
 
-    throttled = ThrottledClient(http, min_interval_ms=config.budget.min_interval_ms)
+    throttled = ThrottledClient(
+        http,
+        min_interval_ms=config.budget.min_interval_ms,
+        # A Retry-After longer than a full request timeout serves no purpose:
+        # wait is bounded by the same config value (single source of truth).
+        sleep_cap_s=float(config.budget.request_timeout_s),
+    )
     counting = CountingClient(throttled, max_requests=config.budget.max_requests)
     evaluator = LlmEvaluator(
         client=counting,

@@ -33,6 +33,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     environment: llm-bench
+    # Smoke plan (<=9 requests, 3 s spacing) finishes in minutes; the full
+    # 180-request protocol needs multiple dispatches or a raised timeout.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
@@ -64,9 +67,18 @@ jobs:
           SLOPLAB_LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           SLOPLAB_LLM_MODEL: ${{ vars.LLM_MODEL }}
           SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
+          MAX_CASES: ${{ inputs.max_cases }}
         run: |
+          # Dispatch input reaches the shell only through this quoted, validated
+          # environment variable - never via direct ${{ }} interpolation.
+          case "$MAX_CASES" in
+            ''|*[!0-9]*)
+              echo "::error::max_cases must be a non-negative integer (got '$MAX_CASES')"
+              exit 1
+              ;;
+          esac
           uv run python scripts/llm_bench.py \
-            --max-cases "${{ inputs.max_cases }}" \
+            --max-cases "$MAX_CASES" \
             --out llm-bench-results.jsonl
 
       - name: Upload results artifact

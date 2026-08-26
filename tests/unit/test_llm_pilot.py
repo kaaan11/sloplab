@@ -229,6 +229,20 @@ def test_429_without_header_raises_without_extra_sleep(monkeypatch: Any) -> None
     assert inner.calls == 1 and fake_time.sleeps == []
 
 
+def test_429_infinite_retry_after_is_ignored_not_honored(monkeypatch: Any) -> None:
+    """A hostile `Retry-After: inf` must never hang the run (P3)."""
+    fake_time = FakeTime()
+    monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
+    for bad in ("inf", "-inf", "nan"):
+        inner = DispatchCounter(fail_times=1, error=Http429(retry_after=bad))
+        client = ThrottledClient(inner, min_interval_ms=0)
+        with pytest.raises(Http429):
+            client.complete("x")
+        assert inner.calls == 1
+        assert fake_time.sleeps == [], f"non-finite {bad!r} must not sleep"
+        fake_time.sleeps.clear()
+
+
 def test_non_429_errors_get_no_retry_after_sleep(monkeypatch: Any) -> None:
     fake_time = FakeTime()
     monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)

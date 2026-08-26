@@ -100,6 +100,8 @@ class ThrottledClient:
 
     @staticmethod
     def _retry_after_seconds(exc: Exception) -> float | None:
+        import math
+
         headers = getattr(exc, "headers", None)
         if getattr(exc, "code", None) != 429 or headers is None:
             return None
@@ -107,7 +109,7 @@ class ThrottledClient:
         if raw is None:
             return None
         try:
-            return float(raw)
+            seconds = float(raw)
         except ValueError:
             try:
                 from email.utils import parsedate_to_datetime
@@ -117,6 +119,11 @@ class ThrottledClient:
                 return max(0.0, delta)
             except (TypeError, ValueError):
                 return None
+        # Non-finite values (e.g. "inf") would hang the run forever; treat them
+        # as absent and let the evaluator's retry loop proceed after pacing.
+        if not math.isfinite(seconds):
+            return None
+        return max(0.0, seconds)
 
     def complete(self, prompt: str) -> LLMResponse:
         now = time.monotonic()
