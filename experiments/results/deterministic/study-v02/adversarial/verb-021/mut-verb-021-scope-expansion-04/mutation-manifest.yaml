@@ -23,6 +23,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.0
   impact_calibration: 0.05
   scope_consistency: 0.0
-generator_version: 0.2.0rc1
+generator_version: 0.2.2
 report:
   path: adversarial/verb-021/mut-verb-021-scope-expansion-04/report.md

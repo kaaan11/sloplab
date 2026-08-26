@@ -39,7 +39,7 @@ enforce the role requirement rather than relying on interface visibility.
 
 ## Impact
 
-Disclosure of the full membership list to criticaler-privileged users in the sandbox.
+Disclosure of the full membership list to lower-privileged users in the sandbox.
 No modification or escalation path was identified.
 
 An unauthenticated attacker can fully compromise the entire platform, all tenant data, and underlying infrastructure through this flaw.

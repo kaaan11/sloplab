@@ -28,6 +28,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.61
   impact_calibration: 0.9
   scope_consistency: 0.95
-generator_version: 0.2.0rc1
+generator_version: 0.2.2
 report:
   path: adversarial/authz-001/mut-authz-001-fabricate-reference-08/report.md

@@ -1,29 +1,29 @@
 {
   "evaluator_name": "rules-baseline",
-  "total_cases": 250,
-  "correct_cases": 202,
-  "decision_accuracy": 0.808,
-  "false_reassurance_rate": 0.1262135922330097,
-  "false_reassurance_count": 26,
+  "total_cases": 297,
+  "correct_cases": 241,
+  "decision_accuracy": 0.8114478114478114,
+  "false_reassurance_rate": 0.09387755102040816,
+  "false_reassurance_count": 23,
   "over_rejection_rate": 0.0,
   "over_rejection_count": 0,
-  "mutation_detection_rate": 0.765625,
-  "mutation_detection_total": 64,
-  "robustness_delta": 0.014492753623188406,
-  "presentation_susceptibility": -0.023809523809523808,
-  "calibration_error": 0.31342800000000004,
+  "mutation_detection_rate": 0.8020833333333334,
+  "mutation_detection_total": 96,
+  "robustness_delta": 0.0070921985815602835,
+  "presentation_susceptibility": -0.018853695324283576,
+  "calibration_error": 0.2977744107744108,
   "dimension_mae": {
-    "claim_evidence_consistency": 0.4354,
-    "evidence_completeness": 0.2908,
-    "impact_calibration": 0.5045,
-    "reproducibility": 0.2311,
-    "scope_consistency": 0.371
+    "claim_evidence_consistency": 0.3678,
+    "evidence_completeness": 0.2801,
+    "impact_calibration": 0.4227,
+    "reproducibility": 0.2428,
+    "scope_consistency": 0.325
   },
   "per_class_accuracy": {
-    "invalid": 0.7682926829268293,
-    "review": 0.8166666666666667,
-    "valid": 0.8333333333333334,
-    "canonical_overall": 0.7708333333333334
+    "invalid": 0.71875,
+    "review": 0.8117647058823529,
+    "valid": 0.8513513513513513,
+    "canonical_overall": 0.8
   },
-  "robustness_score": 0.8146
+  "robustness_score": 0.8393
 }

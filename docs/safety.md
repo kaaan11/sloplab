@@ -37,7 +37,12 @@ corpus content, mutation operators, and contributions.
   identifiers; operators import from there.
 - Corpus validation (`sloplab validate`) checks manifests and reports for policy
   compliance (reserved-namespace regexes, forbidden-content markers).
-- Tests assert that every generated adversarial fixture passes safety validation.
+- Every output boundary validates content before anything is written or emitted:
+  the materializer refuses unsafe derived cases (recorded as safety violations,
+  nonzero exit), the `sloplab mutate` CLI refuses to write unsafe output, and tests
+  assert that every generated adversarial fixture passes safety validation -
+  including a fake unsafe-operator test proving both boundaries fail closed
+  (v0.2.2, R03).
 
 ## Reporting a problem
 

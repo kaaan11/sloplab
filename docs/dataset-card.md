@@ -3,14 +3,14 @@
 ## Corpus identity
 
 - **Name:** SlopLab V1 corpus
-- **Version:** 0.1.0 (matches package version)
+- **Version:** 0.2.2 (matches package version)
 - **License:** CC0-1.0 (all fixture text and manifests)
-- **Composition (48 canonical fixtures):**
-  - 12 `valid` - complete, well-calibrated reports of synthetic issues
-  - 10 `invalid` - plausible-looking reports that cross no security boundary
-  - 10 `review` - honest, genuinely ambiguous reports requiring human triage
-  - 8 presentation pairs (16 files) - the same invalid finding written plainly
-    (`pair_role: plain`) and professionally (`pair_role: polished`)
+- **Composition (60 canonical fixtures):**
+  - 18 `valid` - complete, well-calibrated reports of synthetic issues
+  - 10 standalone `invalid` - plausible-looking reports that cross no security boundary
+  - 16 `review` - honest, genuinely ambiguous reports requiring human triage
+  - 8 presentation pairs (16 files, `invalid` class) - the same invalid finding
+    written plainly (`pair_role: plain`) and professionally (`pair_role: polished`)
 
 Derived adversarial cases are generated deterministically from these canonicals by
 the mutation engine and are not committed as source data.
@@ -59,7 +59,7 @@ truth across the pair by construction.
 
 ## Known limitations
 
-- English only; phrasing diversity is limited to what 48 hand-authored reports can
+- English only; phrasing diversity is limited to what 60 hand-authored reports can
   cover.
 - Review-class ground truth reflects maintainer judgment for the fictional
   scenarios; reasonable people could disagree on individual classifications.

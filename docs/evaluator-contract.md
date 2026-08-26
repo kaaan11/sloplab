@@ -19,7 +19,11 @@ class Evaluator(Protocol):
 - `report: ReportDocument` - parsed Markdown with sections and source line ranges
   (`report.find_sections(pattern)`, `report.section_text(pattern)`).
 - `context: EvaluationContext` - harness-supplied:
-  - `context.case_id` - the case identifier to echo back.
+  - `context.case_id` - an **opaque case handle** (`case-<sha256[:16]>`) to echo
+    back. Since v0.2.2 the handle is deterministic but non-reversible and encodes
+    neither the fixture nor its mutation; do not attempt to parse it. The true
+    case identifier is restored automatically in recorded results.
+  - The report's `fixture_id`/`path` carry the same opaque handle (v0.2.2, R04).
   - `context.labels` - ground truth (expected decision/dimensions). **The oracle is
     the only built-in evaluator that reads labels.** Content-based evaluators must
     ignore `labels`; a unit test asserts identical output with labels stripped.
@@ -46,7 +50,11 @@ EvaluationResult(
    The LLM adapter, by contrast, maps failures to explicit failed evaluations (see
    its module docstring) rather than inventing decisions.
 3. Never read `context.labels`. Ever.
-4. Register via `register_evaluator(instance)` at import time.
+4. Never infer the expected mutation or report class from `context.case_id`,
+   `report.fixture_id`, or `report.path`: these are opaque handles, and parsing
+   them for signal is benchmark gaming. Tests assert operator identity is absent
+   from evaluator-visible input.
+5. Register via `register_evaluator(instance)` at import time.
 
 ## Adding an evaluator
 

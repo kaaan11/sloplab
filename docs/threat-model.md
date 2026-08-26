@@ -20,6 +20,7 @@ presentation.
 | Threat | Mitigation |
 |---|---|
 | Evaluator peeks at ground-truth labels | Labels reach evaluators only via documented context fields; rules baseline is tested with metadata stripped; oracle is test-only and clearly marked |
+| Evaluator infers expected mutation from case ids/paths | Evaluators receive only opaque deterministic handles (`case-<sha256[:16]>`) as case id and report identity; true identifiers live solely in benchmark records/provenance (v0.2.2, R04); leak tests assert operator names are absent from evaluator-visible input |
 | Fixture leakage into training data of LLM evaluators | Corpus is fully synthetic with reserved namespaces; leakage therefore degrades gracefully rather than exposing sensitive data |
 | Overfitting benchmarks via label tuning | Expected decisions live in manifests, reviewed alongside reports; known baseline failures are documented, never tuned away |
 | Silent non-determinism | Seeded mutations; no wall-clock/locale/dict-order dependence; recorded run metadata (version, commit, config hash, seed) |

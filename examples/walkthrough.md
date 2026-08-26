@@ -40,7 +40,8 @@ uv run sloplab benchmark benchmarks/suites/v1-core.yaml \
     --evaluator rules-baseline --out /tmp/example-run
 ```
 
-Among the ~250 scored cases are all mutations of `canonical-authz-001`. Inspecting
+Among the 297 scored cases (v0.2.2 corpus; no-op derived cases excluded) are all
+surviving mutations of `canonical-authz-001`. Inspecting
 one record from `/tmp/example-run/run.jsonl`:
 
 ```json

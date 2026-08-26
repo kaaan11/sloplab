@@ -8,7 +8,9 @@ schema_version: 2
 name: deterministic-study-v0.2
 description: >
   Comparative robustness study of the two deterministic baselines over the
-  v0.1.1 v1-core suite (250 cases), with seeded bootstrap confidence intervals.
+  v1-core suite (297 cases at v0.2.2 after no-op derived-case exclusion), with
+  seeded bootstrap confidence intervals. Regenerated at v0.2.2; see
+  docs/remediation-audit-v0.2.2.md for the delta vs the v0.2 artifacts.
 
 suite:
   config_path: benchmarks/suites/v1-core.yaml

@@ -57,6 +57,12 @@ semantics cannot see them; that is the evaluator's declared design.
 MDR moved 0.000 -> 0.125 solely from the contradict family; FAR improved
 0.438 -> 0.394 because previously accepted self-undermining cases now reject.
 
+> **v0.2.2 correction:** the "solely" claim above described the V26-era artifact
+> set and was imprecise. In the regenerated v0.2.2 study the graph's 12/96 = 0.125
+> MDR comprises contradict-observed-result 11/11 **plus one**
+> remove-reproduction-step detection (1/10, two-step support floor broken by the
+> mutation). The fix description and family tests in this document are unchanged.
+
 ## Verdict
 
 - One implementation/contract defect found and fixed (Cause A).

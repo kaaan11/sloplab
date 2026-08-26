@@ -27,6 +27,13 @@ Derived cases split into:
 - **Quality-neutral mutations**: expected decision equals the parent class default;
   correct triage should be unchanged (professionalization, noise).
 
+No-op exclusion (v0.2.2, R01): an operator plan whose application leaves the
+report text byte-identical to its parent is **never written** as a derived case
+(the materializer skips plans whose output equals the parent text or whose
+operator reports a machine-readable no-op signal). Every written adversarial case
+therefore differs from its parent; case counts quoted for v0.2.2 onward reflect
+this exclusion.
+
 ## Metric definitions
 
 ### Decision accuracy
@@ -89,9 +96,12 @@ always the per-metric values above; never cite the auxiliary score alone.
 ## Protocol
 
 1. Materialize the suite from a committed YAML config with a fixed `base_seed`.
-2. Run each evaluator over the full case set; evaluators receive labels only via
+2. Run each evaluator over the full case set. Evaluators receive labels only via
    `EvaluationContext.labels` (consumed by the oracle; ignored by content-based
-   evaluators, enforced by tests).
+   evaluators, enforced by tests). Identity hygiene (v0.2.2, R04): evaluators
+   additionally receive only an opaque, deterministic case handle - never a
+   case id, fixture id, or report path that encodes mutation identity; the true
+   identifiers are restored in recorded provenance.
 3. Record one JSONL line per case evaluation plus a run-metadata header (version,
    git commit when available, suite hash, seed, timestamp).
 4. Group derived cases under their parents; never count variants as independent

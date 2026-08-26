@@ -20,6 +20,7 @@ machines given identical inputs.
 ```bash
 uv sync --group dev
 uv run sloplab benchmark benchmarks/suites/v1-core.yaml \
+    --evaluator oracle \
     --evaluator rules-baseline \
     --out /tmp/v1-core-repro
 diff <(tail -n +2 /tmp/v1-core-repro/run.jsonl) \

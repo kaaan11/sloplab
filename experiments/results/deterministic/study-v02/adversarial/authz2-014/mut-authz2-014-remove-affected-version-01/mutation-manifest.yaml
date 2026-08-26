@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.84
   impact_calibration: 0.8
   scope_consistency: 0.53
-generator_version: 0.2.0rc1
+generator_version: 0.2.2
 report:
   path: adversarial/authz2-014/mut-authz2-014-remove-affected-version-01/report.md

@@ -21,6 +21,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.24
   impact_calibration: 0.06
   scope_consistency: 0.29
-generator_version: 0.2.0rc1
+generator_version: 0.2.2
 report:
   path: adversarial/pair7a-404/mut-pair7a-404-professionalize-language-01/report.md

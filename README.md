@@ -17,8 +17,10 @@ SlopLab measures one question:
 SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
 a scanner, or an exploit framework.
 
-**Current release: [v0.2.0](https://github.com/kaaan11/sloplab/releases/tag/v0.2.0)**
-([release notes](docs/release-notes-v0.2.0.md))
+**Current release: [v0.2.1](https://github.com/kaaan11/sloplab/releases/tag/v0.2.1)**
+([release notes](docs/release-notes-v0.2.1.md)); the `remediation/v0.2.2` branch
+carries the audit-remediation changes for the next patch (see
+[docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md)).
 
 ## What it does
 
@@ -46,7 +48,7 @@ uv sync --group dev          # or: pip install -e .
 # validate the committed corpus (60 fixture files / 52 logical reports)
 sloplab validate corpus/
 
-# run the full V1 benchmark with the deterministic rules baseline (~340 cases)
+# run the full V1 benchmark with the deterministic rules baseline (~297 cases)
 sloplab benchmark benchmarks/suites/v1-core.yaml \
     --evaluator rules-baseline --out benchmarks/results/my-run
 
@@ -64,18 +66,21 @@ sloplab report benchmarks/results/my-run/run.jsonl
 | `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
 
 A step-by-step walkthrough with real output lives in
-[examples/walkthrough.md](examples/walkthrough.md). Committed reference results are
-in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-example/).
+[examples/walkthrough.md](examples/walkthrough.md). Reference results regenerated at
+v0.2.2 live in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-example/)
+(oracle + rules-baseline; the documented reproduction command in
+[docs/reproducibility.md](docs/reproducibility.md) reproduces them exactly).
 
-Example v1-core numbers (rules-baseline, see methodology.md for definitions):
+Example v1-core numbers (rules-baseline, generated at v0.2.2, see
+methodology.md for definitions):
 
 | metric | value |
 |---|---|
-| decision accuracy | 0.808 |
-| mutation detection rate | 0.766 |
-| false reassurance rate | 0.126 |
+| decision accuracy | 0.811 |
+| mutation detection rate | 0.802 |
+| false reassurance rate | 0.094 |
 | over-rejection rate | 0.000 |
-| calibration error | 0.313 |
+| calibration error | 0.298 |
 
 ## Architecture
 
@@ -133,8 +138,12 @@ documented in [docs/methodology.md](docs/methodology.md).
 
 ## Status
 
-v0.2.0 - comparative evaluator study release (deterministic scope; live LLM pilot
-deferred). See [docs/release-notes-v0.2.0.md](docs/release-notes-v0.2.0.md).
+v0.2.2 (branch `remediation/v0.2.2`) - audit-remediation patch over the v0.2.x
+deterministic-scope releases: no-op derived cases eliminated, mutation/provenance
+and identity-hygiene fixes, safety enforcement tests, documentation regeneration.
+Live LLM pilot remains deferred; see
+[docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md) and
+[docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md).
 
 ## License
 

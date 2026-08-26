@@ -20,6 +20,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.35
   impact_calibration: 0.1
   scope_consistency: 0.4
-generator_version: 0.2.0rc1
+generator_version: 0.2.2
 report:
   path: adversarial/info-006/mut-info-006-professionalize-language-02/report.md

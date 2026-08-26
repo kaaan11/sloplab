@@ -1,8 +1,10 @@
 name: v1-core
 description: >
-  Full V1 benchmark suite: 48 canonical fixtures (12 valid, 10 invalid, 10 review,
-  8 presentation pairs as 16 files) expanded to approximately 202 derived cases,
-  for a total of roughly 250 evaluations.
+  Full V1 benchmark suite: 60 canonical fixtures (18 valid, 10 standalone invalid,
+  16 review, plus 8 presentation pairs as 16 invalid-class files) expanded to
+  exactly 237 derived cases after no-op exclusion, for a total of 297 evaluations.
+  Counts are enforced against the committed reference run by the documentation
+  consistency guard (tests/regression/test_doc_consistency.py).
 base_seed: 20260825
 corpus_root: corpus
 include_canonical_cases: true

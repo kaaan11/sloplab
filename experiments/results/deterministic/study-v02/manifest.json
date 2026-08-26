@@ -1,6 +1,6 @@
 {
   "base_seed": 20260825,
-  "commit_sha": "e518f80f7d88c72cbf52d035d9c6a8919105a2a1",
+  "commit_sha": "7d27f67605a9997e379999d1e94e41a43ac161c1",
   "config_hash": "4fb768aaef566d83ff34558788528d16f977dc149b15324b81fa45c28ad89052",
   "corpus_root": "/home/kaan/ai-workspaces/sloplab/corpus",
   "endpoint_host": null,
@@ -20,12 +20,12 @@
     }
   ],
   "experiment_name": "deterministic-study-v0.2",
-  "finished_at": "2026-08-25T20:23:42+00:00",
+  "finished_at": "2026-08-26T09:35:48+00:00",
   "model": null,
   "prompt_hash": null,
   "repeat_index": 0,
   "request_count": 0,
-  "started_at": "2026-08-25T20:23:42+00:00",
-  "suite_hash": "cd02c3a2b70b27662e98f896bfc074080f49dc14b9ca552adba8f69f22c3d6e9",
+  "started_at": "2026-08-26T09:35:48+00:00",
+  "suite_hash": "e64565c0df63103899c4251b3c73ab8be2e911c2d3040754f0f0a905e138b17d",
   "timeout_count": 0
 }

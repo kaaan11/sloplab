@@ -156,3 +156,15 @@ annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
   repositioned as negative control in README/study docs. Post-fix study: graph
   acc 0.582 / MDR 0.125 / FAR 0.394. Evidence: docs/v26-results-audit.md,
   tests/unit/test_evidence_graph_families.py (`ca731f0`).
+
+- **v0.2.2 remediation (branch `remediation/v0.2.2`):** independent v0.2.1 audit
+  findings R01-R07 implemented - no-op derived cases eliminated (population
+  340 -> 297; 43 clones removed; clone scan now 0/237), impact-inflation
+  word-boundary fix (removes "fcritical"/"alcritical" artifact corruption),
+  safety enforcement tested at materializer + mutate CLI boundaries, opaque
+  evaluator case handles (identity-free evaluator input), version/docs
+  regeneration to 0.2.2 with extended doc-consistency guard, fence-aware
+  presentation operators, provenance heading fix. Artifacts regenerated;
+  study reruns byte-identical; 183 tests + ruff + mypy strict green.
+  Evidence: docs/remediation-audit-v0.2.2.md,
+  docs/release-notes-v0.2.2.md, tests/regression/test_remediation_v022.py.

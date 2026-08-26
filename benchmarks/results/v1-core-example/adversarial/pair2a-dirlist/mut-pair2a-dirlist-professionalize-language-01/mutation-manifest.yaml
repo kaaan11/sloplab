@@ -21,6 +21,6 @@ expected_dimensions:
   claim_evidence_consistency: 0.3
   impact_calibration: 0.08
   scope_consistency: 0.32
-generator_version: 0.1.0
+generator_version: 0.2.2
 report:
   path: adversarial/pair2a-dirlist/mut-pair2a-dirlist-professionalize-language-01/report.md

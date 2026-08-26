@@ -1,4 +1,4 @@
-# Deterministic Evaluator Study - v0.2 results and notes (V26, audited)
+# Deterministic Evaluator Study - v0.2 results (regenerated at v0.2.2)
 
 > **Live LLM scope statement (V0.2 closure):** the live LLM experiment was NOT
 > executed in V0.2. The strict-JSON adapter, its mock-based failure tests, and the
@@ -11,31 +11,41 @@
 > to content-quality mutations; its results demonstrate that SlopLab detects such
 > blindness. See docs/v26-results-audit.md for the root-cause analysis.
 
-Run: `experiments/configs/deterministic-study-v0.2.yaml` over the 60-file corpus
-(52 logical reports).
-Population: **340 cases** (60 canonical + 280 derived). Seed `20260825`; records are
-byte-identical across re-runs at this commit.
+> **v0.2.2 regeneration:** the artifacts in
+> `experiments/results/deterministic/study-v02/` were regenerated at v0.2.2 after
+> the independent v0.2.1 audit. 43 confidence-overstatement plans that produced no
+> textual change had been written as "mutated" clones of their parents; they are
+> now excluded (R01). Population: **297 cases** (60 canonical + 237 derived).
+> Seed `20260825`; records remain byte-identical across re-runs at this commit.
+> All numbers below were recomputed from the regenerated records.
 
 ## Headline metrics (post-audit run)
 
 | Metric | rules-baseline | evidence-graph-baseline (negative control) |
 |---|---|---|
-| Decision accuracy | **0.824** | 0.582 |
-| Mutation detection rate | **0.802** | 0.125 |
-| False reassurance rate | **0.088** | 0.394 |
+| Decision accuracy | **0.811** | 0.542 |
+| Mutation detection rate | **0.802** (77/96) | 0.125 (12/96) |
+| False reassurance rate | **0.094** (23 cases) | 0.429 (105 cases) |
 | Over-rejection rate | 0.000 | 0.000 |
-| Robustness delta (drift) | 0.016 | 0.000 |
-| Calibration error | 0.305 | 0.260 |
+| Robustness delta (drift) | 1/141 = 0.007 | 0/141 = 0.000 |
+| Calibration error | 0.298 | 0.270 |
 
-Accuracy by class (rules / graph): valid 0.86/0.41 · invalid 0.77/0.59 ·
-review 0.81/0.75.
+Accuracy by class (rules / graph): valid 0.85/0.43 · invalid 0.72/0.53 ·
+review 0.81/0.74; canonical-only accuracy 0.80 / 0.75.
 
-Paired comparison (340 shared cases): rules-baseline 92 wins vs evidence-graph 10,
-238 ties.
+95% seeded-bootstrap accuracy CIs: rules-baseline 0.768-0.855,
+evidence-graph-baseline 0.485-0.596.
 
-The nonzero-but-tiny graph MDR (0.125 = 8/64) comes entirely from the
-contradict-observed-result family after the contract-conformance fix below; the
-other eleven mutation families remain invisible to it by design.
+Paired comparison (297 shared cases): rules-baseline 88 wins vs evidence-graph 8,
+201 ties.
+
+The graph's nonzero-but-tiny MDR (12/96 = 0.125) comes from the
+contradict-observed-result family (11/11) plus one borderline
+remove-reproduction-step case (1/10) whose two-step support floor is broken by the
+mutation; the remaining six degrading families in the detection population stay at
+zero by design (fabricate-reference 0/14, impact-inflation 0/11,
+impossible-precondition 0/12, invent-api-identifier 0/13, misattribute-cve 0/13,
+scope-expansion 0/12).
 
 ## Interpretation (scoped to this benchmark)
 
@@ -44,12 +54,12 @@ discrimination V0.2 set out to demonstrate:
 
 - **rules-baseline** is suspicion-driven: lexical flags route degraded content to
   review or reject. It detects 80% of degrading mutations and rarely reassures
-  falsely, but it over-rejects borderline-invalid prose (24 `over_strict_reject`)
+  falsely, but it over-rejects borderline-invalid prose (22 `over_strict_reject`)
   and defers some genuinely invalid reports (`deferred_invalid`: 8).
 - **evidence-graph-baseline** is structure-driven: when the claim-evidence graph is
-  complete it trusts the report regardless of claim quality. It never detects
-  degrading mutations that leave structure intact (MDR 0.0) and shows high false
-  reassurance (0.438), but its review-class handling is competitive (0.75) because
+  complete it trusts the report regardless of claim quality. It detects none of the
+  content-quality families that leave graph structure intact and shows high false
+  reassurance (0.429), but its review-class handling is competitive (0.74) because
   hedging breaks its accept path.
 
 Neither result was produced by adjusting labels; both evaluator behaviors follow
