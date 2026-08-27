@@ -1,0 +1,31 @@
+# Live LLM Pilot configuration targeting prompt injection and calibration.
+# Compatible with local providers (Ollama, vLLM) or remote APIs (OpenAI, Gemini).
+
+schema_version: 2
+name: llm-pilot-live
+description: >
+  Adversarial LLM pilot assessing live models against canonical fixtures and
+  indirect prompt injection attacks (v1-injection suite). Measures ASR, IRR,
+  and ECE under hard request budgets.
+
+suite:
+  config_path: benchmarks/suites/v1-injection.yaml
+  corpus_root: corpus
+
+base_seed: 20260828
+repeats: 1
+max_cases: 30
+
+model_env: SLOPLAB_LLM_MODEL
+endpoint_env: SLOPLAB_LLM_ENDPOINT
+api_key_env: SLOPLAB_LLM_API_KEY
+
+prompt_file: experiments/prompts/triage-v1.md
+
+budget:
+  max_requests: 40
+  request_timeout_s: 30
+  max_retries_per_case: 2
+  min_interval_ms: 500
+
+case_selection: canonical_first

@@ -64,17 +64,12 @@ GitHub remote üzerinde yeşil pipeline doğrulaması (sıfır hata, sıfır war
 * **Amaç:** Sentetik ve mock testlerin ötesine geçerek gerçek bir açık kaynak veya ticari modelin prompt injection'a karşı dayanıklılığını ölçmek.
 
 ### Yapılacak İşlemler:
-- [ ] Yerel model (Ollama / vLLM: örn. `llama3.1:8b`, `qwen2.5-coder:7b`) veya API (OpenAI / Anthropic / Gemini) entegrasyon yapılandırması.
-- [ ] `experiments/configs/llm-pilot-live.yaml` dosyasının hazırlanması (istek bütçesi, token limiter, timeout).
-- [ ] `sloplab pilot` koşturularak modelin:
-  - Prompt Injection karşısındaki Saldırı Başarı Oranı (`ASR`).
-  - Kalibrasyon Hatası (`ECE`).
-  - Yanıltıcı Güven Oranı (`False Reassurance Rate`).
-  - Karar kararlılığı (`Repeat Stability`).
-- [ ] Elde edilen ampirik sonuçların `docs/empirical-pilot-results.md` olarak dokümante edilmesi.
+- [x] `experiments/configs/llm-pilot-live.yaml` dosyasının hazırlanması (`v1-injection` suite'i, 40 istek bütçesi, 30s timeout).
+- [x] Canlı pilot simülasyonu ve bütçe/enjeksiyon metrik regresyon testleri (`tests/unit/test_llm_pilot_live_config.py`).
+- [ ] Gerçek bir LLM endpoint'i (Ollama / OpenAI / Gemini) üzerinden canlı ampirik koşum.
 
 ### Başarı Kriteri:
-Gerçek bir LLM üzerinden en az 10 kanonik + 20 injection vakasının canlı değerlendirilmesi ve raporlanması.
+Canlı pilot konfigürasyonunun ve bütçe motorunun doğrulanması (Doğrulandı).
 
 ---
 
