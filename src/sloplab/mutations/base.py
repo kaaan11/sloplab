@@ -64,11 +64,13 @@ def register(operator: MutationOperator) -> None:
 
 
 def get_operator(name: str) -> MutationOperator:
-    try:
+    normalized = name.replace("-", "_")
+    if name in _REGISTRY:
         return _REGISTRY[name]
-    except KeyError:
-        known = ", ".join(sorted(_REGISTRY)) or "<none registered>"
-        raise KeyError(f"unknown mutation operator '{name}'; registered: {known}") from None
+    if normalized in _REGISTRY:
+        return _REGISTRY[normalized]
+    known = ", ".join(sorted(_REGISTRY)) or "<none registered>"
+    raise KeyError(f"unknown mutation operator '{name}'; registered: {known}") from None
 
 
 def list_operators() -> list[str]:

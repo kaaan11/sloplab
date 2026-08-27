@@ -69,7 +69,11 @@ def mutate(fixture: str, operator: str, seed: int, out: str | None) -> None:
         except FixtureError as exc:
             raise click.ClickException(str(exc)) from exc
 
-    op = get_operator(operator)
+    try:
+        op = get_operator(operator)
+    except KeyError as exc:
+        msg = exc.args[0] if exc.args else str(exc)
+        raise click.ClickException(msg) from exc
     mutation_seed = derive_seed(seed, loaded.fixture_id, operator, 0)
     mutated_text, params = op.apply(loaded.report, random.Random(mutation_seed))
 
@@ -460,10 +464,18 @@ def compare(results: tuple[str, ...]) -> None:
     summaries: dict[str, dict[str, Any]] = {}
     for result_path in results:
         path = _Path(result_path)
-        metrics_dir = path.parent if path.name == "run.jsonl" else path
-        metric_files = sorted(metrics_dir.glob("metrics-*.json"))
+        if path.is_file():
+            if path.name == "run.jsonl":
+                metric_files = sorted(path.parent.glob("metrics-*.json"))
+            elif path.suffix == ".json":
+                metric_files = [path]
+            else:
+                metric_files = []
+        else:
+            metric_files = sorted(path.glob("metrics-*.json"))
+
         for mfile in metric_files:
-            data = json.loads(mfile.read_text())
+            data = json.loads(mfile.read_text(encoding="utf-8"))
             name = data.get("evaluator_name", mfile.stem)
             summaries[f"{name} ({mfile.parent.name})"] = data
 

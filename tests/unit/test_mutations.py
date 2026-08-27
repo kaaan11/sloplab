@@ -228,3 +228,9 @@ def _section(text: str, pattern: str) -> str:
 
     doc = parse_report(text, fixture_id="_t", path="_t.md")
     return doc.section_text(pattern)
+
+
+def test_get_operator_supports_kebab_case() -> None:
+    op_snake = get_operator("remove_reproduction_step")
+    op_kebab = get_operator("remove-reproduction-step")
+    assert op_snake is op_kebab

@@ -78,3 +78,24 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 4.1 Sürüm artırımı (`v0.3.0`) ve pyproject/README senkronizasyonu
   - [x] 4.2 Tam test süiti, linter ve tip denetimi (pytest, ruff, mypy)
   - [x] 4.3 Git commit ve remote push
+
+---
+
+## 3. Gelecek Yol Haritası (Future Roadmap - v0.4.0+)
+
+- [ ] **Faz 5 (AI/LLM Security): Indirect Prompt Injection (IPI) & Evaluator Hijacking**
+  - [ ] 5.1 `sloplab.mutations.operators.injection` modülü (`EvaluatorOverrideInjection`, `MarkdownPolyglotInjection`)
+  - [ ] 5.2 Saldırı Başarı Oranı (`attack_success_rate` / `ASR`) ve `injection_resistance_rate` (IRR) metrikleri
+  - [ ] 5.3 Güvenlik açığı raporu context injection varyantları ve regresyon testleri
+- [ ] **Faz 6 (Performans & Ölçeklenebilirlik): Asenkron & Eşzamanlı (Async/Concurrent) Runner**
+  - [ ] 6.1 `HttpLLMClient` için `httpx` async istemci ve token bucket rate limiter
+  - [ ] 6.2 Pilot ve harness için `--concurrency / -j` işçi havuzu desteği
+  - [ ] 6.3 Hata toleransı, asenkron timeout ve backoff iyileştirmeleri
+- [ ] **Faz 7 (Yeni Mimari): Agentic / Tool-Use Triage Değerlendirici Sözleşmesi**
+  - [ ] 7.1 `InteractiveTriageEvaluator` arayüzü ve mock sandbox araçları (`SearchSourceTree`, `ExecutePoCSandbox`)
+  - [ ] 7.2 Çok turlu (multi-turn) ReAct döngüsü doğrulama harness'ı
+  - [ ] 7.3 `tool_call_efficiency` ve gereksiz araç çağrısı/halüsinasyon metrikleri
+- [ ] **Faz 8 (Gelişmiş Metrikler): Semantik Bozulma & Pertürbasyon Bütçesi**
+  - [ ] 8.1 Vektör/embedding tabanlı anlamsal mesafe (`cosine_similarity`) ölçümü
+  - [ ] 8.2 Değerlendirici "Dayanıklılık vs. Pertürbasyon Bütçesi" (Robustness vs. Perturbation Budget) eğrileri
+
