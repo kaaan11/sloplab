@@ -91,10 +91,10 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 6.1 `HttpLLMClient` için async arayüz ve `TokenBucketLimiter` rate limiter
   - [x] 6.2 Pilot ve harness için `--concurrency / -j` işçi havuzu desteği
   - [x] 6.3 Hata toleransı, asenkron timeout ve deterministik sıra koruma testleri
-- [ ] **Faz 7 (Yeni Mimari): Agentic / Tool-Use Triage Değerlendirici Sözleşmesi**
-  - [ ] 7.1 `InteractiveTriageEvaluator` arayüzü ve mock sandbox araçları (`SearchSourceTree`, `ExecutePoCSandbox`)
-  - [ ] 7.2 Çok turlu (multi-turn) ReAct döngüsü doğrulama harness'ı
-  - [ ] 7.3 `tool_call_efficiency` ve gereksiz araç çağrısı/halüsinasyon metrikleri
+- [x] **Faz 7 (Yeni Mimari): Agentic / Tool-Use Triage Değerlendirici Sözleşmesi**
+  - [x] 7.1 `AgenticTriageEvaluator` arayüzü ve mock sandbox araçları (`SearchSourceTree`, `ExecutePoCSandbox`)
+  - [x] 7.2 Çok turlu (multi-turn) ReAct döngüsü doğrulama harness'ı
+  - [x] 7.3 `compute_agentic_metrics` araç kullanım sıklığı ve trace metrikleri
 - [ ] **Faz 8 (Gelişmiş Metrikler): Semantik Bozulma & Pertürbasyon Bütçesi**
   - [ ] 8.1 Vektör/embedding tabanlı anlamsal mesafe (`cosine_similarity`) ölçümü
   - [ ] 8.2 Değerlendirici "Dayanıklılık vs. Pertürbasyon Bütçesi" (Robustness vs. Perturbation Budget) eğrileri

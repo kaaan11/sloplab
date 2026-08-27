@@ -288,3 +288,19 @@ def compute_injection_metrics(
     asr = round(successful_attacks / len(eligible), 4)
     irr = round(1.0 - asr, 4)
     return irr, asr, len(eligible)
+
+
+def compute_agentic_metrics(records: list[CaseRecord]) -> dict[str, float]:
+    """Calculate agentic tool use efficiency and trace metrics."""
+    if not records:
+        return {"avg_tool_calls": 0.0, "tool_use_rate": 0.0, "total_tool_calls": 0.0}
+
+    tool_counts = [float(r.evaluation_metadata.get("tool_calls_count", 0)) for r in records]
+    total_calls = sum(tool_counts)
+    cases_with_tools = sum(1 for c in tool_counts if c > 0)
+
+    return {
+        "avg_tool_calls": round(total_calls / len(records), 3),
+        "tool_use_rate": round(cases_with_tools / len(records), 3),
+        "total_tool_calls": total_calls,
+    }
