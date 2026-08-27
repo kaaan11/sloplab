@@ -48,13 +48,13 @@ _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}")
 _URL_RE = re.compile(r"https?://(?P<host>[A-Za-z0-9.-]+)[^\s)\]>`]*", re.IGNORECASE)
 
-_LOCAL_HOST_SUFFIXES = ("localhost", ".localhost", ".local")
+_LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 
 
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
-    if any(host == suffix or host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
+    if host == "localhost" or any(host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
         return True
     if any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS):
         return True
@@ -74,10 +74,18 @@ def find_real_year_cves(text: str) -> list[str]:
 
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
+    from urllib.parse import urlsplit
+
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
-        if not is_reserved_host(match.group("host")):
-            unsafe.add(match.group(0))
+        raw_url = match.group(0).rstrip(".,;:!?")
+        try:
+            parsed = urlsplit(raw_url)
+            hostname = parsed.hostname
+            if not hostname or not is_reserved_host(hostname):
+                unsafe.add(raw_url)
+        except ValueError:
+            unsafe.add(raw_url)
     return sorted(unsafe)
 
 

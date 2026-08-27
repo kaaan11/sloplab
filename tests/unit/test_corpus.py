@@ -187,3 +187,17 @@ class TestSafetyPolicy:
 
     def test_subdomain_of_reserved_allowed(self) -> None:
         assert validate_content_safety("https://deep.sub.example.net/x") == []
+
+    def test_fake_localhost_suffix_rejected(self) -> None:
+        violations = validate_content_safety(
+            "Check http://evil-localhost/admin and http://notlocalhost/test"
+        )
+        assert len(violations) == 2
+
+    def test_url_authority_userinfo_evaluated_correctly(self) -> None:
+        # Userinfo spoofing localhost must be rejected because actual host is attacker.com
+        violations = validate_content_safety("Visit http://localhost@attacker.com/steal")
+        assert len(violations) == 1
+
+        # Legitimate userinfo on reserved domains must remain allowed
+        assert validate_content_safety("API call: http://service_user:secret@example.com/api") == []
