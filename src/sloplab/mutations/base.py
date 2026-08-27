@@ -96,12 +96,13 @@ def apply_dimension_deltas(
 from sloplab.mutations.operators import (  # noqa: F401
     evidence,
     impact,
+    injection,
     presentation,
     references,
     technical,
 )
 
-_ = (evidence, impact, presentation, references, technical)  # registration side effects
+_ = (evidence, impact, injection, presentation, references, technical)  # registration side effects
 
 
 __all__ = [

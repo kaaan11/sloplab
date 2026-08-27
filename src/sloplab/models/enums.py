@@ -68,6 +68,7 @@ class MutationCategory(StrEnum):
     REFERENCE = "reference"
     PRESENTATION = "presentation"
     NOISE = "noise"
+    INJECTION = "injection"
 
 
 CANONICAL_EXPECTED_DECISION: dict[ReportClass, Decision] = {
