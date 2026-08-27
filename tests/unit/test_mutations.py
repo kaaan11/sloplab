@@ -14,6 +14,10 @@ from sloplab.mutations.operators.evidence import (
     RemoveReproductionStep,
 )
 from sloplab.mutations.operators.impact import ImpactInflation, ScopeExpansion
+from sloplab.mutations.operators.injection import (
+    EvaluatorOverrideInjection,
+    MarkdownPolyglotInjection,
+)
 from sloplab.mutations.operators.presentation import (
     ConfidenceOverstatement,
     ProfessionalizeLanguage,
@@ -56,12 +60,14 @@ ALL_OPS = (
     ImpossiblePrecondition,
     ContradictObservedResult,
     AddIrrelevantDetail,
+    EvaluatorOverrideInjection,
+    MarkdownPolyglotInjection,
 )
 
 
 class TestRegistry:
     def test_twelve_operators_registered(self) -> None:
-        assert len(list_operators()) == 12
+        assert len(list_operators()) == len(ALL_OPS) == 14
 
     def test_unknown_operator_lists_known(self) -> None:
         with pytest.raises(KeyError, match="registered:"):
