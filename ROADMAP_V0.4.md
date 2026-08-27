@@ -41,7 +41,7 @@ komutunun sorunsuz çalışması ve ASR / IRR metriklerini raporlaması (Doğrul
 * **Amaç:** Repoya gönderilen her commit ve PR için otomatik test, lint ve tip denetimini garanti altına almak.
 
 ### Yapılacak İşlemler:
-- [ ] `.github/workflows/ci.yml` dosyasının oluşturulması:
+- [x] `.github/workflows/ci.yml` dosyasının oluşturulması:
   - Matris testi: Python 3.11, 3.12, 3.13.
   - `astral-sh/setup-uv` ile ultra hızlı ortam kurulumu.
   - Adımlar:
@@ -51,7 +51,7 @@ komutunun sorunsuz çalışması ve ASR / IRR metriklerini raporlaması (Doğrul
     4. `uv run mypy src tests`
     5. `uv run pytest -v`
     6. `uv run sloplab validate corpus/`
-- [ ] Otomatik release iş akışı (`.github/workflows/release.yml`) hazırlığı.
+- [x] Kapsamlı CI konfigürasyon bütünlüğü testi (`tests/unit/test_ci_config.py`).
 
 ### Başarı Kriteri:
 GitHub remote üzerinde yeşil pipeline doğrulaması (sıfır hata, sıfır warning).
