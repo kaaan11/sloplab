@@ -5,7 +5,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from sloplab.corpus.loader import FixtureError, discover_fixtures, load_canonical_fixture
+from sloplab.corpus.loader import (
+    FixtureError,
+    discover_fixtures,
+    load_canonical_fixture,
+    load_derived_fixture,
+)
 from sloplab.corpus.validation import validate_corpus
 from sloplab.safety.policy import validate_content_safety
 
@@ -201,3 +206,13 @@ class TestSafetyPolicy:
 
         # Legitimate userinfo on reserved domains must remain allowed
         assert validate_content_safety("API call: http://service_user:secret@example.com/api") == []
+
+    def test_load_derived_fixture_without_explicit_corpus_root(self) -> None:
+        case_dir = (
+            Path(__file__).resolve().parents[2]
+            / "benchmarks/results/v1-core-example/adversarial"
+            / "authz-001/mut-authz-001-fabricate-reference-08"
+        )
+        derived = load_derived_fixture(case_dir)
+        assert derived.case_id == "mut-authz-001-fabricate-reference-08"
+        assert derived.report.fixture_id == "mut-authz-001-fabricate-reference-08"

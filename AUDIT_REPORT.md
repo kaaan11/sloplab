@@ -64,11 +64,11 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 1.1 `find_unsafe_urls` URL Authority ayrıştırma düzeltmesi (`urllib.parse.urlsplit`)
   - [x] 1.2 `is_reserved_host` subdomain/suffix eşleşme düzeltmesi
   - [x] 1.3 `tests/unit/test_corpus.py` kapsamlı güvenlik testleri
-- [ ] **Faz 2 (P1): Temel Çalışma Zamanı ve Hesaplama Düzeltmeleri**
-  - [ ] 2.1 `LlmEvaluator._to_result` içinde `Severity` case-insensitive parse
-  - [ ] 2.2 `compute_calibration_error` son bin sınır düzeltmesi
-  - [ ] 2.3 `load_derived_fixture` varsayılan kök dizin düzeltmesi
-  - [ ] 2.4 Birim testleri ile regresyon doğrulaması
+- [x] **Faz 2 (P1): Temel Çalışma Zamanı ve Hesaplama Düzeltmeleri**
+  - [x] 2.1 `LlmEvaluator._to_result` içinde `Severity` case-insensitive parse
+  - [x] 2.2 `compute_calibration_error` son bin sınır düzeltmesi
+  - [x] 2.3 `load_derived_fixture` varsayılan kök dizin düzeltmesi
+  - [x] 2.4 Birim testleri ile regresyon doğrulaması
 - [ ] **Faz 3 (P2): Heuristik ve İzolasyon İyileştirmeleri**
   - [ ] 3.1 `run_llm_pilot` R04 opak kimlik ve dinamik `case_kind` entegrasyonu
   - [ ] 3.2 `RulesBaselineEvaluator` sınır negasyonu eşleşme mantığının ayrılması

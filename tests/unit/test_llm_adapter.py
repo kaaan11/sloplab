@@ -219,3 +219,21 @@ class TestHttpLLMClientTimeout:
                 endpoint="https://example.invalid/v1",
                 timeout_s=0,
             )
+
+    def test_severity_parsing_case_insensitive_and_fallback(self) -> None:
+        from sloplab.models.enums import Severity
+
+        payload = dict(VALID_PAYLOAD)
+        payload["findings"] = [
+            {"code": "F_ONE", "severity": "low"},
+            {"code": "F_TWO", "severity": "CRITICAL"},
+            {"code": "F_THREE", "severity": "unknown_sev"},
+        ]
+        evaluator = LlmEvaluator(
+            client=FlakyThenSuccessClient(0, json.dumps(payload)), enabled=True
+        )
+        result = evaluator.evaluate(make_report(), make_context())
+        assert len(result.findings) == 3
+        assert result.findings[0].severity == Severity.LOW
+        assert result.findings[1].severity == Severity.CRITICAL
+        assert result.findings[2].severity == Severity.MEDIUM

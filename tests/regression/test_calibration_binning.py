@@ -74,3 +74,11 @@ def test_ece_matches_hand_computed_value_on_mixed_bins() -> None:
     # Bin 7: avg_conf=(5*0.71+0.73)/6=0.7133, acc=5/6 -> |diff|=0.12, weight 6/16
     expected = (10 / 16) * abs(0.524 - 0.8) + (6 / 16) * abs((5 * 0.71 + 0.73) / 6 - 5 / 6)
     assert compute_calibration_error(records) == pytest.approx(expected, rel=1e-3)
+
+
+def test_final_bin_captures_both_interior_and_boundary_confidence() -> None:
+    """When bin 9 contains both interior values (0.95) and upper-boundary 1.0,
+    both must be captured together. Previously 'and not members' dropped 1.0."""
+    records = [record(0.95, True, "a"), record(1.0, False, "b"), record(1.0, False, "c")]
+    expected = abs((0.95 + 2.0) / 3 - 1 / 3)
+    assert compute_calibration_error(records) == pytest.approx(expected)

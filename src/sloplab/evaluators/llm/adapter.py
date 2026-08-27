@@ -171,12 +171,14 @@ class LlmEvaluator:
             code = raw.get("code")
             severity = raw.get("severity", "medium")
             if isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]*", code):
+                try:
+                    parsed_severity = Severity(str(severity).lower())
+                except ValueError:
+                    parsed_severity = Severity.MEDIUM
                 findings.append(
                     Finding(
                         code=code,
-                        severity=Severity(severity)
-                        if severity in Severity.__members__
-                        else Severity.MEDIUM,
+                        severity=parsed_severity,
                         evidence=str(raw.get("evidence", ""))[:200],
                     )
                 )

@@ -169,9 +169,10 @@ def compute_calibration_error(records: list[CaseRecord]) -> float | None:
     for b in range(_CALIBRATION_BINS):
         lo = b / _CALIBRATION_BINS
         hi = (b + 1) / _CALIBRATION_BINS
-        members = [(c, ok) for c, ok in scored if lo <= c < hi]
-        if b == _CALIBRATION_BINS - 1 and not members:
+        if b == _CALIBRATION_BINS - 1:
             members = [(c, ok) for c, ok in scored if lo <= c <= hi]
+        else:
+            members = [(c, ok) for c, ok in scored if lo <= c < hi]
         if not members:
             continue
         avg_conf = sum(c for c, _ in members) / len(members)

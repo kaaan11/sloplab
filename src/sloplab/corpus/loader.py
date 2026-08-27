@@ -132,7 +132,11 @@ def load_canonical_fixture(fixture_dir: Path, corpus_root: Path | None = None) -
 
 def load_derived_fixture(case_dir: Path, corpus_root: Path | None = None) -> DerivedFixture:
     """Load one derived case directory containing mutation-manifest.yaml + report.md."""
-    root = corpus_root if corpus_root is not None else case_dir.parent.parent
+    root = (
+        corpus_root
+        if corpus_root is not None
+        else (case_dir.parents[2] if len(case_dir.parents) >= 3 else case_dir.parent.parent)
+    )
     manifest_path = case_dir / MUTATION_MANIFEST_NAME
     if not manifest_path.is_file():
         raise FixtureError(f"{case_dir}: missing {MUTATION_MANIFEST_NAME}")
@@ -145,13 +149,25 @@ def load_derived_fixture(case_dir: Path, corpus_root: Path | None = None) -> Der
             f"{manifest_path}: manifest validation failed\n{format_validation_error(exc)}"
         ) from exc
 
-    doc, _ = _load_report_document(
-        manifest_path,
-        root,
-        manifest.report.path,
-        manifest.id,
-        manifest.id,
-    )
+    try:
+        doc, _ = _load_report_document(
+            manifest_path,
+            root,
+            manifest.report.path,
+            manifest.id,
+            manifest.id,
+        )
+    except FixtureError:
+        if (case_dir / "report.md").is_file():
+            doc, _ = _load_report_document(
+                manifest_path,
+                case_dir,
+                "report.md",
+                manifest.id,
+                manifest.id,
+            )
+        else:
+            raise
     return DerivedFixture(manifest=manifest, report=doc, directory=case_dir)
 
 
