@@ -80,3 +80,22 @@ def test_document_starting_with_heading_has_no_preamble() -> None:
 def test_document_without_h1_falls_back_to_fixture_id() -> None:
     doc = parse_report("## Only H2\n\ntext\n", fixture_id="canonical-x-001", path="y.md")
     assert doc.title == "canonical-x-001"
+
+
+def test_nested_fence_length_respected() -> None:
+    """A 4-backtick fence must not be closed by a nested 3-backtick fence."""
+    text = """# Doc
+
+````markdown
+```
+# Not a heading
+```
+````
+
+## Actual Heading
+
+Section body
+"""
+    doc = parse_report(text, fixture_id="f1", path="x.md")
+    headings = [s.heading for s in doc.sections if s.heading]
+    assert headings == ["Doc", "Actual Heading"]

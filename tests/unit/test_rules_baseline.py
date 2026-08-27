@@ -111,6 +111,13 @@ class TestCanonicalHandling:
         codes = {f.code for f in result.findings}
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
 
+    def test_unconditional_boundary_negation_not_masked_by_conditional_clause(self) -> None:
+        text = INVALID_BODY + "\n\nIf admin mode were enabled, no security boundary is crossed.\n"
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+
 
 class TestMutationSensitivity:
     def test_removed_reproduction_step_not_accepted(self) -> None:

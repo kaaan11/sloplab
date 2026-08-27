@@ -263,3 +263,30 @@ def test_sleep_cap_bounds_long_retry_after(monkeypatch: Any) -> None:
     with pytest.raises(Http429):
         client.complete("x")
     assert fake_time.sleeps == [pytest.approx(3.0)]
+
+
+def test_pilot_runner_enforces_identity_hygiene(tmp_path: Path) -> None:
+    """Evaluator must receive an opaque handle, not raw case_id (R04)."""
+    seen_ids: list[str] = []
+
+    class SpyClient:
+        def complete(self, prompt: str) -> Any:
+            return StaticResponder(VALID_PAYLOAD).complete(prompt)
+
+    class SpyEvaluator(LlmEvaluator):
+        def evaluate(self, report: Any, context: Any) -> Any:
+            seen_ids.append(context.case_id)
+            assert not context.case_id.startswith("canonical-")
+            assert context.case_id.startswith("case-")
+            assert report.fixture_id.startswith("case-")
+            assert report.path.startswith("case-")
+            return super().evaluate(report, context)
+
+    counting = CountingClient(SpyClient(), max_requests=10)
+    evaluator = SpyEvaluator(client=counting, enabled=True)
+    config = load_pilot_config(PILOT_CONFIG)
+    config.max_cases = 1
+    config.repeats = 1
+    result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "out")
+    assert len(seen_ids) == 1
+    assert result.evaluations_attempted == 1

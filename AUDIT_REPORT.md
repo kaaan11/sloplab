@@ -69,11 +69,11 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 2.2 `compute_calibration_error` son bin sınır düzeltmesi
   - [x] 2.3 `load_derived_fixture` varsayılan kök dizin düzeltmesi
   - [x] 2.4 Birim testleri ile regresyon doğrulaması
-- [ ] **Faz 3 (P2): Heuristik ve İzolasyon İyileştirmeleri**
-  - [ ] 3.1 `run_llm_pilot` R04 opak kimlik ve dinamik `case_kind` entegrasyonu
-  - [ ] 3.2 `RulesBaselineEvaluator` sınır negasyonu eşleşme mantığının ayrılması
-  - [ ] 3.3 `EvidenceGraphBaselineEvaluator` finding ve rationale temizliği
-  - [ ] 3.4 `parse_report` code fence uzunluk takibi
+- [x] **Faz 3 (P2): Heuristik ve İzolasyon İyileştirmeleri**
+  - [x] 3.1 `run_llm_pilot` R04 opak kimlik ve dinamik `case_kind` entegrasyonu
+  - [x] 3.2 `RulesBaselineEvaluator` sınır negasyonu eşleşme mantığının ayrılması
+  - [x] 3.3 `EvidenceGraphBaselineEvaluator` finding ve rationale temizliği
+  - [x] 3.4 `parse_report` code fence uzunluk takibi
 - [ ] **Faz 4 (P3): Sürüm ve Dokümantasyon Senkronizasyonu**
   - [ ] 4.1 Sürüm artırımı (`v0.3.0`) ve pyproject/README senkronizasyonu
   - [ ] 4.2 Tam test süiti, linter ve tip denetimi (pytest, ruff, mypy)

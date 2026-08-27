@@ -28,6 +28,7 @@ def parse_report(
     section_start = 1
     in_fence = False
     fence_marker = ""
+    fence_len = 0
 
     def close_section(end_line: int) -> None:
         body = "\n".join(lines[section_start - 1 : end_line]).strip("\n")
@@ -49,7 +50,8 @@ def parse_report(
             if not in_fence:
                 in_fence = True
                 fence_marker = marker[0]
-            elif marker[0] == fence_marker and len(marker) >= 3:
+                fence_len = len(marker)
+            elif marker[0] == fence_marker and len(marker) >= fence_len:
                 in_fence = False
             continue
 

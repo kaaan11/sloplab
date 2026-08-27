@@ -12,14 +12,14 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, cast
 
 from sloplab.evaluators.llm.adapter import LLMResponse
 from sloplab.experiments.config import LLMPilotConfig
 from sloplab.experiments.runner import current_commit_sha, sha256_file
 from sloplab.models.run import CaseRecord
 from sloplab.scoring.comparison import repeat_stability
-from sloplab.scoring.harness import SuiteCase
+from sloplab.scoring.harness import SuiteCase, opaque_case_handle
 
 
 class BudgetExhausted(Exception):
@@ -195,16 +195,18 @@ def run_llm_pilot(
                 budget_spent = True
                 break
             document = _document_for(case, repo_root)
+            handle = opaque_case_handle(case.case_id)
+            sanitized_document = document.model_copy(update={"fixture_id": handle, "path": handle})
             context = EvaluationContext(
-                report=document,
-                case_id=case.case_id,
+                report=sanitized_document,
+                case_id=handle,
                 labels={"expected_decision": case.expected_decision},
             )
-            result = evaluator.evaluate(document, context)
+            result = evaluator.evaluate(sanitized_document, context)
             record = CaseRecord.from_result(
                 result,
                 case_id=case.case_id,
-                case_kind="canonical",
+                case_kind=cast(Literal["canonical", "mutated"], case.kind),
                 report_class=case.report_class,
                 expected_decision=(
                     Decision(case.expected_decision) if case.expected_decision else None

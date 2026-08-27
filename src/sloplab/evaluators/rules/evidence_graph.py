@@ -156,10 +156,18 @@ class EvidenceGraphBaselineEvaluator:
             ("GRAPH_MISSING_COMPONENT_SUPPORT", e1),
             ("GRAPH_MISSING_REPRO_SUPPORT", e2),
             ("GRAPH_MISSING_OBSERVED_SUPPORT", e3),
-            ("GRAPH_BOUNDARY_CONTRADICTS_CLAIM", e4),
         ):
             if not present:
                 findings.append(Finding(code=code, severity=Severity.MEDIUM))
+
+        if not boundary_node:
+            findings.append(
+                Finding(code="GRAPH_MISSING_BOUNDARY_STATEMENT", severity=Severity.MEDIUM)
+            )
+        elif not e4:
+            findings.append(
+                Finding(code="GRAPH_BOUNDARY_CONTRADICTS_CLAIM", severity=Severity.MEDIUM)
+            )
 
         if boundary_negated or observed_undermines:
             # negated boundary OR self-undermining observation: the report's own
@@ -227,7 +235,7 @@ class EvidenceGraphBaselineEvaluator:
         }[decision]
 
         rationale = (
-            f"evidence-graph: claims={impact_claims} component={component_node} "
+            f"claims={impact_claims} component={component_node} "
             f"repro={repro_node}(steps={step_count}) observed={observed_node} "
             f"boundary={boundary_node}(negated={boundary_negated}) "
             f"edges={edges_present}/4 hedged={hedged} overall={overall:.2f}"

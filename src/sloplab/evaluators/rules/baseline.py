@@ -234,18 +234,18 @@ class RulesBaselineEvaluator:
         # do not assert the report's own subject is safe; they describe a
         # hypothetical and should route to review, not reject.
         no_boundary_matches = [m for rx in _NO_BOUNDARY_PATTERNS for m in rx.finditer(full)]
-        conditional_negation = any(
-            _CONDITIONAL_SENTENCE_RE.search(full[max(0, m.start() - 80) : m.start() + 1])
+        unconditional_matches = [
+            m
             for m in no_boundary_matches
-        )
-        unconditional_negation = bool(no_boundary_matches) and not conditional_negation
+            if not _CONDITIONAL_SENTENCE_RE.search(full[max(0, m.start() - 80) : m.start() + 1])
+        ]
+        unconditional_negation = bool(unconditional_matches)
+        conditional_negation = bool(no_boundary_matches) and not unconditional_negation
         contradiction_hits = _count_pattern_hits(full, _CLAIM_CONTRADICTION_PATTERNS)
         summary_claimed = bool(_STRONG_CLAIM_PATTERN.search(_section_text(report, "summary") or ""))
 
         if unconditional_negation:
-            hit = next(
-                (m.group(0) for rx in _NO_BOUNDARY_PATTERNS for m in [rx.search(full)] if m), ""
-            )
+            hit = unconditional_matches[0].group(0)
             findings.append(
                 Finding(
                     code="NO_SECURITY_BOUNDARY_STATED",

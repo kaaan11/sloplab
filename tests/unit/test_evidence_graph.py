@@ -91,6 +91,22 @@ class TestGraphExtraction:
         result = evaluate(hedged)
         assert result.decision != Decision.ACCEPT
 
+    def test_missing_boundary_emits_missing_code_not_contradiction(self) -> None:
+        # Removing boundary section must result in missing boundary finding,
+        # not a contradiction finding
+        text = VALID_BODY.replace(
+            "## Expected Security Boundary\n\n"
+            "Object reads must be scoped to the caller's tenant; cross-tenant reads require\n"
+            "tenant-scoped authorization.\n\n",
+            "",
+        )
+        result = evaluate(text)
+        codes = {f.code for f in result.findings}
+        assert "GRAPH_MISSING_BOUNDARY_STATEMENT" in codes
+        assert "GRAPH_BOUNDARY_CONTRADICTS_CLAIM" not in codes
+        assert not result.rationale.startswith("evidence-graph-baseline: evidence-graph:")
+        assert result.rationale.startswith("evidence-graph-baseline: claims=")
+
 
 class TestLabelIndependence:
     def test_labels_do_not_affect_output(self) -> None:
