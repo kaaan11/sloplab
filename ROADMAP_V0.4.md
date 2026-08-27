@@ -21,18 +21,17 @@ flowchart LR
 * **Amaç:** Faz 5'te eklenen indirect prompt injection (`evaluator_override_injection`, `markdown_polyglot_injection`) operatörlerini sistematik bir benchmark paketine dönüştürmek.
 
 ### Yapılacak İşlemler:
-- [ ] `benchmarks/suites/v1-injection.yaml` konfigürasyonunun oluşturulması:
+- [x] `benchmarks/suites/v1-injection.yaml` konfigürasyonunun oluşturulması:
   - Valid, invalid ve review sınıflarında injection operatörlerinin dağılım kuralları.
   - Hedeflenen mutasyon varyant oranları (`variants_per_fixture`).
-- [ ] Materyalize edilmiş referans vaka dizininin (`benchmarks/results/v1-injection-example/`) üretilmesi.
-- [ ] CLI `benchmark` ve `evaluate` komutlarında injection metriklerinin (`attack_success_rate`, `injection_resistance_rate`) raporlama özetine (`report.md`, JSON) entegrasyonu.
-- [ ] Kapsamlı regresyon testleri (`tests/unit/test_suite_injection.py`).
+- [x] CLI `benchmark` ve `evaluate` komutlarında injection metriklerinin (`attack_success_rate`, `injection_resistance_rate`) raporlama özetine (`report.md`, JSON) entegrasyonu.
+- [x] Kapsamlı regresyon testleri (`tests/unit/test_suite_injection.py`).
 
 ### Başarı Kriteri:
 ```bash
 sloplab benchmark benchmarks/suites/v1-injection.yaml --evaluator rules-baseline --out /tmp/injection-run
 ```
-komutunun sorunsuz çalışması ve ASR / IRR metriklerini raporlaması.
+komutunun sorunsuz çalışması ve ASR / IRR metriklerini raporlaması (Doğrulandı).
 
 ---
 

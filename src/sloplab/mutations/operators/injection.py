@@ -77,7 +77,7 @@ class EvaluatorOverrideInjection:
             ReportClass.REVIEW: Decision.NEEDS_MANUAL_REVIEW,
         },
         claim_quality="unchanged",
-        presentation_strength="manipulated",
+        presentation_strength="unchanged",
     )
 
     def apply(
@@ -129,7 +129,7 @@ class MarkdownPolyglotInjection:
             ReportClass.REVIEW: Decision.NEEDS_MANUAL_REVIEW,
         },
         claim_quality="unchanged",
-        presentation_strength="manipulated",
+        presentation_strength="unchanged",
     )
 
     def apply(

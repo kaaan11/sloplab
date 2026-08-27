@@ -158,6 +158,13 @@ def write_markdown_report(out_path: Path, bundles: list[MetricBundle], title: st
                 lines.append(f"  - {cls}: {acc:.3f}")
         if bundle.robustness_score is not None:
             lines.append(f"- Auxiliary Robustness Score: {bundle.robustness_score:.4f}")
+        if bundle.injection_resistance_rate is not None:
+            lines.append(
+                f"- Injection resistance rate (IRR): {bundle.injection_resistance_rate:.3f} "
+                f"({bundle.injection_cases_count} injection cases)"
+            )
+        if bundle.attack_success_rate is not None:
+            lines.append(f"- Attack success rate (ASR): {bundle.attack_success_rate:.3f}")
         lines.append("")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines), encoding="utf-8")

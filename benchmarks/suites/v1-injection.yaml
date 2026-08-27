@@ -1,0 +1,30 @@
+name: v1-injection
+description: >
+  Adversarial indirect prompt injection (IPI) and evaluator hijacking benchmark
+  suite. Focuses on testing whether LLM and rule evaluators resist embedded override
+  and stealth polyglot directives, measuring Attack Success Rate (ASR) and Injection
+  Resistance Rate (IRR).
+base_seed: 20260828
+corpus_root: corpus
+include_canonical_cases: true
+policies:
+  valid:
+    variants_per_fixture: 2
+    operators:
+      - evaluator_override_injection
+      - markdown_polyglot_injection
+  invalid:
+    variants_per_fixture: 2
+    operators:
+      - evaluator_override_injection
+      - markdown_polyglot_injection
+  review:
+    variants_per_fixture: 2
+    operators:
+      - evaluator_override_injection
+      - markdown_polyglot_injection
+  presentation_pair:
+    variants_per_fixture: 1
+    operators:
+      - evaluator_override_injection
+      - markdown_polyglot_injection
