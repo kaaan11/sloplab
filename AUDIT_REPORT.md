@@ -74,7 +74,7 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 3.2 `RulesBaselineEvaluator` sınır negasyonu eşleşme mantığının ayrılması
   - [x] 3.3 `EvidenceGraphBaselineEvaluator` finding ve rationale temizliği
   - [x] 3.4 `parse_report` code fence uzunluk takibi
-- [ ] **Faz 4 (P3): Sürüm ve Dokümantasyon Senkronizasyonu**
-  - [ ] 4.1 Sürüm artırımı (`v0.3.0`) ve pyproject/README senkronizasyonu
-  - [ ] 4.2 Tam test süiti, linter ve tip denetimi (pytest, ruff, mypy)
-  - [ ] 4.3 Git commit ve remote push
+- [x] **Faz 4 (P3): Sürüm ve Dokümantasyon Senkronizasyonu**
+  - [x] 4.1 Sürüm artırımı (`v0.3.0`) ve pyproject/README senkronizasyonu
+  - [x] 4.2 Tam test süiti, linter ve tip denetimi (pytest, ruff, mypy)
+  - [x] 4.3 Git commit ve remote push
