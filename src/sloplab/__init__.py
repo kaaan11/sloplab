@@ -1,3 +1,3 @@
 """SlopLab: adversarial testing framework for vulnerability-report triage evaluators."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

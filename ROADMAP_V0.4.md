@@ -79,17 +79,13 @@ Canlı pilot konfigürasyonunun ve bütçe motorunun doğrulanması (Doğruland�
 * **Amaç:** Faz 5-11 arasındaki tüm yenilikleri resmi bir minör sürüm (`v0.4.0`) altında paketlemek.
 
 ### Yapılacak İşlemler:
-- [ ] Sürüm artırımı:
+- [x] Sürüm artırımı:
   - `pyproject.toml` -> `0.4.0`
   - `src/sloplab/__init__.py` -> `0.4.0`
   - `docs/dataset-card.md` -> `0.4.0`
   - `uv.lock` senkronizasyonu.
-- [ ] `docs/release-notes-v0.4.0.md` hazırlanması:
-  - Indirect Prompt Injection operatörleri (`EvaluatorOverrideInjection`, `MarkdownPolyglotInjection`).
-  - Asenkron & Eşzamanlı (Concurrent) değerlendirme altyapısı (`-j / --concurrency`).
-  - Agentic / Tool-Use Triage Değerlendirici Sözleşmesi (`AgenticTriageEvaluator`).
-  - Semantik Pertürbasyon Mesafesi ve Dayanıklılık Eğrisi (`perturbation_curve`).
-- [ ] Git tag (`v0.4.0`) oluşturulması ve GitHub Release yayımlanması.
+- [x] `docs/release-notes-v0.4.0.md` hazırlanması.
+- [x] Git tag (`v0.4.0`) oluşturulması ve GitHub Release yayımlanması.
 
 ---
 
