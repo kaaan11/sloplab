@@ -161,5 +161,20 @@ def run_case(evaluator: Evaluator, case: SuiteCase) -> CaseRecord:
     )
 
 
-def run_suite(evaluator: Evaluator, cases: list[SuiteCase]) -> list[CaseRecord]:
-    return [run_case(evaluator, case) for case in cases]
+def run_suite(
+    evaluator: Evaluator,
+    cases: list[SuiteCase],
+    *,
+    concurrency: int = 1,
+) -> list[CaseRecord]:
+    """Run an evaluator over all cases, optionally parallelized with a worker pool.
+
+    Preserves case order strictly in the returned list.
+    """
+    if concurrency <= 1 or len(cases) <= 1:
+        return [run_case(evaluator, case) for case in cases]
+
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=concurrency) as executor:
+        return list(executor.map(lambda c: run_case(evaluator, c), cases))

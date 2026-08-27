@@ -178,6 +178,7 @@ def _run_evaluators_over_suite(
     out_dir: Path,
     suite_name: str,
     base_seed: int,
+    concurrency: int = 1,
 ) -> list[Any]:
     import json
 
@@ -198,7 +199,7 @@ def _run_evaluators_over_suite(
 
     for evaluator_name in evaluators:
         evaluator = get_evaluator(evaluator_name)
-        run_records = run_suite(evaluator, cases)
+        run_records = run_suite(evaluator, cases, concurrency=concurrency)
         records.extend(run_records)
         infos.append(EvaluatorInfo(name=evaluator.name, version=evaluator.version))
         bundle = compute_metrics(run_records, evaluator.name)
@@ -254,7 +255,14 @@ def _hash_file(path: Path) -> str:
 @click.argument("cases", type=click.Path(exists=True, path_type=str))
 @click.option("--evaluator", "evaluators", multiple=True, required=True)
 @click.option("--out", type=click.Path(path_type=str), required=True)
-def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
+@click.option(
+    "-j",
+    "--concurrency",
+    default=1,
+    type=int,
+    help="Number of concurrent evaluator worker threads.",
+)
+def evaluate(cases: str, evaluators: tuple[str, ...], out: str, concurrency: int) -> None:
     """Run evaluators over a materialized suite (directory with suite-index.jsonl)."""
     from pathlib import Path as _Path
 
@@ -263,7 +271,14 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
     index_path, corpus_root, materialized_root = _resolve_suite_index(cases)
     out_dir = _Path(out)
     bundles = _run_evaluators_over_suite(
-        evaluators, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
+        evaluators,
+        index_path,
+        corpus_root,
+        materialized_root,
+        out_dir,
+        "evaluate",
+        0,
+        concurrency=concurrency,
     )
     write_markdown_report(out_dir / "report.md", bundles, "SlopLab evaluation results")
     click.echo(f"wrote {out_dir / 'run.jsonl'}, metrics and report.md")
@@ -279,7 +294,20 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
     default=True,
     help="Re-materialize the suite before evaluating.",
 )
-def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize: bool) -> None:
+@click.option(
+    "-j",
+    "--concurrency",
+    default=1,
+    type=int,
+    help="Number of concurrent evaluator worker threads.",
+)
+def benchmark(
+    suite: str,
+    evaluators: tuple[str, ...],
+    out: str,
+    do_materialize: bool,
+    concurrency: int,
+) -> None:
     """Materialize and evaluate a full suite, then score it."""
     from pathlib import Path as _Path
 
@@ -317,6 +345,7 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
         out_dir,
         config.name,
         config.base_seed,
+        concurrency=concurrency,
     )
     _, records = __import__(
         "sloplab.reporting.writers", fromlist=["read_run_jsonl"]
