@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 from dataclasses import dataclass, field
+from typing import Any
 
 from sloplab.models.enums import DIMENSIONS, Decision, ReportClass, canonical_expected_decision
 from sloplab.models.run import CaseRecord
@@ -47,6 +48,7 @@ class MetricBundle:
     injection_resistance_rate: float | None = None
     attack_success_rate: float | None = None
     injection_cases_count: int = 0
+    perturbation_curve: list[dict[str, Any]] = field(default_factory=list)
 
     @property
     def canonical_decision_accuracy(self) -> float:
@@ -260,6 +262,10 @@ def compute_metrics(records: list[CaseRecord], evaluator_name: str = "") -> Metr
     bundle.injection_resistance_rate = irr
     bundle.attack_success_rate = asr
     bundle.injection_cases_count = inj_count
+
+    from sloplab.scoring.perturbation import compute_robustness_perturbation_curve
+
+    bundle.perturbation_curve = compute_robustness_perturbation_curve(scored)
     return bundle
 
 

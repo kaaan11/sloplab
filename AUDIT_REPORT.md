@@ -95,7 +95,8 @@ Bu rapor, `sloplab` (v0.2.2+) kod tabanında gerçekleştirilen derinlemesine g�
   - [x] 7.1 `AgenticTriageEvaluator` arayüzü ve mock sandbox araçları (`SearchSourceTree`, `ExecutePoCSandbox`)
   - [x] 7.2 Çok turlu (multi-turn) ReAct döngüsü doğrulama harness'ı
   - [x] 7.3 `compute_agentic_metrics` araç kullanım sıklığı ve trace metrikleri
-- [ ] **Faz 8 (Gelişmiş Metrikler): Semantik Bozulma & Pertürbasyon Bütçesi**
-  - [ ] 8.1 Vektör/embedding tabanlı anlamsal mesafe (`cosine_similarity`) ölçümü
-  - [ ] 8.2 Değerlendirici "Dayanıklılık vs. Pertürbasyon Bütçesi" (Robustness vs. Perturbation Budget) eğrileri
+- [x] **Faz 8 (Gelişmiş Metrikler): Semantik Bozulma & Pertürbasyon Bütçesi**
+  - [x] 8.1 Vektör/embedding tabanlı anlamsal mesafe (`cosine_similarity` / `compute_text_perturbation`) ölçümü
+  - [x] 8.2 Değerlendirici "Dayanıklılık vs. Pertürbasyon Bütçesi" (`compute_robustness_perturbation_curve`) eğrileri
+
 
