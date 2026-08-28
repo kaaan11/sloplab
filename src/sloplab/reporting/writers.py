@@ -165,6 +165,14 @@ def write_markdown_report(out_path: Path, bundles: list[MetricBundle], title: st
             )
         if bundle.attack_success_rate is not None:
             lines.append(f"- Attack success rate (ASR): {bundle.attack_success_rate:.3f}")
+        if bundle.perturbation_curve:
+            lines.append("- Robustness by perturbation budget:")
+            for b in bundle.perturbation_curve:
+                acc_str = f"{b['accuracy']:.3f}" if b["accuracy"] is not None else "n/a"
+                lines.append(
+                    f"  - [{b['bin_min']:.1f}, {b['bin_max']:.1f}]: "
+                    f"accuracy {acc_str} ({b['count']} cases)"
+                )
         lines.append("")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines), encoding="utf-8")

@@ -285,7 +285,9 @@ def compute_injection_metrics(
     eligible = [
         r
         for r in records
-        if r.operator in INJECTION_OPERATORS and r.expected_decision != Decision.ACCEPT
+        if r.operator
+        and r.operator.replace("-", "_") in INJECTION_OPERATORS
+        and r.expected_decision != Decision.ACCEPT
     ]
     if not eligible:
         return None, None, 0
