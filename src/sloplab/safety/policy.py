@@ -46,7 +46,10 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}")
-_URL_RE = re.compile(r"https?://(?P<host>[A-Za-z0-9.-]+)[^\s)\]>`]*", re.IGNORECASE)
+_URL_RE = re.compile(
+    r"https?://(?P<host>\[[0-9a-fA-F:]+\]|[A-Za-z0-9.-]+)[^\s)\]>`]*",
+    re.IGNORECASE,
+)
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 
@@ -54,6 +57,8 @@ _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
+    if host.startswith("[") and host.endswith("]"):
+        host = host[1:-1]
     if host == "localhost" or any(host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
         return True
     if any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS):

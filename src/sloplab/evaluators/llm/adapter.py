@@ -275,9 +275,22 @@ class HttpLLMClient:
         )
         start = time.monotonic()
         with urllib.request.urlopen(request, timeout=self._timeout_s) as response:  # noqa: S310
-            payload = _json.loads(response.read().decode())
+            raw_bytes = response.read(10 * 1024 * 1024)  # 10MB safety bound
+            payload = _json.loads(raw_bytes.decode("utf-8", errors="replace"))
         latency = int((time.monotonic() - start) * 1000)
-        text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+        # Resilient payload extraction supporting OpenAI, Ollama, and direct formats
+        text = ""
+        choices = payload.get("choices")
+        if choices and isinstance(choices, list) and len(choices) > 0:
+            first_msg = choices[0].get("message", {})
+            if isinstance(first_msg, dict):
+                text = first_msg.get("content", "")
+        elif "message" in payload and isinstance(payload["message"], dict):
+            text = payload["message"].get("content", "")
+        elif "response" in payload and isinstance(payload["response"], str):
+            text = payload["response"]
+
         return LLMResponse(text=text, latency_ms=latency)
 
 

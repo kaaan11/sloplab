@@ -76,6 +76,13 @@ def _load_report_document(
     fallback_title: str,
 ) -> tuple[ReportDocument, Path]:
     resolved = (corpus_root / report_rel_path).resolve()
+    try:
+        resolved.relative_to(corpus_root.resolve())
+    except ValueError as exc:
+        raise FixtureError(
+            f"{manifest_path}: 'report.path' attempts path traversal outside root: "
+            f"'{report_rel_path}'"
+        ) from exc
     if not resolved.is_file():
         raise FixtureError(
             f"{manifest_path}: 'report.path' points to missing file '{report_rel_path}' "
