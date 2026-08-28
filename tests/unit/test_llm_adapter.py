@@ -177,7 +177,9 @@ class TestHttpLLMClientTimeout:
         def __exit__(self, *args: Any) -> None:
             return None
 
-        def read(self) -> bytes:
+        def read(self, amt: int | None = None) -> bytes:
+            if amt is not None:
+                return self._body[:amt]
             return self._body
 
     def test_timeout_is_passed_to_urlopen(self, monkeypatch: Any) -> None:
