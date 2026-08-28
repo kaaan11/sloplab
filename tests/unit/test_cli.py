@@ -72,3 +72,47 @@ def test_compare_with_direct_metrics_json_files(tmp_path) -> None:  # type: igno
     res = runner.invoke(cli, ["compare", str(m1), str(m2)])
     assert res.exit_code == 0
     assert "test-eval" in res.output
+
+
+def test_report_supports_directory_and_run_jsonl(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    import json
+
+    from sloplab.reporting.writers import default_run_metadata
+
+    runner = CliRunner()
+    run_file = tmp_path / "run.jsonl"
+    meta_line = default_run_metadata(suite_name="test-suite").model_dump_json()
+    case_line = json.dumps(
+        {
+            "record_type": "case",
+            "case_id": "c1",
+            "case_kind": "canonical",
+            "evaluator_name": "mock-eval",
+            "evaluator_version": "1.0",
+            "decision": "accept",
+            "expected_decision": "accept",
+            "confidence": 0.9,
+            "dimensions": {
+                "reproducibility": 1.0,
+                "evidence_completeness": 1.0,
+                "claim_evidence_consistency": 1.0,
+                "impact_calibration": 1.0,
+                "scope_consistency": 1.0,
+            },
+            "correct": True,
+            "findings": [],
+            "rationale": "ok",
+            "report_class": "valid",
+        }
+    )
+    run_file.write_text(f"{meta_line}\n{case_line}\n", encoding="utf-8")
+
+    # Call with directory
+    res_dir = runner.invoke(cli, ["report", str(tmp_path)])
+    assert res_dir.exit_code == 0
+    assert "SlopLab results (test-suite)" in res_dir.output
+
+    # Call with direct file
+    res_file = runner.invoke(cli, ["report", str(run_file)])
+    assert res_file.exit_code == 0
+    assert "SlopLab results (test-suite)" in res_file.output

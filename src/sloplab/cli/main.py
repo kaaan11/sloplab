@@ -544,7 +544,16 @@ def report(results: str, fmt: str, out: str | None) -> None:
     from sloplab.reporting.writers import read_run_jsonl, write_markdown_report
     from sloplab.scoring.metrics import compute_metrics
 
-    metadata, records = read_run_jsonl(_Path(results))
+    results_path = _Path(results)
+    if results_path.is_dir():
+        candidate = results_path / "run.jsonl"
+        if not candidate.is_file():
+            raise click.ClickException(f"directory '{results}' does not contain a 'run.jsonl' file")
+        results_path = candidate
+    elif not results_path.is_file():
+        raise click.ClickException(f"results file '{results}' not found")
+
+    metadata, records = read_run_jsonl(results_path)
     if not records:
         raise click.ClickException(f"no case records found in {results}")
 
@@ -553,8 +562,9 @@ def report(results: str, fmt: str, out: str | None) -> None:
         by_evaluator.setdefault(record.evaluator_name, []).append(record)
 
     bundles = [compute_metrics(recs, name) for name, recs in sorted(by_evaluator.items())]
+    out_target = _Path(out) if out else results_path.parent / "report.md"
     rendered = write_markdown_report(
-        _Path(out) if out else _Path(results).parent / "report.md",
+        out_target,
         bundles,
         f"SlopLab results ({metadata.suite_name if metadata else 'unknown suite'})",
     )
