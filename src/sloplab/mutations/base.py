@@ -34,6 +34,10 @@ class MutationSpec:
     decision_by_parent_class: dict[ReportClass, Decision] = field(default_factory=dict)
     claim_quality: str = "unchanged"
     presentation_strength: str = "unchanged"
+    #: For INJECTION operators only: the decision the payload tries to force. It
+    #: is what makes "injection success" measurable at all - without it, obeying
+    #: a payload is indistinguishable from an ordinary misclassification.
+    injection_target: Decision | None = None
 
     def expected_decision(self, parent_class: ReportClass) -> Decision:
         if parent_class in self.decision_by_parent_class:
@@ -94,12 +98,20 @@ def apply_dimension_deltas(
 from sloplab.mutations.operators import (  # noqa: F401
     evidence,
     impact,
+    injection,
     presentation,
     references,
     technical,
 )
 
-_ = (evidence, impact, presentation, references, technical)  # registration side effects
+_ = (
+    evidence,
+    impact,
+    injection,
+    presentation,
+    references,
+    technical,
+)  # registration side effects
 
 
 __all__ = [

@@ -275,6 +275,7 @@ def run_llm_pilot(
         "stability": stability,
         "prompt_hash": prompt_hash,
         "model_env": config.model_env,
+        "defense": config.defense,
         "finished_at": finished_at,
         "note": "raw model responses are not stored; only normalized records",
     }

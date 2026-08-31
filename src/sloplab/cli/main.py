@@ -380,6 +380,8 @@ def study(config: str, out: str) -> None:
     from sloplab.scoring.comparison import (
         bootstrap_accuracy_ci,
         error_taxonomy,
+        injection_success_by_arm,
+        injection_targets,
         paired_win_loss,
         per_class_metrics,
         per_operator_metrics,
@@ -424,8 +426,20 @@ def study(config: str, out: str) -> None:
         for n, rs in sorted(by_evaluator.items())
     }
 
+    # Per-arm injection success (D-0015). Empty unless the suite includes
+    # injection operators; a deterministic evaluator records no arm and so counts
+    # toward the control, where it serves as the negative control.
+    targets = injection_targets()
+    injection = {
+        n: {
+            arm: outcome.as_dict() for arm, outcome in injection_success_by_arm(rs, targets).items()
+        }
+        for n, rs in sorted(by_evaluator.items())
+    }
+
     analysis = {
         "bundles": {n: asdict(b) for n, b in bundles.items()},
+        "injection_success": {n: v for n, v in injection.items() if v},
         "paired_comparisons": [c.as_dict() for c in comparisons],
         "error_taxonomy": taxonomies_full,
         "per_operator": per_op,

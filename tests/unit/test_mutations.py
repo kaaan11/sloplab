@@ -60,8 +60,33 @@ ALL_OPS = (
 
 
 class TestRegistry:
-    def test_twelve_operators_registered(self) -> None:
-        assert len(list_operators()) == 12
+    @staticmethod
+    def _by_family() -> tuple[list[str], list[str]]:
+        from sloplab.models.enums import MutationCategory
+
+        quality: list[str] = []
+        injection: list[str] = []
+        for name in list_operators():
+            target = (
+                injection
+                if (get_operator(name).spec.category is MutationCategory.INJECTION)
+                else quality
+            )
+            target.append(name)
+        return quality, injection
+
+    def test_v1_quality_operators_remain_frozen_at_twelve(self) -> None:
+        """D-0012 froze the V1 set. D-0015 adds injection as a separate family,
+        which must not be a back door for growing the frozen set."""
+        quality, _injection = self._by_family()
+        assert len(quality) == 12
+
+    def test_injection_family_is_separate_and_declared(self) -> None:
+        quality, injection = self._by_family()
+        assert len(injection) == 3
+        assert set(injection).isdisjoint(quality)
+        for name in injection:
+            assert get_operator(name).spec.injection_target is not None, name
 
     def test_unknown_operator_lists_known(self) -> None:
         with pytest.raises(KeyError, match="registered:"):

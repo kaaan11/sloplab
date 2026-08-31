@@ -130,6 +130,7 @@ def main(argv: list[str] | None = None) -> int:
         client=counting,
         max_retries=config.budget.max_retries_per_case,
         enabled=True,
+        defense=config.defense,
     )
 
     cases = build_cases(

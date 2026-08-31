@@ -68,6 +68,9 @@ class MutationCategory(StrEnum):
     REFERENCE = "reference"
     PRESENTATION = "presentation"
     NOISE = "noise"
+    #: Instruction-override payloads aimed at the evaluator rather than at report
+    #: quality. Permitted only under the narrow carve-out in docs/safety.md (D-0015).
+    INJECTION = "injection"
 
 
 CANONICAL_EXPECTED_DECISION: dict[ReportClass, Decision] = {

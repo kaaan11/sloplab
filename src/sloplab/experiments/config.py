@@ -77,6 +77,10 @@ class LLMPilotConfig(StrictModel):
     budget: LLMBudget
     case_selection: Literal["canonical_first"] = "canonical_first"
     max_cases: int | None = None
+    #: Prompt-boundary experiment arm (D-0015, docs/decision-log.md).
+    #: ``none`` is the control and the default: a config that does not mention
+    #: this field selects exactly the prompt SlopLab has always measured.
+    defense: Literal["none", "delimited"] = "none"
 
     @field_validator("case_selection")
     @classmethod

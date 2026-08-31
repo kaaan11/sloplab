@@ -25,6 +25,7 @@ presentation.
 | Overfitting benchmarks via label tuning | Expected decisions live in manifests, reviewed alongside reports; known baseline failures are documented, never tuned away |
 | Silent non-determinism | Seeded mutations; no wall-clock/locale/dict-order dependence; recorded run metadata (version, commit, config hash, seed) |
 | Metric gaming via single summary score | Primary reporting is per-metric; Robustness Score is explicitly auxiliary |
+| Report content hijacks an LLM evaluator's instructions | Injection operators (`MutationCategory.INJECTION`) make the susceptibility measurable, and the `defense` axis measures a delimiting mitigation against them; the default arm stays undelimited so the baseline measurement is unchanged (D-0015) |
 
 ## What SlopLab is NOT (non-goals)
 
@@ -33,7 +34,11 @@ presentation.
 - Not a source of credible-looking attack material. All fabricated identifiers use
   reserved namespaces (`CVE-2099-*`, RFC 2606 domains, synthetic product names).
 - Not an optimizer for evading triage systems. Operators model *quality degradation*,
-  not bypass techniques, and are documented individually.
+  not bypass techniques, and are documented individually. The one bounded exception
+  is the instruction-override family (`MutationCategory.INJECTION`), permitted under
+  the narrow terms in safety.md so that an LLM evaluator's susceptibility - and a
+  defense against it - can be measured at all. Those payloads are generic, target
+  only this benchmark's own evaluator, and are never tuned against a real system.
 
 ## Abuse-resistance posture
 
