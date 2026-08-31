@@ -58,6 +58,16 @@ def main(argv: list[str] | None = None) -> int:
         default=REPO_ROOT / "benchmarks/results/v1-core-example/suite-index.jsonl",
     )
     parser.add_argument("--out", type=Path, default=Path("llm-bench-results.jsonl"))
+    parser.add_argument(
+        "--history",
+        type=Path,
+        default=None,
+        help=(
+            "Append this dispatch's decisions to a cross-run decision history file. "
+            "Carry the file forward from the previous run's artifact to accumulate "
+            "history across dispatches (the CI runner is ephemeral)."
+        ),
+    )
     args = parser.parse_args(argv)
 
     model_env = os.environ.get("SLOPLAB_LLM_MODEL")
@@ -130,7 +140,9 @@ def main(argv: list[str] | None = None) -> int:
     canonical = [c for c in cases if c.kind == "canonical"]
 
     bundle_dir = args.out.parent / f"{args.out.stem}.bundle"
-    result = run_llm_pilot(config, evaluator, canonical, REPO_ROOT, bundle_dir)
+    result = run_llm_pilot(
+        config, evaluator, canonical, REPO_ROOT, bundle_dir, history_path=args.history
+    )
     shutil.copyfile(result.records_path, args.out)
 
     print(f"evaluated {result.evaluations_attempted} evaluations -> {args.out}")

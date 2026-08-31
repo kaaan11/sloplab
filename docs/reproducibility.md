@@ -62,3 +62,41 @@ byte-identical across runs; `manifest.json` additionally records the commit SHA,
 suite hash, evaluator config hashes, and wall-clock times (excluded from identity
 comparison by design). Bootstrap confidence intervals are seeded from the study's
 base seed and therefore reproduce exactly.
+
+## Cross-run decision history (opt-in)
+
+`sloplab benchmark --history PATH` and the pilot's `--history PATH` append one
+decision per case per run to a JSON history file
+(`src/sloplab/experiments/history.py`). Its purpose is the opposite of
+byte-reproducibility: it exists to make drift *between* runs visible, where
+`repeat_stability` only sees flips *within* one run's repeats.
+
+It is therefore an explicit exception to the guarantee above, and is fenced off
+so it cannot leak into anything that is guaranteed:
+
+- Every entry carries a wall-clock `ts`, so history files are not byte-comparable
+  across runs. Nothing in the deterministic pipeline reads them.
+- The module lives under `experiments/` (run provenance), never under `scoring/`.
+  No metric, mutation, or evaluation consumes it.
+- Nothing under `src/sloplab/evaluators/` may import it - an evaluator that could
+  read its own prior decision would be gaming the benchmark. A regression test
+  (`tests/regression/test_history_isolation.py`) enforces the boundary.
+- Enabling history changes no other output: with the flag omitted, results are
+  identical byte for byte.
+
+Entries are keyed by the true `case_id`, not by the opaque handle evaluators see.
+One run contributes one entry per case, with a stochastic evaluator's repeats
+reduced to their majority decision, so `stable_cases(threshold=3)` genuinely
+means "three runs agreed" and not "three repeats of one run agreed".
+
+Because a single file may hold entries from several evaluators or corpus
+revisions, read stability through the filters:
+
+```python
+history.stable_cases(threshold=3, model="rules-baseline@0.2.2")
+```
+
+Known limits: the whole file is rewritten on each update and swapped in with
+`os.replace`, so a reader never sees a partial file - but two concurrent runs
+will lose one set of entries (last writer wins). There is no retention policy;
+the file grows linearly in runs x cases.

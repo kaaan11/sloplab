@@ -4,18 +4,27 @@ Enforces the experiment config's hard limits (max requests, retries) and records
 request/error/timeout counters into provenance. Transport is injected, so nothing
 here performs live calls; raw model responses are never stored - only normalized,
 schema-validated records.
+
+When ``history_path`` is supplied, the run's decisions are also appended to a
+cross-run decision history (:mod:`sloplab.experiments.history`). That happens
+strictly after ``records.jsonl`` and ``manifest.json`` are on disk, and can never
+fail the run - this is the one code path that spends money.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from sloplab.corpus.loader import load_corpus_version
 from sloplab.evaluators.llm.adapter import LLMResponse
 from sloplab.experiments.config import LLMPilotConfig
+from sloplab.experiments.history import entries_from_records, record_run, utc_timestamp
 from sloplab.experiments.runner import current_commit_sha, sha256_file
 from sloplab.models.run import CaseRecord
 from sloplab.scoring.comparison import repeat_stability
@@ -64,6 +73,8 @@ class PilotRunResult:
     skipped_by_budget: int = 0
     counters: dict[str, int] = field(default_factory=dict)
     stability: dict[str, object] = field(default_factory=dict)
+    run_id: str = ""
+    history_recorded: bool = False
 
 
 class ThrottledClient:
@@ -150,17 +161,27 @@ def _document_for(case: SuiteCase, corpus_root: Path) -> Any:
     raise ValueError(f"case {case.case_id} is not loadable")
 
 
+def _pilot_run_id(*parts: str) -> str:
+    """Identifier for one pilot dispatch, derived from its own provenance."""
+    digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
+    return f"run-{digest[:12]}"
+
+
 def run_llm_pilot(
     config: LLMPilotConfig,
     evaluator: object,
     cases: list[SuiteCase],
     repo_root: Path,
     out_dir: Path,
+    history_path: Path | None = None,
 ) -> PilotRunResult:
     """Evaluate selected cases across ``config.repeats`` repeats under hard budgets.
 
     ``evaluator`` must be an :class:`LlmEvaluator` built around a
     :class:`CountingClient` so every underlying request counts against the budget.
+
+    ``history_path`` opts into cross-run decision history; omitting it (the
+    default) leaves every existing output byte-identical.
     """
     from sloplab.evaluators.llm.adapter import LlmEvaluator
     from sloplab.models.enums import Decision
@@ -232,10 +253,16 @@ def run_llm_pilot(
         "".join(r.model_dump_json() + "\n" for r in all_records), encoding="utf-8"
     )
 
+    commit_sha = current_commit_sha(repo_root)
+    prompt_hash = sha256_file(repo_root / config.prompt_file)
+    finished_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    run_id = _pilot_run_id(config.name, str(commit_sha), prompt_hash, finished_at)
+
     manifest = {
         "experiment_name": config.name,
         "kind": "llm-pilot",
-        "commit_sha": current_commit_sha(repo_root),
+        "run_id": run_id,
+        "commit_sha": commit_sha,
         "base_seed": config.base_seed,
         "repeats": config.repeats,
         "selected_cases": len(selected),
@@ -246,13 +273,28 @@ def run_llm_pilot(
             "timeouts": client.timeouts,
         },
         "stability": stability,
-        "prompt_hash": sha256_file(repo_root / config.prompt_file),
+        "prompt_hash": prompt_hash,
         "model_env": config.model_env,
-        "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "finished_at": finished_at,
         "note": "raw model responses are not stored; only normalized records",
     }
     manifest_path = out_dir / "manifest.json"
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+
+    # Everything the run owes its caller is now on disk; history is additive and
+    # is allowed to fail quietly from here on.
+    history_recorded = False
+    if history_path is not None:
+        history_recorded = record_run(
+            history_path,
+            entries_from_records(
+                all_records,
+                model=os.environ.get(config.model_env, "unknown"),
+                corpus_version=load_corpus_version(),
+                run_id=run_id,
+                ts=utc_timestamp(),
+            ),
+        )
 
     failed = sum(1 for r in all_records if r.evaluation_metadata.get("failed"))
     return PilotRunResult(
@@ -268,4 +310,6 @@ def run_llm_pilot(
             "timeouts": client.timeouts,
         },
         stability=stability,
+        run_id=run_id,
+        history_recorded=history_recorded,
     )

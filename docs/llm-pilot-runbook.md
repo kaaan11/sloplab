@@ -66,6 +66,36 @@ are visible immediately.
 - Manifest counters also include repeat-stability metrics when two or more
   repeats completed (unanimity rate, decision flips, mean confidence spread).
 
+## Cross-run decision history (optional)
+
+Pass `--history PATH` to `scripts/llm_bench.py` to append this dispatch's
+decisions to a decision-history file: one entry per case per run, recording the
+decision, model, corpus version and run id. `DecisionHistory.stable_cases()`
+then answers "which cases have agreed across the last N runs" - drift that
+`repeat_stability` cannot see, because it only compares repeats inside one run.
+
+The three repeats of one dispatch collapse into a single entry (their majority
+decision), so stability at threshold 3 means three *dispatches* agreed.
+
+**The CI runner is ephemeral.** A history file written during a workflow run
+disappears when the job ends, so history accumulates across dispatches only if
+you carry it forward yourself. The workflow uploads
+`llm-bench-results.bundle/`, so point `--history` inside it:
+
+```bash
+uv run python scripts/llm_bench.py --max-cases 3 \
+    --out llm-bench-results.jsonl \
+    --history llm-bench-results.bundle/decision-history.json
+```
+
+Before dispatching, restore `decision-history.json` from the previous run's
+`llm-bench-results` artifact into that path; it is then uploaded again with this
+run's results. Without that step every dispatch starts from an empty history and
+`stable_cases()` stays empty.
+
+Read stability with the model filter (`stable_cases(model=...)`); comparing
+decisions made by different models and calling the result stable is meaningless.
+
 ## Interpreting pilot output
 
 - Report observations scoped to this benchmark only: e.g. "model X flipped decisions

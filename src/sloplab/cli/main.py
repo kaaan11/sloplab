@@ -174,6 +174,7 @@ def _run_evaluators_over_suite(
     out_dir: Path,
     suite_name: str,
     base_seed: int,
+    history_path: Path | None = None,
 ) -> list[Any]:
     import json
 
@@ -213,6 +214,31 @@ def _run_evaluators_over_suite(
         suite_hash=_hash_file(index_path),
     )
     write_run_jsonl(out_dir / "run.jsonl", metadata, records)
+
+    # Results are on disk; cross-run history is additive and never fails a run.
+    # One entry per evaluator per case, tagged with the evaluator identity, so
+    # `stable_cases(model=...)` can separate evaluators sharing one file.
+    if history_path is not None:
+        from sloplab.corpus.loader import load_corpus_version
+        from sloplab.experiments.history import entries_from_records, record_run, utc_timestamp
+
+        # Reuse run.jsonl's own run id so a history entry can be traced back to
+        # the run that produced it.
+        run_id = metadata.run_id
+        corpus_version = load_corpus_version()
+        timestamp = utc_timestamp()
+        for info in infos:
+            per_evaluator = [r for r in records if r.evaluator_name == info.name]
+            record_run(
+                history_path,
+                entries_from_records(
+                    per_evaluator,
+                    model=f"{info.name}@{info.version}",
+                    corpus_version=corpus_version,
+                    run_id=run_id,
+                    ts=timestamp,
+                ),
+            )
     return bundles
 
 
@@ -275,7 +301,23 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
     default=True,
     help="Re-materialize the suite before evaluating.",
 )
-def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize: bool) -> None:
+@click.option(
+    "--history",
+    "history",
+    type=click.Path(path_type=str),
+    default=None,
+    help=(
+        "Append this run's decisions to a cross-run decision history file. "
+        "The file accumulates across runs, so keep it outside --out."
+    ),
+)
+def benchmark(
+    suite: str,
+    evaluators: tuple[str, ...],
+    out: str,
+    do_materialize: bool,
+    history: str | None,
+) -> None:
     """Materialize and evaluate a full suite, then score it."""
     from pathlib import Path as _Path
 
@@ -313,6 +355,7 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
         out_dir,
         config.name,
         config.base_seed,
+        _Path(history) if history else None,
     )
     _, records = __import__(
         "sloplab.reporting.writers", fromlist=["read_run_jsonl"]

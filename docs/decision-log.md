@@ -140,3 +140,35 @@ Each entry records a material engineering decision, its context, and consequence
   docs/backlog.md. v0.2.0 is tagged on the latest green main commit; the rc1/rc2
   pre-releases remain untouched. Final v0.2.0 must not be presented as including any
   live-model observation.
+
+## D-0014 - Cross-run decision history is run provenance, not scoring
+
+- **Date:** 2026-08-31
+- **Decision:** Decision history across runs ships as
+  `src/sloplab/experiments/history.py`, opt-in behind `--history` on both
+  `sloplab benchmark` and the pilot runner. Binding choices:
+  - It lives under `experiments/`, not `scoring/`. Every entry is timestamped,
+    and `docs/reproducibility.md` guarantees no wall-clock input participates in
+    mutation, evaluation, or scoring. History is provenance about runs, not an
+    input to them.
+  - `evaluators/` may import neither `sloplab.scoring` nor `sloplab.experiments`,
+    enforced by an AST-scanning regression test. An evaluator able to read its
+    own previous decision would be gaming the benchmark exactly as the evaluator
+    contract's rule 4 forbids; the ban is deliberately wider than the one module
+    at issue so the loophole cannot reopen.
+  - One run contributes one entry per case. A stochastic evaluator's repeats are
+    reduced to their majority decision, because writing one entry per repeat
+    would let `stable_cases(threshold=3)` be satisfied inside a single run - a
+    second, worse copy of `repeat_stability`.
+  - Entries record `model` and `corpus_version`, and `stable_cases` filters on
+    them. Comparing decisions across a model swap or corpus revision and calling
+    the result "stable" would be the kind of detail-hiding single number this
+    project avoids elsewhere.
+  - Neither a corrupt file on read nor a failure on write may abort a run; both
+    degrade to a warning, and recording happens only after a run's own artifacts
+    are on disk. The pilot is the only path that spends money.
+- **Consequences:** History accumulates locally and in the deterministic
+  benchmark path today. The `llm-benchmark` workflow runs on an ephemeral runner,
+  so accumulating history across pilot dispatches requires the operator to carry
+  the file forward from the previous artifact; no third-party GitHub Action was
+  introduced to automate it.
