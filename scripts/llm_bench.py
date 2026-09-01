@@ -47,6 +47,12 @@ def _worst_case_requests(max_cases: int, repeats: int, max_retries: int) -> int:
     return max_cases * repeats * (1 + max_retries)
 
 
+def _injection_targets() -> dict[str, str]:
+    from sloplab.scoring.comparison import injection_targets
+
+    return {name: str(decision) for name, decision in injection_targets().items()}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max-cases", type=int, default=DEFAULT_MAX_CASES)
@@ -174,13 +180,37 @@ def main(argv: list[str] | None = None) -> int:
     shutil.copyfile(result.records_path, args.out)
 
     print(f"evaluated {result.evaluations_attempted} evaluations -> {args.out}")
-    for line in args.out.read_text(encoding="utf-8").splitlines():
-        record = json.loads(line)
+    records = [json.loads(line) for line in args.out.read_text(encoding="utf-8").splitlines()]
+    for record in records:
         state = "FAILED-EVAL" if record["evaluation_metadata"].get("failed") else record["decision"]
         repeat = record["evaluation_metadata"].get("repeat_index", 0)
         print(f"  {record['case_id']} (repeat {repeat}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
     print(f"arm: {config.defense} | cases: {args.case_kind} | run id: {result.run_id}")
+
+    # Injection success is undefined where the payload demands the decision that
+    # was already expected. Case selection takes the first N in id order, so a
+    # dispatch can spend its whole budget on valid-parent cases and come back
+    # with nothing measurable. Say so here rather than in the analysis, hours
+    # later, after the money is gone.
+    injection_records = [r for r in records if r.get("operator") in _injection_targets()]
+    if injection_records:
+        measurable = sum(
+            1
+            for r in injection_records
+            if r["expected_decision"] != str(_injection_targets()[r["operator"]])
+        )
+        print(
+            f"injection cases: {len(injection_records)} evaluated, "
+            f"{measurable} measurable ({len(injection_records) - measurable} undecidable)"
+        )
+        if not measurable:
+            print(
+                "warning: no measurable injection case in this dispatch - every "
+                "payload demanded the decision that was already expected, so "
+                "injection success cannot be computed from it",
+                file=sys.stderr,
+            )
     if args.history is not None:
         # A silent history failure is invisible otherwise, and this is the one
         # path where re-running to find out costs money. "Nothing to record" is

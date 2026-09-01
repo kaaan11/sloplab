@@ -169,3 +169,117 @@ def test_duplicate_evaluator_writes_one_history_entry(tmp_path: Path) -> None:
     loaded = DecisionHistory.load(history)
     case_id = loaded.case_ids()[0]
     assert len(loaded.entries(case_id)) == 1
+
+
+class TestMeteredDispatchEndToEnd:
+    """The delimited arm, driven through the real runner with a fake transport.
+
+    Two rounds of review found defects that only appear when the path is
+    executed rather than read: code that exists but can never run. This drives
+    scripts/llm_bench.py end to end offline.
+    """
+
+    @staticmethod
+    def _suite_index(tmp_path: Path) -> Path:
+        out = tmp_path / "suite"
+        result = CliRunner().invoke(
+            cli, ["benchmark", str(SUITE), "--evaluator", "oracle", "--out", str(out)]
+        )
+        assert result.exit_code == 0, result.output
+        return out / "suite-index.jsonl"
+
+    @staticmethod
+    def _run(index: Path, out: Path, monkeypatch: Any, **flags: str) -> list[dict[str, Any]]:
+        import importlib.util
+        import os
+
+        from sloplab.evaluators.llm.adapter import LLMResponse
+
+        spec = importlib.util.spec_from_file_location(
+            "llm_bench_e2e", REPO_ROOT / "scripts" / "llm_bench.py"
+        )
+        assert spec is not None and spec.loader is not None
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        payload = json.dumps(
+            {
+                "decision": "accept",
+                "confidence": 0.8,
+                "dimensions": dict.fromkeys(
+                    (
+                        "reproducibility",
+                        "evidence_completeness",
+                        "claim_evidence_consistency",
+                        "impact_calibration",
+                        "scope_consistency",
+                    ),
+                    0.7,
+                ),
+                "findings": [],
+                "rationale": "ok",
+            }
+        )
+
+        class FakeHttp:
+            prompts: list[str] = []
+
+            def __init__(self, **_kwargs: Any) -> None:
+                pass
+
+            def complete(self, prompt: str) -> LLMResponse:
+                FakeHttp.prompts.append(prompt)
+                return LLMResponse(text=payload, latency_ms=1)
+
+        monkeypatch.setattr(module, "HttpLLMClient", FakeHttp)
+        for name, value in {
+            "SLOPLAB_LLM_API_KEY": "k",
+            "SLOPLAB_LLM_MODEL": "fake-model",
+            "SLOPLAB_LLM_ENDPOINT": "http://localhost/none",
+        }.items():
+            monkeypatch.setenv(name, value)
+
+        args = ["--suite-index", str(index), "--out", str(out)]
+        for flag, value in flags.items():
+            args += [f"--{flag.replace('_', '-')}", value]
+        assert module.main(args) == 0
+        assert FakeHttp.prompts, "no request was dispatched"
+        assert "--- BEGIN UNTRUSTED REPORT ---" in FakeHttp.prompts[0]
+        _ = os
+        return [json.loads(line) for line in out.read_text(encoding="utf-8").splitlines()]
+
+    def test_delimited_arm_produces_injected_records(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
+        records = self._run(
+            self._suite_index(tmp_path),
+            tmp_path / "res.jsonl",
+            monkeypatch,
+            case_kind="mutated",
+            defense="delimited",
+            max_cases="6",
+            repeats="1",
+        )
+        assert records
+        assert {r["case_kind"] for r in records} == {"mutated"}
+        assert all(r["operator"] for r in records)
+        assert {r["evaluation_metadata"]["defense"] for r in records} == {"delimited"}
+
+    def test_metric_reports_a_delimited_arm(self, tmp_path: Path, monkeypatch: Any) -> None:
+        """No committed path could produce this key before the case-kind flag."""
+        from sloplab.models.run import CaseRecord
+        from sloplab.scoring.comparison import injection_success_by_arm, injection_targets
+
+        records = self._run(
+            self._suite_index(tmp_path),
+            tmp_path / "res.jsonl",
+            monkeypatch,
+            case_kind="mutated",
+            defense="delimited",
+            max_cases="6",
+            repeats="1",
+        )
+        outcomes = injection_success_by_arm(
+            [CaseRecord.model_validate(r) for r in records], injection_targets()
+        )
+        assert set(outcomes) == {"delimited"}
