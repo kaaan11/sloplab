@@ -168,3 +168,18 @@ annotated tags, GitHub Releases, branch protection, manual-only LLM workflow.
   study reruns byte-identical; 183 tests + ruff + mypy strict green.
   Evidence: docs/remediation-audit-v0.2.2.md,
   docs/release-notes-v0.2.2.md, tests/regression/test_remediation_v022.py.
+
+- **v0.3.0 - injection arm, decision history, safety carve-out.** First release
+  to change the safety policy: a narrow recorded exception (D-0015) admits
+  instruction-override operators so an LLM evaluator's prompt-injection
+  susceptibility - and a delimiting defense against it - can be measured.
+  Adds the `defense: none | delimited` prompt arm with a normalized-view
+  boundary neutralizer, three INJECTION operators behind an opt-in suite,
+  cross-run decision history under `experiments/`, and per-arm injection success
+  reported as lift over un-injected parents. No default-path change: v1-core
+  reference results reproduce byte for byte and the control prompt is pinned by a
+  literal golden. Six review rounds plus a security review (no vulnerabilities);
+  407 tests + ruff + mypy strict green. The live pilot is still undispatched, so
+  the delimiting arm has no measurement behind it. Evidence:
+  docs/release-notes-v0.3.0.md, docs/review-brief-injection-arm.md,
+  docs/decision-matching-audit.md.

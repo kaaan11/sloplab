@@ -117,12 +117,36 @@ def metrics_to_dict(bundle: MetricBundle) -> dict[str, Any]:
     return asdict(bundle)
 
 
-def write_markdown_report(out_path: Path, bundles: list[MetricBundle], title: str) -> Path:
+def write_markdown_report(
+    out_path: Path,
+    bundles: list[MetricBundle],
+    title: str,
+    taxonomies: dict[str, dict[str, int]] | None = None,
+) -> Path:
+    """Write the benchmark summary.
+
+    ``taxonomies`` maps an evaluator name to its error-type counts. The study
+    report has always printed them; the benchmark report - the one the README
+    quick start produces - printed only accuracy, so a reader could not tell a
+    dangerous error from a safe-direction deferral.
+    """
+    from sloplab.scoring.comparison import SAFE_DEFERRAL_CODES
+
     lines: list[str] = [f"# {title}", ""]
     for bundle in bundles:
         lines.extend([f"## Evaluator: `{bundle.evaluator_name}`", ""])
         lines.append(f"- Cases scored: {bundle.total_cases}")
         lines.append(f"- Decision accuracy: {bundle.decision_accuracy:.3f}")
+        counts = (taxonomies or {}).get(bundle.evaluator_name)
+        if counts:
+            total_errors = sum(counts.values())
+            deferrals = sum(v for code, v in counts.items() if code in SAFE_DEFERRAL_CODES)
+            lines.append(
+                f"  - of {total_errors} errors, {deferrals} were safe-direction "
+                f"deferrals (answered needs_manual_review where a decision was expected)"
+            )
+            for code, count in sorted(counts.items()):
+                lines.append(f"  - {code}: {count}")
         if bundle.false_reassurance_rate is not None:
             lines.append(
                 f"- False reassurance rate: {bundle.false_reassurance_rate:.3f} "

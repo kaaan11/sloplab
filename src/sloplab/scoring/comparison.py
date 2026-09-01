@@ -114,6 +114,16 @@ ERROR_TAXONOMY_CODES: dict[tuple[str, str], str] = {
 }
 
 
+#: Errors where the evaluator deferred to a human instead of deciding. They are
+#: scored as wrong - exactly as wrong as accepting an invalid report - because
+#: `needs_manual_review` is 53% of expected decisions and crediting it as a
+#: near-match lets an evaluator that defers to everything score a perfect 1.000
+#: (docs/decision-matching-audit.md). Reporting them separately gives a reader
+#: the whole picture at no cost to discriminating power, since accuracy itself
+#: does not move.
+SAFE_DEFERRAL_CODES: frozenset[str] = frozenset({"deferred_invalid", "premature_deferral"})
+
+
 @dataclass
 class ErrorTaxonomy:
     evaluator_name: str

@@ -17,8 +17,8 @@ SlopLab measures one question:
 SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
 a scanner, or an exploit framework.
 
-**Current release: [v0.2.2](https://github.com/kaaan11/sloplab/releases/tag/v0.2.2)**
-([release notes](docs/release-notes-v0.2.2.md)).
+**Current release: [v0.3.0](https://github.com/kaaan11/sloplab/releases/tag/v0.3.0)**
+([release notes](docs/release-notes-v0.3.0.md)).
 
 ## What it does
 
@@ -136,12 +136,16 @@ documented in [docs/methodology.md](docs/methodology.md).
 
 ## Status
 
-v0.2.2 - audit-remediation patch over the v0.2.x
-deterministic-scope releases: no-op derived cases eliminated, mutation/provenance
-and identity-hygiene fixes, safety enforcement tests, documentation regeneration.
-Live LLM pilot remains deferred; see
-[docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md) and
-[docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md).
+v0.3.0 - first release to change the safety policy. A narrow, recorded exception
+(D-0015) admits instruction-override mutation operators so that an LLM
+evaluator's susceptibility to prompt injection - and a delimiting defense against
+it - can be measured at all; read
+[docs/safety.md](docs/safety.md) before using this release. Also adds cross-run
+decision history and a `defense` prompt-boundary arm, both opt-in. **No
+default-path behavior changed**: the v1-core reference results still reproduce
+byte for byte. The live LLM pilot remains undispatched, so the delimiting arm has
+no measurement behind it yet. See
+[docs/release-notes-v0.3.0.md](docs/release-notes-v0.3.0.md).
 
 ## License
 

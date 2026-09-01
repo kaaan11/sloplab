@@ -256,6 +256,16 @@ def _run_evaluators_over_suite(
     return bundles
 
 
+def _taxonomies_by_evaluator(records: list[Any]) -> dict[str, dict[str, int]]:
+    """Error-type counts per evaluator, for the Markdown summary."""
+    from sloplab.scoring.comparison import error_taxonomy
+
+    grouped: dict[str, list[Any]] = {}
+    for record in records:
+        grouped.setdefault(record.evaluator_name, []).append(record)
+    return {name: error_taxonomy(rs).counts for name, rs in sorted(grouped.items())}
+
+
 def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
     """Resolve a suite's ``corpus_root`` robustly.
 
@@ -301,7 +311,15 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
     bundles = _run_evaluators_over_suite(
         evaluators, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
     )
-    write_markdown_report(out_dir / "report.md", bundles, "SlopLab evaluation results")
+    _, eval_records = __import__(
+        "sloplab.reporting.writers", fromlist=["read_run_jsonl"]
+    ).read_run_jsonl(out_dir / "run.jsonl")
+    write_markdown_report(
+        out_dir / "report.md",
+        bundles,
+        "SlopLab evaluation results",
+        _taxonomies_by_evaluator(eval_records),
+    )
     click.echo(f"wrote {out_dir / 'run.jsonl'}, metrics and report.md")
 
 
@@ -375,7 +393,12 @@ def benchmark(
         "sloplab.reporting.writers", fromlist=["read_run_jsonl"]
     ).read_run_jsonl(out_dir / "run.jsonl")
     write_records_csv(out_dir / "results.csv", records)
-    write_markdown_report(out_dir / "report.md", bundles, f"SlopLab benchmark: {config.name}")
+    write_markdown_report(
+        out_dir / "report.md",
+        bundles,
+        f"SlopLab benchmark: {config.name}",
+        _taxonomies_by_evaluator(records),
+    )
     click.echo(f"benchmark complete; results in {out_dir}")
 
 
