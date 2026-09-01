@@ -179,6 +179,42 @@ class TestRobustness:
 
         assert path.read_text(encoding="utf-8") == original
 
+    def test_unreadable_file_is_refused_without_overwriting(self, tmp_path: Path) -> None:
+        """A permission error says nothing about whether the file is intact.
+
+        The directory may still be writable, so degrading to an empty history and
+        saving would os.replace an accumulated history that was never even read -
+        and report success while doing it.
+        """
+        import os
+
+        path = tmp_path / "history.json"
+        original = json.dumps(
+            {
+                "schema_version": 1,
+                "cases": {
+                    "old-case": [
+                        {
+                            "ts": "2026-01-01T00:00:00Z",
+                            "decision": "accept",
+                            "model": "m",
+                            "corpus_version": "0.2.2",
+                            "run_id": "run-old",
+                        }
+                    ]
+                },
+            }
+        )
+        path.write_text(original, encoding="utf-8")
+        os.chmod(path, 0o000)
+        try:
+            with pytest.warns(UserWarning, match="refusing to overwrite"):
+                assert record_run(path, {"c-1": make_entry()}) is False
+        finally:
+            os.chmod(path, 0o644)
+
+        assert path.read_text(encoding="utf-8") == original
+
     def test_load_raises_only_for_a_forward_version(self, tmp_path: Path) -> None:
         from sloplab.experiments.history import IncompatibleHistoryError
 

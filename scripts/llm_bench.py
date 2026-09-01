@@ -167,8 +167,15 @@ def main(argv: list[str] | None = None) -> int:
     print(f"arm: {config.defense} | run id: {result.run_id}")
     if args.history is not None:
         # A silent history failure is invisible otherwise, and this is the one
-        # path where re-running to find out costs money.
-        state = "recorded" if result.history_recorded else "NOT recorded (see warnings)"
+        # path where re-running to find out costs money. "Nothing to record" is
+        # reported separately: it emits no warning, so calling it a failure sends
+        # the operator looking for one that was never printed.
+        if result.history_recorded:
+            state = "recorded"
+        elif result.evaluations_attempted == result.failed_evaluations:
+            state = "nothing to record (no successful evaluations)"
+        else:
+            state = "NOT recorded (see warnings above)"
         print(f"decision history: {state} -> {args.history}")
     print(
         "requests used: "

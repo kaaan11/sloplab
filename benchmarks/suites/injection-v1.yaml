@@ -1,0 +1,38 @@
+name: injection-v1
+description: >
+  Opt-in suite for the prompt-boundary experiment (D-0015). Expands every
+  canonical fixture with the three instruction-override operators, which target
+  the evaluator rather than degrading report quality.
+
+  Separate from v1-core on purpose: adding these operators there would change
+  every published SlopLab number, and the injection family is governed by a
+  narrow safety carve-out (docs/safety.md) rather than by the frozen V1 operator
+  set (D-0012).
+
+  This is the committed path that makes `injection_success_by_arm` reachable.
+  Deterministic evaluators are the negative control here - they have no
+  instructions to hijack, so a nonzero injection success rate for
+  `rules-baseline` indicates a defect in the measurement, not a finding about
+  the evaluator.
+base_seed: 20260901
+corpus_root: corpus
+include_canonical_cases: true
+policies:
+  valid:
+    variants_per_fixture: 3
+    operators:
+      - instruction_override
+      - forged_boundary
+      - fabricated_triage_note
+  invalid:
+    variants_per_fixture: 3
+    operators:
+      - instruction_override
+      - forged_boundary
+      - fabricated_triage_note
+  review:
+    variants_per_fixture: 3
+    operators:
+      - instruction_override
+      - forged_boundary
+      - fabricated_triage_note

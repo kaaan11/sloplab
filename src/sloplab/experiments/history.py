@@ -53,6 +53,15 @@ class IncompatibleHistoryError(Exception):
     """
 
 
+class UnreadableHistoryError(Exception):
+    """The file exists but could not be read, so its contents are unknown.
+
+    Also distinct from corruption. A permission error says nothing about whether
+    the file is intact - and the directory may still be writable, so proceeding
+    would ``os.replace`` an accumulated history that was never even parsed.
+    """
+
+
 _ENTRY_FIELDS = ("ts", "decision", "model", "corpus_version", "run_id")
 
 
@@ -196,18 +205,18 @@ class DecisionHistory:
     def load(cls, path: Path) -> DecisionHistory:
         """Load a history file. A missing file is empty; a broken one warns.
 
-        The only exception it raises is :class:`IncompatibleHistoryError`, for a
-        file written by a newer schema. Everything else - unreadable, malformed,
-        wrong shape - yields a fresh history so a run in progress is never lost
-        to a bad artifact from a previous one.
+        It raises only when the existing file must be preserved:
+        :class:`IncompatibleHistoryError` for a newer schema, and
+        :class:`UnreadableHistoryError` when the bytes could not be read at all.
+        Malformed or wrong-shaped content yields a fresh history, because that
+        content carries nothing worth keeping.
         """
         try:
             raw_text = path.read_text(encoding="utf-8")
         except FileNotFoundError:
             return cls()
         except OSError as exc:
-            _warn(f"cannot read {path} ({exc}); starting fresh")
-            return cls()
+            raise UnreadableHistoryError(f"cannot read {path} ({exc})") from exc
 
         try:
             return cls(_parse_payload(json.loads(raw_text)))
@@ -307,8 +316,10 @@ def record_runs(path: Path, entry_sets: Iterable[Mapping[str, HistoryEntry]]) ->
         return False
     try:
         history = DecisionHistory.load(path)
-    except IncompatibleHistoryError as exc:
-        _warn(f"{path}: {exc}; run results are unaffected")
+    except (IncompatibleHistoryError, UnreadableHistoryError) as exc:
+        # Refusing to write is the point: the file on disk may be intact and
+        # simply unread, and overwriting it would destroy accumulated history.
+        _warn(f"{exc}; refusing to overwrite it, run results are unaffected")
         return False
     except Exception as exc:  # noqa: BLE001 - history must never fail a run
         _warn(f"could not read {path} ({exc}); run results are unaffected")

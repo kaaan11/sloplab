@@ -100,8 +100,38 @@ history file across pilot dispatches also remains a manual operator step - the
 workflow passes `--history` into the uploaded bundle, but nothing restores the
 previous artifact, so history does not accumulate on its own.
 
-Assume more remain. Three rounds in, every round has found real defects, and two
-of them were introduced by the previous round's fixes.
+### Round 4: five more, plus one the fixes exposed
+
+- **The verifier still disagreed with the neutralizer** - the harm had moved, not
+  gone. `wrap_untrusted` counted markers over the *wrapped* block, so the closing
+  fence's own dashes licensed the dash-tolerant alternative for content the
+  neutralizer had deliberately left alone. Any report ending in a standalone
+  `end`, a blank line and `untrusted` raised, and the adapter discarded the case
+  in Arm B while Arm A evaluated it. The check now runs over the cleaned content,
+  where a forgery can actually live; the wrap's two markers are literals under
+  this module's control.
+- **Letters were folded but dashes were not.** A fence built from em dashes was
+  not a fence to this module while being one to a model.
+- **An unreadable history file was overwritten.** A permission error degraded to
+  an empty history and `save()` then replaced an intact file, returning success.
+  Refused now, like a forward version.
+- **The metric was unreachable from any committed path**, so the deliverable's
+  headline number could never be produced. `benchmarks/suites/injection-v1.yaml`
+  closes it for the study path. The pilot still filters to canonical cases before
+  running, so Arm B is exercised there against injection-free reports only.
+- **`history_recorded` conflated "failed" with "nothing to record"**, telling the
+  operator to look for a warning that was never printed.
+
+Making the metric reachable immediately exposed a sixth: `rules-baseline` posted
+a 0.119 injection success rate on the committed suite while changing **zero** of
+180 decisions. The raw rate is not susceptibility - an evaluator that would have
+answered the demand anyway scores as obeying. The reported number is now the
+lift over the un-injected parents (0.0 for the negative control, asserted
+corpus-wide), following `presentation_susceptibility`'s existing shape.
+
+Assume more remain. Four rounds in, every round has found real defects; two were
+introduced by the previous round's fixes, and one only became visible once the
+feature was wired up enough to run.
 
 ## Review areas, in order of what a mistake would cost
 

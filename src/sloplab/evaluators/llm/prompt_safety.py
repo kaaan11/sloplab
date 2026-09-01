@@ -123,6 +123,29 @@ _CONFUSABLES: dict[str, str] = _both_cases(
     }
 )
 
+#: Dash lookalikes folded to ASCII ``-``. Both dash-licensed marker alternatives
+#: and the bare-fence pattern require a literal hyphen, so a fence built from em
+#: dashes was not a fence to this module while being one to a model. Folding
+#: letters but not dashes was an asymmetry, not the stated other-scripts limit.
+_DASHES: dict[str, str] = dict.fromkeys(
+    (
+        "\u2010",  # hyphen
+        "\u2011",  # non-breaking hyphen
+        "\u2012",  # figure dash
+        "\u2013",  # en dash
+        "\u2014",  # em dash
+        "\u2015",  # horizontal bar
+        "\u2043",  # hyphen bullet
+        "\u2212",  # minus sign
+        "\u2500",  # box drawings light horizontal
+        "\u2501",  # box drawings heavy horizontal
+        "\u2e3a",  # two-em dash
+        "\u2e3b",  # three-em dash
+        "\ufe58",  # small em dash
+    ),
+    "-",
+)
+
 #: Separators between marker words. Both may be empty: dropping a zero-width
 #: space leaves ``ENDUNTRUSTED`` with no separator at all.
 _LOOSE_SEP = r"\s*"  # any whitespace, blank lines included
@@ -162,9 +185,6 @@ _MARKER_RE = re.compile(
 #: line ending, so without it the fence is never neutralized in CRLF reports.
 _FENCE_RE = re.compile(r"^[^\S\r\n]*-{3,}[^\S\r\n]*\r?$", re.MULTILINE)
 
-#: Markers expected in a correctly wrapped block: the opening and the closing one.
-_EXPECTED_MARKERS = 2
-
 
 class BoundaryError(Exception):
     """Raised when a wrapped prompt does not hold exactly one marker pair."""
@@ -188,7 +208,8 @@ def detection_view(text: str) -> tuple[str, list[int]]:
         decomposed = unicodedata.normalize("NFKD", char)
         base = "".join(c for c in decomposed if unicodedata.category(c) != "Mn")
         simple = base if len(base) == 1 else char
-        chars.append(_CONFUSABLES.get(simple, simple))
+        folded_dash = _DASHES.get(simple)
+        chars.append(folded_dash if folded_dash else _CONFUSABLES.get(simple, simple))
         index.append(position)
     return "".join(chars), index
 
@@ -257,21 +278,25 @@ def wrap_untrusted(text: str) -> tuple[str, list[str]]:
     """Neutralize ``text``, then fence it as untrusted content.
 
     Returns the wrapped block and the neutralized markers. Raises
-    :class:`BoundaryError` if the result does not hold exactly the opening and
-    closing markers and nothing else.
+    :class:`BoundaryError` if any marker survived neutralization.
 
-    The count uses ``_MARKER_RE`` itself, over the detection view. Anything
-    looser can disagree with the neutralizer and reject text the neutralizer
-    deliberately left alone; anything stricter (counting literal ASCII) passes
-    every bypass this module exists to stop.
+    The check runs over the *cleaned content*, not the wrapped block. Counting
+    markers in the wrapped block let the closing fence's own dashes license the
+    dash-tolerant alternative for content the neutralizer had deliberately left
+    alone: a report ending in a standalone ``end``, a blank line and
+    ``untrusted`` scored three markers instead of two and raised, and the adapter
+    then discarded the whole case in Arm B while Arm A evaluated it normally.
+    Such a seam match is always benign - the fence still closes exactly where it
+    was written, so nothing escapes - and the two markers the wrap adds are
+    literals under this module's control. Only the content can carry a forgery,
+    so only the content is checked, with the same pattern the neutralizer uses.
     """
     cleaned, removed = neutralize_boundaries(text)
-    wrapped = f"{BEGIN_MARKER}\n{cleaned}\n{END_MARKER}"
 
-    view, _index = detection_view(wrapped)
-    markers = len(_MARKER_RE.findall(view))
-    if markers != _EXPECTED_MARKERS:
+    view, index = detection_view(cleaned)
+    surviving = _spans_in_original(view, index)
+    if surviving:
         raise BoundaryError(
-            f"wrapped content holds {markers} markers, expected {_EXPECTED_MARKERS}"
+            f"content still holds {len(surviving)} boundary marker(s) after neutralization"
         )
-    return wrapped, removed
+    return f"{BEGIN_MARKER}\n{cleaned}\n{END_MARKER}", removed
