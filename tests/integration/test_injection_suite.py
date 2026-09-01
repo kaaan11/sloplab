@@ -93,3 +93,79 @@ def test_payload_moves_no_deterministic_decision(tmp_path: Path) -> None:
         if r.operator and r.parent_id in canonical and r.decision != canonical[r.parent_id].decision
     ]
     assert moved == [], moved
+
+
+def test_pilot_records_the_real_case_kind(tmp_path: Path) -> None:
+    """A pilot that labels every record canonical hides the cases it evaluated.
+
+    The delimited arm exists to be measured against injected cases; those are
+    mutated, and a hardcoded case_kind made them invisible to every metric that
+    selects on it.
+    """
+    from sloplab.experiments.pilot import run_llm_pilot
+    from sloplab.experiments.runner import load_pilot_config
+    from sloplab.scoring.harness import build_cases
+    from tests.unit.test_llm_pilot import VALID_PAYLOAD, StaticResponder, make_evaluator
+
+    example = REPO_ROOT / "benchmarks/results/v1-core-example"
+    cases = build_cases(example / "suite-index.jsonl", REPO_ROOT / "corpus", example)
+    mutated = [c for c in cases if c.kind == "mutated"][:1]
+    assert mutated, "the reference bundle should hold mutated cases"
+
+    config = load_pilot_config(REPO_ROOT / "experiments/configs/llm-pilot-v0.2.yaml")
+    config.max_cases = 1
+    config.repeats = 1
+    evaluator, _client = make_evaluator(StaticResponder(VALID_PAYLOAD))
+
+    result = run_llm_pilot(config, evaluator, mutated, REPO_ROOT, tmp_path / "out")
+    records = [json.loads(line) for line in result.records_path.read_text().splitlines()]
+    assert records
+    assert all(r["case_kind"] == "mutated" for r in records), records
+    assert all(r["operator"] for r in records)
+
+
+def test_benchmark_history_reports_the_write(tmp_path: Path) -> None:
+    """record_runs signals failure only by warning, which may be suppressed."""
+    result = CliRunner().invoke(
+        cli,
+        [
+            "benchmark",
+            str(SUITE),
+            "--evaluator",
+            "oracle",
+            "--out",
+            str(tmp_path / "out"),
+            "--history",
+            str(tmp_path / "h.json"),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+    assert "decision history: recorded" in result.output
+
+
+def test_duplicate_evaluator_writes_one_history_entry(tmp_path: Path) -> None:
+    """Click accepts a repeated --evaluator; two entries would let two runs
+    satisfy stable_cases(threshold=3)."""
+    from sloplab.experiments.history import DecisionHistory
+
+    history = tmp_path / "h.json"
+    result = CliRunner().invoke(
+        cli,
+        [
+            "benchmark",
+            str(SUITE),
+            "--evaluator",
+            "rules-baseline",
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(tmp_path / "out"),
+            "--history",
+            str(history),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+
+    loaded = DecisionHistory.load(history)
+    case_id = loaded.case_ids()[0]
+    assert len(loaded.entries(case_id)) == 1

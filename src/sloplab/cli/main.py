@@ -193,6 +193,11 @@ def _run_evaluators_over_suite(
     infos: list[EvaluatorInfo] = []
     bundles: list[Any] = []
 
+    # Click accepts a repeated --evaluator; running one twice would write two
+    # identical history entries for a single run, so `stable_cases(threshold=3)`
+    # could be satisfied by two runs instead of three.
+    evaluators = tuple(dict.fromkeys(evaluators))
+
     for evaluator_name in evaluators:
         evaluator = get_evaluator(evaluator_name)
         run_records = run_suite(evaluator, cases)
@@ -229,7 +234,7 @@ def _run_evaluators_over_suite(
         timestamp = utc_timestamp()
         # One load/save for the whole run: a per-evaluator call would rewrite
         # and fsync the entire accumulated history once per evaluator.
-        record_runs(
+        recorded = record_runs(
             history_path,
             [
                 entries_from_records(
@@ -241,6 +246,12 @@ def _run_evaluators_over_suite(
                 )
                 for info in infos
             ],
+        )
+        # record_runs never raises by design and signals failure only through a
+        # warning, which the environment may suppress. Say it on stdout too.
+        click.echo(
+            f"decision history: {'recorded' if recorded else 'NOT recorded (see warnings)'}"
+            f" -> {history_path}"
         )
     return bundles
 

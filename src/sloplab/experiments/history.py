@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import json
 import os
+import stat
 import tempfile
 import warnings
 from collections import Counter
@@ -190,6 +191,11 @@ class DecisionHistory:
         )
         tmp_path = Path(tmp_name)
         try:
+            # mkstemp creates at 0600 and os.replace carries that mode onto the
+            # destination. On a shared path the first write would make the
+            # accumulated history unreadable to everyone else, and the next run
+            # would then refuse to write and drop its own entries.
+            os.chmod(tmp_path, _destination_mode(path))
             with os.fdopen(handle, "w", encoding="utf-8") as stream:
                 stream.write(payload)
                 stream.flush()
@@ -225,6 +231,20 @@ class DecisionHistory:
         except (json.JSONDecodeError, ValueError) as exc:
             _warn(f"{path} is unusable ({exc}); starting fresh")
             return cls()
+
+
+def _destination_mode(path: Path) -> int:
+    """The mode a rewritten file should end up with.
+
+    An existing file keeps the permissions it already had; a new one gets the
+    umask-respecting default rather than the temp file's private 0600.
+    """
+    try:
+        return stat.S_IMODE(path.stat().st_mode)
+    except OSError:
+        umask = os.umask(0)
+        os.umask(umask)
+        return 0o666 & ~umask
 
 
 def _parse_payload(payload: Any) -> dict[str, list[HistoryEntry]]:

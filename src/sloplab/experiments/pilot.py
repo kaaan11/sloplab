@@ -240,7 +240,11 @@ def run_llm_pilot(
             record = CaseRecord.from_result(
                 result,
                 case_id=case.case_id,
-                case_kind="canonical",
+                # Not hardcoded: a pilot that only ever labels its records
+                # canonical makes every mutated case it evaluates invisible to
+                # metrics that select on case_kind, including the injection
+                # measure the delimited arm exists to feed.
+                case_kind="mutated" if case.kind == "mutated" else "canonical",
                 report_class=case.report_class,
                 expected_decision=(
                     Decision(case.expected_decision) if case.expected_decision else None

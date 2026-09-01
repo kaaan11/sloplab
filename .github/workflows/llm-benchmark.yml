@@ -25,6 +25,15 @@ on:
         description: "Max canonical cases to evaluate (each case costs API tokens)"
         required: false
         default: "3"
+      case_kind:
+        description: "Which cases to evaluate (delimited needs mutated/all to see a payload)"
+        required: false
+        default: "canonical"
+        type: choice
+        options:
+          - canonical
+          - mutated
+          - all
       defense:
         description: "Prompt-boundary arm: none (control) or delimited (treatment)"
         required: false
@@ -77,6 +86,7 @@ jobs:
           SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
           MAX_CASES: ${{ inputs.max_cases }}
           DEFENSE: ${{ inputs.defense }}
+          CASE_KIND: ${{ inputs.case_kind }}
         run: |
           # Dispatch input reaches the shell only through this quoted, validated
           # environment variable - never via direct ${{ }} interpolation.
@@ -93,6 +103,7 @@ jobs:
           uv run python scripts/llm_bench.py \
             --max-cases "$MAX_CASES" \
             --defense "$DEFENSE" \
+            --case-kind "$CASE_KIND" \
             --out llm-bench-results.jsonl \
             --history llm-bench-results.bundle/decision-history.json
 

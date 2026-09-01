@@ -59,6 +59,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--out", type=Path, default=Path("llm-bench-results.jsonl"))
     parser.add_argument(
+        "--case-kind",
+        choices=("canonical", "mutated", "all"),
+        default="canonical",
+        help=(
+            "Which suite cases to evaluate. 'canonical' keeps the metered protocol "
+            "unchanged; the delimited arm needs 'mutated' or 'all' to see an "
+            "injected case at all, since canonical fixtures carry no payload."
+        ),
+    )
+    parser.add_argument(
         "--defense",
         choices=("none", "delimited"),
         default=None,
@@ -149,11 +159,17 @@ def main(argv: list[str] | None = None) -> int:
         REPO_ROOT / "corpus",
         args.suite_index.parent,  # committed reference bundle holds the trees
     )
-    canonical = [c for c in cases if c.kind == "canonical"]
+    if args.case_kind == "all":
+        selected_cases = cases
+    else:
+        selected_cases = [c for c in cases if c.kind == args.case_kind]
+    if not selected_cases:
+        print(f"error: suite index holds no '{args.case_kind}' cases", file=sys.stderr)
+        return 2
 
     bundle_dir = args.out.parent / f"{args.out.stem}.bundle"
     result = run_llm_pilot(
-        config, evaluator, canonical, REPO_ROOT, bundle_dir, history_path=args.history
+        config, evaluator, selected_cases, REPO_ROOT, bundle_dir, history_path=args.history
     )
     shutil.copyfile(result.records_path, args.out)
 
@@ -164,7 +180,7 @@ def main(argv: list[str] | None = None) -> int:
         repeat = record["evaluation_metadata"].get("repeat_index", 0)
         print(f"  {record['case_id']} (repeat {repeat}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
-    print(f"arm: {config.defense} | run id: {result.run_id}")
+    print(f"arm: {config.defense} | cases: {args.case_kind} | run id: {result.run_id}")
     if args.history is not None:
         # A silent history failure is invisible otherwise, and this is the one
         # path where re-running to find out costs money. "Nothing to record" is

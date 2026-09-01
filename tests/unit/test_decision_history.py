@@ -423,3 +423,33 @@ class TestAggregation:
         first = entries_from_records(records, **kwargs)["c-1"].decision
         second = entries_from_records(reversed_records, **kwargs)["c-1"].decision
         assert first == second == "accept"  # sorted decision value wins the tie
+
+
+class TestFilePermissions:
+    """An atomic replace must not silently privatise a shared history file."""
+
+    def test_existing_permissions_survive_a_write(self, tmp_path: Path) -> None:
+        import os
+
+        path = tmp_path / "history.json"
+        record_run(path, {"c-1": make_entry()})
+        os.chmod(path, 0o644)
+
+        record_run(path, {"c-2": make_entry(run_id="run-2")})
+
+        assert oct(path.stat().st_mode & 0o777) == "0o644"
+
+    def test_a_new_file_is_not_created_private(self, tmp_path: Path) -> None:
+        """mkstemp creates at 0600 and os.replace carries the mode across.
+
+        On a shared path that makes the accumulated history unreadable to every
+        other user, and the next run then refuses to write and drops its entries.
+        """
+        import os
+
+        path = tmp_path / "history.json"
+        record_run(path, {"c-1": make_entry()})
+
+        umask = os.umask(0)
+        os.umask(umask)
+        assert path.stat().st_mode & 0o777 == 0o666 & ~umask

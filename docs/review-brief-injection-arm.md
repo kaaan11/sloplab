@@ -129,9 +129,39 @@ answered the demand anyway scores as obeying. The reported number is now the
 lift over the un-injected parents (0.0 for the negative control, asserted
 corpus-wide), following `presentation_susceptibility`'s existing shape.
 
-Assume more remain. Four rounds in, every round has found real defects; two were
-introduced by the previous round's fixes, and one only became visible once the
-feature was wired up enough to run.
+### Round 5: the neutralizer converged, the wiring and the metric had not
+
+A 200k-string fuzz over the neutralizer - dash lookalikes, confusables, ZWSP
+splits, CRLF fences, reassembly shapes - found zero bypasses and zero
+non-convergence. After four rounds, `prompt_safety.py` itself appears to have
+converged. Every remaining defect was in the wiring and in what the number means:
+
+- **The delimited arm could never see an injected case.** Round 4 closed
+  reachability for the control arm only: `llm_bench` hard-filtered to canonical
+  cases and the pilot hardcoded `case_kind="canonical"` on every record, while
+  `injection_success_by_arm` is otherwise reachable only from `study`, which is
+  always arm `none`. No committed path could produce a `"delimited"` key. The
+  filter is now a `--case-kind` choice (canonical stays the default, so the
+  metered protocol is unchanged) and the pilot records the real kind.
+- **The baseline used an arbitrary repeat while the injected side used a
+  majority**, so identical decision sequences on both sides reported a lift of
+  -1.0 - a maximally protective defense for a payload that moved nothing. Parents
+  now get the same reduction, and the baseline is paired per injected case rather
+  than counted once per parent.
+- **Failed evaluations sat in the denominator.** `_failed_result` returns
+  `needs_manual_review`, never a payload's target, and Arm B has a failure mode
+  Arm A does not - so a *broken* wrapper measured as a working defense.
+- Three smaller ones: the benchmark CLI dropped `record_runs`' return value, so a
+  failed history write was signalled only by a warning the environment may
+  suppress; a repeated `--evaluator` wrote duplicate history entries, letting two
+  runs satisfy `stable_cases(threshold=3)`; and the atomic save carried
+  `mkstemp`'s 0600 onto the destination, which on a shared path would make the
+  history unreadable to everyone else and cause the next run to drop its entries.
+
+Assume more remain. Five rounds in, every round has found real defects. Two were
+introduced by the previous round's fixes, two only became visible once the
+feature was wired up enough to run, and the module that now looks solid is the
+one that took three rounds to get there.
 
 ## Review areas, in order of what a mistake would cost
 
