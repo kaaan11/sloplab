@@ -11,9 +11,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+import pytest
 from click.testing import CliRunner
 
 from sloplab.cli.main import cli
+from sloplab.evaluators.llm.adapter import Defense
 from sloplab.experiments.config import LLMPilotConfig
 from sloplab.experiments.history import DecisionHistory
 from sloplab.experiments.pilot import run_llm_pilot
@@ -63,8 +65,47 @@ class TestPilotWiring:
             entries = history.entries(case_id)
             # Three repeats per run collapse to one entry per run, not three.
             assert len(entries) == 2, entries
-            assert {e.model for e in entries} == {"test-model-x"}
+            # The arm is part of the producer identity, so the same model under
+            # two prompt treatments never merges in stable_cases(model=...).
+            assert {e.model for e in entries} == {"test-model-x+none"}
             assert all(e.run_id for e in entries)
+
+    def test_arm_is_part_of_the_history_producer_identity(
+        self, tmp_path: Path, monkeypatch: Any
+    ) -> None:
+        """Two arms of one model must not collide in one history file."""
+        history_path = tmp_path / "decision-history.json"
+        cases = canonical_cases(1)
+
+        arms: tuple[Defense, ...] = ("none", "delimited")
+        for index, arm in enumerate(arms):
+            config = _pilot_config(max_cases=1, repeats=1)
+            config.defense = arm
+            monkeypatch.setenv(config.model_env, "gpt-x")
+            evaluator, _client = make_evaluator(StaticResponder(VALID_PAYLOAD))
+            evaluator.defense = arm
+            run_llm_pilot(
+                config,
+                evaluator,
+                cases,
+                REPO_ROOT,
+                tmp_path / f"out-{index}",
+                history_path=history_path,
+            )
+
+        history = DecisionHistory.load(history_path)
+        models = {e.model for cid in history.case_ids() for e in history.entries(cid)}
+        assert models == {"gpt-x+none", "gpt-x+delimited"}
+
+    def test_mismatched_arm_is_refused_before_spending_requests(self, tmp_path: Path) -> None:
+        """The manifest records the config's arm; the prompts use the evaluator's."""
+        config = _pilot_config(max_cases=1, repeats=1)
+        config.defense = "delimited"
+        evaluator, client = make_evaluator(StaticResponder(VALID_PAYLOAD))
+
+        with pytest.raises(ValueError, match="does not match config arm"):
+            run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
+        assert client.requests == 0
 
     def test_repeats_do_not_satisfy_stability_within_one_run(
         self, tmp_path: Path, monkeypatch: Any

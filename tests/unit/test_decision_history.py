@@ -139,7 +139,6 @@ class TestRobustness:
             '{"schema_version": 1}',
             '{"schema_version": 1, "cases": {"c-1": "not-a-list"}}',
             '{"schema_version": 1, "cases": {"c-1": [{"ts": "x"}]}}',
-            '{"schema_version": 99, "cases": {}}',
         ],
     )
     def test_corrupt_file_warns_and_starts_fresh(self, tmp_path: Path, content: str) -> None:
@@ -149,6 +148,44 @@ class TestRobustness:
         with pytest.warns(UserWarning, match="decision history"):
             history = DecisionHistory.load(path)
         assert history.case_ids() == []
+
+    def test_forward_version_is_refused_without_overwriting(self, tmp_path: Path) -> None:
+        """A newer file is somebody's intact history, not corruption.
+
+        Starting fresh loses nothing on corrupt content, but rewriting a
+        forward-version file destroys data this build simply cannot read.
+        """
+        path = tmp_path / "history.json"
+        original = json.dumps(
+            {
+                "schema_version": 99,
+                "cases": {
+                    "old-case": [
+                        {
+                            "ts": "2026-01-01T00:00:00Z",
+                            "decision": "accept",
+                            "model": "m",
+                            "corpus_version": "0.2.2",
+                            "run_id": "run-old",
+                        }
+                    ]
+                },
+            }
+        )
+        path.write_text(original, encoding="utf-8")
+
+        with pytest.warns(UserWarning, match="refusing to overwrite"):
+            assert record_run(path, {"c-1": make_entry()}) is False
+
+        assert path.read_text(encoding="utf-8") == original
+
+    def test_load_raises_only_for_a_forward_version(self, tmp_path: Path) -> None:
+        from sloplab.experiments.history import IncompatibleHistoryError
+
+        path = tmp_path / "history.json"
+        path.write_text('{"schema_version": 2, "cases": {}}', encoding="utf-8")
+        with pytest.raises(IncompatibleHistoryError):
+            DecisionHistory.load(path)
 
     def test_corrupt_file_is_replaced_not_propagated(self, tmp_path: Path) -> None:
         path = tmp_path / "history.json"

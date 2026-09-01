@@ -220,25 +220,28 @@ def _run_evaluators_over_suite(
     # `stable_cases(model=...)` can separate evaluators sharing one file.
     if history_path is not None:
         from sloplab.corpus.loader import load_corpus_version
-        from sloplab.experiments.history import entries_from_records, record_run, utc_timestamp
+        from sloplab.experiments.history import entries_from_records, record_runs, utc_timestamp
 
         # Reuse run.jsonl's own run id so a history entry can be traced back to
         # the run that produced it.
         run_id = metadata.run_id
         corpus_version = load_corpus_version()
         timestamp = utc_timestamp()
-        for info in infos:
-            per_evaluator = [r for r in records if r.evaluator_name == info.name]
-            record_run(
-                history_path,
+        # One load/save for the whole run: a per-evaluator call would rewrite
+        # and fsync the entire accumulated history once per evaluator.
+        record_runs(
+            history_path,
+            [
                 entries_from_records(
-                    per_evaluator,
+                    [r for r in records if r.evaluator_name == info.name],
                     model=f"{info.name}@{info.version}",
                     corpus_version=corpus_version,
                     run_id=run_id,
                     ts=timestamp,
-                ),
-            )
+                )
+                for info in infos
+            ],
+        )
     return bundles
 
 

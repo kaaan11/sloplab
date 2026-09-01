@@ -233,7 +233,27 @@ Each entry records a material engineering decision, its context, and consequence
     a valid report succeeds while scoring as `over_rejection` - so
     `injection_success_by_arm` measures agreement with the decision each operator
     declares its payload demands, splitting arms through the existing `group_by`.
+  - **The verifier must be the pattern it verifies.** An independent review
+    found fifteen defects in this change, all real. Five were Arm-B bypasses, and
+    the sharpest was a post-condition looser than the neutralizer: benign prose
+    ("end untrustedness") raised and the adapter discarded the evaluation, so any
+    report could force its own Arm-B result to be dropped. `wrap_untrusted` now
+    counts markers with `_MARKER_RE` itself; a check that can disagree with the
+    thing it checks is worse than no check. The fixpoint loop, shown by
+    instrumentation to never do more than one productive pass and to return dirty
+    text silently on exhaustion, is now one pass plus a verifying pass that
+    raises.
+  - **A forward-version history file is refused, not overwritten.** Treating it
+    as corruption destroyed intact data from a newer build. Corruption carries no
+    information; a newer file is somebody's history.
+  - **The metered path verifies its own provenance.** The pilot refuses to run
+    when the evaluator's arm differs from the config's, rather than recording a
+    manifest that misreports the treatment; run ids mix in a nanosecond reading
+    so two dispatches in one second cannot collide; and history tags the producer
+    as `model+arm`, since one model under two prompt treatments is two producers.
 - **Consequences:** No default-path behavior changes: `defense` defaults to
   `none`, the v1-core suite is untouched, and the committed reference results
   still reproduce. Injection operators are opt-in through a suite's operator
-  list. The pilot records its arm in the run manifest.
+  list. The pilot records its arm in the run manifest, and both the arm and the
+  history file are selectable from the metered dispatch (`--defense`,
+  `--history`) rather than requiring a commit.

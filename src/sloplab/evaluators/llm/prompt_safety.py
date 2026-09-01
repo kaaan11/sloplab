@@ -8,44 +8,59 @@ Why neutralization comes first
 ------------------------------
 Wrapping adversarial text in ``--- BEGIN/END UNTRUSTED REPORT ---`` markers is
 only a defense if the text cannot forge the closing marker and escape the fence.
-A report that contains its own ``--- END UNTRUSTED REPORT ---`` would otherwise
-end the fence early and have everything after it read as prompt, not as data - so
+A report containing its own ``--- END UNTRUSTED REPORT ---`` would otherwise end
+the fence early and have everything after it read as prompt, not as data - so
 Arm B would measure a defense that is not there.
 
 Detection runs on a normalized view, not on the raw text
 --------------------------------------------------------
-Matching the literal ASCII marker is not enough, because a model reads far more
-than ASCII as a boundary. All of these were live bypasses of an earlier
-literal-matching version of this module:
+A model reads far more than the literal ASCII string as a boundary. Every one of
+these defeated an earlier version of this module, with the whole test suite
+green, because the tests encoded the same assumptions as the code:
 
-- ``END\\nUNTRUSTED REPORT`` - the words split across two lines
-- a non-breaking space used as the separator
+- the words split across a line break, or across a *blank* line
+- a non-breaking space as the separator
 - a zero-width space inside the word (``UNTR<U+200B>USTED``)
-- a Cyrillic ``Е`` in place of Latin ``E``
+- a Cyrillic ``Е``, uppercase or lowercase, for Latin ``E``
+- an accented ``ÉND``, precomposed or as ``E`` plus a combining mark
+- a bare ``---`` fence in a CRLF-encoded report
 
-So each pass builds a *detection view* of the text - format characters (zero
-width, bidi controls) dropped, per-character NFKC applied, and a small confusables
-table folded - matches on that view, and maps the matched spans back to the
-original text through an index built alongside. The original is what gets edited;
-the view only decides where.
+So each pass builds a *detection view* - format characters dropped, NFKD applied
+per character with nonspacing marks removed, and a confusables table folded in
+both cases - matches on that view, and maps the matched spans back to the
+original through an index built alongside. The original is what gets edited; the
+view only decides where.
 
-**Known limit:** the confusables table covers Cyrillic and Greek lookalikes for
-the letters the markers actually use. Lookalikes from other scripts are not
-folded. This is a bounded, deliberate gap, not an oversight - a complete
-confusables mapping is a data problem this module does not try to own. The
-architecture question behind it (a per-case nonce delimiter would make forgery
-impossible by construction and need no stripping at all) is recorded in
-docs/review-brief-injection-arm.md for review rather than decided here.
+One pattern, two uses
+---------------------
+``wrap_untrusted``'s post-condition counts markers with the *same* pattern the
+neutralizer uses. An earlier version hand-rolled a looser check, which made
+benign prose ("our policy on end untrustedness") raise and fail the whole
+evaluation - a report could force its own Arm-B result to be discarded. A
+verifier that can disagree with the thing it verifies is worse than no verifier.
+
+Deliberate limits, stated rather than implied
+---------------------------------------------
+- The confusables table covers Cyrillic and Greek lookalikes for the letters the
+  markers use. Other scripts are not folded. A complete confusables mapping is a
+  data problem this module does not own.
+- Detection is deliberately over-inclusive: any all-dash line is neutralized,
+  which also rewrites Markdown setext headings and thematic breaks. In Arm B only.
+  That is a second, undeclared treatment on top of fencing, so it is recorded in
+  the returned provenance list and asserted absent from the committed corpus by
+  test. Over-matching is now safe rather than fatal, because the post-condition
+  no longer disagrees with the neutralizer.
+- The architecture that would dissolve this entire bypass class - a per-case
+  nonce delimiter, unforgeable by construction and needing no stripping - is
+  recorded in docs/review-brief-injection-arm.md for review rather than decided
+  here.
 
 The replacement is a non-empty, marker-free token, which is what defeats
 reassembly attacks like ``--- END UNTR--- END UNTRUSTED ---USTED ---``: deleting
-the inner marker outright would splice the outer fragments into a working one,
-whereas substituting an inert token keeps them apart. Passes repeat to a fixpoint
-as defense in depth.
-
-The bare ``---`` fence is neutralized too. Arm A's own fence is exactly that, so
-it is forgeable by a report - by injection today, and by an ordinary Markdown
-horizontal rule tomorrow.
+the inner marker would splice the outer fragments into a working one, whereas
+substituting an inert token keeps them apart. Because the token can neither form
+nor join a marker, one productive pass is always enough; the loop exists to make
+that assumption checkable rather than assumed, and raises if it is ever false.
 """
 
 from __future__ import annotations
@@ -60,49 +75,70 @@ END_MARKER = "--- END UNTRUSTED REPORT ---"
 #: of surrounding text can reassemble a boundary through it.
 REPLACEMENT = "[boundary marker removed]"
 
+
+def _both_cases(table: dict[str, str]) -> dict[str, str]:
+    """Fold each mapping in upper and lower case.
+
+    Matching is case-insensitive, so an uppercase-only table is a straight gap:
+    Cyrillic small dze (U+0455) is not the lowercase of anything ASCII, and
+    ``IGNORECASE`` will never relate it to ``s`` on its own.
+    """
+    folded: dict[str, str] = {}
+    for source, target in table.items():
+        folded[source] = target
+        folded[source.lower()] = target.lower()
+    return folded
+
+
 #: Cyrillic and Greek lookalikes for the letters used in BEGIN / END / UNTRUSTED
 #: / REPORT. Folded only in the detection view, never in the emitted text.
-_CONFUSABLES: dict[str, str] = {
-    # Cyrillic
-    "В": "B",  # В
-    "Е": "E",  # Е
-    "І": "I",  # І
-    "Р": "P",  # Р
-    "Ѕ": "S",  # Ѕ
-    "Т": "T",  # Т
-    "О": "O",  # О
-    "А": "A",  # А
-    "е": "e",  # е
-    "о": "o",  # о
-    "р": "p",  # р
-    "т": "t",  # т
-    # Greek
-    "Β": "B",  # Β
-    "Ε": "E",  # Ε
-    "Ι": "I",  # Ι
-    "Ν": "N",  # Ν
-    "Ο": "O",  # Ο
-    "Ρ": "P",  # Ρ
-    "Τ": "T",  # Τ
-    "Γ": "G",  # Γ (shape-adjacent; folded conservatively)
-}
+_CONFUSABLES: dict[str, str] = _both_cases(
+    {
+        # Cyrillic
+        "А": "A",
+        "В": "B",
+        "Е": "E",
+        "І": "I",
+        "О": "O",
+        "Р": "P",
+        "Ѕ": "S",
+        "Т": "T",
+        "Ц": "U",
+        # Greek
+        "Β": "B",
+        "Ε": "E",
+        "Γ": "G",
+        "Ι": "I",
+        "Ν": "N",
+        "Ο": "O",
+        "Ρ": "P",
+        "Τ": "T",
+        "Υ": "Y",
+    }
+)
 
-#: Separator between marker words: intra-line whitespace and at most one line
-#: break. May be empty, which is required - dropping a zero-width space leaves
-#: ``ENDUNTRUSTED`` with no separator at all.
-_SEP = r"[^\S\r\n]*(?:\r?\n)?[^\S\r\n]*"
+#: Separator between marker words: any whitespace, including none. Empty is
+#: required - dropping a zero-width space leaves ``ENDUNTRUSTED`` with no
+#: separator - and unbounded is required, because an earlier bound of one line
+#: break let ``END\\n\\nUNTRUSTED REPORT`` through.
+_SEP = r"\s*"
 
 #: Any dash-decorated BEGIN/END UNTRUSTED marker, in any case, with or without
-#: the trailing "REPORT" and with any number of surrounding dashes.
+#: the trailing "REPORT" and with any number of surrounding dashes. The word
+#: boundaries are load-bearing: without the leading one ``rebegin untrusted``
+#: matches, without the trailing one ``end untrustedness`` does.
 _MARKER_RE = re.compile(
     rf"-*{_SEP}\b(?:BEGIN|END){_SEP}UNTRUSTED(?:{_SEP}REPORT)?\b{_SEP}-*",
     re.IGNORECASE,
 )
 
-#: A line consisting only of three or more dashes - Arm A's fence.
-_FENCE_RE = re.compile(r"^[^\S\r\n]*-{3,}[^\S\r\n]*$", re.MULTILINE)
+#: A line consisting only of three or more dashes - Arm A's fence. The optional
+#: ``\r`` matters: ``[^\S\r\n]`` cannot step over the carriage return of a CRLF
+#: line ending, so without it the fence is never neutralized in CRLF reports.
+_FENCE_RE = re.compile(r"^[^\S\r\n]*-{3,}[^\S\r\n]*\r?$", re.MULTILINE)
 
-_MAX_PASSES = 8
+#: Markers expected in a correctly wrapped block: the opening and the closing one.
+_EXPECTED_MARKERS = 2
 
 
 class BoundaryError(Exception):
@@ -114,15 +150,19 @@ def detection_view(text: str) -> tuple[str, list[int]]:
 
     Format characters are dropped rather than mapped: they are invisible to a
     reader and to a model, so leaving them in would let ``UNTR<U+200B>USTED``
-    hide from the pattern while still reading as ``UNTRUSTED``.
+    hide from the pattern while still reading as ``UNTRUSTED``. Characters are
+    then NFKD-decomposed with nonspacing marks removed, which folds both
+    compatibility forms (fullwidth) and accents (``É`` -> ``E``) while keeping
+    the mapping one-to-one so spans stay traceable to the original.
     """
     chars: list[str] = []
     index: list[int] = []
     for position, char in enumerate(text):
-        if unicodedata.category(char) == "Cf":
+        if unicodedata.category(char) in ("Cf", "Mn"):
             continue
-        folded = unicodedata.normalize("NFKC", char)
-        simple = folded if len(folded) == 1 else char
+        decomposed = unicodedata.normalize("NFKD", char)
+        base = "".join(c for c in decomposed if unicodedata.category(c) != "Mn")
+        simple = base if len(base) == 1 else char
         chars.append(_CONFUSABLES.get(simple, simple))
         index.append(position)
     return "".join(chars), index
@@ -150,29 +190,41 @@ def _spans_in_original(view: str, index: list[int]) -> list[tuple[int, int]]:
     return merged
 
 
+def _replace_spans(text: str, spans: list[tuple[int, int]]) -> tuple[str, list[str]]:
+    pieces: list[str] = []
+    removed: list[str] = []
+    cursor = 0
+    for start, end in spans:
+        pieces.append(text[cursor:start])
+        removed.append(text[start:end])
+        pieces.append(REPLACEMENT)
+        cursor = end
+    pieces.append(text[cursor:])
+    return "".join(pieces), removed
+
+
 def neutralize_boundaries(text: str) -> tuple[str, list[str]]:
     """Strip boundary-looking markers from untrusted content.
 
     Returns the cleaned text and the markers that were replaced, in the order
     encountered. The list is provenance: Arm B modifies the content as well as
     fencing it, and recording what changed keeps that visible instead of hidden.
+
+    One pass is expected to suffice, because the replacement token can neither
+    form nor join a marker. The second pass verifies that rather than trusting
+    it, and :class:`BoundaryError` is raised if the text has not converged -
+    silently returning still-dirty text is the failure this module exists to
+    prevent.
     """
-    removed: list[str] = []
-    cleaned = text
-    for _pass in range(_MAX_PASSES):
-        view, index = detection_view(cleaned)
-        spans = _spans_in_original(view, index)
-        if not spans:
-            break
-        pieces: list[str] = []
-        cursor = 0
-        for start, end in spans:
-            pieces.append(cleaned[cursor:start])
-            removed.append(cleaned[start:end])
-            pieces.append(REPLACEMENT)
-            cursor = end
-        pieces.append(cleaned[cursor:])
-        cleaned = "".join(pieces)
+    view, index = detection_view(text)
+    cleaned, removed = _replace_spans(text, _spans_in_original(view, index))
+
+    recheck_view, recheck_index = detection_view(cleaned)
+    if _spans_in_original(recheck_view, recheck_index):
+        raise BoundaryError(
+            "neutralization did not converge in one pass; a marker survived or was "
+            "reassembled, which means the replacement token is no longer inert"
+        )
     return cleaned, removed
 
 
@@ -180,21 +232,21 @@ def wrap_untrusted(text: str) -> tuple[str, list[str]]:
     """Neutralize ``text``, then fence it as untrusted content.
 
     Returns the wrapped block and the neutralized markers. Raises
-    :class:`BoundaryError` if the result does not contain exactly one marker
-    pair - that would mean the neutralizer let a forgery through, which is a
-    defect in this module rather than a property of the report.
+    :class:`BoundaryError` if the result does not hold exactly the opening and
+    closing markers and nothing else.
 
-    The check runs over the detection view, not the raw text: counting literal
-    ASCII markers would pass every bypass this module exists to stop.
+    The count uses ``_MARKER_RE`` itself, over the detection view. Anything
+    looser can disagree with the neutralizer and reject text the neutralizer
+    deliberately left alone; anything stricter (counting literal ASCII) passes
+    every bypass this module exists to stop.
     """
     cleaned, removed = neutralize_boundaries(text)
     wrapped = f"{BEGIN_MARKER}\n{cleaned}\n{END_MARKER}"
 
     view, _index = detection_view(wrapped)
-    begins = len(list(re.finditer(r"BEGIN" + _SEP + "UNTRUSTED", view, re.IGNORECASE)))
-    ends = len(list(re.finditer(r"\bEND" + _SEP + "UNTRUSTED", view, re.IGNORECASE)))
-    if begins != 1 or ends != 1:
+    markers = len(_MARKER_RE.findall(view))
+    if markers != _EXPECTED_MARKERS:
         raise BoundaryError(
-            f"wrapped content does not hold exactly one marker pair (begin={begins}, end={ends})"
+            f"wrapped content holds {markers} markers, expected {_EXPECTED_MARKERS}"
         )
     return wrapped, removed

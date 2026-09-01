@@ -162,8 +162,15 @@ def _document_for(case: SuiteCase, corpus_root: Path) -> Any:
 
 
 def _pilot_run_id(*parts: str) -> str:
-    """Identifier for one pilot dispatch, derived from its own provenance."""
-    digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
+    """Identifier for one pilot dispatch, derived from its own provenance.
+
+    A nanosecond reading is mixed in because the rest is second-resolution: two
+    dispatches of the same config on the same commit within one second would
+    otherwise share an id, and a history entry could no longer be traced to the
+    run that produced it.
+    """
+    payload = "|".join((*parts, str(time.time_ns())))
+    digest = hashlib.sha256(payload.encode("utf-8")).hexdigest()
     return f"run-{digest[:12]}"
 
 
@@ -188,6 +195,14 @@ def run_llm_pilot(
     from sloplab.models.evaluation import EvaluationContext
 
     assert isinstance(evaluator, LlmEvaluator)
+    if evaluator.defense != config.defense:
+        # The manifest records the config's arm but the prompts come from the
+        # evaluator's. On the one path that spends money, a provenance record
+        # that misreports the treatment is worse than a refused run.
+        raise ValueError(
+            f"evaluator arm {evaluator.defense!r} does not match config arm "
+            f"{config.defense!r}; the manifest would misreport the experiment"
+        )
     selected = cases[: config.max_cases] if config.max_cases else list(cases)
 
     client = evaluator._client  # noqa: SLF001 - harness wiring by design
@@ -290,7 +305,10 @@ def run_llm_pilot(
             history_path,
             entries_from_records(
                 all_records,
-                model=os.environ.get(config.model_env, "unknown"),
+                # The arm is part of the producer identity: the same model
+                # under two prompt treatments is two different producers, and
+                # stable_cases(model=...) must not merge them.
+                model=f"{os.environ.get(config.model_env, 'unknown')}+{config.defense}",
                 corpus_version=load_corpus_version(),
                 run_id=run_id,
                 ts=utc_timestamp(),

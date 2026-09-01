@@ -29,6 +29,9 @@ suite:
 
 base_seed: 20260825
 repeats: 3
+# Prompt-boundary arm (D-0015). 'none' is the control and the default;
+# --defense on the runner overrides it for a single dispatch.
+defense: none
 max_cases: 60
 
 model_env: SLOPLAB_LLM_MODEL

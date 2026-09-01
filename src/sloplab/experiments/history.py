@@ -43,6 +43,16 @@ DEFAULT_HISTORY_FILENAME = "decision-history.json"
 #: Bumped only on an incompatible on-disk change.
 SCHEMA_VERSION = 1
 
+
+class IncompatibleHistoryError(Exception):
+    """The file was written by a newer build and must not be overwritten.
+
+    Distinct from corruption on purpose. Corrupt content carries no information,
+    so starting fresh loses nothing; a forward-version file is somebody's intact
+    history, and rewriting it would destroy data this build simply cannot read.
+    """
+
+
 _ENTRY_FIELDS = ("ts", "decision", "model", "corpus_version", "run_id")
 
 
@@ -186,8 +196,10 @@ class DecisionHistory:
     def load(cls, path: Path) -> DecisionHistory:
         """Load a history file. A missing file is empty; a broken one warns.
 
-        Never raises: an unreadable or malformed file yields a fresh history so a
-        run in progress is never lost to a bad artifact from a previous one.
+        The only exception it raises is :class:`IncompatibleHistoryError`, for a
+        file written by a newer schema. Everything else - unreadable, malformed,
+        wrong shape - yields a fresh history so a run in progress is never lost
+        to a bad artifact from a previous one.
         """
         try:
             raw_text = path.read_text(encoding="utf-8")
@@ -199,6 +211,8 @@ class DecisionHistory:
 
         try:
             return cls(_parse_payload(json.loads(raw_text)))
+        except IncompatibleHistoryError:
+            raise
         except (json.JSONDecodeError, ValueError) as exc:
             _warn(f"{path} is unusable ({exc}); starting fresh")
             return cls()
@@ -208,6 +222,11 @@ def _parse_payload(payload: Any) -> dict[str, list[HistoryEntry]]:
     if not isinstance(payload, dict):
         raise ValueError(f"top level must be an object, got {type(payload).__name__}")
     version = payload.get("schema_version")
+    if isinstance(version, int) and version > SCHEMA_VERSION:
+        raise IncompatibleHistoryError(
+            f"file uses schema_version {version}, this build understands "
+            f"{SCHEMA_VERSION}; refusing to overwrite it"
+        )
     if version != SCHEMA_VERSION:
         raise ValueError(f"unsupported schema_version {version!r}")
     cases = payload.get("cases")
@@ -273,12 +292,32 @@ def record_run(path: Path, entries: Mapping[str, HistoryEntry]) -> bool:
     path that spends money, and an exception here - after results are already on
     disk - would turn a completed run into a failed one.
     """
-    if not entries:
+    return record_runs(path, [entries])
+
+
+def record_runs(path: Path, entry_sets: Iterable[Mapping[str, HistoryEntry]]) -> bool:
+    """Merge several runs' entries into the history file in one load/save cycle.
+
+    A benchmark run evaluates several evaluators over the same cases. Calling
+    :func:`record_run` per evaluator would re-read, re-serialize, fsync and
+    atomically replace the whole file once per evaluator; this does it once.
+    """
+    batches = [entries for entries in entry_sets if entries]
+    if not batches:
         return False
     try:
         history = DecisionHistory.load(path)
-        for case_id, entry in sorted(entries.items()):
-            history.append(case_id, entry)
+    except IncompatibleHistoryError as exc:
+        _warn(f"{path}: {exc}; run results are unaffected")
+        return False
+    except Exception as exc:  # noqa: BLE001 - history must never fail a run
+        _warn(f"could not read {path} ({exc}); run results are unaffected")
+        return False
+
+    try:
+        for entries in batches:
+            for case_id, entry in sorted(entries.items()):
+                history.append(case_id, entry)
         history.save(path)
         return True
     except Exception as exc:  # noqa: BLE001 - history must never fail a run

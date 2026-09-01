@@ -59,6 +59,15 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--out", type=Path, default=Path("llm-bench-results.jsonl"))
     parser.add_argument(
+        "--defense",
+        choices=("none", "delimited"),
+        default=None,
+        help=(
+            "Prompt-boundary arm for this dispatch, overriding the config. "
+            "'none' is the control: the prompt SlopLab has always measured."
+        ),
+    )
+    parser.add_argument(
         "--history",
         type=Path,
         default=None,
@@ -126,6 +135,8 @@ def main(argv: list[str] | None = None) -> int:
         sleep_cap_s=float(config.budget.request_timeout_s),
     )
     counting = CountingClient(throttled, max_requests=config.budget.max_requests)
+    if args.defense is not None:
+        config.defense = args.defense
     evaluator = LlmEvaluator(
         client=counting,
         max_retries=config.budget.max_retries_per_case,
@@ -153,6 +164,12 @@ def main(argv: list[str] | None = None) -> int:
         repeat = record["evaluation_metadata"].get("repeat_index", 0)
         print(f"  {record['case_id']} (repeat {repeat}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
+    print(f"arm: {config.defense} | run id: {result.run_id}")
+    if args.history is not None:
+        # A silent history failure is invisible otherwise, and this is the one
+        # path where re-running to find out costs money.
+        state = "recorded" if result.history_recorded else "NOT recorded (see warnings)"
+        print(f"decision history: {state} -> {args.history}")
     print(
         "requests used: "
         f"{result.counters.get('requests', 0)} "

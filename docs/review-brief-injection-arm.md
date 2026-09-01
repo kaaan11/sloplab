@@ -29,40 +29,55 @@ the code it tests, against the threat model the author imagined. Three defects
 listed below were found by probing *outside* that model, with the suite fully
 green the whole time. Assume more remain.
 
-## Defects found and fixed while writing this brief - verify the fixes
+## Round 2: an independent review found 15 defects. All were real.
 
-All three were found by probing *outside* the author's threat model, with the
-suite fully green throughout. They are listed because the fixes need checking,
-and because they calibrate how much the green suite is worth.
+The first round of this brief listed three defects the author found by probing
+outside their own threat model. An independent review then found **fifteen**,
+every one of which reproduced against the working tree. That result is the most
+useful thing in this document: the suite was green, the gate was green, and the
+author had already been told once that the tests only cover the threats the
+author imagined.
 
-1. **The neutralizer matched literal ASCII and was trivially bypassable.**
-   `END\nUNTRUSTED REPORT` (a plain newline between the words), a non-breaking
-   space separator, a zero-width space inside the word, and a Cyrillic `Е` all
-   walked straight through. The task called this stripping non-negotiable -
-   "without it, Arm B measures a paper defense" - and it did.
+Fixed in round 2 - verify the fixes rather than re-finding the defects:
 
-   *Fix to verify:* detection now runs on a normalized view (format characters
-   dropped, per-character NFKC, bounded confusables table), with matched spans
-   mapped back to the original text so only the match is edited
-   (`prompt_safety.py:detection_view`). Check the mapping is exact, check the
-   over-match tests are the right ones, and check whether the confusables table's
-   bounded scope is stated honestly enough.
+**Arm B was not a fence at all.** Five separate bypasses reached the model
+verbatim: the marker words split across a *blank* line; a bare `---` fence in any
+CRLF-encoded report; a lowercase Cyrillic homoglyph (the table held only
+uppercase, while matching is case-insensitive); a precomposed or combining accent
+(`ÉND`); and, in the other direction, benign prose - "our policy on end
+untrustedness" - raising `BoundaryError` and causing the adapter to discard the
+whole evaluation, which any report could trigger against itself.
 
-2. **The wrap post-condition gave false assurance.** It counted occurrences of
-   the literal marker, so every bypass above satisfied the check that existed to
-   catch them. *Fix to verify:* the count now runs over the detection view.
+The verifier disagreeing with the neutralizer was the root cause of the last one,
+and it is now structural: `wrap_untrusted` counts markers with `_MARKER_RE`
+itself, so a looser or stricter check cannot drift back in. `_SEP` is unbounded
+whitespace, the fence pattern tolerates `\r`, the confusables table is folded in
+both cases, and the detection view strips nonspacing marks after NFKD.
 
-3. **`injection_success_by_arm` counted correct evaluations as successes.** All
-   operators demand `accept` and injected cases keep the parent's expected
-   decision, so on a valid parent expected == demanded and obeying is
-   indistinguishable from being right. *Fix to verify:* such cases are excluded
-   and reported as `undecidable_cases`. Judge whether exclusion is the right
-   remedy, or whether operators demanding `reject` on valid parents should be
-   added instead - suppressing a real report is arguably the more interesting
-   attack, and the corpus cannot currently express it.
+**The fixpoint loop was theatre.** Instrumentation showed it could never do more
+than one productive pass, and on exhaustion it returned still-dirty text
+silently. It is now one pass plus a verification pass that raises.
 
-Assume more remain. Every test was written by the author of the code it tests,
-against the threat model the author imagined.
+**History could destroy data.** A file written by a newer schema was treated as
+corrupt: warned about, then overwritten with only the current run's entries. A
+forward version is now refused without writing, distinct from corruption.
+
+**Provenance could lie on the metered path.** The pilot recorded `config.defense`
+in the manifest while sending prompts built from `evaluator.defense`, with no
+check that they agreed; the run id collided for two dispatches in the same
+second; and history tagged the producer by model alone, so the two arms of one
+model merged in `stable_cases(model=...)`.
+
+**Two latent measurement defects.** `injection_success_by_arm` counted records
+rather than cases, so repeats would have multiplied it; and neither feature could
+be exercised from the metered dispatch path at all - no `--defense` flag, no
+`defense` key in the pilot config, no `--history` in the workflow.
+
+Still open, deliberately: the fence neutralizer rewrites any all-dash line, so
+Arm B would also rewrite Markdown setext headings. No committed fixture uses
+them and a test now pins that, but the confound is latent rather than absent.
+
+Assume more remain.
 
 ## Review areas, in order of what a mistake would cost
 

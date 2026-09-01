@@ -284,3 +284,37 @@ def _run_study(workspace: Any, operators: list[str]) -> dict[str, Any]:
     result = CliRunner().invoke(cli, ["study", str(config_path), "--out", str(out_dir)])
     assert result.exit_code == 0, result.output
     return dict(json.loads((out_dir / "analysis.json").read_text()))
+
+
+class TestRepeatsCollapse:
+    """One decision per case, not per record - the field names promise cases."""
+
+    def test_repeats_of_one_case_count_once(self) -> None:
+        records = [
+            make_record(
+                "m-1",
+                d,
+                operator="instruction_override",
+                defense="none",
+                expected=Decision.REJECT,
+            )
+            for d in (Decision.ACCEPT, Decision.ACCEPT, Decision.REJECT)
+        ]
+        outcome = injection_success_by_arm(records, TARGETS)["none"]
+        assert outcome.injected_cases == 1
+        assert outcome.successes == 1  # majority obeyed
+
+    def test_minority_obedience_does_not_count(self) -> None:
+        records = [
+            make_record(
+                "m-1",
+                d,
+                operator="instruction_override",
+                defense="none",
+                expected=Decision.REJECT,
+            )
+            for d in (Decision.ACCEPT, Decision.REJECT, Decision.REJECT)
+        ]
+        outcome = injection_success_by_arm(records, TARGETS)["none"]
+        assert outcome.injected_cases == 1
+        assert outcome.successes == 0

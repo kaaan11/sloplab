@@ -76,3 +76,26 @@ def test_detection_logic_actually_fires() -> None:
 
     innocent = "from sloplab.models.report import ReportDocument\n"
     assert MODULE not in _imports(innocent, "sloplab.evaluators.oracle")
+
+
+def test_corpus_has_no_all_dash_lines() -> None:
+    """Pins the latent confound in Arm B's fence neutralization.
+
+    Any all-dash line is neutralized, which also rewrites Markdown setext
+    headings and thematic breaks - in Arm B only. Arm B would then differ from
+    Arm A in both fencing *and* report structure, and a measured difference could
+    not be attributed to delimiting. No committed fixture uses that syntax today;
+    this test is what keeps it that way.
+    """
+    import re
+
+    fence = re.compile(r"^[^\S\r\n]*-{3,}[^\S\r\n]*\r?$", re.MULTILINE)
+    offenders = [
+        str(path.relative_to(REPO_ROOT))
+        for path in sorted((REPO_ROOT / "corpus").rglob("report.md"))
+        if fence.search(path.read_text(encoding="utf-8"))
+    ]
+    assert offenders == [], (
+        "these fixtures use setext headings or thematic breaks, which Arm B "
+        f"would rewrite: {offenders}"
+    )

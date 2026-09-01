@@ -25,6 +25,14 @@ on:
         description: "Max canonical cases to evaluate (each case costs API tokens)"
         required: false
         default: "3"
+      defense:
+        description: "Prompt-boundary arm: none (control) or delimited (treatment)"
+        required: false
+        default: "none"
+        type: choice
+        options:
+          - none
+          - delimited
 
 permissions:
   contents: read
@@ -68,6 +76,7 @@ jobs:
           SLOPLAB_LLM_MODEL: ${{ vars.LLM_MODEL }}
           SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
           MAX_CASES: ${{ inputs.max_cases }}
+          DEFENSE: ${{ inputs.defense }}
         run: |
           # Dispatch input reaches the shell only through this quoted, validated
           # environment variable - never via direct ${{ }} interpolation.
@@ -77,9 +86,15 @@ jobs:
               exit 1
               ;;
           esac
+          # History is written inside the bundle so it ships in the artifact.
+          # The runner is ephemeral: to accumulate across dispatches the operator
+          # restores this file from the previous run's artifact first (runbook).
+          mkdir -p llm-bench-results.bundle
           uv run python scripts/llm_bench.py \
             --max-cases "$MAX_CASES" \
-            --out llm-bench-results.jsonl
+            --defense "$DEFENSE" \
+            --out llm-bench-results.jsonl \
+            --history llm-bench-results.bundle/decision-history.json
 
       - name: Upload results artifact
         uses: actions/upload-artifact@v4
