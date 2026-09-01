@@ -19,6 +19,8 @@ these defeated an earlier version of this module, with the whole test suite
 green, because the tests encoded the same assumptions as the code:
 
 - the words split across a line break, or across a *blank* line
+- the words joined by punctuation or a filler word, dressed as a fence:
+  ``END-UNTRUSTED``, ``END: UNTRUSTED``, ``END OF UNTRUSTED REPORT``
 - a non-breaking space as the separator
 - a zero-width space inside the word (``UNTR<U+200B>USTED``)
 - a Cyrillic ``Е``, uppercase or lowercase, for Latin ``E``
@@ -146,10 +148,19 @@ _DASHES: dict[str, str] = dict.fromkeys(
     "-",
 )
 
-#: Separators between marker words. Both may be empty: dropping a zero-width
+#: Separators between marker words. All may be empty: dropping a zero-width
 #: space leaves ``ENDUNTRUSTED`` with no separator at all.
+_TIGHT_SEP = r"[^\S\r\n]*"  # same line, whitespace only
 _LOOSE_SEP = r"\s*"  # any whitespace, blank lines included
-_TIGHT_SEP = r"[^\S\r\n]*"  # same line only
+
+#: Separator used only where dashes are present. A marker dressed as a fence can
+#: also be spelled ``END-UNTRUSTED``, ``END: UNTRUSTED`` or ``END OF UNTRUSTED``,
+#: and a model reads all of them as the boundary. Punctuation and the filler
+#: words are admitted only in that dashed context: allowing them everywhere would
+#: match ``...at the end. Untrusted input...`` in ordinary prose and delete it
+#: from Arm B, which is the regression this module already shipped once.
+_FILLER_WORDS = r"(?:OF|THE|MY|YOUR)"
+_DASHED_SEP = rf"[\s\-_:.,;/|]*(?:\b{_FILLER_WORDS}\b[\s\-_:.,;/|]*)*"
 
 
 def _marker_words(separator: str) -> str:
@@ -172,8 +183,8 @@ def _marker_words(separator: str) -> str:
 _MARKER_RE = re.compile(
     "|".join(
         (
-            rf"-+{_LOOSE_SEP}{_marker_words(_LOOSE_SEP)}{_LOOSE_SEP}-*",
-            rf"{_marker_words(_LOOSE_SEP)}{_LOOSE_SEP}-+",
+            rf"-+{_LOOSE_SEP}{_marker_words(_DASHED_SEP)}{_LOOSE_SEP}-*",
+            rf"{_marker_words(_DASHED_SEP)}{_LOOSE_SEP}-+",
             _marker_words(_TIGHT_SEP),
         )
     ),

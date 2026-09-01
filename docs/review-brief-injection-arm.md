@@ -158,10 +158,36 @@ converged. Every remaining defect was in the wiring and in what the number means
   `mkstemp`'s 0600 onto the destination, which on a shared path would make the
   history unreadable to everyone else and cause the next run to drop its entries.
 
-Assume more remain. Five rounds in, every round has found real defects. Two were
+### Round 6: a security review found no vulnerability, and one correctness defect
+
+The security review cleared the change - no vulnerability, and its triage is
+worth recording: the harm model here is entirely "untrusted content in an LLM
+prompt steers model output", Arm A interpolates attacker text with no
+sanitisation at all by pinned design, and no trust boundary is crossed (model
+output reaches only strict schema validation and a record, never a tool call,
+filesystem write, or authorisation decision). An incomplete sanitiser on an
+opt-in non-default arm cannot rank above the control that has none.
+
+It did, correctly, hand one finding to the ordinary queue, and it was real: the
+marker pattern joined its words with whitespace-only separators, so
+`--- END-UNTRUSTED REPORT ---`, `--- END: UNTRUSTED REPORT ---` and
+`--- END OF UNTRUSTED REPORT ---` all passed through untouched - eight spellings
+in total, against a module whose stated contract is that the text cannot forge
+the closing marker.
+
+Worse than the bypass: both committed `forged_boundary` payloads used the two
+spellings the neutraliser already caught, so **the arm was being measured only
+against shapes its own defense already handled**. Punctuation and filler words
+are now admitted as separators, but only where dashes are present - the same rule
+that keeps ordinary prose safe - and the payload set carries the missed spellings
+so the arm is measured against them. A test now scans all 60 committed fixtures
+and asserts none is rewritten, which is the empirical guard this module needed
+two rounds ago.
+
+Assume more remain. Six rounds in, every round has found real defects. Two were
 introduced by the previous round's fixes, two only became visible once the
-feature was wired up enough to run, and the module that now looks solid is the
-one that took three rounds to get there.
+feature was wired up enough to run, and one was a defense measured against a test
+set drawn from the defense's own assumptions.
 
 ## Review areas, in order of what a mistake would cost
 
