@@ -243,6 +243,14 @@ Each entry records a material engineering decision, its context, and consequence
     instrumentation to never do more than one productive pass and to return dirty
     text silently on exhaustion, is now one pass plus a verifying pass that
     raises.
+  - **Narrowing a pattern is not free.** Re-review of the fixes found that the
+    blank-line fix had over-corrected into a regression: an unbounded separator
+    matched `end` / `begin` followed by a paragraph break and `Untrusted` in
+    ordinary prose, so Arm B deleted report text that Arm A kept - the confound
+    the arm exists to avoid. Dashes now license a permissive separator; undashed
+    words must share a line. Likewise the case-folding fix left Cyrillic `Н` and
+    `Г` out while holding their Greek counterparts, so a sweep over every marker
+    letter in both scripts replaced the spot checks.
   - **A forward-version history file is refused, not overwritten.** Treating it
     as corruption destroyed intact data from a newer build. Corruption carries no
     information; a newer file is somebody's history.

@@ -73,11 +73,35 @@ rather than cases, so repeats would have multiplied it; and neither feature coul
 be exercised from the metered dispatch path at all - no `--defense` flag, no
 `defense` key in the pilot config, no `--history` in the workflow.
 
-Still open, deliberately: the fence neutralizer rewrites any all-dash line, so
-Arm B would also rewrite Markdown setext headings. No committed fixture uses
-them and a test now pins that, but the confound is latent rather than absent.
+### Round 3: the fixes themselves had two defects, one a regression
 
-Assume more remain.
+Re-review of the round-2 commit found two more, both the same shape as the
+originals - the fix closed the demonstrated case and stopped there:
+
+- **The blank-line fix over-corrected into a regression.** Making the separator
+  unbounded whitespace meant `end` or `begin` followed by a paragraph break and
+  `Untrusted` matched in ordinary prose, so Arm B silently deleted the words and
+  everything between them. Security reports discuss "untrusted input" constantly,
+  and Arm A kept the text intact - a second, undeclared Arm-B-only treatment on
+  exactly the text the arm exists to compare. That input was handled correctly
+  before the round-2 commit. Dashes now license the permissive separator; without
+  them the words must share a line.
+- **The case-folding fix did not complete the table.** Cyrillic `Н` and `Г` were
+  absent while their Greek counterparts were present, so single-letter
+  substitutions in `END` and `BEGIN` still bypassed. In-scope asymmetry, not the
+  acknowledged other-scripts limit. The table is completed and a test now sweeps
+  every marker letter against both scripts in both cases, rather than
+  spot-checking examples.
+
+Still open, deliberately: the fence neutralizer rewrites any all-dash line, so
+Arm B would also rewrite Markdown setext headings. No committed fixture uses them
+and a test pins that, but the confound is latent rather than absent. Carrying a
+history file across pilot dispatches also remains a manual operator step - the
+workflow passes `--history` into the uploaded bundle, but nothing restores the
+previous artifact, so history does not accumulate on its own.
+
+Assume more remain. Three rounds in, every round has found real defects, and two
+of them were introduced by the previous round's fixes.
 
 ## Review areas, in order of what a mistake would cost
 

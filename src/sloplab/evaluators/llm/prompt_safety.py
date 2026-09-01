@@ -42,8 +42,11 @@ verifier that can disagree with the thing it verifies is worse than no verifier.
 Deliberate limits, stated rather than implied
 ---------------------------------------------
 - The confusables table covers Cyrillic and Greek lookalikes for the letters the
-  markers use. Other scripts are not folded. A complete confusables mapping is a
-  data problem this module does not own.
+  markers use, in both cases, and a test sweeps every marker letter against both
+  scripts rather than spot-checking - an earlier version held Greek ``Ν`` but not
+  Cyrillic ``Н``, an in-scope asymmetry rather than the acknowledged limit.
+  Lookalikes from other scripts are not folded; a complete confusables mapping is
+  a data problem this module does not own.
 - Detection is deliberately over-inclusive: any all-dash line is neutralized,
   which also rewrites Markdown setext headings and thematic breaks. In Arm B only.
   That is a second, undeclared treatment on top of fencing, so it is recorded in
@@ -97,8 +100,11 @@ _CONFUSABLES: dict[str, str] = _both_cases(
         # Cyrillic
         "А": "A",
         "В": "B",
+        "Г": "G",
+        "Ԍ": "G",
         "Е": "E",
         "І": "I",
+        "Н": "N",
         "О": "O",
         "Р": "P",
         "Ѕ": "S",
@@ -117,18 +123,37 @@ _CONFUSABLES: dict[str, str] = _both_cases(
     }
 )
 
-#: Separator between marker words: any whitespace, including none. Empty is
-#: required - dropping a zero-width space leaves ``ENDUNTRUSTED`` with no
-#: separator - and unbounded is required, because an earlier bound of one line
-#: break let ``END\\n\\nUNTRUSTED REPORT`` through.
-_SEP = r"\s*"
+#: Separators between marker words. Both may be empty: dropping a zero-width
+#: space leaves ``ENDUNTRUSTED`` with no separator at all.
+_LOOSE_SEP = r"\s*"  # any whitespace, blank lines included
+_TIGHT_SEP = r"[^\S\r\n]*"  # same line only
 
-#: Any dash-decorated BEGIN/END UNTRUSTED marker, in any case, with or without
-#: the trailing "REPORT" and with any number of surrounding dashes. The word
-#: boundaries are load-bearing: without the leading one ``rebegin untrusted``
-#: matches, without the trailing one ``end untrustedness`` does.
+
+def _marker_words(separator: str) -> str:
+    """The marker vocabulary with a given inter-word separator.
+
+    The word boundaries are load-bearing: without the leading one
+    ``rebegin untrusted`` matches, without the trailing one ``end untrustedness``
+    does - and a version missing them made benign prose raise, failing the whole
+    evaluation.
+    """
+    return rf"\b(?:BEGIN|END){separator}UNTRUSTED(?:{separator}REPORT)?\b"
+
+
+#: A boundary marker. Dashes are what license a permissive separator: a blank
+#: line between the words is an attack shape only when the text is dressed as a
+#: fence. Without dashes the words must sit on one line, because
+#: ``...applied only at the end\n\nUntrusted input reaches...`` is ordinary prose
+#: in a security report, and an unbounded separator deleted it from Arm B - a
+#: second, undeclared treatment on exactly the text the arm exists to compare.
 _MARKER_RE = re.compile(
-    rf"-*{_SEP}\b(?:BEGIN|END){_SEP}UNTRUSTED(?:{_SEP}REPORT)?\b{_SEP}-*",
+    "|".join(
+        (
+            rf"-+{_LOOSE_SEP}{_marker_words(_LOOSE_SEP)}{_LOOSE_SEP}-*",
+            rf"{_marker_words(_LOOSE_SEP)}{_LOOSE_SEP}-+",
+            _marker_words(_TIGHT_SEP),
+        )
+    ),
     re.IGNORECASE,
 )
 
