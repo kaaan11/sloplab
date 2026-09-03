@@ -213,6 +213,31 @@ Each entry records a material engineering decision, its context, and consequence
     confound is visible rather than hidden, alongside the arm itself - without
     which the two arms' records would be indistinguishable, both being
     `llm-json` at the same version.
+  - **The carve-out is written by mechanism, and failed its first test.** The
+    first version described instruction-override payloads and named code symbols
+    while doing it (`MutationCategory.INJECTION`, the decision a payload demands,
+    a specific experiment) - evidence it was drafted around what had already been
+    built rather than from principles. It then admitted
+    `fabricated_triage_note`, whose mechanism is fabricated authority, not
+    instruction override: nothing is overridden, a verdict is supplied and
+    dressed as settled fact. Rule 6 does not reach that shape either, since it
+    forbids impersonating an identity and attributing claims to real named
+    things while this attributes to nothing - so the operator sat in a gap, which
+    is a weaker position than being permitted. Exception 7 now names two
+    mechanisms with separate conditions (7a instruction override, 7b fabricated
+    authority), states the bounds the first version omitted, and every operator
+    names its admitting clause in code with a test asserting that clause exists
+    in the document. The reviewer who found this also noted the reverse
+    divergence: the first version capped nothing and did not address fabricated
+    records at all.
+  - **Publishing the payloads was decided per operator, not in bulk.**
+    `instruction_override` and `forged_boundary` are shapes carried by OWASP
+    LLM01 and by every published injection benchmark (garak, PyRIT, promptfoo);
+    publishing them adds nothing. `fabricated_triage_note` is the one shaped to
+    *this* scenario - report triage - and SlopLab may be among the first to
+    publish it in that form. It ships because the repository carries a defense
+    measured against it and the block is unattributed and imitates no real tool,
+    but the asymmetry is recorded here rather than assumed away.
   - **Injection needs a safety carve-out, granted narrowly.** safety.md rule 6
     rejects triage bypass techniques and the threat model disclaims evasion
     optimization. Prompt injection is exactly that, so the exception is written

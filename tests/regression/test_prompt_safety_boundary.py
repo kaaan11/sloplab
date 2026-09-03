@@ -99,3 +99,45 @@ def test_corpus_has_no_all_dash_lines() -> None:
         "these fixtures use setext headings or thematic breaks, which Arm B "
         f"would rewrite: {offenders}"
     )
+
+
+def test_every_injection_operator_names_the_clause_that_admits_it() -> None:
+    """An operator must never outlive the policy clause that permits it.
+
+    The first version of the safety carve-out described instruction override
+    alone, and a fabricated-authority operator was admitted under it anyway: the
+    mechanisms differ and the policy did not say so. Naming the clause in code
+    and checking it against the document makes "which rule allows this?"
+    mechanically answerable rather than a matter of recollection.
+    """
+    from sloplab.models.enums import MutationCategory
+    from sloplab.mutations.base import get_operator, list_operators
+
+    policy = (REPO_ROOT / "docs" / "safety.md").read_text(encoding="utf-8")
+
+    injection = [
+        name
+        for name in list_operators()
+        if get_operator(name).spec.category is MutationCategory.INJECTION
+    ]
+    assert injection, "no injection operators registered"
+
+    for name in injection:
+        clause = getattr(get_operator(name), "policy_clause", None)
+        assert clause, f"{name} names no admitting clause"
+        assert f"**{clause} - " in policy, (
+            f"{name} cites safety.md clause {clause}, which the document does not define"
+        )
+
+
+def test_the_admitting_clauses_match_the_operators_mechanisms() -> None:
+    """Instruction override and fabricated authority are not the same clause."""
+    from sloplab.mutations.base import get_operator
+
+    expected = {
+        "instruction_override": "7a",
+        "forged_boundary": "7a",
+        "fabricated_triage_note": "7b",
+    }
+    for name, clause in expected.items():
+        assert get_operator(name).policy_clause == clause, name  # type: ignore[attr-defined]

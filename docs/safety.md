@@ -39,34 +39,59 @@ corpus content, mutation operators, and contributions.
    false attribution of claims to real products/CVEs/people, exploit automation,
    unlicensed or private report material.
 
-### Narrow exception: instruction-override operators (D-0015)
+### Exception 7: evaluator-directed content, in two named classes
 
-Rules 5 and 6 would otherwise reject prompt-injection operators, which target the
-evaluator rather than degrading report quality. A single, bounded exception
-applies, because measuring whether an LLM triage evaluator can be hijacked by
-report content - and whether a delimiting defense stops it - is exactly the kind
-of robustness question this benchmark exists to answer, and cannot be answered
-without such cases in the corpus.
+Rules 5 and 6 reject content that targets the evaluator rather than degrading
+report quality. A bounded exception applies, because whether an LLM triage
+evaluator can be steered by the text it is reading - and whether a defense stops
+it - is the robustness question this benchmark exists to answer, and it cannot be
+answered without such cases in the corpus.
 
-The exception permits instruction-override payloads **only** when all of the
-following hold:
+The exception is written by mechanism, not by implementation. Two classes are
+admitted, each on its own terms. A payload that is neither is **not** covered,
+and a new mechanism needs a new clause here before any operator implements it.
 
-- they appear only as registered mutation operators under
-  `MutationCategory.INJECTION`, each individually documented with the decision
-  its payload demands;
-- the text is generic and widely published, not novel or tuned - no operator may
-  be optimized against a specific system's observed behavior;
-- no payload names, targets, or is calibrated against any real triage system,
-  product, vendor, or bug-bounty program; reserved namespaces (rule 3) still
-  apply in full;
-- a defense is measured against them: the operators exist to populate the
-  control/treatment comparison recorded in D-0015 (docs/decision-log.md), not on their
-  own;
-- impersonation of a real person, team, or organization remains rejected under
-  rule 6 with no exception.
+**7a - Instruction override.** Content that directs the reader to disregard its
+own task or its prior instructions. Admitted when:
 
-Everything else in rules 5 and 6 stands. This exception does not license bypass
-techniques aimed at systems outside this benchmark.
+- the text is a generic, widely published shape, not novel and not optimized
+  against any observed system's behavior;
+- it names, targets, or is calibrated against no real triage system, product,
+  vendor, or bug-bounty program;
+- a defense is measured against it, so the payload exists to test a mitigation
+  rather than on its own.
+
+**7b - Fabricated authority.** Content that asserts a verdict, status, or
+approval as though it came from outside the report - an automated check, a prior
+review, a pipeline result - in order to substitute for the evaluator's own
+judgement. This is a different mechanism from 7a: nothing is overridden, an
+answer is supplied and dressed as established fact. Rule 6 does not reach it,
+because rule 6 forbids impersonating an identity and attributing claims to real
+named things, while this attributes to nothing at all. That gap is closed here
+rather than left to interpretation. Admitted when, in addition to every condition
+in 7a:
+
+- the asserted authority is unattributed: no real or plausible tool, team,
+  vendor, workflow, or product name appears, so nothing is impersonated and no
+  claim is attributed to anything real;
+- the payload is a demonstration of the mechanism, not a finished artifact for a
+  particular target's workflow - it must not be tuned to imitate the output
+  format of any real triage system.
+
+**Bounds on both classes.** These are limits the first version of this exception
+omitted, and their absence is what let an operator be admitted under a clause
+that did not describe it:
+
+- the corpus carries at most a handful of operators per class - enough to measure
+  a mechanism, not a library of payloads;
+- every admitted operator must name, in code, which clause admits it, and a test
+  asserts that the named clause exists in this document;
+- an operator whose mechanism drifts out of its clause must be re-argued here,
+  not quietly reclassified.
+
+Everything else in rules 5 and 6 stands. This exception licenses nothing aimed at
+systems outside this benchmark, and impersonation of a real person, team, or
+organization remains rejected with no exception.
 
 ## Enforcement
 

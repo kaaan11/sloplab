@@ -17,14 +17,26 @@ degrade report quality, it targets the evaluator. Measuring whether an LLM triag
 evaluator can be hijacked by report content - and whether a delimiting defense
 stops it - cannot be done without such cases in the corpus.
 
-A bounded exception is now recorded in safety.md, threat-model.md and D-0015.
-It permits instruction-override payloads **only** when all of the following hold:
-they appear as registered operators under `MutationCategory.INJECTION`, each
-documenting the decision its payload demands; the text is generic and widely
-published, never novel or tuned against an observed system; no payload names,
-targets, or is calibrated against any real triage system, product, vendor or
-program; a defense is measured against them; and impersonation of a real person,
-team or organization remains rejected with no exception.
+Exception 7 is now recorded in safety.md, threat-model.md and D-0015. It is
+written by mechanism rather than by implementation, and admits two classes on
+separate terms: **7a instruction override** (content directing the reader to
+disregard its own task) and **7b fabricated authority** (content asserting a
+verdict as though it came from outside the report). A payload that is neither is
+not covered, and a new mechanism needs a new clause before any operator
+implements it.
+
+Both classes require the text to be a generic, widely published shape, never
+tuned against an observed system, naming no real triage system, product, vendor
+or program, and always with a defense measured against it. 7b adds that the
+asserted authority must be unattributed and must not imitate any real system's
+output format. Every operator names its admitting clause in code, and a test
+asserts that clause exists in the policy - so an operator cannot outlive the rule
+that permits it.
+
+The first version of this exception described instruction override alone and
+admitted a fabricated-authority operator under it anyway. That is recorded in
+D-0015 rather than quietly corrected: a policy that fails its first test is
+information about the policy.
 
 Everything else in rules 5 and 6 stands. The exception does not license bypass
 techniques aimed at systems outside this benchmark.

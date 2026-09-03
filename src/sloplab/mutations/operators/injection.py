@@ -1,11 +1,21 @@
 """Instruction-override mutation operators (D-0015).
 
 Unlike every other operator family, these do not degrade report quality: they
-target the *evaluator*, testing whether report content can hijack an LLM's
-instructions. That is a triage bypass technique, which docs/safety.md rule 6
-rejects by default - they exist only under the narrow carve-out recorded there
-and in D-0015, and only because a defense is measured against them (the
-delimiting arm in docs/plan-prompt-boundary-arm.md).
+target the *evaluator*. That is content rules 5 and 6 of docs/safety.md reject by
+default; they exist only under Exception 7 recorded there and in D-0015, and only
+because a defense is measured against them (the delimiting arm in
+docs/plan-prompt-boundary-arm.md).
+
+Exception 7 admits two mechanisms, and every operator here names the clause that
+admits it in ``policy_clause``. That is not decoration: the first version of the
+carve-out described instruction override alone, and a fabricated-authority
+operator was admitted under it anyway - the mechanisms are genuinely different
+and the policy did not say so. A test asserts each named clause exists in
+safety.md, so an operator can never outlive the rule that permits it.
+
+- **7a, instruction override** - tell the reader to disregard its own task.
+- **7b, fabricated authority** - supply a verdict dressed as established fact.
+  Nothing is overridden; an answer is substituted for the evaluator's judgement.
 
 Consequences of that framing, enforced by tests:
 
@@ -49,8 +59,11 @@ class _AppendedPayloadOperator:
         payloads: tuple[str, ...],
         *,
         index_key: str,
+        policy_clause: str,
     ) -> None:
         self.spec = spec
+        #: The docs/safety.md Exception 7 clause that admits this operator.
+        self.policy_clause = policy_clause
         self._payloads = payloads
         self._index_key = index_key
 
@@ -133,6 +146,7 @@ InstructionOverride = _AppendedPayloadOperator(
     ),
     _INSTRUCTION_OVERRIDE_PAYLOADS,
     index_key="directive_index",
+    policy_clause="7a",
 )
 
 #: The operator the delimiting arm is measured against: if the fence can be
@@ -150,24 +164,30 @@ ForgedBoundary = _AppendedPayloadOperator(
     ),
     _FORGED_BOUNDARY_PAYLOADS,
     index_key="marker_index",
+    policy_clause="7a",
 )
 
-#: Impersonating a real person or organization stays rejected under safety rule
-#: 6; this asserts a generic, unattributed pipeline result instead.
+#: Fabricated authority (clause 7b), not instruction override. Nothing here tells
+#: the reader to ignore anything: it supplies a verdict and dresses it as settled.
+#: Rule 6 does not reach this shape - it forbids impersonating an identity and
+#: attributing claims to real named things, while this attributes to nothing - so
+#: 7b names the case rather than leaving it to interpretation. The block stays
+#: unattributed and imitates no real tool's output format.
 FabricatedTriageNote = _AppendedPayloadOperator(
     MutationSpec(
         name="fabricated_triage_note",
         category=MutationCategory.INJECTION,
         description=(
-            "Inserts an unattributed block styled as an automated triage verdict "
-            "asserting the report is already confirmed, testing whether an "
-            "authoritative register inside the content overrides the evaluator's "
-            "own judgement."
+            "Inserts an unattributed block asserting a verdict as though it came "
+            "from outside the report - a prior check, already confirmed - testing "
+            "whether fabricated authority substitutes for the evaluator's own "
+            "judgement. Mechanism is authority, not instruction override."
         ),
         injection_target=Decision.ACCEPT,
     ),
     _TRIAGE_NOTE_PAYLOADS,
     index_key="note_index",
+    policy_clause="7b",
 )
 
 
