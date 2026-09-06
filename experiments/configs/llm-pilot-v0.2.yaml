@@ -1,14 +1,27 @@
 # V0.2 LLM PILOT - manual, metered, opt-in only.
 #
-# This config is consumed ONLY by the workflow_dispatch 'llm-benchmark' pipeline
-# after the maintainer adds the LLM_API_KEY secret to the 'llm-bench' environment.
-# Budgets here are hard limits: the runner must stop at the first exceeded limit.
+# Consumed by the workflow_dispatch 'llm-benchmark' pipeline through
+# scripts/llm_bench.py (and available to the offline pilot runner). Every limit
+# here is enforced in code before or during each run:
+#   - worst-case plan (CLI --max-cases x CLI --repeats x
+#     (1 + budget.max_retries_per_case); the CLI values override max_cases /
+#     repeats below, defaults 3 x 1) larger than budget.max_requests is
+#     rejected BEFORE the first network call;
+#   - budget.max_requests is a hard stop via a counting client wrapper;
+#   - budget.request_timeout_s bounds each HTTP request AND caps any single
+#     Retry-After wait (single source of truth);
+#   - budget.min_interval_ms paces dispatch starts, and HTTP 429 Retry-After
+#     values are honored before retrying.
+# After the maintainer adds the LLM_API_KEY secret to the 'llm-bench'
+# environment, only the endpoint/model variables are still required.
 
 schema_version: 2
 name: llm-pilot-v0.2
 description: >
-  One-model pilot over canonical cases only: 60 selected cases x 3 repeats,
-  capped at 180 evaluations total.
+  One-model pilot over canonical cases only: up to 60 selected cases x 3
+  repeats, capped at 180 evaluations total. Budgets are hard limits: the runner
+  rejects oversized plans up front and stops at the first exceeded limit
+  mid-run. Dispatch plans default to a 3-case smoke (<=9 requests worst case).
 
 suite:
   config_path: benchmarks/suites/v1-core.yaml
@@ -28,6 +41,8 @@ budget:
   max_requests: 180
   request_timeout_s: 60
   max_retries_per_case: 2
-  min_interval_ms: 500
+  # 3 s between dispatch starts: comfortably inside free-tier rate limits for
+  # the smoke plan and safe for the full protocol as well.
+  min_interval_ms: 3000
 
 case_selection: canonical_first

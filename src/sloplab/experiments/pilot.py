@@ -66,6 +66,80 @@ class PilotRunResult:
     stability: dict[str, object] = field(default_factory=dict)
 
 
+class ThrottledClient:
+    """Transport wrapper enforcing minimum spacing between requests.
+
+    - Sleeps so that at least ``min_interval_ms`` milliseconds elapse between the
+      starts of consecutive ``complete()`` calls (pacing is mandatory whenever
+      ``min_interval_ms > 0``; a value of 0 disables pacing).
+    - Honors HTTP 429 responses: when the raised error carries status code 429,
+      waits for its ``Retry-After`` value (integer seconds or HTTP-date) before
+      re-raising, so the evaluator's retry loop retries only after the wait.
+    - ``sleep_cap_s`` optionally bounds any single sleep (test hook and safety
+      valve); ``None`` honors requested waits in full.
+    """
+
+    def __init__(
+        self,
+        inner: Any,
+        *,
+        min_interval_ms: int = 0,
+        sleep_cap_s: float | None = None,
+    ) -> None:
+        self._inner = inner
+        self._min_interval_s = max(0, min_interval_ms) / 1000.0
+        self._sleep_cap_s = sleep_cap_s
+        self._last_dispatch: float | None = None
+
+    def _sleep(self, seconds: float) -> None:
+        if seconds <= 0:
+            return
+        if self._sleep_cap_s is not None:
+            seconds = min(seconds, self._sleep_cap_s)
+        time.sleep(seconds)
+
+    @staticmethod
+    def _retry_after_seconds(exc: Exception) -> float | None:
+        import math
+
+        headers = getattr(exc, "headers", None)
+        if getattr(exc, "code", None) != 429 or headers is None:
+            return None
+        raw = headers.get("Retry-After")
+        if raw is None:
+            return None
+        try:
+            seconds = float(raw)
+        except ValueError:
+            try:
+                from email.utils import parsedate_to_datetime
+
+                target = parsedate_to_datetime(raw)
+                delta = target.timestamp() - time.time()
+                return max(0.0, delta)
+            except (TypeError, ValueError):
+                return None
+        # Non-finite values (e.g. "inf") would hang the run forever; treat them
+        # as absent and let the evaluator's retry loop proceed after pacing.
+        if not math.isfinite(seconds):
+            return None
+        return max(0.0, seconds)
+
+    def complete(self, prompt: str) -> LLMResponse:
+        now = time.monotonic()
+        if self._last_dispatch is not None and self._min_interval_s > 0:
+            self._sleep(self._min_interval_s - (now - self._last_dispatch))
+        self._last_dispatch = time.monotonic()
+        try:
+            response: LLMResponse = self._inner.complete(prompt)
+            return response
+        except Exception as exc:  # noqa: BLE001 - transport errors are re-raised
+            retry_after = self._retry_after_seconds(exc)
+            if retry_after is not None:
+                self._sleep(retry_after)
+            raise
+
+
 def _document_for(case: SuiteCase, corpus_root: Path) -> Any:
     from sloplab.corpus.loader import load_derived_fixture
 

@@ -162,3 +162,60 @@ class TestRegistryExclusion:
         from sloplab.evaluators.base import list_evaluators
 
         assert "llm-json" not in list_evaluators()
+
+
+class TestHttpLLMClientTimeout:
+    """The config-driven timeout reaches the HTTP layer unchanged (P2-2)."""
+
+    class _FakeResponse:
+        def __init__(self, body: bytes) -> None:
+            self._body = body
+
+        def __enter__(self) -> Any:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            return None
+
+        def read(self) -> bytes:
+            return self._body
+
+    def test_timeout_is_passed_to_urlopen(self, monkeypatch: Any) -> None:
+        import urllib.request
+
+        from sloplab.evaluators.llm.adapter import HttpLLMClient, LLMResponse
+
+        captured: dict[str, Any] = {}
+
+        def fake_urlopen(request: Any, timeout: float | None = None) -> Any:
+            captured["timeout"] = timeout
+            inner = json.dumps(
+                {"decision": "accept", "confidence": 0.9, "dimensions": {}, "findings": []}
+            )
+            body = json.dumps({"choices": [{"message": {"content": inner}}]}).encode()
+            return type(self)._FakeResponse(body)
+
+        monkeypatch.setenv("SLOPLAB_LLM_API_KEY", "test-key")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+        client = HttpLLMClient(
+            model="m",
+            api_key_env="SLOPLAB_LLM_API_KEY",
+            endpoint="https://example.invalid/v1/chat/completions",
+            timeout_s=7,
+        )
+        response = client.complete("hello")
+        assert isinstance(response, LLMResponse)
+        assert captured["timeout"] == 7
+
+    def test_non_positive_timeout_rejected(self, monkeypatch: Any) -> None:
+        from sloplab.evaluators.llm.adapter import HttpLLMClient
+
+        monkeypatch.setenv("SLOPLAB_LLM_API_KEY", "test-key")
+        with pytest.raises(AdapterError, match="timeout_s must be positive"):
+            HttpLLMClient(
+                model="m",
+                api_key_env="SLOPLAB_LLM_API_KEY",
+                endpoint="https://example.invalid/v1",
+                timeout_s=0,
+            )
