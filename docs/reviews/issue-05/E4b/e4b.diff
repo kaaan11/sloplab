@@ -1,0 +1,117 @@
+diff -- E4b-only changes vs delivery start snapshots (new files listed separately)
+new file: src/sloplab/reporting/analysis.py (196 lines)
+new file: tests/regression/test_versioned_analysis.py (197 lines)
+new file: tests/regression/test_historical_recomputation.py (79 lines)
+new file: tests/regression/test_operator_eligibility.py (32 lines)
+--- docs/reviews/issue-05/E4b/start/main.py	2026-09-10 14:10:04.951859751 +0300
++++ src/sloplab/cli/main.py	2026-09-10 14:11:28.612668573 +0300
+@@ -430,6 +430,31 @@
+     _write_comparison_markdown(
+         out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, result.experiment_name
+     )
++    # Versioned analysis under a separate name: bound to the exact records
++    # bytes, coverage, and definition version; historical analysis.json is
++    # never overwritten or replaced.
++    from sloplab.reporting.analysis import write_versioned_analysis
++    from sloplab.reporting.writers import metrics_to_dict as _metrics_to_dict
++
++    failed_by_evaluator: dict[str, int] = {}
++    outcomes_path = out_dir / "outcomes.jsonl"
++    if outcomes_path.is_file():
++        for line in outcomes_path.read_text(encoding="utf-8").splitlines():
++            if not line.strip():
++                continue
++            row = json.loads(line)
++            if row.get("status") == "failed":
++                evaluator_name = row.get("evaluator_name", "?")
++                failed_by_evaluator[evaluator_name] = failed_by_evaluator.get(evaluator_name, 0) + 1
++    write_versioned_analysis(
++        out_dir,
++        records_path=result.records_path,
++        bundles={n: _metrics_to_dict(b) for n, b in bundles.items()},
++        coverage={
++            n: {"scored": len(by_evaluator[n]), "failed": failed_by_evaluator.get(n, 0)}
++            for n in names
++        },
++    )
+     # Close the publish cycle last: verifiable completion first, in-progress
+     # marker removed after it. Only then does the bundle read complete.
+     finish_publish(out_dir, kind="study")
+@@ -505,6 +530,23 @@
+                 err=True,
+             )
+         metrics_dir = path.parent if path.name == "run.jsonl" else path
++        versioned = sorted(metrics_dir.glob("analysis-v*.json"))
++        if len(versioned) > 1:
++            raise click.ClickException(
++                f"ambiguous versioned analyses in {metrics_dir}: {[v.name for v in versioned]}"
++            )
++        if versioned:
++            # Same verified analysis report consumes: version, records hash,
++            # and coverage are enforced by the reader, not re-derived here.
++            from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
++
++            try:
++                document = read_versioned_analysis(versioned[0])
++            except AnalysisError as exc:
++                raise click.ClickException(str(exc)) from exc
++            for name in document.get("evaluators", []):
++                summaries[f"{name} ({metrics_dir.name})"] = document["bundles"][name]
++            continue
+         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
+         for mfile in metric_files:
+             data = json.loads(mfile.read_text())
+@@ -539,7 +581,14 @@
+ @click.argument("results", type=click.Path(exists=True, path_type=str))
+ @click.option("--format", "fmt", type=click.Choice(["markdown"]), default="markdown")
+ @click.option("--out", type=click.Path(path_type=str), default=None)
+-def report(results: str, fmt: str, out: str | None) -> None:
++@click.option(
++    "--analysis",
++    "analysis_path",
++    type=click.Path(exists=True, path_type=str),
++    default=None,
++    help="Render from a verified versioned analysis instead of recomputing.",
++)
++def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -> None:
+     """Render a human-readable report from a run.jsonl file."""
+     from pathlib import Path as _Path
+ 
+@@ -547,6 +596,25 @@
+     from sloplab.reporting.writers import read_run_jsonl, write_markdown_report
+     from sloplab.scoring.metrics import compute_metrics
+ 
++    if analysis_path is not None:
++        # Same verified analysis compare consumes: no recomputation, no drift.
++        from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
++
++        try:
++            document = read_versioned_analysis(_Path(analysis_path))
++        except AnalysisError as exc:
++            raise click.ClickException(str(exc)) from exc
++        bundles = [
++            MetricBundle(**document["bundles"][name]) for name in document.get("evaluators", [])
++        ]
++        rendered = write_markdown_report(
++            _Path(out) if out else _Path(analysis_path).parent / "report.md",
++            bundles,
++            f"SlopLab results (analysis v{document.get('analysis_version')})",
++        )
++        click.echo(rendered.read_text())
++        return
++
+     try:
+         mode = open_result_dir(_Path(results), purpose="report")
+     except BundleError as exc:
+--- docs/reviews/issue-05/E4b/start/metrics.py	2026-09-10 14:20:18.420414961 +0300
++++ src/sloplab/scoring/metrics.py	2026-09-10 14:13:06.888623420 +0300
+@@ -187,7 +187,8 @@
+     For mutated cases whose expected decision equals their class default
+     (quality-neutral edits such as professionalization), measures how often the
+     evaluator's decision differs from the decision it gave the canonical parent.
+-    Low is good: triage behavior should not wobble when substance is unchanged.
++    Low drift means stable triage behavior, not proven quality neutrality:
++    unchanged decisions must never be read as quality approval.
+     """
+     drifted, _missing, _considered = _robustness_pairs(records)
+     return sum(drifted) / len(drifted) if drifted else None

@@ -1,0 +1,12 @@
+file-set: only allowed extra ['execution-recipe.json']
+shared raw IDENTICAL (480 files besides manifest)
+manifest.json differing fields: ['finished_at', 'started_at']
+recipe: generation_hash OK
+recipe: evaluation_hash OK
+recipe: analysis_hash OK
+recipe: settings_hash OK
+recipe: execution_hash OK
+recipe: inputs/selection agree with input-identity.json
+recipe: order matches records (297 cases x 2 evaluators)
+recipe file checks OK
+RESULT: OK

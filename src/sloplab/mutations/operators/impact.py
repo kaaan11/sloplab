@@ -23,7 +23,11 @@ from sloplab.models.enums import (
 )
 from sloplab.models.report import ReportDocument
 from sloplab.mutations.base import MutationSpec, register
-from sloplab.mutations.textops import first_matching_section, replace_section_body
+from sloplab.mutations.textops import (
+    document_identity,
+    first_matching_section,
+    replace_section_body,
+)
 
 _IMPACT_PATTERN = r"impact"
 _COMPONENT_PATTERN = r"affected\s+components?"
@@ -90,6 +94,8 @@ class ImpactInflation:
         section = first_matching_section(document, _IMPACT_PATTERN)
         if section is None:
             return document.raw_text, {"note": "no impact section found"}
+        # Provenance bind: the source identity travels with the span from here.
+        source_identity = document_identity(document)
 
         body = "\n".join(section.text.splitlines()[1:])  # drop heading line
         replacements_made: list[str] = []
@@ -101,7 +107,12 @@ class ImpactInflation:
                 break
 
         sentence = _INFLATION_SENTENCES[rng.randrange(len(_INFLATION_SENTENCES))]
-        mutated_text = replace_section_body(document, section, body.rstrip() + "\n\n" + sentence)
+        mutated_text = replace_section_body(
+            document,
+            section,
+            body.rstrip() + "\n\n" + sentence,
+            expected_document_identity=source_identity,
+        )
         rng.getrandbits(1)
         return mutated_text, {
             "calibration_replacements": replacements_made,
@@ -138,22 +149,31 @@ class ScopeExpansion:
         component_section = first_matching_section(document, _COMPONENT_PATTERN)
         if component_section is None:
             return current_text, {"note": "no affected component section found"}
+        # Provenance bind per splice: each span carries its own source identity.
+        component_identity = document_identity(document)
         sentence = _EXPANSION_COMPONENT_SENTENCES[
             rng.randrange(len(_EXPANSION_COMPONENT_SENTENCES))
         ]
         body = "\n".join(component_section.text.splitlines()[1:])
         current_text = replace_section_body(
-            document, component_section, body.rstrip() + "\n\n" + sentence
+            document,
+            component_section,
+            body.rstrip() + "\n\n" + sentence,
+            expected_document_identity=component_identity,
         )
         params["expanded_component_claim"] = sentence
 
         reparsed = parse_report(current_text, fixture_id=document.fixture_id, path=document.path)
         versions_section = first_matching_section(reparsed, _VERSIONS_PATTERN)
         if versions_section is not None:
+            versions_identity = document_identity(reparsed)
             suffix = _EXPANSION_VERSION_SUFFIXES[rng.randrange(len(_EXPANSION_VERSION_SUFFIXES))]
             version_body = "\n".join(versions_section.text.splitlines()[1:])
             current_text = replace_section_body(
-                reparsed, versions_section, version_body.rstrip() + suffix
+                reparsed,
+                versions_section,
+                version_body.rstrip() + suffix,
+                expected_document_identity=versions_identity,
             )
             params["expanded_version_claim"] = suffix.strip()
 

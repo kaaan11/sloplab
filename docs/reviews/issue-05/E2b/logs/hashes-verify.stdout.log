@@ -1,0 +1,14 @@
+src/sloplab/evaluators/llm/failures.py: OK
+src/sloplab/evaluators/llm/adapter.py: OK
+src/sloplab/evaluators/base.py: OK
+src/sloplab/evaluators/oracle.py: OK
+src/sloplab/evaluators/rules/baseline.py: OK
+src/sloplab/evaluators/rules/evidence_graph.py: OK
+src/sloplab/scoring/harness.py: OK
+src/sloplab/experiments/pilot.py: OK
+src/sloplab/experiments/config.py: OK
+scripts/llm_bench.py: OK
+tests/regression/test_budget_retry.py: OK
+tests/unit/test_llm_adapter.py: OK
+tests/unit/test_llm_pilot.py: OK
+src/sloplab/experiments/runner.py: OK

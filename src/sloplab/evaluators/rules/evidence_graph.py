@@ -91,6 +91,8 @@ def _section(report: ReportDocument, key: str) -> str:
 class EvidenceGraphBaselineEvaluator:
     name = "evidence-graph-baseline"
     version = "0.2.0"
+    # Content-based: no ground-truth labels needed (see evaluator_requires_labels).
+    requires_labels = False
 
     def evaluate(
         self,

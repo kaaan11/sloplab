@@ -18,7 +18,11 @@ from sloplab.models.enums import (
 )
 from sloplab.models.report import ReportDocument
 from sloplab.mutations.base import MutationSpec, register
-from sloplab.mutations.textops import first_matching_section, replace_section_body
+from sloplab.mutations.textops import (
+    document_identity,
+    first_matching_section,
+    replace_section_body,
+)
 from sloplab.safety.policy import FAKE_CVE_YEAR
 
 _SUMMARY_PATTERN = r"summary|description|overview"
@@ -78,10 +82,15 @@ class InventApiIdentifier:
         for pattern in _FALLBACK_PATTERNS:
             section = first_matching_section(document, pattern)
             if section is not None:
+                # Provenance bind: the source identity travels with the span.
+                source_identity = document_identity(document)
                 body_lines = section.text.splitlines()
                 body = "\n".join(body_lines[1:])
                 mutated_text = replace_section_body(
-                    document, section, body.rstrip() + "\n\n" + invented
+                    document,
+                    section,
+                    body.rstrip() + "\n\n" + invented,
+                    expected_document_identity=source_identity,
                 )
                 rng.getrandbits(1)
                 return mutated_text, {

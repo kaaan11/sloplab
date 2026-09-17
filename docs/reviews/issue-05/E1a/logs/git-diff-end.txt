@@ -1,0 +1,4 @@
+ .gitignore                       |  1 +
+ src/sloplab/cli/main.py          | 12 ++++++++---
+ src/sloplab/experiments/study.py | 44 ++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 54 insertions(+), 3 deletions(-)

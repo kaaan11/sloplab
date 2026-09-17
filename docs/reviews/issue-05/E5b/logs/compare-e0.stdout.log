@@ -1,0 +1,24 @@
+== A/B (run-a vs run-b) ==
+A/B file-set DIFFERENT
+  only-in-b: analysis-v1.json
+  only-in-b: completion.json
+  only-in-b: materialization-ledger.jsonl
+A/B hash DIFFERENT (10 files):
+  adversarial/oauthstate-029/mut-oauthstate-029-remove-reproduction-step-02/mutation-manifest.yaml (51935a0530f8 vs 8e84fa8245fe)
+  adversarial/oauthstate-029/mut-oauthstate-029-remove-reproduction-step-02/report.md (be478fc8705d vs a1a01a30db2b)
+  adversarial/saml-019/mut-saml-019-remove-reproduction-step-03/mutation-manifest.yaml (9ac26e277a3f vs a0d1527b832e)
+  adversarial/saml-019/mut-saml-019-remove-reproduction-step-03/report.md (bfda337c9ebb vs 5a14a46aad5d)
+  adversarial/totiming-019/mut-totiming-019-remove-reproduction-step-02/mutation-manifest.yaml (dd3be7baa310 vs 822d0595e262)
+  adversarial/totiming-019/mut-totiming-019-remove-reproduction-step-02/report.md (9d97083fc1f9 vs 22f450135962)
+  analysis.json (2452d7110959 vs 8a0ac5f305c1)
+  execution-recipe.json (5f6b23298183 vs 49e3057b387d)
+  input-identity.json (ac20db4d1f8d vs 650059fb6d11)
+  report.md (98d3c50ab834 vs 22e8a8da570f)
+A/B manifest.json differing fields: ['finished_at', 'started_at'] (allow: ['finished_at', 'started_at'])
+A/B suite-index.jsonl raw hash IDENTICAL
+== historical (study-v02 vs run-a) ==
+old/new file-set IDENTICAL (482 files)
+old/new hash IDENTICAL (480 files compared, skipped: ['manifest.json', 'suite-index.jsonl'])
+old/new manifest.json differing fields: [] (allow: ['commit_sha', 'corpus_root', 'finished_at', 'started_at', 'suite_hash'])
+old/new suite-index.jsonl raw hash IDENTICAL
+RESULT: FAIL

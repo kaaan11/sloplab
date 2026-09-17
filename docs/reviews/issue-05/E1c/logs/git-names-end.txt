@@ -1,0 +1,7 @@
+.gitignore
+scripts/llm_bench.py
+src/sloplab/cli/main.py
+src/sloplab/evaluators/llm/adapter.py
+src/sloplab/experiments/pilot.py
+src/sloplab/experiments/study.py
+src/sloplab/scoring/harness.py

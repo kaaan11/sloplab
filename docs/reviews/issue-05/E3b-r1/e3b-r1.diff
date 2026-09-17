@@ -1,0 +1,253 @@
+diff -- E3b-r1-only changes vs delivery start snapshots (new files listed separately)
+new file: tests/regression/test_publish_protocol.py (452 lines)
+--- docs/reviews/issue-05/E3b-r1/start/bundle.py	2026-09-10 10:28:53.575209458 +0300
++++ src/sloplab/experiments/bundle.py	2026-09-10 10:07:55.311824736 +0300
+@@ -29,6 +29,12 @@
+ #: Marker file published last in every new-schema bundle directory.
+ COMPLETION_FILE_NAME = "completion.json"
+ 
++#: In-progress marker: written before any output mutation or model dispatch,
++#: removed only after the completion marker is fully written. Its presence
++#: means "publishing or interrupted — do not consume", even when a completion
++#: file is also present. Never counted as bundle data.
++IN_PROGRESS_FILE_NAME = "publish-in-progress.json"
++
+ #: Version of the completion envelope. Bump when the document shape changes;
+ #: the strict reader rejects unknown versions instead of guessing.
+ BUNDLE_SCHEMA_VERSION = 1
+@@ -70,11 +76,16 @@
+ 
+ 
+ def _bundle_tree(out_dir: Path) -> dict[str, str]:
+-    """Map every regular bundle file (relative path -> SHA-256), except the marker."""
++    """Map every regular bundle file (relative path -> SHA-256).
++
++    Protocol-internal files (the completion and in-progress markers) are
++    never bundle data. Writers create no other transient files: every other
++    file present at publish time is covered.
++    """
+     tree: dict[str, str] = {}
+     for path in sorted(p for p in out_dir.rglob("*") if p.is_file()):
+         rel = path.relative_to(out_dir).as_posix()
+-        if rel == COMPLETION_FILE_NAME:
++        if rel in (COMPLETION_FILE_NAME, IN_PROGRESS_FILE_NAME):
+             continue
+         tree[rel] = _sha256_file(path)
+     return tree
+@@ -113,6 +124,46 @@
+     return marker
+ 
+ 
++def begin_publish(out_dir: Path, *, kind: str) -> Path:
++    """Open a publish cycle: mark in-progress, retire any older completion.
++
++    Idempotent. Call before any output mutation or model dispatch, so a
++    republish over a completed directory stops being consumable the moment
++    the new run starts — long before its own completion exists.
++    """
++    if kind not in BUNDLE_KINDS:
++        raise BundleError(f"unknown bundle kind {kind!r}")
++    out_dir.mkdir(parents=True, exist_ok=True)
++    marker = out_dir / COMPLETION_FILE_NAME
++    if marker.is_file():
++        marker.unlink()
++    progress = out_dir / IN_PROGRESS_FILE_NAME
++    progress.write_text(
++        json.dumps(
++            {"bundle_schema": BUNDLE_SCHEMA_VERSION, "kind": kind, "state": "in-progress"},
++            sort_keys=True,
++        )
++        + "\n",
++        encoding="utf-8",
++    )
++    return progress
++
++
++def finish_publish(out_dir: Path, *, kind: str) -> Path:
++    """Close a publish cycle: write a verifiable completion, then unmark.
++
++    The completion map covers data files only. The in-progress marker is
++    removed last; only afterwards does the bundle read ``complete``. A
++    crash between the two steps leaves both files behind and every reader
++    still refuses.
++    """
++    marker = write_completion(out_dir, kind=kind)
++    progress = out_dir / IN_PROGRESS_FILE_NAME
++    if progress.is_file():
++        progress.unlink()
++    return marker
++
++
+ def read_completion(out_dir: Path) -> dict[str, Any]:
+     """Parse the marker, checking only its envelope (not the bundle files)."""
+     marker = out_dir / COMPLETION_FILE_NAME
+@@ -137,13 +188,18 @@
+ def verify_bundle(out_dir: Path, *, kind: str) -> dict[str, Any]:
+     """Strictly verify ``out_dir`` as a complete ``kind`` bundle.
+ 
+-    Requires the marker, the declared kind, the kind's required files, an
+-    exact file set (no missing, no unlisted extras), and a matching SHA-256
+-    for every listed file. Returns the completion document on success; raises
++    The in-progress marker is checked before the completion marker: a
++    publish (or an interrupted one) in flight is refused even when a
++    completion file is present and would otherwise verify. Then requires
++    the marker, the declared kind, the kind's required files, an exact
++    file set (no missing, no unlisted extras), and a matching SHA-256 for
++    every listed file. Returns the completion document on success; raises
+     :class:`BundleError` otherwise.
+     """
+     if kind not in BUNDLE_KINDS:
+         raise BundleError(f"unknown bundle kind {kind!r}")
++    if (out_dir / IN_PROGRESS_FILE_NAME).is_file():
++        raise BundleError(f"{out_dir}: publish in progress or interrupted; not consumable")
+     document = read_completion(out_dir)
+     if document["kind"] != kind:
+         raise BundleError(f"{out_dir}: bundle kind is {document['kind']!r}, expected {kind!r}")
+@@ -170,11 +226,14 @@
+     ``path`` is a bundle directory or a file inside one (the parent is
+     used). Returns ``"complete"`` after strict verification, or
+     ``"legacy"`` for marker-less historical bundles, which callers consume
+-    in explicit legacy mode without new-schema guarantees. Raises
+-    :class:`BundleError` for broken markers and unrecognizable directories:
+-    there is no silent bypass.
++    in explicit legacy mode without new-schema guarantees. An in-progress
++    (or interrupted) publish is refused even with a completion file
++    present. Raises :class:`BundleError` for broken markers and
++    unrecognizable directories: there is no silent bypass.
+     """
+     out_dir = path if path.is_dir() else path.parent
++    if (out_dir / IN_PROGRESS_FILE_NAME).is_file():
++        raise BundleError(f"{out_dir}: publish in progress or interrupted; not consumable")
+     marker = out_dir / COMPLETION_FILE_NAME
+     if marker.is_file():
+         document = read_completion(out_dir)
+@@ -189,13 +248,16 @@
+ def classify_bundle(out_dir: Path) -> str:
+     """Recognize a bundle directory without fully consuming it.
+ 
+-    Returns ``"complete"`` (marker present and verifying), ``"incomplete"``
+-    (marker present but broken, or nothing recognizable), or ``"legacy"`` (no
+-    marker but legacy-shaped files: consumed only through the explicit legacy
+-    path). An interrupted new publish
+-    without a marker classifies as ``"legacy"``-shaped and is equally
+-    rejected by the strict reader.
++    Returns ``"complete"`` (no in-progress marker, marker present and
++    verifying), ``"incomplete"`` (in-progress present, marker present but
++    broken, or nothing recognizable), or ``"legacy"`` (no in-progress
++    marker, no completion marker, but legacy-shaped files: consumed only
++    through the explicit legacy path). Classification is state-based, never
++    filename-heuristic alone: an in-progress publish is ``"incomplete"``
++    even when a completion file sits next to it.
+     """
++    if (out_dir / IN_PROGRESS_FILE_NAME).is_file():
++        return "incomplete"
+     marker = out_dir / COMPLETION_FILE_NAME
+     if marker.is_file():
+         try:
+--- docs/reviews/issue-05/E3b-r1/start/pilot.py	2026-09-10 10:25:49.319296704 +0300
++++ src/sloplab/experiments/pilot.py	2026-09-10 10:07:42.107831313 +0300
+@@ -461,14 +461,10 @@
+         LlmEvaluator,
+         load_prompt_template,
+     )
+-    from sloplab.experiments.bundle import invalidate_completion
++    from sloplab.experiments.bundle import begin_publish, finish_publish
+     from sloplab.models.enums import Decision
+     from sloplab.models.evaluation import EvaluationContext
+ 
+-    # A reused output directory must stop looking complete before any part of
+-    # the replacement run begins, including model dispatch.
+-    invalidate_completion(out_dir)
+-
+     assert isinstance(evaluator, LlmEvaluator)
+     # Single execution boundary: validate or canonicalize the chain before any
+     # dispatch. Config pacing/deadline/cap values cannot diverge from the
+@@ -501,6 +497,11 @@
+         run_deadline = time.monotonic() + config.budget.deadline_s
+     outer_client.set_deadline(run_deadline)
+ 
++    # Open the publish cycle after all validation, before any dispatch or
++    # output: a reused directory stops looking complete here, and an
++    # interrupted run below leaves an in-progress marker readers refuse.
++    begin_publish(out_dir, kind="llm-pilot")
++
+     def _remaining_plans(repeat: int, index: int) -> list[tuple[int, SuiteCase]]:
+         """Unstarted (repeat, case) plans from ``index`` on, in ledger order."""
+         pending: list[tuple[int, SuiteCase]] = [
+@@ -670,10 +671,9 @@
+     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+ 
+     # Publish last: the completion marker covers records, outcomes, and the
+-    # manifest, so the bundle never looks complete before all three exist.
+-    from sloplab.experiments.bundle import write_completion
+-
+-    completion_path = write_completion(out_dir, kind="llm-pilot")
++    # manifest, so the bundle never looks complete before all three exist;
++    # the in-progress marker is removed after the completion is written.
++    completion_path = finish_publish(out_dir, kind="llm-pilot")
+ 
+     return PilotRunResult(
+         out_dir=out_dir,
+--- docs/reviews/issue-05/E3b-r1/start/study.py	2026-09-10 10:24:54.523323379 +0300
++++ src/sloplab/experiments/study.py	2026-09-10 10:03:07.567968147 +0300
+@@ -114,6 +114,11 @@
+     # materialization/evaluation runs. Provenance must describe this copy too.
+     config = config.model_copy(deep=True)
+     preflight_study_config(config)
++    # Open the publish cycle before any output mutation: an interrupted runner
++    # leaves an in-progress marker, never a legacy-shaped silent partial.
++    from sloplab.experiments.bundle import begin_publish
++
++    begin_publish(out_dir, kind="study")
+     anchors = [Path.cwd(), *study_config_path.absolute().parents]
+     suite_yaml_path = resolve_against_anchors(config.suite.config_path, anchors)
+ 
+--- docs/reviews/issue-05/E3b-r1/start/main.py	2026-09-10 10:25:39.699301169 +0300
++++ src/sloplab/cli/main.py	2026-09-10 10:07:42.111831310 +0300
+@@ -361,10 +361,8 @@
+     except ValueError as exc:
+         raise click.ClickException(f"invalid study config: {exc}") from exc
+     out_dir = _Path(out)
+-    from sloplab.experiments.bundle import invalidate_completion
++    from sloplab.experiments.bundle import finish_publish
+ 
+-    # Invalidate an older publication before the runner rewrites this bundle.
+-    invalidate_completion(out_dir)
+     try:
+         result = run_deterministic_study(cfg, _Path(config), out_dir)
+     except StudyConfigError as exc:
+@@ -375,12 +373,12 @@
+     analysis_cfg = result.recipe.analysis
+     assert analysis_cfg is not None
+ 
+-    # Boundary read of the runner output the command just published (still
+-    # marker-less at this point: legacy-shaped, proceeds without guarantees).
+-    try:
+-        open_result_dir(result.records_path, purpose="study analysis")
+-    except BundleError as exc:
+-        raise click.ClickException(str(exc)) from exc
++    # Publisher-internal read of this invocation's own just-written records:
++    # same-process-bound and mid-publish by construction (the in-progress
++    # marker is still present), so the consumption boundary — which must
++    # refuse in-progress bundles — cannot gate it without deadlocking
++    # publication. Cross-time/cross-process reads of this directory always
++    # go through open_result_dir and refuse until finish_publish.
+     _meta, records = read_run_jsonl(result.records_path)
+     by_evaluator: dict[str, list[Any]] = {}
+     for record in records:
+@@ -432,12 +430,9 @@
+     _write_comparison_markdown(
+         out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, result.experiment_name
+     )
+-    # Publish last: the completion marker covers the runner files plus the
+-    # analysis, CSV, and report above, so the study never looks complete
+-    # before every required file and hash is in place.
+-    from sloplab.experiments.bundle import write_completion
+-
+-    write_completion(out_dir, kind="study")
++    # Close the publish cycle last: verifiable completion first, in-progress
++    # marker removed after it. Only then does the bundle read complete.
++    finish_publish(out_dir, kind="study")
+     click.echo(f"study complete -> {out_dir} ({result.case_count} cases, {len(names)} evaluators)")
+ 
+ 

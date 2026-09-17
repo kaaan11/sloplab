@@ -21,3 +21,4 @@ htmlcov/
 
 # Large generated artifacts (small committed examples live under benchmarks/results/)
 benchmarks/runs/
+gptpro-bundles/
