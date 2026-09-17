@@ -3,16 +3,19 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 import pytest
 
 from sloplab.corpus.parser import parse_report
 from sloplab.evaluators.llm.adapter import (
+    PROMPT_TEMPLATE,
     AdapterError,
     FlakyThenSuccessClient,
     LlmEvaluator,
 )
+from sloplab.evaluators.llm.failures import EvaluationFailure
 from sloplab.models.enums import Decision
 from sloplab.models.evaluation import EvaluationContext
 
@@ -82,43 +85,69 @@ class TestStrictParsing:
         result = self.evaluator_with(text).evaluate(make_report(), make_context())
         assert result.decision == Decision.NEEDS_MANUAL_REVIEW
 
-    def test_malformed_json_becomes_failed_record(self) -> None:
-        result = self.evaluator_with("{not json at all").evaluate(make_report(), make_context())
-        assert result.confidence == 0.0
-        assert result.metadata["failed"] is True
-        assert "invalid JSON" in result.rationale or "no JSON" in result.rationale
+    def test_malformed_json_raises_typed_failure(self) -> None:
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with("{not json at all").evaluate(make_report(), make_context())
+        failure = exc_info.value
+        assert failure.error_kind == "parse"
+        # Parse errors are terminal local errors (E2b): no retry is spent.
+        assert failure.adapter_attempts == 1
+        assert re.fullmatch(r"[0-9a-f]{64}", failure.rendered_prompt_hash)
+        assert failure.detail in {"parse.invalid_json", "parse.no_json_object"}
+        assert not hasattr(failure, "decision")
+        assert not hasattr(failure, "confidence")
 
-    def test_missing_json_becomes_failed_record(self) -> None:
-        result = self.evaluator_with("I cannot help with that.").evaluate(
-            make_report(), make_context()
-        )
-        assert result.metadata["failed"] is True
+    def test_missing_json_raises_typed_failure(self) -> None:
+        with pytest.raises(EvaluationFailure, match="parse"):
+            self.evaluator_with("I cannot help with that.").evaluate(make_report(), make_context())
 
     def test_invalid_decision_value_fails(self) -> None:
-        result = self.evaluator_with(payload_text(decision="probably_fine")).evaluate(
-            make_report(), make_context()
-        )
-        assert result.metadata["failed"] is True
-        assert "decision" in result.rationale
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with(payload_text(decision="probably_fine")).evaluate(
+                make_report(), make_context()
+            )
+        assert exc_info.value.error_kind == "parse"
+        assert exc_info.value.detail == "parse.invalid_decision"
 
     def test_out_of_range_confidence_fails(self) -> None:
-        result = self.evaluator_with(payload_text(confidence=1.7)).evaluate(
-            make_report(), make_context()
-        )
-        assert result.metadata["failed"] is True
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with(payload_text(confidence=1.7)).evaluate(
+                make_report(), make_context()
+            )
+        assert exc_info.value.error_kind == "parse"
+        assert exc_info.value.detail == "parse.invalid_confidence"
 
     def test_missing_dimension_fails(self) -> None:
         dims: dict[str, Any] = {
             k: v for k, v in VALID_PAYLOAD["dimensions"].items() if k != "scope_consistency"
         }
-        result = self.evaluator_with(payload_text(dimensions=dims)).evaluate(
-            make_report(), make_context()
-        )
-        assert result.metadata["failed"] is True
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with(payload_text(dimensions=dims)).evaluate(
+                make_report(), make_context()
+            )
+        assert exc_info.value.error_kind == "parse"
+        assert exc_info.value.detail == "parse.invalid_dimensions"
 
     def test_non_object_top_level_fails(self) -> None:
-        result = self.evaluator_with(json.dumps([1, 2, 3])).evaluate(make_report(), make_context())
-        assert result.metadata["failed"] is True
+        with pytest.raises(EvaluationFailure, match="parse"):
+            self.evaluator_with(json.dumps([1, 2, 3])).evaluate(make_report(), make_context())
+
+    def test_raw_response_never_enters_failure_detail(self) -> None:
+        canary = "RAW-CANARY-7f2e9a"
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with(f"{canary} {{not json").evaluate(make_report(), make_context())
+        assert canary not in exc_info.value.detail
+        assert canary not in str(exc_info.value)
+
+    def test_default_prompt_render_is_hashed(self) -> None:
+        import hashlib
+
+        expected = hashlib.sha256(
+            PROMPT_TEMPLATE.format(report_text=make_report().raw_text).encode("utf-8")
+        ).hexdigest()
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with("{not json").evaluate(make_report(), make_context())
+        assert exc_info.value.rendered_prompt_hash == expected
 
     def test_bad_finding_codes_are_dropped_not_fatal(self) -> None:
         findings = [
@@ -141,12 +170,51 @@ class TestRetryAndFailureSemantics:
         assert client.calls == 3
         assert not result.metadata.get("failed", False)
 
-    def test_exhausted_retries_yield_failed_record(self) -> None:
+    def test_exhausted_retries_raise_typed_timeout(self) -> None:
         client = FlakyThenSuccessClient(failures=5, response_text=payload_text())
         evaluator = LlmEvaluator(client=client, max_retries=1, enabled=True)
-        result = evaluator.evaluate(make_report(), make_context())
-        assert result.metadata["failed"] is True
-        assert "TimeoutError" in result.rationale
+        with pytest.raises(EvaluationFailure) as exc_info:
+            evaluator.evaluate(make_report(), make_context())
+        assert exc_info.value.error_kind == "timeout"
+        assert exc_info.value.adapter_attempts == 2
+        assert exc_info.value.detail == "transport.timeout"
+
+    def test_transport_errors_raise_typed_transport(self) -> None:
+        class _Broken:
+            def complete(self, prompt: str) -> Any:
+                _ = prompt
+                raise ConnectionError("simulated reset by peer")
+
+        evaluator = LlmEvaluator(client=_Broken(), max_retries=0, enabled=True)
+        with pytest.raises(EvaluationFailure) as exc_info:
+            evaluator.evaluate(make_report(), make_context())
+        assert exc_info.value.error_kind == "transport"
+        assert exc_info.value.adapter_attempts == 1
+
+    def test_transport_exception_text_never_enters_failure_detail(self) -> None:
+        canary = "credential-or-response-canary-7f2e9a"
+
+        class _LeakyTransport:
+            def complete(self, prompt: str) -> Any:
+                _ = prompt
+                raise ConnectionError(f"provider rejected secret={canary}")
+
+        evaluator = LlmEvaluator(client=_LeakyTransport(), max_retries=0, enabled=True)
+        with pytest.raises(EvaluationFailure) as exc_info:
+            evaluator.evaluate(make_report(), make_context())
+        assert exc_info.value.detail == "transport.error"
+        assert canary not in str(exc_info.value)
+
+    def test_spent_budget_raises_typed_budget_not_transport(self) -> None:
+        from sloplab.experiments.pilot import CountingClient
+
+        client = CountingClient(FlakyThenSuccessClient(0, payload_text()), max_requests=0)
+        evaluator = LlmEvaluator(client=client, max_retries=1, enabled=True)
+        with pytest.raises(EvaluationFailure) as exc_info:
+            evaluator.evaluate(make_report(), make_context())
+        assert exc_info.value.error_kind == "budget"
+        # A spent budget can never succeed on retry, so it is terminal (E2b).
+        assert exc_info.value.adapter_attempts == 1
 
     def test_labels_never_affect_output(self) -> None:
         evaluator = LlmEvaluator(client=FlakyThenSuccessClient(0, payload_text()), enabled=True)

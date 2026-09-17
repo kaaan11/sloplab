@@ -1,0 +1,7 @@
+# E1b başlangıç hash'leri (ölçüm: paket başı; transcript + hashes-end ile karşılaştırıldı)
+# HEAD 9960f4fd517ff9ede511aebea0b7e2db9305819e; E1a diff sha256: 206423ca8d8ad16bd6dc50e0d917877eaee281dc394ccd07d57c8c20d2018d16
+6c67073885f26a4f050c36afa1ad74f3233307db7f8a4a0394d03fdc434b93208ce7925d53f  src/sloplab/experiments/study.py
+3d226c109e77c4982e834bd15324ca26d55acc1c874181f4187ab73d561935ce  src/sloplab/cli/main.py
+f5c8fe3d78ea9c8060772b7a795a18f7c53747854adc1d0c523b9d3bc7665b7d  src/sloplab/scoring/harness.py
+7fa94cb86cd76e906f5fd4c42cd03072caad1a0ceefc5433494c0fbb22fc7de7  src/sloplab/experiments/pilot.py
+a21e0f74949031754e2ca2a24755c7f8a4a0394d03fdc434b93208ce7925d53f  tests/regression/test_study_preflight.py

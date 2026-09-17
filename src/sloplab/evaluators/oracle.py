@@ -18,6 +18,10 @@ from sloplab.models.report import ReportDocument
 class OracleEvaluator:
     name = "oracle"
     version = "0.1.0"
+    # The oracle's only job is reading harness-supplied ground truth, so it
+    # explicitly opts into the label capability. Content-based evaluators must
+    # not set this.
+    requires_labels = True
 
     def evaluate(
         self,

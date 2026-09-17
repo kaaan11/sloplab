@@ -170,6 +170,8 @@ def _count_pattern_hits(text: str, patterns: tuple[re.Pattern[str], ...]) -> lis
 class RulesBaselineEvaluator:
     name = "rules-baseline"
     version = "0.1.0"
+    # Content-based: no ground-truth labels needed (see evaluator_requires_labels).
+    requires_labels = False
 
     def evaluate(
         self,

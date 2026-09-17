@@ -1,0 +1,7 @@
+ M .gitignore
+?? .claude/
+?? arastirma.md
+?? docs/issue-05-E0-task.md
+?? docs/issue-05-engineering-assessment-and-plan.md
+?? docs/reviews/
+?? muhendislik.md

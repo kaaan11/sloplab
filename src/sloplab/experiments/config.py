@@ -61,6 +61,10 @@ class LLMBudget(StrictModel):
     request_timeout_s: int = Field(default=60, gt=0)
     max_retries_per_case: int = Field(default=2, ge=0)
     min_interval_ms: int = Field(default=0, ge=0)
+    # Optional monotonic deadline for the whole pilot run, in seconds. Each of
+    # request timeout, run deadline, dispatch pacing, and Retry-After waits is a
+    # separate contract; None (the default) disables the deadline entirely.
+    deadline_s: float | None = Field(default=None, gt=0)
 
 
 class LLMPilotConfig(StrictModel):

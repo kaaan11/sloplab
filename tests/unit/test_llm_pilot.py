@@ -80,41 +80,66 @@ class TestBudgetEnforcement:
         config: LLMPilotConfig = load_pilot_config(PILOT_CONFIG)
         config.max_cases = 2
         config.repeats = 3
+        # Budget/accounting focus: pacing has dedicated fake-clock tests.
+        config.budget.min_interval_ms = 0
 
         evaluator, client = make_evaluator(StaticResponder(VALID_PAYLOAD), max_requests=4)
         result = run_llm_pilot(config, evaluator, canonical_cases(2), REPO_ROOT, tmp_path / "out")
-        assert client.requests == 4
+        assert client.physical_dispatches == 4
         assert result.skipped_by_budget > 0
-        assert result.counters["requests"] == 4
+        assert result.counters["physical_dispatches"] == 4
+        manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+        assert manifest["budget"]["max_requests"] == 180
+        assert manifest["effective_max_requests"] == 4
         # 2 cases in repeat 1 (budget 4 -> 2 requests each? no: 1 request per case)
         assert len(json.loads("[]")) == 0  # sanity no-op
 
     def test_full_pilot_within_budget_is_stable(self, tmp_path: Path) -> None:
         config: LLMPilotConfig = load_pilot_config(PILOT_CONFIG)
         config.max_cases = 1
+        config.budget.min_interval_ms = 0
         repeats = config.repeats
 
         evaluator, client = make_evaluator(StaticResponder(VALID_PAYLOAD))
         result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
         assert result.evaluations_attempted == repeats
         assert result.failed_evaluations == 0
-        assert client.requests == repeats
+        assert client.physical_dispatches == repeats
         manifest = json.loads(result.manifest_path.read_text())
         assert manifest["stability"]["unanimous_cases"] == 1
         assert manifest["prompt_hash"]
 
 
 class TestFailureAccounting:
-    def test_timeouts_become_failed_records_and_are_counted(self, tmp_path: Path) -> None:
+    def test_timeouts_become_failed_outcomes_not_records(self, tmp_path: Path) -> None:
         config: LLMPilotConfig = load_pilot_config(PILOT_CONFIG)
         config.max_cases = 1
+        config.budget.min_interval_ms = 0
         counting = CountingClient(TimeoutResponder(), max_requests=10)
         evaluator = LlmEvaluator(client=counting, max_retries=1, enabled=True)
 
         result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
         assert result.counters["timeouts"] >= 1
-        records = [json.loads(line) for line in result.records_path.read_text().splitlines()]
-        assert records and all(r["evaluation_metadata"].get("failed") for r in records)
+        assert result.records_path.read_text(encoding="utf-8") == ""
+        assert result.outcomes_path is not None
+        outcomes = [
+            json.loads(line)
+            for line in result.outcomes_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert result.failed_evaluations == len(outcomes) > 0
+        assert result.evaluations_attempted == len(outcomes)
+        for outcome in outcomes:
+            assert outcome["status"] == "failed"
+            assert outcome["error_kind"] == "timeout"
+            assert "decision" not in outcome
+            assert "confidence" not in outcome
+        manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+        assert manifest["failed"] == len(outcomes)
+        assert manifest["scored"] == 0
+        assert (
+            manifest["planned"] == manifest["successful"] + manifest["failed"] + manifest["not_run"]
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -254,7 +279,8 @@ def test_non_429_errors_get_no_retry_after_sleep(monkeypatch: Any) -> None:
     assert inner.calls == 1 and fake_time.sleeps == []
 
 
-def test_sleep_cap_bounds_long_retry_after(monkeypatch: Any) -> None:
+def test_sleep_cap_bounds_pacing_but_never_retry_after(monkeypatch: Any) -> None:
+    """E2b-r1: the cap is a pacing-only hook; provider backoff is never shortened."""
     fake_time = FakeTime()
     monkeypatch.setattr("sloplab.experiments.pilot.time", fake_time)
     inner = DispatchCounter(fail_times=1, error=Http429(retry_after="9999"))
@@ -262,4 +288,9 @@ def test_sleep_cap_bounds_long_retry_after(monkeypatch: Any) -> None:
 
     with pytest.raises(Http429):
         client.complete("x")
-    assert fake_time.sleeps == [pytest.approx(3.0)]
+    assert fake_time.sleeps == [pytest.approx(9999.0)]
+
+    paced = ThrottledClient(DispatchCounter(), min_interval_ms=60000, sleep_cap_s=3.0)
+    paced.complete("a")
+    paced.complete("b")
+    assert fake_time.sleeps[-1] == pytest.approx(3.0)

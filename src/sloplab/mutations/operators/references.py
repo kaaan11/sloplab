@@ -20,7 +20,11 @@ from sloplab.models.enums import (
 )
 from sloplab.models.report import ReportDocument
 from sloplab.mutations.base import MutationSpec, register
-from sloplab.mutations.textops import first_matching_section, replace_section_body
+from sloplab.mutations.textops import (
+    document_identity,
+    first_matching_section,
+    replace_section_body,
+)
 from sloplab.safety.policy import FAKE_CVE_YEAR
 
 _SUMMARY_PATTERN = r"summary|description|overview"
@@ -78,9 +82,16 @@ class FabricateReference:
         target = first_matching_section(document, _IMPACT_PATTERN)
         params: dict[str, Any]
         if target is not None:
+            # Provenance bind: the source identity travels with the span.
+            source_identity = document_identity(document)
             body_lines = target.text.splitlines()
             body = "\n".join(body_lines[1:])
-            mutated_text = replace_section_body(document, target, body.rstrip() + block)
+            mutated_text = replace_section_body(
+                document,
+                target,
+                body.rstrip() + block,
+                expected_document_identity=source_identity,
+            )
             params = {"appended_reference_block": block.strip(), "target_heading": target.heading}
         else:
             mutated_text = document.raw_text.rstrip() + block
@@ -129,10 +140,15 @@ class MisattributeCve:
         section = first_matching_section(document, _SUMMARY_PATTERN)
         params: dict[str, Any]
         if section is not None:
+            # Provenance bind: the source identity travels with the span.
+            source_identity = document_identity(document)
             body_lines = section.text.splitlines()
             body = "\n".join(body_lines[1:])
             mutated_text = replace_section_body(
-                document, section, body.rstrip() + "\n\n" + sentence
+                document,
+                section,
+                body.rstrip() + "\n\n" + sentence,
+                expected_document_identity=source_identity,
             )
             params = {"inserted_attribution": sentence}
         else:
@@ -177,9 +193,16 @@ class ImpossiblePrecondition:
         section = first_matching_section(document, r"preconditions?")
         if section is None:
             return document.raw_text, {"note": "no preconditions section found"}
+        # Provenance bind: the source identity travels with the span.
+        source_identity = document_identity(document)
         sentence = self._SENTENCES[rng.randrange(len(self._SENTENCES))]
         body = "\n".join(section.text.splitlines()[1:])
-        mutated_text = replace_section_body(document, section, body.rstrip() + "\n" + sentence)
+        mutated_text = replace_section_body(
+            document,
+            section,
+            body.rstrip() + "\n" + sentence,
+            expected_document_identity=source_identity,
+        )
         rng.getrandbits(1)
         return mutated_text, {
             "inserted_precondition": sentence,
@@ -221,9 +244,16 @@ class ContradictObservedResult:
         section = first_matching_section(document, r"observed\s+results?")
         if section is None:
             return document.raw_text, {"note": "no observed result section found"}
+        # Provenance bind: the source identity travels with the span.
+        source_identity = document_identity(document)
         sentence = self._NEGATIONS[rng.randrange(len(self._NEGATIONS))]
         body = "\n".join(section.text.splitlines()[1:])
-        mutated_text = replace_section_body(document, section, body.rstrip() + "\n\n" + sentence)
+        mutated_text = replace_section_body(
+            document,
+            section,
+            body.rstrip() + "\n\n" + sentence,
+            expected_document_identity=source_identity,
+        )
         rng.getrandbits(1)
         return mutated_text, {
             "inserted_negation": sentence,

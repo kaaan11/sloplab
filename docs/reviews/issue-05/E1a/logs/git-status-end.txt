@@ -1,0 +1,11 @@
+ M .gitignore
+ M src/sloplab/cli/main.py
+ M src/sloplab/experiments/study.py
+?? .claude/
+?? arastirma.md
+?? docs/issue-05-E0-task.md
+?? docs/issue-05-E1a-task.md
+?? docs/issue-05-engineering-assessment-and-plan.md
+?? docs/reviews/
+?? muhendislik.md
+?? tests/regression/test_study_preflight.py

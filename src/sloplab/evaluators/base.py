@@ -46,6 +46,16 @@ def list_evaluators() -> list[str]:
     return sorted(_EVALUATOR_REGISTRY)
 
 
+def evaluator_requires_labels(evaluator: object) -> bool:
+    """Ground-truth capability gate (default False).
+
+    Only evaluators explicitly setting ``requires_labels = True`` (today: the
+    oracle) receive label copies from the harness. Content-based evaluators and
+    test doubles without the attribute see an empty labels mapping.
+    """
+    return bool(getattr(evaluator, "requires_labels", False))
+
+
 from sloplab.evaluators.oracle import OracleEvaluator
 from sloplab.evaluators.rules.baseline import RulesBaselineEvaluator
 from sloplab.evaluators.rules.evidence_graph import EvidenceGraphBaselineEvaluator

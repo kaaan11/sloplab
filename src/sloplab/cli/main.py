@@ -8,6 +8,7 @@ from typing import Any
 import click
 
 from sloplab import __version__
+from sloplab.experiments.bundle import BundleError, open_result_dir
 from sloplab.scoring.metrics import MetricBundle
 
 
@@ -183,7 +184,7 @@ def _run_evaluators_over_suite(
         default_run_metadata,
         write_run_jsonl,
     )
-    from sloplab.scoring.harness import build_cases, run_suite
+    from sloplab.scoring.harness import build_cases, run_suite_with_outcomes
     from sloplab.scoring.metrics import compute_metrics
 
     cases = build_cases(index_path, corpus_root, materialized_root)
@@ -194,7 +195,15 @@ def _run_evaluators_over_suite(
 
     for evaluator_name in evaluators:
         evaluator = get_evaluator(evaluator_name)
-        run_records = run_suite(evaluator, cases)
+        run_records, failed = run_suite_with_outcomes(evaluator, cases)
+        for outcome in failed:
+            assert outcome.failure is not None
+            click.echo(
+                f"FAILED-EVAL ({outcome.failure.error_kind}): "
+                f"{outcome.case_id} by {outcome.evaluator_name} — "
+                "isolated, not scored",
+                err=True,
+            )
         records.extend(run_records)
         infos.append(EvaluatorInfo(name=evaluator.name, version=evaluator.version))
         bundle = compute_metrics(run_records, evaluator.name)
@@ -314,6 +323,10 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
         config.name,
         config.base_seed,
     )
+    try:
+        open_result_dir(out_dir / "run.jsonl", purpose="benchmark csv/report")
+    except BundleError as exc:
+        raise click.ClickException(str(exc)) from exc
     _, records = __import__(
         "sloplab.reporting.writers", fromlist=["read_run_jsonl"]
     ).read_run_jsonl(out_dir / "run.jsonl")
@@ -332,7 +345,7 @@ def study(config: str, out: str) -> None:
     from pathlib import Path as _Path
 
     from sloplab.experiments.runner import load_study_config
-    from sloplab.experiments.study import run_deterministic_study
+    from sloplab.experiments.study import StudyConfigError, run_deterministic_study
     from sloplab.reporting.writers import read_run_jsonl, write_records_csv
     from sloplab.scoring.comparison import (
         bootstrap_accuracy_ci,
@@ -343,10 +356,29 @@ def study(config: str, out: str) -> None:
     )
     from sloplab.scoring.metrics import compute_metrics
 
-    cfg = load_study_config(_Path(config))
+    try:
+        cfg = load_study_config(_Path(config))
+    except ValueError as exc:
+        raise click.ClickException(f"invalid study config: {exc}") from exc
     out_dir = _Path(out)
-    result = run_deterministic_study(cfg, _Path(config), out_dir)
+    from sloplab.experiments.bundle import finish_publish
 
+    try:
+        result = run_deterministic_study(cfg, _Path(config), out_dir)
+    except StudyConfigError as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    # Analysis options come from the frozen in-run copy, never by re-reading
+    # the mutable original config after the run.
+    analysis_cfg = result.recipe.analysis
+    assert analysis_cfg is not None
+
+    # Publisher-internal read of this invocation's own just-written records:
+    # same-process-bound and mid-publish by construction (the in-progress
+    # marker is still present), so the consumption boundary — which must
+    # refuse in-progress bundles — cannot gate it without deadlocking
+    # publication. Cross-time/cross-process reads of this directory always
+    # go through open_result_dir and refuse until finish_publish.
     _meta, records = read_run_jsonl(result.records_path)
     by_evaluator: dict[str, list[Any]] = {}
     for record in records:
@@ -374,9 +406,9 @@ def study(config: str, out: str) -> None:
     cis = {
         n: bootstrap_accuracy_ci(
             rs,
-            resamples=cfg.analysis.bootstrap_resamples,
-            ci=cfg.analysis.bootstrap_ci,
-            seed=cfg.base_seed,
+            resamples=analysis_cfg.bootstrap_resamples,
+            ci=analysis_cfg.bootstrap_ci,
+            seed=analysis_cfg.bootstrap_seed,
         )
         for n, rs in sorted(by_evaluator.items())
     }
@@ -396,8 +428,50 @@ def study(config: str, out: str) -> None:
 
     write_records_csv(out_dir / "results.csv", records)
     _write_comparison_markdown(
-        out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, cfg.name
+        out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, result.experiment_name
     )
+    # Versioned analysis under a separate name: bound to the exact records
+    # bytes, outcomes source, selection coverage, and definition version;
+    # historical analysis.json is never overwritten or replaced. Evaluators
+    # with zero successes stay visible with scored=0 and undefined metrics
+    # (no invented decisions or scored records).
+    from sloplab.reporting.analysis import write_versioned_analysis
+    from sloplab.reporting.writers import metrics_to_dict as _metrics_to_dict
+    from sloplab.scoring.metrics import compute_metrics as _compute_metrics
+
+    failed_by_evaluator: dict[str, int] = {}
+    outcomes_path = out_dir / "outcomes.jsonl"
+    if outcomes_path.is_file():
+        for line in outcomes_path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            if row.get("status") == "failed":
+                evaluator_name = row.get("evaluator_name", "?")
+                failed_by_evaluator[evaluator_name] = failed_by_evaluator.get(evaluator_name, 0) + 1
+    versioned_names = sorted(set(names) | set(failed_by_evaluator))
+    versioned_bundles = {n: _metrics_to_dict(b) for n, b in bundles.items()}
+    for name in versioned_names:
+        if name not in versioned_bundles:
+            versioned_bundles[name] = _metrics_to_dict(_compute_metrics([], name))
+    write_versioned_analysis(
+        out_dir,
+        records_path=result.records_path,
+        bundles=versioned_bundles,
+        coverage={
+            n: {
+                "planned": result.case_count,
+                "scored": len(by_evaluator.get(n, [])),
+                "failed": failed_by_evaluator.get(n, 0),
+                "not_run": 0,
+            }
+            for n in versioned_names
+        },
+        outcomes_path=outcomes_path if outcomes_path.is_file() else None,
+    )
+    # Close the publish cycle last: verifiable completion first, in-progress
+    # marker removed after it. Only then does the bundle read complete.
+    finish_publish(out_dir, kind="study")
     click.echo(f"study complete -> {out_dir} ({result.case_count} cases, {len(names)} evaluators)")
 
 
@@ -460,7 +534,33 @@ def compare(results: tuple[str, ...]) -> None:
     summaries: dict[str, dict[str, Any]] = {}
     for result_path in results:
         path = _Path(result_path)
+        try:
+            mode = open_result_dir(path, purpose="compare")
+        except BundleError as exc:
+            raise click.ClickException(str(exc)) from exc
+        if mode == "legacy":
+            click.echo(
+                f"note: {path} is a legacy bundle without integrity guarantees",
+                err=True,
+            )
         metrics_dir = path.parent if path.name == "run.jsonl" else path
+        versioned = sorted(metrics_dir.glob("analysis-v*.json"))
+        if len(versioned) > 1:
+            raise click.ClickException(
+                f"ambiguous versioned analyses in {metrics_dir}: {[v.name for v in versioned]}"
+            )
+        if versioned:
+            # Same verified analysis report consumes: version, records hash,
+            # and coverage are enforced by the reader, not re-derived here.
+            from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
+
+            try:
+                document = read_versioned_analysis(versioned[0])
+            except AnalysisError as exc:
+                raise click.ClickException(str(exc)) from exc
+            for name in document.get("evaluators", []):
+                summaries[f"{name} ({metrics_dir.name})"] = document["bundles"][name]
+            continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
             data = json.loads(mfile.read_text())
@@ -495,7 +595,14 @@ def compare(results: tuple[str, ...]) -> None:
 @click.argument("results", type=click.Path(exists=True, path_type=str))
 @click.option("--format", "fmt", type=click.Choice(["markdown"]), default="markdown")
 @click.option("--out", type=click.Path(path_type=str), default=None)
-def report(results: str, fmt: str, out: str | None) -> None:
+@click.option(
+    "--analysis",
+    "analysis_path",
+    type=click.Path(exists=True, path_type=str),
+    default=None,
+    help="Render from a verified versioned analysis instead of recomputing.",
+)
+def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -> None:
     """Render a human-readable report from a run.jsonl file."""
     from pathlib import Path as _Path
 
@@ -503,6 +610,34 @@ def report(results: str, fmt: str, out: str | None) -> None:
     from sloplab.reporting.writers import read_run_jsonl, write_markdown_report
     from sloplab.scoring.metrics import compute_metrics
 
+    if analysis_path is not None:
+        # Same verified analysis compare consumes: no recomputation, no drift.
+        from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
+
+        try:
+            document = read_versioned_analysis(_Path(analysis_path))
+        except AnalysisError as exc:
+            raise click.ClickException(str(exc)) from exc
+        bundles = [
+            MetricBundle(**document["bundles"][name]) for name in document.get("evaluators", [])
+        ]
+        rendered = write_markdown_report(
+            _Path(out) if out else _Path(analysis_path).parent / "report.md",
+            bundles,
+            f"SlopLab results (analysis v{document.get('analysis_version')})",
+        )
+        click.echo(rendered.read_text())
+        return
+
+    try:
+        mode = open_result_dir(_Path(results), purpose="report")
+    except BundleError as exc:
+        raise click.ClickException(str(exc)) from exc
+    if mode == "legacy":
+        click.echo(
+            f"note: {results} is a legacy bundle without integrity guarantees",
+            err=True,
+        )
     metadata, records = read_run_jsonl(_Path(results))
     if not records:
         raise click.ClickException(f"no case records found in {results}")

@@ -1,0 +1,2 @@
+168c915460eec0364f9a7f367e82cf8a269873927c80459f16550d4d8a89961b  src/sloplab/mutations/textops.py
+73af777c72f9923bc43e7decf32a350ea6650e771ff52e2ba7b581fc480074e1  tests/regression/test_source_spans.py
