@@ -1,3 +1,0 @@
-exit: 1
-exception type: SystemExit
-output tail: "Error: invalid study config: /tmp/tmpj2zmq8za/bad.yaml: deterministic study config invalid\n  - field 'suite': Field required\n  - field 'base_seed': Field required\n  - field 'evaluators': Field required\n"
