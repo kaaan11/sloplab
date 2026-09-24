@@ -6,6 +6,7 @@ text - they operate purely on CaseRecord data.
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -297,7 +298,9 @@ def compute_calibration_error(records: list[CaseRecord]) -> float | None:
             members = [(c, ok) for c, ok in scored if lo <= c < hi]
         if not members:
             continue
-        avg_conf = sum(c for c, _ in members) / len(members)
+        # math.fsum is correctly rounded on every Python version; builtin sum()
+        # switched to compensated summation in 3.12 and differs in the last bits.
+        avg_conf = math.fsum(c for c, _ in members) / len(members)
         avg_acc = sum(ok for _, ok in members) / len(members)
         total_error += len(members) / len(scored) * abs(avg_conf - avg_acc)
     return total_error
