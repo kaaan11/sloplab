@@ -286,8 +286,8 @@ class _FakeHttpResponse:
     def __enter__(self) -> _FakeHttpResponse:
         return self
 
-    def __exit__(self, *args: Any) -> bool:
-        return False
+    def __exit__(self, *args: Any) -> None:
+        return None
 
     def read(self) -> bytes:
         return self._body

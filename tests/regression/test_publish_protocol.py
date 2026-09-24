@@ -187,7 +187,7 @@ def test_study_marks_before_first_mutation(tmp_path: Path, monkeypatch: pytest.M
 
     study_path, out_dir = _study_dir(tmp_path, "s-mark")
     seen: dict[str, bool] = {}
-    real_materialize = study_module.materialize_suite
+    real_materialize = materialize_suite
 
     def _spy(*args: Any, **kwargs: Any) -> Any:
         seen["in_progress"] = (out_dir / IN_PROGRESS).is_file()
@@ -311,7 +311,7 @@ def test_study_republish_race(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     assert CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out_dir)]).exit_code == 0
     assert classify_bundle(out_dir) == "complete"
     observed: dict[str, str] = {}
-    real_materialize = study_module.materialize_suite
+    real_materialize = materialize_suite
 
     def _spy(*args: Any, **kwargs: Any) -> Any:
         observed["classify"] = classify_bundle(out_dir)

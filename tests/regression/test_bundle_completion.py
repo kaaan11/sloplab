@@ -324,7 +324,7 @@ def test_study_rewrite_invalidates_old_marker_before_runner(
 
     import sloplab.experiments.study as study_module
 
-    real_materialize = study_module.materialize_suite
+    real_materialize = materialize_suite
 
     def _spy(*args: Any, **kwargs: Any) -> Any:
         # E3b-r1 protocol: the runner opens the publish cycle (in-progress

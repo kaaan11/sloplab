@@ -48,6 +48,8 @@ packages = ["src/sloplab"]
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
+# Archived worker deliveries and review logs, not maintained source.
+extend-exclude = ["docs/reviews"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]

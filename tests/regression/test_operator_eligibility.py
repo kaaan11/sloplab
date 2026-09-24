@@ -17,7 +17,9 @@ def test_eligibility_covers_every_registered_operator() -> None:
         assert row["presentation"] == (name in PRESENTATION_OPERATORS)
         assert row["detection_eligible"] == row["degrading_capable"]
         assert row["susceptibility_eligible"] == row["presentation"]
-        assert "quality" in row["invariance"] or "robustness" in row["invariance"]
+        invariance = row["invariance"]
+        assert isinstance(invariance, str)
+        assert "quality" in invariance or "robustness" in invariance
 
 
 def test_presentation_set_matches_categories() -> None:
