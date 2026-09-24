@@ -17,6 +17,7 @@ from sloplab.mutations.materialize import (
     materialize_suite,
     read_materialization_ledger,
 )
+from sloplab.mutations.planner import plan_suite
 from tests._helpers import write_canonical_fixture
 
 
@@ -84,7 +85,7 @@ def test_clean_run_records_every_plan_once(tmp_path: Path) -> None:
 def test_duplicate_plans_are_visible_not_silent(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    real_plan_suite = materialize_module.plan_suite
+    real_plan_suite = plan_suite
 
     def _doubled(config: Any, fixtures: Any) -> Any:
         plans, counts = real_plan_suite(config, fixtures)
