@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Any, cast
 
+from sloplab.models.run import CaseRecord
 from sloplab.reporting.writers import metrics_to_dict, read_run_jsonl
 from sloplab.scoring.metrics import compute_metrics
 
@@ -19,13 +21,15 @@ REASON_COVERAGE_ENVELOPE = "coverage envelope added (E4a)"
 REASON_UNCHANGED = "unchanged"
 
 
-def _legacy_metrics(name: str) -> dict:
-    return json.loads((EXAMPLE / f"metrics-{name}.json").read_text(encoding="utf-8"))
+def _legacy_metrics(name: str) -> dict[str, Any]:
+    return cast(
+        dict[str, Any], json.loads((EXAMPLE / f"metrics-{name}.json").read_text(encoding="utf-8"))
+    )
 
 
-def _recomputed() -> dict[str, dict]:
+def _recomputed() -> dict[str, dict[str, Any]]:
     _, records = read_run_jsonl(EXAMPLE / "run.jsonl")
-    by_evaluator: dict[str, list] = {}
+    by_evaluator: dict[str, list[CaseRecord]] = {}
     for record in records:
         by_evaluator.setdefault(record.evaluator_name, []).append(record)
     return {

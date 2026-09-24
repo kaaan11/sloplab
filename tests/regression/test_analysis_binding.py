@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import yaml
@@ -102,7 +102,9 @@ def _recomplete(out_dir: Path) -> None:
 
 
 def _analysis_doc(out_dir: Path) -> dict[str, Any]:
-    return json.loads((out_dir / "analysis-v1.json").read_text(encoding="utf-8"))
+    return cast(
+        dict[str, Any], json.loads((out_dir / "analysis-v1.json").read_text(encoding="utf-8"))
+    )
 
 
 def _rewrite_analysis(out_dir: Path, document: dict[str, Any]) -> None:

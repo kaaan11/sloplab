@@ -143,7 +143,9 @@ def test_susceptibility_undefined_without_pairs_states_reason() -> None:
     assert coverage["pairs"] == 0
     assert coverage["pairs_unresolved"] == 1
     assert coverage["children_considered"] == 1
-    assert "resolvable" in coverage["undefined_reason"]
+    reason = coverage["undefined_reason"]
+    assert isinstance(reason, str)
+    assert "resolvable" in reason
 
     empty: list[CaseRecord] = []
     assert compute_presentation_susceptibility(empty) is None
