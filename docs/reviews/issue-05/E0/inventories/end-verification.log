@@ -1,7 +1,0 @@
-E0 end-verification generated_at=2026-09-09T14:56:58Z (UTC, ölçüm anı)
-cwd=/home/kaan/sloplab
-HEAD=9960f4fd517ff9ede511aebea0b7e2db9305819e
-source-config: start==end (değişiklik yok)
-corpus-canonical: start==end (değişiklik yok)
-study-v02: start==end (değişiklik yok)
-not: inputs-end.sha256 yalnız 2 config içerir; yerini yukarıdaki eksiksiz *-end dosyaları alır (dosya korunur, hükümsüzdür).

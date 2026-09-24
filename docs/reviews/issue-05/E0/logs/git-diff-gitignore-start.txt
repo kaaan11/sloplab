@@ -1,9 +1,0 @@
-diff --git a/.gitignore b/.gitignore
-index e78753f..1d55856 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -21,3 +21,4 @@ htmlcov/
- 
- # Large generated artifacts (small committed examples live under benchmarks/results/)
- benchmarks/runs/
-+gptpro-bundles/
