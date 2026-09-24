@@ -50,6 +50,7 @@ from sloplab.evaluators.jev.failures import (
     jev_failure,
 )
 from sloplab.evaluators.jev.mapping import (
+    DECISION_ORDER,
     DIMENSION_ANCHORS,
     DIMENSION_ANCHORS_VERSION,
     MAPPING_VERSION,
@@ -60,9 +61,10 @@ from sloplab.evaluators.jev.mapping import (
     dimension_question_id,
     encode_request,
     validate_model_id,
+    validate_option_order,
 )
 from sloplab.evaluators.jev.transport import OPENROUTER_MODEL_ID, CountingTransport, JevResponse
-from sloplab.models.enums import DIMENSIONS
+from sloplab.models.enums import DIMENSIONS, Decision
 from sloplab.models.evaluation import DimensionScores, EvaluationContext, EvaluationResult
 from sloplab.models.report import ReportDocument
 
@@ -92,6 +94,7 @@ class JevEvaluator:
         *,
         model_id: str = OPENROUTER_MODEL_ID,
         label_map: LabelMap | None = None,
+        option_order: tuple[Decision, ...] = DECISION_ORDER,
         max_retries: int = 1,
         backoff_s: float = 1.0,
         max_wait_s: float = 60.0,
@@ -109,6 +112,10 @@ class JevEvaluator:
             raise JevConfigError("backoff_s and max_wait_s must be >= 0")
         self._transport = transport
         self._label_map = label_map if label_map is not None else LabelMap.identity()
+        try:
+            self._option_order = validate_option_order(option_order)
+        except ValueError as exc:
+            raise JevConfigError(str(exc)) from None
         self._max_retries = max_retries
         self._backoff_s = float(backoff_s)
         self._max_wait_s = float(max_wait_s)
@@ -129,7 +136,12 @@ class JevEvaluator:
     ) -> EvaluationResult:
         """Return the normalized observation, or raise :class:`JevEvaluationFailure`."""
         _ = context.labels  # deliberately unused; the adapter is content-based
-        body = build_request(report.raw_text, model_id=self._model_id, label_map=self._label_map)
+        body = build_request(
+            report.raw_text,
+            model_id=self._model_id,
+            label_map=self._label_map,
+            option_order=self._option_order,
+        )
         request_sha256 = hashlib.sha256(encode_request(body)).hexdigest()
 
         response, attempts = self._dispatch(body, request_sha256)
@@ -229,6 +241,7 @@ class JevEvaluator:
                 "dimension_scores_raw": decoded.dimension_scores,
                 "label_map_id": self._label_map.id,
                 "label_map": self._label_map.as_dict(),
+                "option_order": [decision.value for decision in self._option_order],
                 "usage": decoded.usage,
                 "request_questions": 1 + len(DIMENSIONS),
                 "adapter_attempts": attempts,

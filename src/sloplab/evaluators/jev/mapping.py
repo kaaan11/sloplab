@@ -46,8 +46,9 @@ Label binding (R1-509)
 
 :class:`LabelMap` binds the option keys Jev sees to SlopLab decisions. The
 description attached to a decision is byte-identical under every map; only the
-keys change. Options are always emitted in canonical decision order (accept,
-reject, needs_manual_review), so a label map changes names, never order.
+keys change. A label map changes names, never order; option order is a
+separate stimulus controlled by ``option_order`` in :func:`build_request`
+(default: canonical decision order accept, reject, needs_manual_review).
 """
 
 from __future__ import annotations
@@ -315,13 +316,30 @@ class LabelMap:
         return {key: decision.value for key, decision in self.bindings}
 
 
-def build_request(report_text: str, *, model_id: str, label_map: LabelMap) -> dict[str, Any]:
+def validate_option_order(option_order: tuple[Decision, ...]) -> tuple[Decision, ...]:
+    """Return ``option_order`` if it lists every decision exactly once."""
+    if sorted(option_order, key=DECISION_ORDER.index) != list(DECISION_ORDER) or len(
+        option_order
+    ) != len(DECISION_ORDER):
+        raise ValueError("option_order must list each decision exactly once")
+    return tuple(option_order)
+
+
+def build_request(
+    report_text: str,
+    *,
+    model_id: str,
+    label_map: LabelMap,
+    option_order: tuple[Decision, ...] = DECISION_ORDER,
+) -> dict[str, Any]:
     """Render the typed ``/v1/systemone`` request body for one report.
 
     ``state`` is exactly ``report_text``. Question order: the decision choice,
-    then the five dimension scores in :data:`DIMENSIONS` order.
+    then the five dimension scores in :data:`DIMENSIONS` order. Decision options
+    are emitted in ``option_order``; each option keeps its bound description.
     """
     validate_model_id(model_id)
+    validate_option_order(option_order)
     if not isinstance(report_text, str):
         raise TypeError("report_text must be a string")
     questions: dict[str, Any] = {
@@ -330,7 +348,7 @@ def build_request(report_text: str, *, model_id: str, label_map: LabelMap) -> di
             "instructions": DECISION_INSTRUCTIONS,
             "criteria": {
                 label_map.option_for(decision): DECISION_CRITERIA[decision]
-                for decision in DECISION_ORDER
+                for decision in option_order
             },
         }
     }

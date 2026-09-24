@@ -281,3 +281,36 @@ class TestDecode:
         body["answers"]["dim_reproducibility"]["score"] = True
         with pytest.raises(JevResponseError):
             decode_response(body, LabelMap.identity())
+
+
+class TestOptionOrder:
+    """A-007 L3: option order is a separate stimulus from option names."""
+
+    def test_default_order_is_canonical(self) -> None:
+        body = build_request("r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity())
+        assert list(body["questions"]["decision"]["criteria"]) == [d.value for d in DECISION_ORDER]
+
+    def test_reversed_order_keeps_descriptions_bound(self) -> None:
+        order = tuple(reversed(DECISION_ORDER))
+        base = build_request("r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity())
+        flipped = build_request(
+            "r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity(), option_order=order
+        )
+        criteria = flipped["questions"]["decision"]["criteria"]
+        assert list(criteria) == [d.value for d in order]
+        assert criteria == base["questions"]["decision"]["criteria"]
+        assert encode_request(flipped) != encode_request(base)
+
+    @pytest.mark.parametrize(
+        "order",
+        [
+            (Decision.ACCEPT, Decision.REJECT),
+            (Decision.ACCEPT, Decision.ACCEPT, Decision.REJECT),
+            (Decision.ACCEPT, Decision.REJECT, Decision.NEEDS_MANUAL_REVIEW, Decision.ACCEPT),
+        ],
+    )
+    def test_invalid_orders_rejected(self, order: tuple[Decision, ...]) -> None:
+        with pytest.raises(ValueError, match="option_order"):
+            build_request(
+                "r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity(), option_order=order
+            )
