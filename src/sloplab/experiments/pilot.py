@@ -12,7 +12,7 @@ import json
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from sloplab.evaluators.llm.adapter import LLMResponse
 from sloplab.evaluators.llm.failures import (
@@ -360,6 +360,25 @@ def _document_for(case: SuiteCase, corpus_root: Path) -> Any:
     return case_document(case)
 
 
+def _record_case_kind(case: SuiteCase) -> Literal["canonical", "mutated"]:
+    """Return the record ``case_kind`` for ``case`` from the case itself (A-008).
+
+    Provenance comes from the actual :class:`SuiteCase`, never a constant: an
+    unknown kind, or a mutated case lacking ``parent_id``/``operator``, is a
+    :class:`ValueError` (the pilot validates every selected case before any
+    dispatch, so a bad case costs no request).
+    """
+    if case.kind == "canonical":
+        return "canonical"
+    if case.kind == "mutated":
+        if case.parent_id is None or case.operator is None:
+            raise ValueError(
+                f"pilot case {case.case_id!r} is mutated but lacks parent_id/operator provenance"
+            )
+        return "mutated"
+    raise ValueError(f"pilot case {case.case_id!r} has unknown kind {case.kind!r}")
+
+
 def build_pilot_client_chain(
     transport: Any,
     *,
@@ -483,6 +502,8 @@ def run_llm_pilot(
     # the caller's evaluator object keeps its original client.
     active._client = outer_client  # noqa: SLF001 - harness wiring by design
     selected = cases[: config.max_cases] if config.max_cases else list(cases)
+    # Case provenance is derived per case and validated before any dispatch.
+    case_kinds = {case.case_id: _record_case_kind(case) for case in selected}
 
     # A directly supplied client may intentionally enforce a tighter safety cap.
     # Record the applied value separately so provenance never claims the looser
@@ -566,7 +587,7 @@ def run_llm_pilot(
             record = CaseRecord.from_result(
                 result,
                 case_id=case.case_id,
-                case_kind="canonical",
+                case_kind=case_kinds[case.case_id],
                 report_class=case.report_class,
                 expected_decision=(
                     Decision(case.expected_decision) if case.expected_decision else None
