@@ -27,6 +27,9 @@ dependencies = [
     "PyYAML>=6.0",
 ]
 
+[project.optional-dependencies]
+ui = ["prompt-toolkit==3.0.52"]
+
 [project.urls]
 Documentation = "https://github.com/kaaan11/sloplab/tree/main/docs"
 
@@ -40,6 +43,7 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "types-PyYAML",
+    "prompt-toolkit==3.0.52",  # run the optional UI tests in development / CI
 ]
 
 [tool.hatch.build.targets.wheel]

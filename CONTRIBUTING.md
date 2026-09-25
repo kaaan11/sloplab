@@ -31,9 +31,21 @@ existing fixtures are never overwritten. Cancel or failed validation does not ad
 a fixture. A post-write validation failure rolls back the newly added directory.
 
 See [the add-report guide](docs/add-report.md) for custom corpora, transaction
-boundaries, and the UI-independent API that the future TUI must reuse. After adding
+boundaries, and the UI-independent API shared by the CLI and TUI. After adding
 committed fixtures, update the README/dataset-card counts and applicable reference
 results/documentation; the wizard does not rewrite those automatically.
+
+### Optional Report Builder TUI
+
+```bash
+uv sync --extra ui
+uv run sloplab add-report path/to/synthetic-report.md --ui
+```
+
+The keyboard-first builder uses the same core transaction. See
+[Report Builder](docs/report-builder.md) for installation, shortcuts, actual
+validation status and committed-with-cleanup-warning handling. The normal CLI
+requires no UI dependency; development installs include the UI toolkit for tests.
 
 ## Ways to contribute
 

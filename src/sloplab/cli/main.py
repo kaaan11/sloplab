@@ -26,11 +26,21 @@ def cli() -> None:
     show_default=True,
     type=click.Path(file_okay=False, path_type=Path),
 )
-def add_report(report: Path, corpus: Path) -> None:
+@click.option("--ui", is_flag=True, help="Open the optional terminal Report Builder.")
+def add_report(report: Path, corpus: Path, ui: bool = False) -> None:
     """Add a synthetic canonical report with a validated, confirmed transaction."""
-    from sloplab.cli.add_report import run_add_report
+    if ui:
+        from sloplab.corpus.add_report import AddReportError
+        from sloplab.tui.launch import run_report_builder
 
-    run_add_report(report, corpus)
+        try:
+            run_report_builder(report, corpus)
+        except AddReportError as exc:
+            raise click.ClickException(str(exc)) from exc
+    else:
+        from sloplab.cli.add_report import run_add_report
+
+        run_add_report(report, corpus)
 
 
 @cli.command()

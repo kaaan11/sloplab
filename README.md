@@ -59,6 +59,19 @@ sloplab report benchmarks/results/my-run/run.jsonl
 That note is expected here. Integrity-marked bundles (completion marker and hash
 verification) are written by `sloplab study` and the LLM pilot.
 
+## Optional Report Builder
+
+```bash
+uv sync --extra ui
+uv run sloplab add-report path/to/synthetic-report.md --ui
+```
+
+The keyboard-first terminal builder guides source, ground truth, evidence,
+quality scores and review through the same validated transaction as the classic
+CLI. No UI dependency is required for `sloplab add-report report.md` without
+`--ui`. See the [Report Builder guide](docs/report-builder.md) for controls,
+installation and cleanup-warning semantics.
+
 ## Evaluators
 
 | Evaluator | Role | Notes |
