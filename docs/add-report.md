@@ -83,6 +83,10 @@ with prepare_add_report(source, manifest, Path("corpus")) as prepared:
     # Display prepared.manifest_text, destination, fixture_validation and preflight.
     # Only after an explicit user action should the UI call:
     result = commit_add_report(prepared, confirmed=True)
+# Read cleanup warnings AFTER leaving the context (or closing the TUI ExitStack).
+assert result.committed
+for warning in result.cleanup_warnings:
+    print(f"Fixture committed; cleanup incomplete: {warning}")
 ```
 
 The example's commit call represents the UI's confirmed action; do not place it
@@ -108,7 +112,9 @@ keep the commit alive until it finishes rather than abandoning its worker thread
 - `commit_add_report(prepared, *, confirmed=False) -> AddReportResult`: rejects
   missing approval, stale corpus/source/stage snapshots and collisions; repeats
   preflight, publishes, rediscovers and validates the full corpus, and verifies
-  that the new bytes match the stage and the existing tree is unchanged.
+  that the new bytes match the stage and the existing tree is unchanged. Once
+  those checks pass, `prepared.commit_result` retains the returned result; it is
+  `None` before a verified commit. A committed plan cannot be committed again.
 - `AddReportError`: expected, actionable error. Its optional `.validation` field
   carries the original `ValidationResult`; render actual issues rather than
   fabricating UI status checks. Schema creation by the caller may also raise
@@ -116,8 +122,16 @@ keep the commit alive until it finishes rather than abandoning its worker thread
 
 `AddReportResult` includes `fixture_id`, `destination`, `report_path`,
 `manifest_path`, `before_count`, and the final `validation` (including real counts
-and warnings). Show success **only after commit returns**. A changed input or
-corpus requires a new preparation and a new user confirmation, not a blind retry.
+and validation warnings), plus `committed` (always true for a returned result)
+and `cleanup_warnings`. Show success **only after commit returns**, and close the
+preparation context before rendering its cleanup status. The same result object
+is retained in `prepared.commit_result`; stage cleanup can append warnings after
+`commit_add_report` has returned. Do not snapshot/copy the warnings before closing
+the context. A non-empty list means **committed, cleanup incomplete**, not a failed
+add. The CLI exits successfully and prints the committed fixture plus explicit
+cleanup warnings and paths; a TUI must do the same without retrying the creation.
+A changed input or corpus before commit requires a new preparation and a new user
+confirmation, not a blind retry.
 
 ## Transaction boundary and deliberate limitations
 
@@ -140,11 +154,30 @@ filesystem fails closed. Even an empty destination created after the collision
 check is never replaced. A cooperating second writer cannot commit concurrently;
 a prepared plan becomes stale after another writer commits.
 
-Ordinary exceptions and Ctrl-C during the operation clean temporary resources and
-roll back only the newly published directory, checked by its pre-rename filesystem
-identity. If rollback fails or ownership changes, the error explicitly reports
-incomplete cleanup and the path to inspect; it does not delete unrelated data or
-claim success. Existing fixtures and source bytes are never intentionally modified.
+Before the commit point, ordinary exceptions and Ctrl-C attempt resource cleanup
+and roll back only the newly published directory, checked by its pre-rename
+filesystem identity. If rollback fails or ownership changes, the error explicitly
+reports incomplete rollback and the path to inspect; it does not delete unrelated
+data or claim success. Existing fixtures and source bytes are never intentionally
+modified.
+
+The **commit point** is after publication, scratch-wrapper removal, final full-corpus
+validation, and all byte/snapshot checks succeed. From that point, a lock-release
+or external-stage cleanup `OSError` / `KeyboardInterrupt` is a cleanup warning on
+the verified result, not a transaction failure. A validated fixture is not rolled
+back merely because deleting temporary resources failed (the lock may already
+have been released). Each warning records the cleanup kind, path and exception
+type; an interrupted removal may already have removed the path. Inspect any
+remaining resources and verify no writer is active before removing a lock. Never
+retry `add-report` to fix a cleanup warning.
+
+If creation is already failing, a cleanup failure is attached as an exception note
+instead of masking the original failure/interrupt or an incomplete rollback. On
+cancellation without a commit, cleanup failure remains a failure, not success.
+Exceptions from the caller's `with` body are never swallowed or relabeled as
+preparation errors. If the caller raises after commit, the original exception
+propagates and `prepared.commit_result` still exposes the verified outcome; any
+stage-cleanup warning is also added to that result and to the original exception.
 
 These are **not** power-loss durability or multi-process database guarantees.
 SIGKILL, power loss, or a filesystem that becomes unwritable can leave scratch

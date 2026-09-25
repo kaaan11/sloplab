@@ -15,7 +15,7 @@ import stat
 import tempfile
 from collections.abc import Iterator
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 import yaml
@@ -104,6 +104,13 @@ def manifest_yaml(manifest: CanonicalManifest) -> str:
     )
 
 
+@dataclass
+class _CommitState:
+    # Shared with the preparation context so stage cleanup can amend the SAME
+    # result after commit_add_report returns. Never set merely on publication.
+    result: AddReportResult | None = None
+
+
 @dataclass(frozen=True)
 class PreparedReport:
     """Review snapshot. Valid only inside prepare_add_report's context lifetime.
@@ -122,6 +129,12 @@ class PreparedReport:
     _corpus_digest: str
     _root_identity: tuple[int, int]
     _stage_digest: str
+    _state: _CommitState = field(default_factory=_CommitState, repr=False, compare=False)
+
+    @property
+    def commit_result(self) -> AddReportResult | None:
+        """Verified commit outcome, also available after the preparation context exits."""
+        return self._state.result
 
     @property
     def manifest(self) -> CanonicalManifest:
@@ -136,6 +149,40 @@ class AddReportResult:
     manifest_path: Path
     before_count: int
     validation: ValidationResult
+    # Lock cleanup is known on return; stage cleanup appends on context exit.
+    # Consumers must read this after closing prepare_add_report / ExitStack.
+    cleanup_warnings: list[str] = field(default_factory=list, compare=False)
+
+    @property
+    def committed(self) -> bool:
+        """A result exists only after publication AND all final checks succeeded."""
+        return True
+
+
+def _cleanup_failed(
+    kind: str,
+    path: Path,
+    cleanup: BaseException,
+    state: _CommitState,
+    active_error: BaseException | None,
+) -> None:
+    """Keep resource cleanup separate from the verified transaction outcome.
+
+    Called only for an exception from a cleanup operation, never around yield or
+    a caller's code. An earlier failure/interrupt must remain the primary error.
+    """
+    warning = f"{kind} cleanup incomplete at '{path}': {type(cleanup).__name__}: {cleanup}"
+    if state.result is not None:
+        state.result.cleanup_warnings.append(warning)
+        if active_error is not None:
+            active_error.add_note(f"Fixture committed at {state.result.destination}; {warning}")
+    elif active_error is not None:
+        active_error.add_note(warning)
+    elif isinstance(cleanup, KeyboardInterrupt):
+        cleanup.add_note(f"Fixture was not committed; {warning}")
+        raise cleanup
+    else:
+        raise AddReportError(f"fixture was not committed; {warning}") from cleanup
 
 
 def _identity(path: Path) -> tuple[int, int]:
@@ -217,26 +264,32 @@ def prepare_add_report(
 ) -> Iterator[PreparedReport]:
     """Stage outside the corpus, validate and yield a read-only review snapshot.
 
-    Exiting (including cancel, EOF, or an exception) removes the stage. The corpus
+    Exiting attempts stage cleanup. After a verified commit, cleanup-only failures
+    are appended to its result.cleanup_warnings rather than losing commit success.
+    Exceptions from the caller's with-body propagate unchanged. The corpus
     root must exist; a missing canonical/ is created only after explicit approval.
     Pair creation/editing and report paths outside canonical/<slug>/ are excluded.
     """
+    state = _CommitState()
+    temporary: tempfile.TemporaryDirectory[str] | None = None
+    active_error: BaseException | None = None
     try:
-        root = corpus_root.resolve(strict=True)
-        if root == root.parent:
-            raise AddReportError("a filesystem root cannot be used as a corpus")
-        root_identity = _identity(root)
-        before = _tree_digest(root)
-        manifest = CanonicalManifest.model_validate(manifest.model_dump(mode="json"))
-        slug = manifest.id.removeprefix("canonical-")
-        if manifest.pair_id is not None:
-            raise AddReportError("presentation pairs are not supported by add-report")
-        if manifest.report.path != f"canonical/{slug}/report.md":
-            raise AddReportError("report.path must match canonical/<slug>/report.md")
-        _source_unchanged(source)
-        # A sibling is external even if TMPDIR points inside the corpus.
-        with tempfile.TemporaryDirectory(prefix=".sloplab-stage-", dir=root.parent) as temporary:
-            stage_root = Path(temporary)
+        try:
+            root = corpus_root.resolve(strict=True)
+            if root == root.parent:
+                raise AddReportError("a filesystem root cannot be used as a corpus")
+            root_identity = _identity(root)
+            before = _tree_digest(root)
+            manifest = CanonicalManifest.model_validate(manifest.model_dump(mode="json"))
+            slug = manifest.id.removeprefix("canonical-")
+            if manifest.pair_id is not None:
+                raise AddReportError("presentation pairs are not supported by add-report")
+            if manifest.report.path != f"canonical/{slug}/report.md":
+                raise AddReportError("report.path must match canonical/<slug>/report.md")
+            _source_unchanged(source)
+            # A sibling is external even if TMPDIR points inside the corpus.
+            temporary = tempfile.TemporaryDirectory(prefix=".sloplab-stage-", dir=root.parent)
+            stage_root = Path(temporary.name)
             stage = stage_root / "canonical" / slug
             stage.mkdir(parents=True)
             text = manifest_yaml(manifest)
@@ -250,7 +303,7 @@ def prepare_add_report(
             preflight = _preflight(root, staged, destination)
             if _tree_digest(root) != before or _identity(root) != root_identity:
                 raise AddReportError("corpus changed during preflight; prepare it again")
-            yield PreparedReport(
+            prepared = PreparedReport(
                 source,
                 root,
                 destination,
@@ -261,13 +314,24 @@ def prepare_add_report(
                 before,
                 root_identity,
                 _tree_digest(stage),
+                _state=state,
             )
-    except (OSError, UnicodeError, FixtureError, ValidationError) as exc:
-        raise AddReportError(f"cannot prepare fixture: {exc}") from exc
+        except (OSError, UnicodeError, FixtureError, ValidationError) as exc:
+            raise AddReportError(f"cannot prepare fixture: {exc}") from exc
+        yield prepared
+    except BaseException as exc:
+        active_error = exc
+        raise
+    finally:
+        if temporary is not None:
+            try:
+                temporary.cleanup()
+            except (OSError, KeyboardInterrupt) as cleanup:
+                _cleanup_failed("stage", Path(temporary.name), cleanup, state, active_error)
 
 
 @contextmanager
-def _corpus_lock(root: Path) -> Iterator[None]:
+def _corpus_lock(root: Path, state: _CommitState) -> Iterator[None]:
     lock = root.parent / f".{root.name}.sloplab-add-report.lock"
     try:
         lock.mkdir(mode=0o700)
@@ -276,10 +340,17 @@ def _corpus_lock(root: Path) -> Iterator[None]:
             f"another add-report transaction or a stale lock exists: {lock}; "
             "retry after it finishes; remove a stale lock only after checking no writer is running"
         ) from exc
+    active_error: BaseException | None = None
     try:
         yield
+    except BaseException as exc:
+        active_error = exc
+        raise
     finally:
-        lock.rmdir()
+        try:
+            lock.rmdir()
+        except (OSError, KeyboardInterrupt) as cleanup:
+            _cleanup_failed("lock", lock, cleanup, state, active_error)
 
 
 def _rollback(destination: Path, identity: tuple[int, int] | None) -> None:
@@ -298,9 +369,15 @@ def commit_add_report(prepared: PreparedReport, *, confirmed: bool = False) -> A
     Sibling lock serializes cooperating writers. Native no-replace rename also
     refuses a target created between checking and publication. Cleanup handles
     ordinary exceptions and KeyboardInterrupt, never deletes a pre-existing target.
+    After all final checks pass, lock/stage cleanup faults become result warnings,
+    not transaction failures. Read cleanup_warnings after the preparation scope exits.
     """
     if confirmed is not True:
         raise AddReportError("explicit confirmation is required; corpus was not changed")
+    if prepared.commit_result is not None:
+        raise AddReportError(
+            f"fixture already committed at {prepared.destination}; do not retry add-report"
+        )
     root, destination = prepared.corpus_root, prepared.destination
     manifest = prepared.manifest
     slug = manifest.id.removeprefix("canonical-")
@@ -311,7 +388,7 @@ def commit_add_report(prepared: PreparedReport, *, confirmed: bool = False) -> A
     published = False
     pending_identity: tuple[int, int] | None = None
     try:
-        with _corpus_lock(root):
+        with _corpus_lock(root, prepared._state):
             try:
                 if (
                     _identity(root) != prepared._root_identity
@@ -367,7 +444,7 @@ def commit_add_report(prepared: PreparedReport, *, confirmed: bool = False) -> A
                     != prepared._corpus_digest
                 ):
                     raise AddReportError("existing corpus changed during commit; refusing success")
-                return AddReportResult(
+                committed = AddReportResult(
                     prepared.manifest.id,
                     destination,
                     destination / "report.md",
@@ -375,7 +452,12 @@ def commit_add_report(prepared: PreparedReport, *, confirmed: bool = False) -> A
                     preflight.checked_canonical - 1,
                     result,
                 )
+                # Commit point: all post-write checks have passed. Only lock/stage
+                # release remains; cleanup-only faults must not undo/report a failed add.
+                prepared._state.result = committed
+                return committed
             except BaseException as exc:
+                prepared._state.result = None
                 # If interrupted immediately after the syscall but before the flag,
                 # identify the just-published directory by its pre-rename inode.
                 owned = published
@@ -397,4 +479,7 @@ def commit_add_report(prepared: PreparedReport, *, confirmed: bool = False) -> A
                     ) from exc
                 raise
     except (OSError, UnicodeError, FixtureError, ValidationError) as exc:
-        raise AddReportError(f"cannot commit fixture: {exc}") from exc
+        error = AddReportError(f"cannot commit fixture: {exc}")
+        for note in getattr(exc, "__notes__", []):
+            error.add_note(note)
+        raise error from exc

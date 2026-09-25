@@ -119,6 +119,15 @@ def run_add_report(report: Path, corpus: Path) -> None:
                 return
             result = commit_add_report(prepared, confirmed=True)
         click.echo(f"\nFixture added: {result.fixture_id}\n{result.destination}")
+        if result.cleanup_warnings:
+            click.echo("WARNING: Fixture committed; cleanup incomplete.", err=True)
+            for warning in result.cleanup_warnings:
+                click.echo(f"  {warning}", err=True)
+            click.echo(
+                "Do not retry add-report. Inspect remaining cleanup paths; before removing "
+                "any lock, verify that no writer is active.",
+                err=True,
+            )
         click.echo(f"report.md copied: {result.report_path}")
         click.echo(f"manifest.yaml generated: {result.manifest_path}")
         click.echo(
@@ -135,4 +144,5 @@ def run_add_report(report: Path, corpus: Path) -> None:
             "and regenerate reference results/docs where needed."
         )
     except (AddReportError, ValidationError, OSError) as exc:
-        raise click.ClickException(str(exc)) from exc
+        message = "\n".join([str(exc), *getattr(exc, "__notes__", [])])
+        raise click.ClickException(message) from exc
