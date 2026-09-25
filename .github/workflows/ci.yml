@@ -26,3 +26,5 @@ jobs:
         run: uv run mypy src tests
       - name: Test
         run: uv run pytest
+      - name: Validate corpus
+        run: uv run sloplab validate corpus/
