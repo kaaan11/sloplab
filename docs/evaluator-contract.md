@@ -47,8 +47,9 @@ EvaluationResult(
 1. Be deterministic for a fixed configuration. Stochastic evaluators own their
    seeding and must document it in `metadata`.
 2. Never raise on unusual report content - return a low-confidence result instead.
-   The LLM adapter, by contrast, maps failures to explicit failed evaluations (see
-   its module docstring) rather than inventing decisions.
+   The LLM adapter, by contrast, raises a typed `EvaluationFailure` (strict JSON
+   contract and failure codes in its module docstring) rather than inventing
+   decisions.
 3. Never read `context.labels`. Ever.
 4. Never infer the expected mutation or report class from `context.case_id`,
    `report.fixture_id`, or `report.path`: these are opaque handles, and parsing
