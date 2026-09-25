@@ -54,6 +54,11 @@ sloplab benchmark benchmarks/suites/v1-core.yaml \
 sloplab report benchmarks/results/my-run/run.jsonl
 ```
 
+`sloplab benchmark` writes a plain result directory without a completion marker, so
+`report`/`compare` print `note: ... is a legacy bundle without integrity guarantees`.
+That note is expected here. Integrity-marked bundles (completion marker and hash
+verification) are written by `sloplab study` and the LLM pilot.
+
 ## Evaluators
 
 | Evaluator | Role | Notes |
@@ -70,7 +75,14 @@ v0.2.2 live in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-
 [docs/reproducibility.md](docs/reproducibility.md) reproduces them exactly).
 
 Example v1-core numbers (rules-baseline, generated at v0.2.2, see
-methodology.md for definitions):
+methodology.md for definitions). **What these numbers are:** agreement with the
+authored target decisions of this synthetic, single-author collection (60 fixtures
+representing 52 logical reports, 297 realized cases). They are *not* validated
+triage accuracy, bug-bounty performance, or general evaluator robustness; no
+independent human validation of the targets has been completed. An ablation study
+(post-hoc, exploratory) found that most of the baseline's mutation detections depend
+on regex patterns that share literal text with the mutation operators' templates;
+see [Threat model](docs/threat-model.md).
 
 | metric | value |
 |---|---|

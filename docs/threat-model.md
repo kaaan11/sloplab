@@ -25,6 +25,7 @@ presentation.
 | Overfitting benchmarks via label tuning | Expected decisions live in manifests, reviewed alongside reports; known baseline failures are documented, never tuned away |
 | Silent non-determinism | Seeded mutations; no wall-clock/locale/dict-order dependence; recorded run metadata (version, commit, config hash, seed) |
 | Metric gaming via single summary score | Primary reporting is per-metric; Robustness Score is explicitly auxiliary |
+| Evaluator matches mutation-template wording instead of report content (surface signature) | **Open risk, not mitigated.** Several operators insert fixed phrases, and the rules baseline contains regexes sharing literal text with them. Pre-registered ablation: disabling literally-matching patterns lowered mutation detection 0.802 → 0.625, not separable from random-pattern controls (rank p ≈ 0.095, verdict inconclusive). Post-hoc, with a hand-audited set of 22 template-sharing patterns, detection fell 0.802 → 0.250 while disabling the other patterns left it unchanged. Report baseline mutation detection as target agreement, not semantic competence; separating signature from meaning needs counterparts with different surface forms |
 
 ## What SlopLab is NOT (non-goals)
 
