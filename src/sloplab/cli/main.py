@@ -18,6 +18,21 @@ def cli() -> None:
     """Adversarial testing framework for vulnerability-report triage evaluators."""
 
 
+@cli.command("add-report")
+@click.argument("report", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option(
+    "--corpus",
+    default="corpus",
+    show_default=True,
+    type=click.Path(file_okay=False, path_type=Path),
+)
+def add_report(report: Path, corpus: Path) -> None:
+    """Add a synthetic canonical report with a validated, confirmed transaction."""
+    from sloplab.cli.add_report import run_add_report
+
+    run_add_report(report, corpus)
+
+
 @cli.command()
 @click.argument("path", type=click.Path(exists=True, path_type=str))
 def validate(path: str) -> None:

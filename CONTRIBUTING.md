@@ -18,9 +18,26 @@ uv run sloplab report /tmp/my-benchmark/run.jsonl
 No API keys, no network access. See docs/reproducibility.md for byte-level
 reproduction guarantees.
 
+## Add a canonical fixture
+
+```bash
+uv run sloplab add-report path/to/synthetic-report.md
+```
+
+The wizard detects the H1 title, collects the existing manifest fields, stages and
+validates the report plus the full corpus, and asks for explicit confirmation
+before publishing. The source is copied byte-for-byte, never moved or rewritten;
+existing fixtures are never overwritten. Cancel or failed validation does not add
+a fixture. A post-write validation failure rolls back the newly added directory.
+
+See [the add-report guide](docs/add-report.md) for custom corpora, transaction
+boundaries, and the UI-independent API that the future TUI must reuse. After adding
+committed fixtures, update the README/dataset-card counts and applicable reference
+results/documentation; the wizard does not rewrite those automatically.
+
 ## Ways to contribute
 
-1. **New canonical fixtures** - synthetic reports in any of the four classes.
+1. **New canonical fixtures** - synthetic `valid`, `invalid`, or `review` reports.
    Requirements: manifest + report pair passing `sloplab validate`, ground truth
    rationale, dataset-card entry update. Safety rules in docs/safety.md apply.
 2. **New mutation operators** - see docs/adding-mutations.md for the full guide.
