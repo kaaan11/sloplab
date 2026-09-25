@@ -47,7 +47,7 @@ from sloplab.evaluators.jev.failures import (
     JevTimeout,
     JevTransportError,
 )
-from sloplab.evaluators.jev.mapping import build_request, encode_request
+from sloplab.evaluators.jev.mapping import TRIAGE_V1, build_request, encode_request
 from sloplab.evaluators.llm.failures import EvaluationFailure
 from sloplab.models.enums import DIMENSIONS, Decision
 from sloplab.models.evaluation import EvaluationContext
@@ -131,6 +131,8 @@ class TestResultSemantics:
         assert meta["model_requested"] == MODEL
         assert meta["label_map_id"] == label_map.id
         assert meta["label_map"] == label_map.as_dict()
+        assert meta["criteria_version"] == "triage-v1"
+        assert meta["criteria_sha256"] == TRIAGE_V1.sha256
         assert meta["usage"] == {"input_tokens": 812.0, "output_tokens": 40.0, "cost": 0.0000341}
         sent = inner.bodies[0]
         assert meta["request_sha256"] == hashlib.sha256(encode_request(sent)).hexdigest()

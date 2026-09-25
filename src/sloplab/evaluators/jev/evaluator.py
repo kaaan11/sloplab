@@ -54,6 +54,8 @@ from sloplab.evaluators.jev.mapping import (
     DIMENSION_ANCHORS,
     DIMENSION_ANCHORS_VERSION,
     MAPPING_VERSION,
+    TRIAGE_V1,
+    DecisionCriteria,
     DecodedResponse,
     LabelMap,
     build_request,
@@ -95,6 +97,7 @@ class JevEvaluator:
         model_id: str = OPENROUTER_MODEL_ID,
         label_map: LabelMap | None = None,
         option_order: tuple[Decision, ...] = DECISION_ORDER,
+        criteria: DecisionCriteria = TRIAGE_V1,
         max_retries: int = 1,
         backoff_s: float = 1.0,
         max_wait_s: float = 60.0,
@@ -110,6 +113,9 @@ class JevEvaluator:
             raise JevConfigError("max_retries must be an integer >= 0")
         if backoff_s < 0 or max_wait_s < 0:
             raise JevConfigError("backoff_s and max_wait_s must be >= 0")
+        if not isinstance(criteria, DecisionCriteria):
+            raise JevConfigError("criteria must be a DecisionCriteria")
+        self._criteria = criteria
         self._transport = transport
         self._label_map = label_map if label_map is not None else LabelMap.identity()
         try:
@@ -141,6 +147,7 @@ class JevEvaluator:
             model_id=self._model_id,
             label_map=self._label_map,
             option_order=self._option_order,
+            criteria=self._criteria,
         )
         request_sha256 = hashlib.sha256(encode_request(body)).hexdigest()
 
@@ -242,6 +249,8 @@ class JevEvaluator:
                 "label_map_id": self._label_map.id,
                 "label_map": self._label_map.as_dict(),
                 "option_order": [decision.value for decision in self._option_order],
+                "criteria_version": self._criteria.version,
+                "criteria_sha256": self._criteria.sha256,
                 "usage": decoded.usage,
                 "request_questions": 1 + len(DIMENSIONS),
                 "adapter_attempts": attempts,
