@@ -114,6 +114,37 @@ DECISION_CRITERIA: dict[Decision, str] = {
     ),
 }
 
+
+@dataclass(frozen=True)
+class DecisionCriteria:
+    """A versioned set of decision descriptions sent as the choice ``criteria``.
+
+    ``version`` is recorded in result metadata; results under different criteria
+    versions must never be pooled. The default, :data:`TRIAGE_V1`, is the verbatim
+    triage-v1 set; other sets are experimental and live outside this module.
+    """
+
+    version: str
+    texts: dict[Decision, str]
+
+    def __post_init__(self) -> None:
+        if not self.version or self.version != self.version.strip():
+            raise ValueError("criteria version must be a non-empty string without padding")
+        if set(self.texts) != set(DECISION_ORDER):
+            raise ValueError("criteria must describe each decision exactly once")
+        if any(not isinstance(t, str) or not t.strip() for t in self.texts.values()):
+            raise ValueError("criteria texts must be non-empty strings")
+
+    @property
+    def sha256(self) -> str:
+        """Hash of the ordered texts, for provenance."""
+        payload = json.dumps([[d.value, self.texts[d]] for d in DECISION_ORDER])
+        return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+#: The default criteria set (verbatim triage-v1).
+TRIAGE_V1 = DecisionCriteria(version="triage-v1", texts=DECISION_CRITERIA)
+
 SCORE_GUIDANCE = (
     "Score based strictly on what the text contains; do not reward confident tone "
     "without substance, and do not penalize plain language when substance is present."
@@ -331,12 +362,14 @@ def build_request(
     model_id: str,
     label_map: LabelMap,
     option_order: tuple[Decision, ...] = DECISION_ORDER,
+    criteria: DecisionCriteria = TRIAGE_V1,
 ) -> dict[str, Any]:
     """Render the typed ``/v1/systemone`` request body for one report.
 
     ``state`` is exactly ``report_text``. Question order: the decision choice,
     then the five dimension scores in :data:`DIMENSIONS` order. Decision options
-    are emitted in ``option_order``; each option keeps its bound description.
+    are emitted in ``option_order``; each option keeps its bound description,
+    taken from ``criteria`` (default :data:`TRIAGE_V1`).
     """
     validate_model_id(model_id)
     validate_option_order(option_order)
@@ -347,7 +380,7 @@ def build_request(
             "type": "choice",
             "instructions": DECISION_INSTRUCTIONS,
             "criteria": {
-                label_map.option_for(decision): DECISION_CRITERIA[decision]
+                label_map.option_for(decision): criteria.texts[decision]
                 for decision in option_order
             },
         }

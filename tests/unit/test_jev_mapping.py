@@ -20,6 +20,8 @@ from sloplab.evaluators.jev.mapping import (
     DECISION_ORDER,
     DIMENSION_ANCHORS,
     SCORE_GUIDANCE,
+    TRIAGE_V1,
+    DecisionCriteria,
     LabelMap,
     build_request,
     decode_response,
@@ -314,3 +316,62 @@ class TestOptionOrder:
             build_request(
                 "r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity(), option_order=order
             )
+
+
+class TestDecisionCriteria:
+    """Criteria are a versioned stimulus; triage-v1 stays the default."""
+
+    def test_default_is_triage_v1(self) -> None:
+        body = build_request("r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity())
+        assert TRIAGE_V1.version == "triage-v1"
+        assert body["questions"]["decision"]["criteria"] == {
+            d.value: DECISION_CRITERIA[d] for d in DECISION_ORDER
+        }
+
+    def test_custom_criteria_replace_only_descriptions(self) -> None:
+        custom = DecisionCriteria(
+            version="exp-1", texts={d: f"describes {d.value}" for d in DECISION_ORDER}
+        )
+        base = build_request("r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity())
+        body = build_request(
+            "r", model_id="typesafe/jev-1.13", label_map=LabelMap.identity(), criteria=custom
+        )
+        assert body["questions"]["decision"]["criteria"] == {
+            d.value: f"describes {d.value}" for d in DECISION_ORDER
+        }
+        base["questions"]["decision"].pop("criteria")
+        body["questions"]["decision"].pop("criteria")
+        assert body == base
+
+    def test_criteria_bind_to_decisions_under_permutation(self) -> None:
+        custom = DecisionCriteria(
+            version="exp-1", texts={d: f"describes {d.value}" for d in DECISION_ORDER}
+        )
+        label_map = LabelMap.permuted(seed=0)
+        body = build_request(
+            "r", model_id="typesafe/jev-1.13", label_map=label_map, criteria=custom
+        )
+        for key, text in body["questions"]["decision"]["criteria"].items():
+            assert text == f"describes {label_map.resolve(key).value}"
+
+    def test_sha256_is_stable_and_version_sensitive_only_by_text(self) -> None:
+        texts = {d: f"t {d.value}" for d in DECISION_ORDER}
+        a = DecisionCriteria(version="a", texts=texts)
+        b = DecisionCriteria(version="b", texts=dict(texts))
+        assert a.sha256 == b.sha256
+        assert a.sha256 != TRIAGE_V1.sha256
+
+    @pytest.mark.parametrize(
+        "texts",
+        [
+            {Decision.ACCEPT: "x", Decision.REJECT: "y"},
+            {Decision.ACCEPT: "x", Decision.REJECT: "y", Decision.NEEDS_MANUAL_REVIEW: " "},
+        ],
+    )
+    def test_invalid_criteria_rejected(self, texts: dict[Decision, str]) -> None:
+        with pytest.raises(ValueError, match="criteria"):
+            DecisionCriteria(version="bad", texts=texts)
+
+    def test_blank_version_rejected(self) -> None:
+        with pytest.raises(ValueError, match="version"):
+            DecisionCriteria(version=" ", texts={d: "x" for d in DECISION_ORDER})
