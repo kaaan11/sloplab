@@ -22,8 +22,9 @@ the shared ``error_kind`` each maps to:
 - ``response.missing_answer`` (parse): a requested question has no typed answer.
 - ``response.unknown_option`` (parse): a choice or probability key outside the
   label map.
-- ``response.bad_distribution`` (parse): probabilities invalid or not summing to
-  1 +/- 1e-6, or a score outside its level range.
+- ``response.bad_distribution`` (parse): probabilities invalid, or not summing to
+  1 within the two-decimal rounding bound (n_options * 0.005), or a score outside
+  its level range. Sums inside the bound are renormalized, not rejected.
 - ``response.missing_version`` (parse): the response carries no ``model`` version.
 """
 

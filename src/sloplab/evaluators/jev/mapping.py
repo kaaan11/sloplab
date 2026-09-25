@@ -230,8 +230,10 @@ DIMENSION_ANCHORS: dict[str, DimensionSpec] = {
     ),
 }
 
-#: Tolerance for a probability distribution summing to one.
-DISTRIBUTION_TOLERANCE = 1e-6
+#: Jev reports probabilities rounded to two decimals, so a distribution over n
+#: options can miss 1.0 by up to n * 0.005 through rounding alone. Sums within
+#: that bound are accepted and renormalized; anything further off is rejected.
+ROUNDING_HALF_STEP = 0.005
 
 _TOKEN_ALPHABET = string.ascii_lowercase
 _TOKEN_LENGTH = 6
@@ -449,9 +451,10 @@ def _check_distribution(raw: object, expected_keys: tuple[str, ...]) -> dict[str
         if value is None or not 0.0 <= value <= 1.0:
             raise JevResponseError(RESPONSE_BAD_DISTRIBUTION)
         values[key] = value
-    if abs(math.fsum(values.values()) - 1.0) > DISTRIBUTION_TOLERANCE:
+    total = math.fsum(values.values())
+    if total <= 0.0 or abs(total - 1.0) > ROUNDING_HALF_STEP * len(expected_keys) + 1e-9:
         raise JevResponseError(RESPONSE_BAD_DISTRIBUTION)
-    return values
+    return {key: value / total for key, value in values.items()}
 
 
 def _typed_answer(answers: dict[str, Any], question_id: str, answer_type: str) -> dict[str, Any]:

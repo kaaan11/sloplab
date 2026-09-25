@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import math
 import re
 from pathlib import Path
 
@@ -259,24 +260,36 @@ class TestDecode:
         assert info.value.code == RESPONSE_BAD_DISTRIBUTION
 
     def test_sum_tolerance_edges(self) -> None:
+        # Three options: rounding alone can move the sum by up to 0.015.
         ok = valid_body(
             probabilities={
                 Decision.ACCEPT: 0.2,
                 Decision.REJECT: 0.1,
-                Decision.NEEDS_MANUAL_REVIEW: 0.7 + 5e-7,
+                Decision.NEEDS_MANUAL_REVIEW: 0.71,
             }
         )
-        decode_response(ok, LabelMap.identity())
+        decoded = decode_response(ok, LabelMap.identity())
+        assert math.fsum(decoded.decision_probabilities.values()) == pytest.approx(1.0)
+        assert decoded.decision_probabilities["needs_manual_review"] == pytest.approx(0.71 / 1.01)
         bad = valid_body(
             probabilities={
                 Decision.ACCEPT: 0.2,
                 Decision.REJECT: 0.1,
-                Decision.NEEDS_MANUAL_REVIEW: 0.7 + 5e-6,
+                Decision.NEEDS_MANUAL_REVIEW: 0.72,
             }
         )
         with pytest.raises(JevResponseError) as info:
             decode_response(bad, LabelMap.identity())
         assert info.value.code == RESPONSE_BAD_DISTRIBUTION
+
+    def test_rounded_score_distribution_is_renormalized(self) -> None:
+        body = valid_body()
+        dim = next(iter(DIMENSIONS))
+        levels = body["answers"][f"dim_{dim}"]["probabilities"]
+        first = next(iter(levels))
+        levels[first] = levels[first] + 0.01
+        decoded = decode_response(body, LabelMap.identity())
+        assert math.fsum(decoded.dimension_probabilities[dim].values()) == pytest.approx(1.0)
 
     def test_bool_is_not_a_number(self) -> None:
         body = valid_body()
