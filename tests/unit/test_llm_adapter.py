@@ -80,10 +80,14 @@ class TestStrictParsing:
         assert result.findings[0].code == "THIN_EVIDENCE"
         assert result.metadata["failed"] is False
 
-    def test_json_embedded_in_prose_is_extracted(self) -> None:
+    def test_json_embedded_in_prose_is_rejected_as_extra_text(self) -> None:
+        """A-008: strict contract; prose around the object is not repaired."""
         text = f"Sure! Here is my assessment:\n{payload_text()}\nHope that helps."
-        result = self.evaluator_with(text).evaluate(make_report(), make_context())
-        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with(text).evaluate(make_report(), make_context())
+        assert exc_info.value.error_kind == "parse"
+        assert exc_info.value.detail == "parse.extra_text"
+        assert exc_info.value.adapter_attempts == 1
 
     def test_malformed_json_raises_typed_failure(self) -> None:
         with pytest.raises(EvaluationFailure) as exc_info:
@@ -98,8 +102,12 @@ class TestStrictParsing:
         assert not hasattr(failure, "confidence")
 
     def test_missing_json_raises_typed_failure(self) -> None:
-        with pytest.raises(EvaluationFailure, match="parse"):
-            self.evaluator_with("I cannot help with that.").evaluate(make_report(), make_context())
+        with pytest.raises(EvaluationFailure) as exc_info:
+            self.evaluator_with("The report looks fine to me.").evaluate(
+                make_report(), make_context()
+            )
+        assert exc_info.value.error_kind == "parse"
+        assert exc_info.value.detail == "parse.no_json_object"
 
     def test_invalid_decision_value_fails(self) -> None:
         with pytest.raises(EvaluationFailure) as exc_info:
