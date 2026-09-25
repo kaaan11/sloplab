@@ -36,7 +36,9 @@ block itself always comes from the config file.
 - **Per-request timeout:** `budget.request_timeout_s` (60 s) is passed straight
   into the HTTP client - the config value is the single source of truth.
 - **Retries:** at most `budget.max_retries_per_case` (2) additional attempts per
-  evaluation after transport or parse failures.
+  evaluation after transient failures (timeouts, transport errors, HTTP 5xx/408,
+  HTTP 429). Parse/schema failures, refusals, and permanent HTTP 4xx statuses are
+  terminal and never retried.
 - **Pacing:** at least `budget.min_interval_ms` (**3000 ms**) elapses between
   request dispatch starts; HTTP 429 responses honor their `Retry-After` header
   before the evaluator's retry loop fires again. Any single wait - including a
@@ -65,6 +67,20 @@ are visible immediately.
   logged.
 - Manifest counters also include repeat-stability metrics when two or more
   repeats completed (unanimity rate, decision flips, mean confidence spread).
+- Failed rows in `outcomes.jsonl` carry `error_kind` + `detail`. The output
+  contract is strict: after whitespace and at most one ```` ```json ```` fence, the
+  response must be exactly one JSON object with only the schema's keys. Kinds:
+  `parse` (JSON syntax: `parse.empty_response`, `parse.no_json_object`,
+  `parse.invalid_json`, `parse.extra_text` for text around a valid object;
+  schema: `parse.non_object`, `parse.unknown_keys`, `parse.invalid_*`),
+  `refusal` (`refusal.provider`, or `refusal.text_pattern` for a brace-free
+  reply matching a small fixed pattern set - a surface-form rule, not a semantic
+  judgement), `http-permanent` (`http.<status>`), plus `timeout`, `transport`,
+  `rate-limit`, `budget`, `deadline`. `failure_class()` in
+  `sloplab.evaluators.llm.failures` maps each pair to a coarse class.
+- Success records take `case_kind`, `parent_id`, and `operator` from the actual
+  case; the pilot refuses (before any request) a case with an unknown kind or a
+  mutated case without parent/operator.
 
 ## Interpreting pilot output
 

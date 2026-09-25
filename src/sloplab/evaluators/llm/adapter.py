@@ -4,9 +4,38 @@ Design constraints (decision D-0010):
 
 - Disabled by default. Constructing an adapter without explicit configuration
   raises; nothing in tests or CI constructs one with live settings.
-- Strict output contract: the model must return a single JSON object matching the
-  normalized schema; anything else becomes a *failed evaluation record*, never a
-  crash and never an invented decision.
+- Strict output contract (enforced since A-008): after stripping surrounding
+  whitespace and at most one enclosing Markdown code fence (```` ```json ```` or a
+  bare ```` ``` ````), the response must be exactly one JSON object and nothing
+  else. Anything else raises a typed :class:`EvaluationFailure`, never a crash
+  and never an invented decision.
+- Schema: top-level keys are limited to ``decision``, ``confidence``,
+  ``dimensions``, ``findings``, ``rationale`` (unknown keys are rejected;
+  ``findings`` and ``rationale`` may be omitted). ``confidence`` and every
+  dimension score must be a JSON number (booleans rejected) in ``[0, 1]``;
+  ``dimensions`` must hold exactly the five normalized keys; ``NaN``/``Infinity``
+  literals are rejected as invalid JSON. Individual ``findings`` entries stay
+  sanitized, not rejected: malformed entries are dropped (pre-existing
+  behavior, tested).
+- Failure codes (``error_kind`` / ``detail``, see ``failures.py``): JSON syntax
+  (``parse.empty_response``, ``parse.no_json_object``, ``parse.invalid_json``,
+  and the strict-format code ``parse.extra_text`` for a JSON object surrounded
+  by other text); schema (``parse.non_object``, ``parse.unknown_keys``,
+  ``parse.invalid_*``); ``refusal`` (``refusal.provider`` for a provider-native
+  refusal field, ``refusal.text_pattern`` for a response containing no ``{``
+  whose start matches :data:`REFUSAL_PATTERNS`); ``http-permanent``
+  (``http.<status>`` for 4xx other than 408/429). All of these are terminal:
+  retrying the same prompt is not expected to change them. Refusal detection is
+  a conservative surface-form rule, not a semantic judgement; everything it
+  misses stays a ``parse`` failure.
+- Why strict rather than tolerant (A-008): the previous parser extracted the
+  first-to-last brace span (``\\{.*\\}``) and ignored unknown keys, so it was
+  weaker than this docstring promised. No recorded live pilot depends on the
+  tolerant behavior (no LLM bundle is committed), both shipped prompts already
+  ask for ONLY a JSON object, and tolerant extraction would silently repair
+  outputs that the contract classifies as format failures. Extra text around a
+  valid object is kept observable under its own code (``parse.extra_text``)
+  rather than being repaired.
 - The transport is abstracted behind ``LLMClient`` so tests can inject canned or
   failing responses without any network access.
 
@@ -38,10 +67,40 @@ from sloplab.evaluators.llm.failures import (
     EvaluationFailure,
     classify_dispatch_error,
 )
+from sloplab.models.enums import DIMENSIONS
 from sloplab.models.evaluation import DimensionScores, EvaluationContext, EvaluationResult
 from sloplab.models.report import ReportDocument
 
+#: Tolerant brace span, used ONLY to diagnose ``parse.extra_text`` after the
+#: strict whole-document parse failed; never to accept a response.
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
+
+#: At most one Markdown code fence enclosing the whole (stripped) response.
+_FENCE_RE = re.compile(r"```(?:json)?\s*(?P<body>.*?)\s*```", re.DOTALL | re.IGNORECASE)
+
+#: Top-level keys the normalized schema allows.
+_ALLOWED_KEYS = frozenset({"decision", "confidence", "dimensions", "findings", "rationale"})
+
+#: Conservative refusal pattern set (A-008). Applied only when the stripped
+#: response contains no ``{`` at all and is at most
+#: :data:`REFUSAL_MAX_CHARS` long; each pattern must match at the very start
+#: (after an optional apology such as "I'm sorry," / "Sorry," / "I apologize,").
+#: Anything else without JSON stays ``parse.no_json_object``.
+REFUSAL_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(
+        r"\A(?:(?:i['’]?m sorry|i am sorry|sorry|i apologi[sz]e)[,.!]?\s+(?:but\s+)?)?" + body,
+        re.IGNORECASE,
+    )
+    for body in (
+        r"i (?:cannot|can['’]?t|can not|won['’]?t|will not|am unable to|"
+        r"am not able to)\s+"
+        r"(?:help|assist|comply|provide|evaluate|complete|fulfill|process|do)\b",
+        r"i['’]?m (?:unable|not able) to\s+"
+        r"(?:help|assist|comply|provide|evaluate|complete|fulfill|process|do)\b",
+        r"i (?:must|have to) decline\b",
+    )
+)
+REFUSAL_MAX_CHARS = 500
 
 #: Version of the file-template renderer recorded in pilot manifests.
 #: Bump when render semantics change; the legacy ``PROMPT_TEMPLATE`` path below
@@ -137,8 +196,13 @@ def render_file_template(template: str, report_text: str) -> str:
 
 @dataclass(frozen=True)
 class LLMResponse:
+    """One completion. ``provider_refusal`` is True only when the provider's
+    response carried an explicit refusal field (e.g. OpenAI-compatible
+    ``message.refusal``); the refusal text itself is never stored."""
+
     text: str
     latency_ms: int
+    provider_refusal: bool = False
 
 
 class LLMClient(Protocol):
@@ -205,12 +269,13 @@ class LlmEvaluator:
     ) -> EvaluationResult:
         """Return the normalized triage observation, or raise EvaluationFailure.
 
-        Success keeps returning :class:`EvaluationResult`. Terminal local
-        errors (unparseable responses, spent budget, refused deadline waits)
-        raise immediately without retry; timeouts, transports, and explicit
-        rate-limit backpressure use the configured retries. Every attempt of
-        one call renders the same prompt. ``adapter_attempts`` counts logical
-        attempts performed, not physical dispatches.
+        Success keeps returning :class:`EvaluationResult`. Terminal errors
+        (JSON syntax / strict-format / schema failures, refusals, permanent
+        HTTP 4xx, spent budget, refused deadline waits) raise immediately
+        without retry; timeouts, transports, and explicit rate-limit
+        backpressure use the configured retries. Every attempt of one call
+        renders the same prompt. ``adapter_attempts`` counts logical attempts
+        performed, not physical dispatches.
         """
         _ = context.labels  # deliberately unused; the adapter is content-based
         prompt = self._render(report.raw_text)
@@ -222,11 +287,14 @@ class LlmEvaluator:
         for attempt in range(1, attempts + 1):
             try:
                 response = self._client.complete(prompt)
+                # getattr: duck-typed test transports predate the field.
+                if getattr(response, "provider_refusal", False) is True:
+                    raise _ResponseFailure("refusal.provider", error_kind="refusal")
                 payload = self._parse_json(response.text)
                 return self._to_result(payload, context.case_id, response.latency_ms, rendered_hash)
-            except _ParseFailure as exc:
+            except _ResponseFailure as exc:
                 raise EvaluationFailure(
-                    error_kind="parse",
+                    error_kind=exc.error_kind,
                     adapter_attempts=attempt,
                     rendered_prompt_hash=rendered_hash,
                     detail=exc.code,
@@ -253,35 +321,38 @@ class LlmEvaluator:
     # --- parsing ---------------------------------------------------------
 
     def _parse_json(self, text: str) -> dict[str, Any]:
-        match = _JSON_OBJECT_RE.search(text)
-        if not match:
-            raise _ParseFailure("parse.no_json_object")
-        try:
-            payload = json.loads(match.group(0))
-        except json.JSONDecodeError as exc:
-            raise _ParseFailure("parse.invalid_json") from exc
+        """Strictly parse ``text`` into a schema-valid payload (see module docstring)."""
+        payload = _load_strict_document(text if isinstance(text, str) else "")
         if not isinstance(payload, dict):
-            raise _ParseFailure("parse.non_object")
+            raise _ResponseFailure("parse.non_object")
+        if set(payload) - _ALLOWED_KEYS:
+            raise _ResponseFailure("parse.unknown_keys")
 
         decision = payload.get("decision")
         if decision not in ("accept", "reject", "needs_manual_review"):
-            raise _ParseFailure("parse.invalid_decision")
+            raise _ResponseFailure("parse.invalid_decision")
 
         confidence = payload.get("confidence")
-        if not isinstance(confidence, (int, float)) or not 0.0 <= confidence <= 1.0:
-            raise _ParseFailure("parse.invalid_confidence")
+        if not _is_unit_number(confidence):
+            raise _ResponseFailure("parse.invalid_confidence")
 
         dimensions = payload.get("dimensions")
-        if not isinstance(dimensions, dict):
-            raise _ParseFailure("parse.invalid_dimensions")
+        if (
+            not isinstance(dimensions, dict)
+            or set(dimensions) != set(DIMENSIONS)
+            or not all(_is_unit_number(v) for v in dimensions.values())
+        ):
+            raise _ResponseFailure("parse.invalid_dimensions")
         try:
             DimensionScores.from_dict({k: float(v) for k, v in dimensions.items()})
         except (TypeError, ValueError) as exc:
-            raise _ParseFailure("parse.invalid_dimensions") from exc
+            raise _ResponseFailure("parse.invalid_dimensions") from exc
 
         findings = payload.get("findings", [])
         if not isinstance(findings, list):
-            raise _ParseFailure("parse.invalid_findings")
+            raise _ResponseFailure("parse.invalid_findings")
+        if not isinstance(payload.get("rationale", ""), str):
+            raise _ResponseFailure("parse.invalid_rationale")
         return payload
 
     def _to_result(
@@ -329,12 +400,78 @@ class LlmEvaluator:
         )
 
 
-class _ParseFailure(Exception):
-    """Internal parser failure carrying a ledger-safe stable code."""
+class _ResponseFailure(Exception):
+    """Internal terminal response failure carrying ledger-safe stable codes."""
 
-    def __init__(self, code: str) -> None:
+    def __init__(self, code: str, *, error_kind: str = "parse") -> None:
         self.code = code
+        self.error_kind = error_kind
         super().__init__(code)
+
+
+def _reject_constant(name: str) -> Any:
+    """``json.loads`` hook: ``NaN``/``Infinity`` are not valid strict JSON."""
+    raise ValueError(f"non-standard JSON constant {name}")
+
+
+def _is_unit_number(value: object) -> bool:
+    """A JSON number (not a boolean) within ``[0, 1]``."""
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and 0.0 <= value <= 1.0
+
+
+def _is_refusal(stripped: str) -> bool:
+    """Conservative surface-form refusal rule (see :data:`REFUSAL_PATTERNS`)."""
+    if "{" in stripped or len(stripped) > REFUSAL_MAX_CHARS:
+        return False
+    return any(pattern.match(stripped) for pattern in REFUSAL_PATTERNS)
+
+
+def _has_embedded_object(document: str) -> bool:
+    """True when a JSON object is decodable somewhere inside ``document``.
+
+    Diagnostic only (distinguishes ``parse.extra_text`` from
+    ``parse.invalid_json``); a response is never accepted through this path.
+    """
+    start = document.find("{")
+    if start >= 0:
+        try:
+            obj, _ = json.JSONDecoder(parse_constant=_reject_constant).raw_decode(document, start)
+        except ValueError:
+            obj = None
+        if isinstance(obj, dict):
+            return True
+    match = _JSON_OBJECT_RE.search(document)
+    if match:
+        try:
+            obj = json.loads(match.group(0), parse_constant=_reject_constant)
+        except ValueError:
+            return False
+        return isinstance(obj, dict)
+    return False
+
+
+def _load_strict_document(text: str) -> Any:
+    """Decode ``text`` as exactly one JSON document.
+
+    Surrounding whitespace and at most one enclosing code fence are removed;
+    nothing else is repaired. Raises :class:`_ResponseFailure` with a syntax or
+    refusal code.
+    """
+    stripped = text.strip()
+    if not stripped:
+        raise _ResponseFailure("parse.empty_response")
+    fence = _FENCE_RE.fullmatch(stripped)
+    document = fence.group("body") if fence else stripped
+    try:
+        return json.loads(document, parse_constant=_reject_constant)
+    except ValueError as exc:  # JSONDecodeError subclasses ValueError
+        if "{" not in stripped:
+            if _is_refusal(stripped):
+                raise _ResponseFailure("refusal.text_pattern", error_kind="refusal") from exc
+            raise _ResponseFailure("parse.no_json_object") from exc
+        if _has_embedded_object(document):
+            raise _ResponseFailure("parse.extra_text") from exc
+        raise _ResponseFailure("parse.invalid_json") from exc
 
 
 class HttpLLMClient:
@@ -404,8 +541,17 @@ class HttpLLMClient:
         with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
             payload = _json.loads(response.read().decode())
         latency = int((time.monotonic() - start) * 1000)
-        text = payload.get("choices", [{}])[0].get("message", {}).get("content", "")
-        return LLMResponse(text=text, latency_ms=latency)
+        message = payload.get("choices", [{}])[0].get("message", {})
+        content = message.get("content")
+        # A null/absent content becomes "" (-> parse.empty_response), never a
+        # transport error. An explicit OpenAI-compatible ``refusal`` string is
+        # surfaced as a flag only; its text is not stored.
+        refusal = message.get("refusal")
+        return LLMResponse(
+            text=content if isinstance(content, str) else "",
+            latency_ms=latency,
+            provider_refusal=isinstance(refusal, str) and bool(refusal.strip()),
+        )
 
 
 class FlakyThenSuccessClient:

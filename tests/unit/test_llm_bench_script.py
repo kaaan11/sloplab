@@ -209,22 +209,25 @@ class TestNoLeakage:
         assert rc == 0
 
         captured = capsys.readouterr()
+        bundle = tmp_path / "llm-bench-results.bundle"
         surfaces = {
             "stdout": captured.out,
             "stderr": captured.err,
             "results": out.read_text(encoding="utf-8"),
-            "manifest": (tmp_path / "llm-bench-results.bundle" / "manifest.json").read_text(
-                encoding="utf-8"
-            ),
+            "manifest": (bundle / "manifest.json").read_text(encoding="utf-8"),
+            "outcomes": (bundle / "outcomes.jsonl").read_text(encoding="utf-8"),
         }
         for surface_name, text in surfaces.items():
             assert self.KEY_CANARY not in text, f"API key leaked into {surface_name}"
             assert self.RAW_CANARY not in text, f"raw response leaked into {surface_name}"
 
-        # The parsed JSON payload itself is still evaluated normally.
-        records = [json.loads(line) for line in out.read_text().splitlines()]
-        assert len(records) == 2
-        assert not any(r["evaluation_metadata"].get("failed") for r in records)
+        # Strict output contract (A-008): text around the JSON object is a
+        # typed parse.extra_text failure, never a scored record.
+        assert out.read_text(encoding="utf-8") == ""
+        outcomes = [json.loads(line) for line in surfaces["outcomes"].splitlines()]
+        assert len(outcomes) == 2
+        assert all(o["status"] == "failed" for o in outcomes)
+        assert {(o["error_kind"], o["detail"]) for o in outcomes} == {("parse", "parse.extra_text")}
 
 
 class TestWorkflowContract:
