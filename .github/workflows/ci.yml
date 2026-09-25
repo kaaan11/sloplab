@@ -6,80 +6,6 @@ on:
   pull_request:
 
 jobs:
-  # Temporary, fixed-input lockfile generation; removed after the reviewed blob is committed.
-  prepare-pr13-lock:
-    if: github.event_name == 'pull_request' && github.event.pull_request.number == 13 && github.repository == 'kaaan11/sloplab'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: 5b0c8c3d636cf9aa2009c19b9c5b071e9c9aa943
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v5
-        with:
-          python-version: '3.13'
-      - name: Regenerate and inspect only uv.lock
-        run: |
-          uv lock
-          uv lock --check
-          python - <<'PY'
-          import json
-          import subprocess
-          import tomllib
-          from pathlib import Path
-          changed = subprocess.check_output(['git', 'diff', '--name-only'], text=True).splitlines()
-          assert changed == ['uv.lock'], changed
-          old = tomllib.loads(subprocess.check_output(['git', 'show', 'HEAD:uv.lock'], text=True))
-          new = tomllib.loads(Path('uv.lock').read_text())
-          old_packages = {p['name']: p for p in old['package']}
-          new_packages = {p['name']: p for p in new['package']}
-          assert old_packages.keys() <= new_packages.keys()
-          added = sorted(new_packages.keys() - old_packages.keys())
-          assert added == ['prompt-toolkit', 'wcwidth'], added
-          for name, package in old_packages.items():
-              if name != 'sloplab':
-                  assert package == new_packages[name], f'Unrelated dependency changed: {name}'
-          print('ADDED_PACKAGES=' + json.dumps({n: new_packages[n]['version'] for n in added}))
-          print('UNCHANGED_EXISTING_DEPENDENCIES=PASS')
-          PY
-          git diff --check
-          git diff -- uv.lock
-      - name: Verify locked installation and outdated-lock rejection
-        run: |
-          uv sync --locked --group dev
-          python - <<'PY'
-          import subprocess
-          import tempfile
-          from pathlib import Path
-          with tempfile.TemporaryDirectory() as tmp:
-              root = Path(tmp)
-              for name in ['pyproject.toml', 'README.md']:
-                  (root / name).write_bytes(Path(name).read_bytes())
-              (root / 'uv.lock').write_bytes(subprocess.check_output(['git', 'show', 'HEAD:uv.lock']))
-              before = (root / 'uv.lock').read_bytes()
-              result = subprocess.run(['uv', 'sync', '--locked', '--group', 'dev'], cwd=root, capture_output=True, text=True)
-              print(result.stdout, result.stderr)
-              assert result.returncode != 0, 'Outdated lock unexpectedly accepted'
-              assert 'lockfile' in result.stderr.lower() and 'needs to be updated' in result.stderr.lower(), result.stderr
-              assert (root / 'uv.lock').read_bytes() == before, 'Outdated lock was silently rewritten'
-              print('STALE_LOCK_REJECTED_WITHOUT_REWRITE=PASS')
-          PY
-      - name: Store generated lockfile blob without modifying any branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          python - <<'PY' > /tmp/pr13-lock-blob.json
-          import base64
-          import json
-          from pathlib import Path
-          print(json.dumps({'content': base64.b64encode(Path('uv.lock').read_bytes()).decode('ascii'), 'encoding': 'base64'}))
-          PY
-          sha=$(gh api --method POST repos/kaaan11/sloplab/git/blobs --input /tmp/pr13-lock-blob.json --jq '.sha')
-          test "$sha" = "$(git hash-object uv.lock)"
-          echo "REVIEWED_LOCK_BLOB_SHA=$sha"
-          sha256sum uv.lock
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -91,7 +17,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install
-        run: uv sync --group dev
+        run: uv sync --locked --group dev
       - name: Lint
         run: uv run ruff check .
       - name: Format check
