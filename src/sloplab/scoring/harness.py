@@ -32,6 +32,7 @@ from sloplab.models.enums import Decision
 from sloplab.models.evaluation import EvaluationContext
 from sloplab.models.report import ReportDocument
 from sloplab.models.run import CaseRecord
+from sloplab.paths import resolve_within
 
 
 def opaque_case_handle(case_id: str) -> str:
@@ -127,9 +128,17 @@ def build_cases(index_path: Path, corpus_root: Path, materialized_root: Path) ->
             )
         else:
             manifest_rel = entry.get("manifest_path")
-            if not manifest_rel:
+            if not isinstance(manifest_rel, str) or not manifest_rel:
                 raise ValueError(f"suite index entry '{entry['case_id']}' has no manifest_path")
-            case_dir = materialized_root / Path(manifest_rel).parent
+            try:
+                manifest_path = resolve_within(
+                    materialized_root,
+                    manifest_rel,
+                    purpose=f"suite index manifest_path for '{entry['case_id']}'",
+                )
+            except ValueError as exc:
+                raise FixtureError(str(exc)) from exc
+            case_dir = manifest_path.parent
             derived = load_derived_fixture(case_dir, materialized_root)
             manifest = derived.manifest
             cases.append(
