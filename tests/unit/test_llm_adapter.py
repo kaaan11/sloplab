@@ -16,7 +16,7 @@ from sloplab.evaluators.llm.adapter import (
     LlmEvaluator,
 )
 from sloplab.evaluators.llm.failures import EvaluationFailure
-from sloplab.models.enums import Decision
+from sloplab.models.enums import Decision, Severity
 from sloplab.models.evaluation import EvaluationContext
 
 
@@ -168,6 +168,31 @@ class TestStrictParsing:
         )
         assert not result.metadata["failed"]
         assert [f.code for f in result.findings] == ["GOOD_CODE"]
+
+    @pytest.mark.parametrize(
+        ("raw_severity", "expected"),
+        [
+            ("low", Severity.LOW),
+            ("medium", Severity.MEDIUM),
+            ("high", Severity.HIGH),
+        ],
+    )
+    def test_finding_severity_uses_enum_values(
+        self, raw_severity: str, expected: Severity
+    ) -> None:
+        findings = [{"code": "SEVERITY_CASE", "severity": raw_severity, "evidence": "x"}]
+        result = self.evaluator_with(payload_text(findings=findings)).evaluate(
+            make_report(), make_context()
+        )
+        assert result.findings[0].severity == expected
+
+    @pytest.mark.parametrize("raw_severity", ["unknown", "LOW", "", None, 7])
+    def test_invalid_finding_severity_falls_back_to_medium(self, raw_severity: Any) -> None:
+        findings = [{"code": "SEVERITY_CASE", "severity": raw_severity, "evidence": "x"}]
+        result = self.evaluator_with(payload_text(findings=findings)).evaluate(
+            make_report(), make_context()
+        )
+        assert result.findings[0].severity == Severity.MEDIUM
 
 
 class TestRetryAndFailureSemantics:
