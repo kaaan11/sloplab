@@ -113,7 +113,7 @@ def test_provenance_times_bracket_evaluation(
 ) -> None:
     study_path, out_dir = _workspace(tmp_path)
     config = load_study_config(study_path)
-    real_run = study_module.run_suite_with_outcomes
+    real_run = run_suite_with_outcomes
     events: list[str] = []
     ticks = iter(
         [
