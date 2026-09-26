@@ -51,6 +51,22 @@ def test_url_parser_strips_markdown_terminator_but_keeps_ipv6_brackets() -> None
     assert find_unsafe_urls("http://[::1]/health") == []
 
 
+def test_browser_style_backslash_cannot_hide_external_hostname() -> None:
+    url = r"http://attacker.com\\@localhost/"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '"http://localhost"',
+        "'https://example.org'",
+    ],
+)
+def test_closing_quotes_are_not_part_of_safe_hostname(text: str) -> None:
+    assert find_unsafe_urls(text) == []
+
 def test_lowercase_real_year_cve_is_detected() -> None:
     assert find_real_year_cves("see cve-2021-44228") == ["cve-2021-44228"]
     violations = validate_content_safety("see cve-2021-44228")
