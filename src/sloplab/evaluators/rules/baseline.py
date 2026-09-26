@@ -273,9 +273,7 @@ class RulesBaselineEvaluator:
         # hypothetical and should route to review, not reject.
         no_boundary_matches = [m for rx in _NO_BOUNDARY_PATTERNS for m in rx.finditer(full)]
         conditional_matches = [
-            m
-            for m in no_boundary_matches
-            if _is_conditional_boundary_match(full, m)
+            m for m in no_boundary_matches if _is_conditional_boundary_match(full, m)
         ]
         unconditional_matches = [m for m in no_boundary_matches if m not in conditional_matches]
         conditional_negation = bool(conditional_matches)
