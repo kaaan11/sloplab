@@ -140,6 +140,7 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     prefix = paragraph[clause_start:marker_start].strip().casefold()
     return prefix in {"", "and", "but", "or"}
 
+
 def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
     """Return absolute blank-line-delimited bounds containing the match."""
     left_boundary = text.rfind("\n\n", 0, match.start())
