@@ -49,8 +49,8 @@ _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
 _URL_AUTHORITY_CONTROL_RE = re.compile(
-    r"https?://(?=[^\x20\f\v/?#)>`]*[\t\r\n])"
-    r"(?=[^\x20\f\v/?#)>`]*@)"
+    r"https?://[^\x20\t\r\n\f\v/?#)>`]*[\t\r\n]+"
+    r"(?=[^\x20\f\v/?#)>`]*(?:@|\\|\.[A-Za-z0-9]))"
     r"[^\x20\f\v/?#)>`]+",
     re.IGNORECASE,
 )
@@ -92,13 +92,18 @@ def find_unsafe_urls(text: str) -> list[str]:
     unsafe: set[str] = set()
     for match in _URL_AUTHORITY_CONTROL_RE.finditer(text):
         raw = match.group(0)
+        display_url = raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
+        raw_authority = raw.split("://", 1)[1]
+        if "\\" in raw_authority:
+            unsafe.add(display_url)
+            continue
         normalized = raw.replace("\t", "").replace("\r", "").replace("\n", "")
         try:
             host = urlsplit(normalized).hostname
         except ValueError:
             host = None
         if host is None or not is_reserved_host(host):
-            unsafe.add(raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n"))
+            unsafe.add(display_url)
 
     for match in _URL_RE.finditer(text):
         url = _trim_url_candidate(match.group(0))
