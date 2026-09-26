@@ -146,6 +146,25 @@ def test_crlf_locations_hold_but_output_normalizes() -> None:
     assert "\r" not in remove_section(doc, doc.sections[0], expected_document_identity=ident)
 
 
+def test_span_authorization_preserves_unspaced_trailing_hash() -> None:
+    """ATX authorization matches parser semantics for headings such as C#."""
+    doc = parse_report(
+        "# T\n\n## Impact on C#\n\nBody.\n",
+        fixture_id="canonical-csharp-001",
+        path="x",
+    )
+    section = doc.sections[1]
+    identity = document_identity(doc)
+    assert section.heading == "Impact on C#"
+    assert span_authorized(doc, section, expected_document_identity=identity)
+    assert "Impact on C#" in replace_section_body(
+        doc, section, "Updated.", expected_document_identity=identity
+    )
+    assert "Impact on C#" not in remove_section(
+        doc, section, expected_document_identity=identity
+    )
+
+
 def test_utf8_passthrough() -> None:
     """Non-ASCII bytes survive replace and remove paths."""
     doc = parse_report("# T\n\n## Café ✓\n\nnaïve → ok ✓\n", fixture_id="x", path="x")
