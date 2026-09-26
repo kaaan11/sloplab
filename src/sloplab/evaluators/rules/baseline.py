@@ -162,11 +162,20 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                 return True
             continue
 
-        # A trailing marker conditions the denial only when it starts directly
-        # after the matched negation ("... is crossed if ..."). Words between
-        # the denial and marker indicate a separate coordinated/follow-up clause.
+        # A trailing marker may follow a short lexical match such as
+        # "no security boundary" while still governing the full denial
+        # ("... between tenants is crossed if ..."). If a crossed-predicate is
+        # present, only punctuation/space may remain after it before the marker;
+        # otherwise require the marker to follow the match directly.
         between = paragraph[match_end_rel : marker.start()]
-        if re.fullmatch(r"[\s,]*", between):
+        if _CLAUSE_BARRIER_RE.search(between):
+            continue
+        crossed = list(re.finditer(r"\bcrossed\b", between, re.IGNORECASE))
+        if crossed:
+            tail = between[crossed[-1].end() :]
+            if re.fullmatch(r"[\s,]*", tail):
+                return True
+        elif re.fullmatch(r"[\s,]*", between):
             return True
     return False
 
