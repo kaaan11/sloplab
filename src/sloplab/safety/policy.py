@@ -47,7 +47,11 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
-_URL_RE = re.compile(r"https?://[^\x20\f\v)>`]+", re.IGNORECASE)
+_URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
+_URL_AUTHORITY_CONTROL_RE = re.compile(
+    r"https?://[^\x20\t\r\n/?#)>`]*[\t\r\n]+[^\x20\t\r\n/?#)>`]+",
+    re.IGNORECASE,
+)
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 
@@ -86,16 +90,16 @@ def find_unsafe_urls(text: str) -> list[str]:
     unsafe: set[str] = set()
     for match in _URL_AUTHORITY_CONTROL_RE.finditer(text):
         raw = match.group(0)
-        normalized = raw.replace("\\t", "").replace("\\r", "").replace("\\n", "")
+        normalized = raw.replace("\t", "").replace("\r", "").replace("\n", "")
         try:
             host = urlsplit(normalized).hostname
         except ValueError:
             host = None
         if host is None or not is_reserved_host(host):
             unsafe.add(
-                raw.replace("\\t", "\\\\t")
-                .replace("\\r", "\\\\r")
-                .replace("\\n", "\\\\n")
+                raw.replace("\t", "\\t")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n")
             )
 
     for match in _URL_RE.finditer(text):
