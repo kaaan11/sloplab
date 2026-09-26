@@ -125,9 +125,7 @@ def _sha256(path: Path) -> str:
 
 @pytest.mark.parametrize("binding", ["records", "outcomes"])
 @pytest.mark.parametrize("mode", ["absolute", "parent", "symlink"])
-def test_analysis_bound_path_cannot_escape_bundle(
-    tmp_path: Path, binding: str, mode: str
-) -> None:
+def test_analysis_bound_path_cannot_escape_bundle(tmp_path: Path, binding: str, mode: str) -> None:
     out_dir = _published_run(tmp_path, f"path-{binding}-{mode}")
     marker = out_dir / analysis_filename()
     document = json.loads(marker.read_text(encoding="utf-8"))
