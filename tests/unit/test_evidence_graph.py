@@ -83,6 +83,18 @@ class TestGraphExtraction:
         assert "BOUNDARY_NEGATED_BY_AUTHOR" in codes
         assert "GRAPH_BOUNDARY_CONTRADICTS_CLAIM" in codes
 
+    def test_negated_boundary_without_claim_is_not_claim_contradiction(self) -> None:
+        text = NO_CLAIM_BODY + (
+            "\n## Expected Security Boundary\n\n"
+            "No security boundary applies; this is intended behavior.\n"
+        )
+        result = evaluate(text)
+        codes = {f.code for f in result.findings}
+        assert result.decision == Decision.REJECT
+        assert "GRAPH_MISSING_IMPACT_CLAIM" in codes
+        assert "BOUNDARY_NEGATED_BY_AUTHOR" in codes
+        assert "GRAPH_BOUNDARY_CONTRADICTS_CLAIM" not in codes
+
     def test_missing_boundary_is_missing_support_not_contradiction(self) -> None:
         text = VALID_BODY.replace(
             "## Expected Security Boundary\n\n"
