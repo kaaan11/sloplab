@@ -303,9 +303,7 @@ class TestSafetyPolicy:
             "http://[::\n1]/x",
         ],
     )
-    def test_control_split_reserved_host_does_not_report_truncated_prefix(
-        self, url: str
-    ) -> None:
+    def test_control_split_reserved_host_does_not_report_truncated_prefix(self, url: str) -> None:
         assert validate_content_safety(f"GET {url}") == []
 
     @pytest.mark.parametrize(
