@@ -52,7 +52,7 @@ def test_url_parser_strips_markdown_terminator_but_keeps_ipv6_brackets() -> None
 
 
 def test_browser_style_backslash_cannot_hide_external_hostname() -> None:
-    url = r"http://attacker.com\\@localhost/"
+    url = r"http://attacker.com\@localhost/"
     assert find_unsafe_urls(url) == [url]
     assert validate_content_safety(url)
 
