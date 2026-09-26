@@ -395,6 +395,14 @@ def benchmark(
     out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # A rerun owns the evaluation artifacts in its output directory. Invalidate
+    # them before materialization/ledger checks so any later failure cannot leave
+    # stale scores that look current for a newly written suite index.
+    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    for stale_metrics in out_dir.glob("metrics-*.json"):
+        stale_metrics.unlink()
+
     if do_materialize:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
         try:
