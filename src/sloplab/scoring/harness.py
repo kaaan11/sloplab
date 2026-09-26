@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Any
 
 from sloplab.corpus.loader import (
+    MUTATION_MANIFEST_NAME,
     CanonicalFixture,
     FixtureError,
     discover_fixtures,
@@ -136,6 +137,11 @@ def build_cases(index_path: Path, corpus_root: Path, materialized_root: Path) ->
                 )
             except PathBoundaryError as exc:
                 raise FixtureError(f"suite index entry '{entry['case_id']}': {exc}") from exc
+            if manifest_path.name != MUTATION_MANIFEST_NAME or not manifest_path.is_file():
+                raise FixtureError(
+                    f"suite index entry '{entry['case_id']}': manifest_path must name an existing "
+                    f"{MUTATION_MANIFEST_NAME} inside the materialized root"
+                )
             case_dir = manifest_path.parent
             derived = load_derived_fixture(case_dir, materialized_root)
             manifest = derived.manifest
