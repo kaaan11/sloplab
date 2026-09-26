@@ -96,6 +96,89 @@ class TestDeterministicStudy:
         }
         assert manifest["started_at"] and manifest["finished_at"]
 
+    def test_reused_output_drops_stale_outcomes_and_counts_failures(
+        self, study_workspace: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import sloplab.experiments.study as study_module
+        from sloplab.evaluators.llm.failures import EvaluationFailure
+        from sloplab.scoring.harness import CaseOutcome
+
+        config = load_study_config(study_workspace / "study.yaml")
+        study_path = study_workspace / "study.yaml"
+        out = study_workspace / "reused-out"
+        real_run = study_module.run_suite_with_outcomes
+
+        def _failed_run(evaluator: Any, cases: list[Any]) -> tuple[list[Any], list[CaseOutcome]]:
+            case = cases[0]
+            failure = EvaluationFailure(
+                error_kind="timeout",
+                adapter_attempts=1,
+                rendered_prompt_hash="0" * 64,
+                detail="transport.timeout",
+            )
+            return (
+                [],
+                [
+                    CaseOutcome(
+                        case_id=case.case_id,
+                        evaluator_name=evaluator.name,
+                        status="failed",
+                        failure=failure,
+                    )
+                ],
+            )
+
+        monkeypatch.setattr(study_module, "run_suite_with_outcomes", _failed_run)
+        first = run_deterministic_study(config, study_path, out)
+        first_manifest = json.loads(first.manifest_path.read_text(encoding="utf-8"))
+        first_outcomes = [
+            json.loads(line)
+            for line in (out / "outcomes.jsonl").read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        ]
+        assert first_manifest["error_count"] == len(first_outcomes) == 2
+
+        monkeypatch.setattr(study_module, "run_suite_with_outcomes", real_run)
+        second = run_deterministic_study(config, study_path, out)
+        second_manifest = json.loads(second.manifest_path.read_text(encoding="utf-8"))
+        assert second_manifest["error_count"] == 0
+        assert not (out / "outcomes.jsonl").exists()
+
+    def test_provenance_timestamps_bracket_evaluation(
+        self, study_workspace: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        import sloplab.experiments.study as study_module
+
+        config = load_study_config(study_workspace / "study.yaml")
+        study_path = study_workspace / "study.yaml"
+        real_run = study_module.run_suite_with_outcomes
+        clock_values = iter(["2026-01-01T00:00:00+00:00", "2026-01-01T00:00:01+00:00"])
+        clock_calls: list[str] = []
+
+        def _clock() -> str:
+            value = next(clock_values)
+            clock_calls.append(value)
+            return value
+
+        def _observed_run(evaluator: Any, cases: list[Any]) -> tuple[list[Any], list[Any]]:
+            assert clock_calls == ["2026-01-01T00:00:00+00:00"]
+            return real_run(evaluator, cases)
+
+        monkeypatch.setattr(study_module, "utc_now_iso", _clock)
+        monkeypatch.setattr(study_module, "run_suite_with_outcomes", _observed_run)
+
+        result = run_deterministic_study(
+            config, study_path, study_workspace / "timed-out"
+        )
+        manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+
+        assert manifest["started_at"] == "2026-01-01T00:00:00+00:00"
+        assert manifest["finished_at"] == "2026-01-01T00:00:01+00:00"
+        assert clock_calls == [
+            "2026-01-01T00:00:00+00:00",
+            "2026-01-01T00:00:01+00:00",
+        ]
+
 
 class TestConfigLoading:
     def test_pilot_config_loads_with_budget(self, tmp_path: Path) -> None:
