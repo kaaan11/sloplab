@@ -13,6 +13,7 @@ from sloplab import __version__
 from sloplab.corpus.parser import parse_report
 from sloplab.models.manifest import CanonicalManifest, MutationManifest
 from sloplab.models.report import ReportDocument
+from sloplab.paths import resolve_within
 
 CANONICAL_MANIFEST_NAME = "manifest.yaml"
 MUTATION_MANIFEST_NAME = "mutation-manifest.yaml"
@@ -75,7 +76,10 @@ def _load_report_document(
     fixture_id: str,
     fallback_title: str,
 ) -> tuple[ReportDocument, Path]:
-    resolved = (corpus_root / report_rel_path).resolve()
+    try:
+        resolved = resolve_within(corpus_root, report_rel_path, purpose="report.path")
+    except ValueError as exc:
+        raise FixtureError(f"{manifest_path}: report.path escapes corpus boundary: {exc}") from exc
     if not resolved.is_file():
         raise FixtureError(
             f"{manifest_path}: 'report.path' points to missing file '{report_rel_path}' "

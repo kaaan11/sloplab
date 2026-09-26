@@ -187,3 +187,157 @@ class TestSafetyPolicy:
 
     def test_subdomain_of_reserved_allowed(self) -> None:
         assert validate_content_safety("https://deep.sub.example.net/x") == []
+
+    def test_url_userinfo_does_not_hide_external_hostname(self) -> None:
+        violations = validate_content_safety("GET http://localhost@attacker.com/private")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+
+    def test_localhost_suffix_requires_hostname_boundary(self) -> None:
+        violations = validate_content_safety(
+            "GET http://fakelocalhost/path and http://notreally.localhost.evil.example/path"
+        )
+        assert len(violations) == 2
+
+    def test_local_hostname_variants_and_ipv6_loopback_allowed(self) -> None:
+        text = (
+            "GET http://api.localhost:8080/x and http://device.local/y "
+            "and http://user@localhost/z and http://[::1]:9000/health"
+        )
+        assert validate_content_safety(text) == []
+
+    def test_lowercase_real_year_cve_detected(self) -> None:
+        violations = validate_content_safety("See cve-2021-44228 for details.")
+        assert len(violations) == 1
+        assert "cve-2021-44228" in violations[0]
+
+    def test_lowercase_fake_year_cve_allowed(self) -> None:
+        assert validate_content_safety("Reference cve-2099-12345.") == []
+
+    def test_reserved_url_with_trailing_prose_punctuation_allowed(self) -> None:
+        text = "See http://example.com, then 'http://localhost' and http://api.localhost."
+        assert validate_content_safety(text) == []
+
+    def test_reserved_url_with_markdown_emphasis_allowed(self) -> None:
+        text = "**http://localhost** and __https://demo.example.org__"
+        assert validate_content_safety(text) == []
+
+    def test_external_url_with_trailing_prose_punctuation_still_rejected(self) -> None:
+        violations = validate_content_safety("See http://attacker.com, then continue.")
+        assert len(violations) == 1
+        assert "http://attacker.com" in violations[0]
+
+    def test_backslash_authority_cannot_disguise_external_host(self) -> None:
+        violations = validate_content_safety(r"GET http://attacker.com\@localhost/x")
+        assert len(violations) == 1
+        assert r"http://attacker.com\@localhost/x" in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_whitespace_cannot_disguise_external_host(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}@attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\t" not in violations[0]
+        assert "\r" not in violations[0]
+        assert "\n" not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_nonadjacent_control_in_userinfo_cannot_hide_external_host(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}user@attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_whitespace_cannot_extend_localhost(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}.attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_encoded_dot_after_control_cannot_extend_localhost(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}%2eattacker%2ecom/x")
+        assert len(violations) == 1
+        assert "%2eattacker%2ecom" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_plain_control_authority_continuation_is_validated(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://example.com{control}pany/x")
+        assert len(violations) == 1
+        assert "example.com" in violations[0]
+        assert control not in violations[0]
+
+    def test_blank_line_after_reserved_url_is_text_boundary(self) -> None:
+        text = "Visit https://demo.example.org.\n\nAll demo systems use reserved targets."
+        assert validate_content_safety(text) == []
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_inside_url_scheme_cannot_hide_external_host(self, control: str) -> None:
+        violations = validate_content_safety(f"GET htt{control}p://attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_inside_url_separators_cannot_hide_external_host(self, control: str) -> None:
+        samples = (
+            f"http:{control}//attacker.com/x",
+            f"http:/{control}/attacker.com/x",
+        )
+        for sample in samples:
+            violations = validate_content_safety(f"GET {sample}")
+            assert len(violations) == 1
+            assert "attacker.com" in violations[0]
+            assert control not in violations[0]
+
+    def test_control_obfuscated_scheme_to_reserved_host_remains_allowed(self) -> None:
+        assert validate_content_safety("GET htt\np://localhost/x") == []
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:attacker.com/x",
+            "http:/attacker.com/x",
+            r"http:\\attacker.com/x",
+            r"http:\\\\attacker.com/x",
+            "http:////attacker.com/x",
+        ],
+    )
+    def test_special_scheme_separator_variants_reject_external_host(self, url: str) -> None:
+        violations = validate_content_safety(f"GET {url}")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:\n\n//attacker.com/x",
+            "http:\r\n\r\n//attacker.com/x",
+        ],
+    )
+    def test_repeated_separator_controls_reject_external_host(self, url: str) -> None:
+        violations = validate_content_safety(f"GET {url}")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\n" not in violations[0]
+        assert "\r" not in violations[0]
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:localhost/x",
+            "http:/localhost/x",
+            r"http:\\localhost/x",
+            "http:////localhost/x",
+        ],
+    )
+    def test_special_scheme_separator_variants_allow_reserved_host(self, url: str) -> None:
+        assert validate_content_safety(f"GET {url}") == []
+
+    def test_control_and_backslash_combination_is_rejected(self) -> None:
+        violations = validate_content_safety("GET http://localhost\tattacker.com\\@localhost/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\t" not in violations[0]
