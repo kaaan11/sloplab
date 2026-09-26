@@ -242,6 +242,7 @@ def test_analysis_bound_path_with_nul_is_actionable_boundary_error(tmp_path: Pat
     with pytest.raises(AnalysisError, match="analysis records_path is not a valid path"):
         read_versioned_analysis(marker)
 
+
 def test_valid_in_root_paths_still_work(tmp_path: Path) -> None:
     out_dir = _published_run(tmp_path, "path-valid")
     document = read_versioned_analysis(out_dir / analysis_filename())
