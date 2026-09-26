@@ -85,8 +85,9 @@ class TestGraphExtraction:
 
     def test_missing_boundary_is_missing_support_not_contradiction(self) -> None:
         text = VALID_BODY.replace(
+            "## Expected Security Boundary\n\n"
             "Object reads must be scoped to the caller's tenant; cross-tenant reads require\n"
-            "tenant-scoped authorization.",
+            "tenant-scoped authorization.\n\n",
             "",
         )
         result = evaluate(text)
@@ -110,7 +111,8 @@ class TestGraphExtraction:
 
     def test_missing_observation_is_missing_support_not_contradiction(self) -> None:
         text = VALID_BODY.replace(
-            "Tenant B's document content is returned to the tenant A session.",
+            "## Observed Result\n\n"
+            "Tenant B's document content is returned to the tenant A session.\n\n",
             "",
         )
         result = evaluate(text)
