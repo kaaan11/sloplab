@@ -105,6 +105,42 @@ class TestCanonicalHandling:
         result = evaluate(VALID_BODY)
         assert result.decision == Decision.ACCEPT
 
+    def test_conditional_boundary_marker_after_negation_routes_to_review(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed if the request stays within one tenant.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_distant_condition_in_same_sentence_is_not_window_limited(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If the optional same-tenant profile is selected and all documented tenant "
+            "controls remain active throughout this intentionally long explanatory clause, "
+            "no security boundary between tenants is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_conditional_negation_does_not_mask_unconditional_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed if the request stays within one "
+            "tenant. There is no security boundary between tenant A and tenant B.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+
     def test_no_boundary_report_rejected(self) -> None:
         result = evaluate(INVALID_BODY)
         assert result.decision == Decision.REJECT
