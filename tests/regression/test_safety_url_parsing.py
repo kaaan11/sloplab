@@ -82,6 +82,27 @@ def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
     assert find_unsafe_urls(text) == []
 
 
+@pytest.mark.parametrize("delimiter", ['"', "'", "`", "(", ")", "<", ">"])
+def test_authority_delimiter_before_userinfo_cannot_hide_external_host(delimiter: str) -> None:
+    url = f"http://localhost{delimiter}@attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '"http://localhost"',
+        "'https://example.org'",
+        "`http://127.0.0.1`",
+        "<https://example.com>",
+        "(http://localhost)",
+    ],
+)
+def test_prose_delimiters_without_userinfo_remain_boundaries(text: str) -> None:
+    assert find_unsafe_urls(text) == []
+
+
 @pytest.mark.parametrize(
     "text", ["**http://localhost**", "__https://example.org__", "~~http://127.0.0.1~~"]
 )
