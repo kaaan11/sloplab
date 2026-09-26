@@ -156,6 +156,15 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
     for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
         marker_depth = _paren_depth(paragraph, marker.start())
         if marker_depth != match_depth:
+            # A parenthetical that begins with the conditional marker and
+            # follows the denial can qualify that denial directly:
+            # "no boundary applies (if the plugin is disabled)". Do not treat
+            # arbitrary nested prose such as "(contact support if ...)" as a
+            # qualifier merely because it contains a later marker.
+            if marker_depth == match_depth + 1 and marker.start() >= match_rel:
+                open_paren = paragraph.rfind("(", match_rel, marker.start() + 1)
+                if open_paren >= match_rel and not paragraph[open_paren + 1 : marker.start()].strip():
+                    return True
             continue
         if marker.start() < match_rel:
             between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
