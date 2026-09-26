@@ -91,6 +91,35 @@ def validate_derived_fixture(fixture: DerivedFixture, result: ValidationResult) 
         result.error(loc, f"invalid parent_id '{fixture.manifest.parent_id}'")
 
 
+def validate_identity_links(
+    canonical: list[CanonicalFixture],
+    derived: list[DerivedFixture],
+    result: ValidationResult,
+) -> None:
+    """Validate corpus-wide fixture identity uniqueness and parent references."""
+    seen_canonical: dict[str, CanonicalFixture] = {}
+    for fixture in canonical:
+        fixture_id = fixture.manifest.id
+        first = seen_canonical.get(fixture_id)
+        if first is None:
+            seen_canonical[fixture_id] = fixture
+            continue
+        result.error(
+            str(fixture.directory),
+            f"duplicate canonical id '{fixture_id}'; "
+            f"first declared at '{first.directory}'",
+        )
+
+    canonical_ids = set(seen_canonical)
+    for fixture in derived:
+        parent_id = fixture.manifest.parent_id
+        if parent_id not in canonical_ids:
+            result.error(
+                str(fixture.directory),
+                f"parent_id '{parent_id}' does not reference a canonical fixture in this corpus",
+            )
+
+
 def validate_pairing(canonical: list[CanonicalFixture], result: ValidationResult) -> None:
     pairs: dict[str, list[str]] = {}
     for fixture in canonical:
@@ -117,6 +146,7 @@ def validate_corpus(
         validate_canonical_fixture(canon, result)
     for derived_case in derived:
         validate_derived_fixture(derived_case, result)
+    validate_identity_links(canonical, derived, result)
     validate_pairing(canonical, result)
     _ = corpus_root
     return result
