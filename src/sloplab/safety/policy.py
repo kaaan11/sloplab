@@ -48,7 +48,11 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
-_URL_SCHEME_RE = re.compile(r"https?://", re.IGNORECASE)
+_URL_SCHEME_RE = re.compile(
+    r"h[\t\r\n]*t[\t\r\n]*t[\t\r\n]*p[\t\r\n]*"
+    r"(?:s[\t\r\n]*)?:[\t\r\n]*/[\t\r\n]*/",
+    re.IGNORECASE,
+)
 _AUTHORITY_DELIMITERS = frozenset(" \f\v/?#)>`")
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
@@ -88,7 +92,7 @@ def _control_authority_candidates(text: str) -> list[str]:
     candidates: list[str] = []
     for match in _URL_SCHEME_RE.finditer(text):
         cursor = match.end()
-        saw_control = False
+        saw_control = any(char in "\t\r\n" for char in match.group(0))
         while cursor < len(text):
             char = text[cursor]
             if char in _AUTHORITY_DELIMITERS:
