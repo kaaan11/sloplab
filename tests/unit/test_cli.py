@@ -85,6 +85,8 @@ def test_compare_hashes_non_utf8_posix_path(tmp_path) -> None:  # type: ignore[n
     assert result.exit_code == 0, result.output
     expected = __import__("hashlib").sha256(os.fsencode(root.resolve())).hexdigest()[:8]
     assert expected in result.output
+    assert r"results-\xff" in result.output
+    assert "\udcff" not in result.output
 
 
 def test_compare_preserves_distinct_long_evaluator_labels(tmp_path) -> None:  # type: ignore[no-untyped-def]
