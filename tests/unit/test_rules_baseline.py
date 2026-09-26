@@ -174,6 +174,18 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
 
+    @pytest.mark.parametrize("prefix", ["- ", "> ", "1. ", "> - "])
+    def test_markdown_prefix_before_if_starts_conditional_clause(self, prefix: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"{prefix}If legacy mode is enabled, no security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     def test_conditional_negation_does_not_mask_unconditional_negation(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -212,6 +224,18 @@ class TestCanonicalHandling:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             'If this is unexpected, contact support. "No security boundary applies."',
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_sentence_break_before_closing_quote_is_preserved(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            'If this is unexpected, the dialog says "Contact support." '
+            "No security boundary applies.",
         )
         result = evaluate(text)
         assert result.decision == Decision.REJECT
