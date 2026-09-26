@@ -119,7 +119,7 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
-_LEADING_CONDITION_BARRIER_RE = re.compile(
+_SENTENCE_BREAK_RE = re.compile(
     r";|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))|\n\s*\n"
 )
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
@@ -131,7 +131,18 @@ _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
     r"^\s*(?:(?:only|even|especially)\s+)?$",
     re.IGNORECASE,
 )
+_CLAUSE_START_RE = re.compile(
+    r";|:|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))"
+)
 
+
+def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
+    """Whether a leading conditional marker starts its own clause."""
+    clause_start = 0
+    for boundary in _CLAUSE_START_RE.finditer(paragraph, 0, marker_start):
+        clause_start = boundary.end()
+    prefix = paragraph[clause_start:marker_start].strip().casefold()
+    return prefix in {"", "and", "but", "or"}
 
 def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
     """Return absolute blank-line-delimited bounds containing the match."""
@@ -181,11 +192,10 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                     return True
             continue
         if marker.start() < match_rel:
+            if not _marker_starts_clause(paragraph, marker.start()):
+                continue
             between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
-            if not (
-                _LEADING_CONDITION_BARRIER_RE.search(between)
-                or _POSTFIX_FOLLOWUP_RE.search(between)
-            ):
+            if not _SENTENCE_BREAK_RE.search(between):
                 return True
             continue
 
