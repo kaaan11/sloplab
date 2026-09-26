@@ -140,7 +140,7 @@ class ProfessionalizeLanguage:
                     chunk = pattern.sub(partial(_match_case, replacement=new), chunk)
                     if f"register:{old}" not in applied:
                         applied.append(f"register:{old}")
-            return chunk.replace("!", ".").replace("!!", ".")
+            return re.sub(r"!+", ".", chunk)
 
         text = _rewrite_unfenced(text, _apply_contractions_and_register)
 
@@ -214,7 +214,7 @@ class ConfidenceOverstatement:
         # Each hedge pattern replaces at most its first occurrence, scanning
         # unfenced prose in reading order; fenced code is never rewritten.
         for old, new in self._HEDGES:
-            pattern = re.compile(re.escape(old), re.IGNORECASE)
+            pattern = re.compile(r"(?<!\w)" + re.escape(old) + r"(?!\w)", re.IGNORECASE)
             chunks = split_code_fences(text)
             replaced = False
             rebuilt: list[str] = []

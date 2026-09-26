@@ -152,6 +152,25 @@ class TestOperatorBehavior:
         impact_text = _section(mutated, r"impact")
         assert "critical" in impact_text.lower()
 
+    def test_impact_inflation_ignores_non_impacted_heading(self) -> None:
+        text = """# T
+
+## Non-Impacted Systems
+
+The backup service is explicitly not impacted.
+
+## Impact
+
+Low impact on demo data.
+"""
+        doc = parse_report(text, fixture_id="canonical-impact-001", path="x")
+        mutated, _ = ImpactInflation().apply(doc, random.Random(7))
+        non_impacted = _section(mutated, r"^Non-Impacted Systems$")
+        impact = _section(mutated, r"^Impact$")
+
+        assert "explicitly not impacted" in non_impacted
+        assert "critical" in impact.lower()
+
     def test_scope_expansion_claims_more(self, valid_report: Any) -> None:
         doc = valid_report
         mutated, params = ScopeExpansion().apply(doc, random.Random(7))
@@ -173,6 +192,15 @@ class TestOperatorBehavior:
             assert token in mutated or token.lower() in mutated.lower()
         assert isinstance(params["transformations"], list)
 
+    def test_professionalize_collapses_exclamation_run_to_single_period(self) -> None:
+        text = "# T\n\n## Summary\n\nThis is broken!! Another issue!\n"
+        doc = parse_report(text, fixture_id="canonical-punct-001", path="x")
+        mutated, _ = ProfessionalizeLanguage().apply(doc, random.Random(7))
+
+        assert "!!" not in mutated
+        assert ".." not in mutated
+        assert "functionally incorrect." in mutated
+
     def test_confidence_overstatement_hardens_hedges(self) -> None:
 
         text = "# T\n\n## Summary\n\nThis may allow an attacker.\n"
@@ -181,6 +209,18 @@ class TestOperatorBehavior:
         assert "may allow" not in mutated
         assert "allows" in mutated
         assert params["certainty_upgrades"]
+
+    def test_confidence_overstatement_matches_likely_as_whole_word(self) -> None:
+        text = (
+            "# T\n\n## Summary\n\n"
+            "An unlikely outcome has low likelihood. This is likely exploitable.\n"
+        )
+        doc = parse_report(text, fixture_id="canonical-likely-001", path="x")
+        mutated, _ = ConfidenceOverstatement().apply(doc, random.Random(7))
+
+        assert "unlikely" in mutated.lower()
+        assert "likelihood" in mutated.lower()
+        assert "certainly exploitable" in mutated.lower()
 
 
 class TestSafetyOfOutputs:
