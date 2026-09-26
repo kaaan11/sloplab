@@ -120,8 +120,7 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
 _CLAUSE_BARRIER_RE = re.compile(
-    r";|--|—|\b(?:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n",
-    re.IGNORECASE,
+    r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n"
 )
 
 
