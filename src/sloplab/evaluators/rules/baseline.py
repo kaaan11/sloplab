@@ -119,21 +119,32 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
-_SENTENCE_BREAK_RE = re.compile(r";|--|—|[!?](?=\s|$)|\.(?=\s+(?:[\"'“‘(]*[A-Z]|$))|\n\s*\n")
+_SENTENCE_CLOSERS = r"[\"'”’)]*"
+_SENTENCE_OPENERS = r"[\"'“‘(]*"
+_SENTENCE_BREAK_RE = re.compile(
+    rf";|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))|\n\s*\n"
+)
 _INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
 _SENTENCE_START_AFTER_INITIALISM_RE = re.compile(
     r"^\s*(?:[\"'“‘(]*)(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
 )
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
-    r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|"
-    r"\.(?=\s+(?:[\"'“‘(]*[A-Z]|$))|\n\s*\n"
+    rf";|--|—|\b(?i:but|however|yet)\b|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))|\n\s*\n"
 )
 _POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
 _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
     r"^\s*(?:(?:only|even|especially)\s+)?$",
     re.IGNORECASE,
 )
-_CLAUSE_START_RE = re.compile(r";|:|--|—|[!?](?=\s|$)|\.(?=\s+(?:[\"'“‘(]*[A-Z]|$))")
+_CLAUSE_START_RE = re.compile(
+    rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))"
+)
+_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(
+    r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?"
+)
 
 
 def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
@@ -141,7 +152,8 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     clause_start = 0
     for boundary in _CLAUSE_START_RE.finditer(paragraph, 0, marker_start):
         clause_start = boundary.end()
-    prefix = paragraph[clause_start:marker_start].strip().casefold()
+    prefix_raw = paragraph[clause_start:marker_start].strip()
+    prefix = _MARKDOWN_CLAUSE_PREFIX_RE.sub("", prefix_raw).strip().casefold()
     if prefix in {"", "and", "but", "or", "only", "even", "especially"}:
         return True
     parts = prefix.split()
