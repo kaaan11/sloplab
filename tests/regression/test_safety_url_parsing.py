@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from sloplab.safety.policy import find_real_year_cves, find_unsafe_urls, validate_content_safety
+from sloplab.safety.policy import (
+    _iter_url_tokens,
+    find_real_year_cves,
+    find_unsafe_urls,
+    validate_content_safety,
+)
 
 
 def test_url_userinfo_does_not_hide_external_hostname() -> None:
@@ -76,6 +81,12 @@ def test_closing_bracket_separates_adjacent_urls() -> None:
 def test_many_unmatched_closing_brackets_do_not_change_url_detection() -> None:
     text = "https://example.org/path" + ("]" * 10_000) + "https://attacker.com/end"
     assert find_unsafe_urls(text) == ["https://attacker.com/end"]
+
+
+def test_embedded_scheme_starts_do_not_rescan_same_url_token() -> None:
+    text = "https://example.org/" + ("https://example.org/" * 2_000)
+    assert list(_iter_url_tokens(text)) == [text]
+    assert find_unsafe_urls(text) == []
 
 
 def test_lowercase_real_year_cve_is_detected() -> None:
