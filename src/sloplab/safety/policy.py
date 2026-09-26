@@ -83,10 +83,19 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         start = match.start()
         end = match.end()
         bracket_depth = 0
+        authority_done = False
         scan = match.end()
         while scan < len(text):
             char = text[scan]
-            if char.isspace() or char in _URL_STOP_CHARS:
+            if char.isspace():
+                # WHATWG-style consumers discard TAB/CR/LF inside a URL. Keep
+                # those controls inside the candidate while we are still in the
+                # authority so a safe-looking prefix cannot hide an external
+                # continuation. Once a path/query/fragment has started, controls
+                # cannot change the hostname and remain ordinary text delimiters.
+                if char not in _URL_CONTROL_WHITESPACE or authority_done:
+                    break
+            if char in _URL_STOP_CHARS:
                 break
             if char == "[":
                 bracket_depth += 1
@@ -94,6 +103,8 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 if bracket_depth == 0:
                     break
                 bracket_depth -= 1
+            elif bracket_depth == 0 and char in "/?#":
+                authority_done = True
             scan += 1
             end = scan
         token = text[start:end].rstrip(_TRAILING_URL_PUNCTUATION)
@@ -108,7 +119,7 @@ def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
     for url in _iter_url_tokens(text):
-        if "\\" in url:
+        if "\\" in url or any(control in url for control in _URL_CONTROL_WHITESPACE):
             unsafe.add(url)
             continue
         try:
