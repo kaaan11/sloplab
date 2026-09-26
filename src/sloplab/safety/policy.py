@@ -50,7 +50,7 @@ _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
 _URL_AUTHORITY_CONTROL_RE = re.compile(
     r"https?://[^\x20\t\r\n\f\v/?#)>`]*[\t\r\n]+"
-    r"(?=[^\x20\f\v/?#)>`]*(?:@|\\|\.[A-Za-z0-9]))"
+    r"(?=[^\x20\f\v/?#)>`]*(?:@|\\|%[0-9A-Fa-f]{2}|\.[A-Za-z0-9]))"
     r"[^\x20\f\v/?#)>`]+",
     re.IGNORECASE,
 )
@@ -81,7 +81,7 @@ def find_real_year_cves(text: str) -> list[str]:
 
 def _trim_url_candidate(url: str) -> str:
     """Remove prose delimiters without damaging a balanced bracketed IPv6 host."""
-    url = url.rstrip(".,;!?'\"")
+    url = url.rstrip(".,;!?'\"*_~")
     while url.endswith("]") and url.count("]") > url.count("["):
         url = url[:-1]
     return url
