@@ -177,6 +177,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  {outcome['case_id']} (repeat {outcome['repeat_index']}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
     print(
+        "not run: "
+        f"budget {result.skipped_by_budget}, "
+        f"deadline {result.skipped_by_deadline}"
+    )
+    print(
         "requests used: "
         f"{result.counters.get('physical_dispatches', 0)} "
         f"(errors {result.counters.get('errors', 0)}, timeouts "
