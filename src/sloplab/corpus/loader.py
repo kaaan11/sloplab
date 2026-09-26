@@ -79,7 +79,9 @@ def _load_report_document(
     try:
         resolved = resolve_within_root(corpus_root, report_rel_path, label="report.path")
     except PathBoundaryError as exc:
-        raise FixtureError(f"{manifest_path}: {exc}") from exc
+        raise FixtureError(
+            f"{manifest_path}: report.path escapes corpus root: {report_rel_path}"
+        ) from exc
     if not resolved.is_file():
         raise FixtureError(
             f"{manifest_path}: 'report.path' points to missing file '{report_rel_path}' "
