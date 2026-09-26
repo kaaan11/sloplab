@@ -203,6 +203,45 @@ def test_analysis_bound_path_cannot_escape_bundle(tmp_path: Path, binding: str, 
         read_versioned_analysis(marker)
 
 
+def test_suite_manifest_path_with_nul_is_actionable_boundary_error(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    write_canonical_fixture(
+        corpus, "parent-001", fixture_id="canonical-parent-001", title="Parent report"
+    )
+    materialized = tmp_path / "materialized"
+    materialized.mkdir()
+    index = materialized / "suite-index.jsonl"
+    index.write_text(
+        json.dumps({"record_type": "suite_header"})
+        + "\n"
+        + json.dumps(
+            {
+                "record_type": "suite_case",
+                "kind": "mutated",
+                "case_id": "mut-boundary-001",
+                "manifest_path": "bad\\u0000name",
+                "report_class": "valid",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(FixtureError, match="suite manifest_path is not a valid path"):
+        build_cases(index, corpus, materialized)
+
+
+def test_analysis_bound_path_with_nul_is_actionable_boundary_error(tmp_path: Path) -> None:
+    out_dir = _published_run(tmp_path, "path-nul")
+    marker = out_dir / analysis_filename()
+    document = json.loads(marker.read_text(encoding="utf-8"))
+    document["records_path"] = "bad\\u0000name"
+    marker.write_text(json.dumps(document, sort_keys=True), encoding="utf-8")
+    write_completion(out_dir, kind="study")
+
+    with pytest.raises(AnalysisError, match="analysis records_path is not a valid path"):
+        read_versioned_analysis(marker)
+
 def test_valid_in_root_paths_still_work(tmp_path: Path) -> None:
     out_dir = _published_run(tmp_path, "path-valid")
     document = read_versioned_analysis(out_dir / analysis_filename())
