@@ -114,11 +114,14 @@ def run_deterministic_study(
     # materialization/evaluation runs. Provenance must describe this copy too.
     config = config.model_copy(deep=True)
     preflight_study_config(config)
+    started_at = utc_now_iso()
     # Open the publish cycle before any output mutation: an interrupted runner
     # leaves an in-progress marker, never a legacy-shaped silent partial.
     from sloplab.experiments.bundle import begin_publish
 
     begin_publish(out_dir, kind="study")
+    outcomes_path = out_dir / "outcomes.jsonl"
+    outcomes_path.unlink(missing_ok=True)
     anchors = [Path.cwd(), *study_config_path.absolute().parents]
     suite_yaml_path = resolve_against_anchors(config.suite.config_path, anchors)
 
@@ -191,6 +194,7 @@ def run_deterministic_study(
         evaluator_hashes[spec.name] = sha256_text(json.dumps(dict(spec.config), sort_keys=True))
 
     records_jsonl = "".join(line + "\n" for line in record_lines)
+    finished_at = utc_now_iso()
 
     # 3. provenance manifest.
     provenance = ExperimentProvenance(
@@ -203,8 +207,9 @@ def run_deterministic_study(
         repeat_index=config.repeat_index,
         evaluators=evaluator_infos,
         evaluator_config_hashes=evaluator_hashes,
-        started_at=utc_now_iso(),
-        finished_at=utc_now_iso(),
+        started_at=started_at,
+        finished_at=finished_at,
+        error_count=len(failed_outcomes),
     )
     manifest_path, records_path = write_run_bundle(out_dir, provenance, records_jsonl)
 
@@ -212,7 +217,6 @@ def run_deterministic_study(
     # they surface here as outcome rows (present only when failures exist),
     # covered by the publish completion marker downstream.
     if failed_outcomes:
-        outcomes_path = out_dir / "outcomes.jsonl"
         outcomes_path.write_text(
             "".join(json.dumps(row, sort_keys=True) + "\n" for row in failed_outcomes),
             encoding="utf-8",
