@@ -97,9 +97,16 @@ def test_bare_safe_url_before_plain_prose_line_is_not_merged() -> None:
     [
         "http://localhost\r\n.attacker.com/x",
         "http://localhost\nattacker.com/x",
+        "http://localhost\n\nattacker.com/x",
+        "http://localhost\n\t\nattacker.com/x",
     ],
 )
-def test_single_linebreak_with_authority_like_continuation_is_rejected(url: str) -> None:
+def test_linebreak_run_with_authority_like_continuation_is_rejected(url: str) -> None:
+    assert find_unsafe_urls(url) == [url]
+
+
+def test_long_tab_run_before_authority_continuation_is_rejected() -> None:
+    url = "http://localhost" + ("\t" * 8_000) + ".attacker.com/x"
     assert find_unsafe_urls(url) == [url]
 
 
