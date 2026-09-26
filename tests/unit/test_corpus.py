@@ -243,3 +243,18 @@ class TestSafetyPolicy:
         assert len(violations) == 1
         assert "attacker.com" in violations[0]
         assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_whitespace_cannot_extend_localhost(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}.attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    def test_control_and_backslash_combination_is_rejected(self) -> None:
+        violations = validate_content_safety(
+            "GET http://localhost\tattacker.com\\@localhost/x"
+        )
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\t" not in violations[0]
