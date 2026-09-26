@@ -26,7 +26,7 @@ a scanner, or an exploit framework.
 - Applies controlled, traceable mutations (12 deterministic operators in V1).
 - Runs pluggable evaluators through a normalized contract.
 - Measures how much each mutation degrades triage decisions.
-- Produces reproducible JSONL / CSV / Markdown benchmark reports.
+- Produces reproducible JSONL / CSV / Markdown / offline HTML benchmark reports.
 
 ## What it deliberately does not do
 
@@ -58,6 +58,14 @@ sloplab report benchmarks/results/my-run/run.jsonl
 `report`/`compare` print `note: ... is a legacy bundle without integrity guarantees`.
 That note is expected here. Integrity-marked bundles (completion marker and hash
 verification) are written by `sloplab study` and the LLM pilot.
+
+Bring your own **trusted local Python evaluator**, alongside the baseline, without
+editing SlopLab source. See the [five-minute BYOE guide](docs/bring-your-own-evaluator.md).
+
+```bash
+uv run sloplab benchmark benchmarks/suites/v1-core.yaml --evaluator rules-baseline --evaluator-module examples/my_evaluator.py:make --out /tmp/byoe
+uv run sloplab report /tmp/byoe/run.jsonl --format html --out /tmp/byoe/report.html
+```
 
 ## Optional Report Builder
 

@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
 import click
 
 from sloplab import __version__
+from sloplab.evaluators.base import Evaluator
 from sloplab.experiments.bundle import BundleError, open_result_dir
 from sloplab.scoring.metrics import MetricBundle
 
@@ -193,7 +195,7 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
 
 
 def _run_evaluators_over_suite(
-    evaluators: tuple[str, ...],
+    evaluators: Sequence[Evaluator | str],
     index_path: Path,
     corpus_root: Path,
     materialized_root: Path,
@@ -204,50 +206,89 @@ def _run_evaluators_over_suite(
     import json
 
     from sloplab.evaluators.base import get_evaluator
-    from sloplab.models.run import EvaluatorInfo
+    from sloplab.models.run import CaseRecord, EvaluatorInfo
+    from sloplab.reporting.outcomes import (
+        OUTCOMES_HASH_KEY,
+        OUTCOMES_NAME,
+        safe_error_kind,
+        write_failure_outcomes,
+    )
     from sloplab.reporting.writers import (
         default_run_metadata,
         write_run_jsonl,
     )
-    from sloplab.scoring.harness import build_cases, run_suite_with_outcomes
+    from sloplab.scoring.harness import CaseOutcome, build_cases, run_suite_with_outcomes
     from sloplab.scoring.metrics import compute_metrics
 
     cases = build_cases(index_path, corpus_root, materialized_root)
     out_dir.mkdir(parents=True, exist_ok=True)
-    records: list[Any] = []
+    records: list[CaseRecord] = []
+    failures: list[CaseOutcome] = []
     infos: list[EvaluatorInfo] = []
     bundles: list[Any] = []
 
-    for evaluator_name in evaluators:
-        evaluator = get_evaluator(evaluator_name)
-        run_records, failed = run_suite_with_outcomes(evaluator, cases)
+    for selected in evaluators:
+        # Names remain supported for existing internal callers. CLI selection
+        # resolves all imports/collisions before any output or evaluation begins.
+        evaluator = get_evaluator(selected) if isinstance(selected, str) else selected
+        from sloplab.evaluators.external import ExternalEvaluatorError
+
+        try:
+            run_records, failed = run_suite_with_outcomes(evaluator, cases)
+        except ExternalEvaluatorError as exc:
+            raise click.ClickException(str(exc)) from exc
         for outcome in failed:
             assert outcome.failure is not None
             click.echo(
-                f"FAILED-EVAL ({outcome.failure.error_kind}): "
+                f"FAILED-EVAL ({safe_error_kind(outcome.failure.error_kind)}): "
                 f"{outcome.case_id} by {outcome.evaluator_name} — "
                 "isolated, not scored",
                 err=True,
             )
         records.extend(run_records)
+        failures.extend(failed)
         infos.append(EvaluatorInfo(name=evaluator.name, version=evaluator.version))
         bundle = compute_metrics(run_records, evaluator.name)
         bundles.append(bundle)
 
-        metrics_path = out_dir / f"metrics-{evaluator_name}.json"
+        metrics_path = out_dir / _metrics_filename(evaluator.name)
         from sloplab.reporting.writers import metrics_to_dict
 
         metrics_path.write_text(json.dumps(metrics_to_dict(bundle), indent=2), encoding="utf-8")
 
+    outcomes_hash = write_failure_outcomes(out_dir / OUTCOMES_NAME, failures)
     metadata = default_run_metadata(
         suite_name=suite_name,
         base_seed=base_seed,
         evaluators=infos,
-        suite_config={"index": str(index_path), "corpus_root": str(corpus_root)},
+        suite_config={
+            "index": str(index_path),
+            "corpus_root": str(corpus_root),
+            OUTCOMES_HASH_KEY: outcomes_hash,
+        },
         suite_hash=_hash_file(index_path),
     )
     write_run_jsonl(out_dir / "run.jsonl", metadata, records)
     return bundles
+
+
+def _metrics_filename(name: str) -> str:
+    """Keep established built-in filenames; external names are not filesystem paths."""
+    import hashlib
+    import re
+
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_.-]{0,79}", name) or name.startswith("sha256-"):
+        name = "sha256-" + hashlib.sha256(name.encode("utf-8")).hexdigest()
+    return f"metrics-{name}.json"
+
+
+def _select_evaluators(names: tuple[str, ...], modules: tuple[str, ...]) -> list[Evaluator]:
+    from sloplab.evaluators.external import ExternalEvaluatorError, resolve_evaluators
+
+    try:
+        return resolve_evaluators(names, modules)
+    except ExternalEvaluatorError as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
@@ -282,18 +323,29 @@ def _hash_file(path: Path) -> str:
 
 @cli.command()
 @click.argument("cases", type=click.Path(exists=True, path_type=str))
-@click.option("--evaluator", "evaluators", multiple=True, required=True)
+@click.option(
+    "--evaluator", "evaluators", multiple=True, help="Built-in evaluator name; repeatable."
+)
+@click.option(
+    "--evaluator-module",
+    "evaluator_modules",
+    multiple=True,
+    help="Trusted local Python FILE.py:ATTR or MODULE:ATTR; repeatable, not sandboxed.",
+)
 @click.option("--out", type=click.Path(path_type=str), required=True)
-def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
+def evaluate(
+    cases: str, evaluators: tuple[str, ...], out: str, evaluator_modules: tuple[str, ...] = ()
+) -> None:
     """Run evaluators over a materialized suite (directory with suite-index.jsonl)."""
     from pathlib import Path as _Path
 
     from sloplab.reporting.writers import write_markdown_report
 
+    selected = _select_evaluators(evaluators, evaluator_modules)
     index_path, corpus_root, materialized_root = _resolve_suite_index(cases)
     out_dir = _Path(out)
     bundles = _run_evaluators_over_suite(
-        evaluators, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
+        selected, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
     )
     write_markdown_report(out_dir / "report.md", bundles, "SlopLab evaluation results")
     click.echo(f"wrote {out_dir / 'run.jsonl'}, metrics and report.md")
@@ -301,7 +353,15 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
 
 @cli.command()
 @click.argument("suite", type=click.Path(exists=True, path_type=str))
-@click.option("--evaluator", "evaluators", multiple=True, required=True)
+@click.option(
+    "--evaluator", "evaluators", multiple=True, help="Built-in evaluator name; repeatable."
+)
+@click.option(
+    "--evaluator-module",
+    "evaluator_modules",
+    multiple=True,
+    help="Trusted local Python FILE.py:ATTR or MODULE:ATTR; repeatable, not sandboxed.",
+)
 @click.option("--out", type=click.Path(path_type=str), required=True)
 @click.option(
     "--materialize/--no-materialize",
@@ -309,7 +369,13 @@ def evaluate(cases: str, evaluators: tuple[str, ...], out: str) -> None:
     default=True,
     help="Re-materialize the suite before evaluating.",
 )
-def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize: bool) -> None:
+def benchmark(
+    suite: str,
+    evaluators: tuple[str, ...],
+    out: str,
+    do_materialize: bool,
+    evaluator_modules: tuple[str, ...] = (),
+) -> None:
     """Materialize and evaluate a full suite, then score it."""
     from pathlib import Path as _Path
 
@@ -317,6 +383,7 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
     from sloplab.mutations.materialize import SUITE_INDEX_NAME, load_suite_config, materialize_suite
     from sloplab.reporting.writers import write_markdown_report, write_records_csv
 
+    selected = _select_evaluators(evaluators, evaluator_modules)
     suite_path = _Path(suite)
     config = load_suite_config(suite_path)
     out_dir = _Path(out)
@@ -340,7 +407,7 @@ def benchmark(suite: str, evaluators: tuple[str, ...], out: str, do_materialize:
 
     index_path = out_dir / SUITE_INDEX_NAME
     bundles = _run_evaluators_over_suite(
-        evaluators,
+        selected,
         index_path,
         corpus_root,
         out_dir,
@@ -618,7 +685,7 @@ def compare(results: tuple[str, ...]) -> None:
 
 @cli.command()
 @click.argument("results", type=click.Path(exists=True, path_type=str))
-@click.option("--format", "fmt", type=click.Choice(["markdown"]), default="markdown")
+@click.option("--format", "fmt", type=click.Choice(["markdown", "html"]), default="markdown")
 @click.option("--out", type=click.Path(path_type=str), default=None)
 @click.option(
     "--analysis",
@@ -631,12 +698,29 @@ def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -
     """Render a human-readable report from a run.jsonl file."""
     from pathlib import Path as _Path
 
-    _ = fmt
     from sloplab.reporting.writers import read_run_jsonl, write_markdown_report
     from sloplab.scoring.metrics import compute_metrics
 
+    if fmt == "html":
+        if analysis_path is not None:
+            raise click.ClickException(
+                "HTML reporting currently requires run.jsonl because operator breakdown "
+                "and execution outcomes are not fully represented in the analysis artifact. "
+                "Omit --analysis, or use --format markdown."
+            )
+        from sloplab.reporting.html import write_html_report
+
+        try:
+            rendered = write_html_report(
+                _Path(results), _Path(out) if out else _Path(results).parent / "report.html"
+            )
+        except (ValueError, OSError) as exc:
+            raise click.ClickException(str(exc)) from exc
+        click.echo(f"wrote offline HTML report: {rendered}")
+        return
+
     if analysis_path is not None:
-        # Same verified analysis compare consumes: no recomputation, no drift.
+        # Same verified analysis report consumes: no recomputation, no drift.
         from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
 
         try:
