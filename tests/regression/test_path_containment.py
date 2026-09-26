@@ -120,6 +120,18 @@ def test_suite_index_manifest_symlink_cannot_escape_materialized_root(tmp_path: 
         build_cases(index, corpus, materialized)
 
 
+def test_suite_index_manifest_path_must_identify_manifest_file(tmp_path: Path) -> None:
+    corpus = tmp_path / "corpus"
+    corpus.mkdir()
+    materialized = tmp_path / "materialized"
+    materialized.mkdir()
+    index = materialized / "suite-index.jsonl"
+    _write_index(index, ".")
+
+    with pytest.raises(FixtureError, match="must reference mutation-manifest.yaml"):
+        build_cases(index, corpus, materialized)
+
+
 def _analysis_document(
     records_path: str, records_file: Path, *, outcomes: dict[str, Any]
 ) -> dict[str, Any]:

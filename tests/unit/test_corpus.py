@@ -213,3 +213,12 @@ class TestSafetyPolicy:
 
     def test_lowercase_fake_year_cve_allowed(self) -> None:
         assert validate_content_safety("Reference cve-2099-12345.") == []
+
+    def test_reserved_url_with_trailing_prose_punctuation_allowed(self) -> None:
+        text = "See http://example.com, then 'http://localhost' and http://api.localhost."
+        assert validate_content_safety(text) == []
+
+    def test_external_url_with_trailing_prose_punctuation_still_rejected(self) -> None:
+        violations = validate_content_safety("See http://attacker.com, then continue.")
+        assert len(violations) == 1
+        assert "http://attacker.com" in violations[0]

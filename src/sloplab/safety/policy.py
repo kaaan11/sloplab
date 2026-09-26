@@ -73,11 +73,19 @@ def find_real_year_cves(text: str) -> list[str]:
     )
 
 
+def _trim_url_candidate(url: str) -> str:
+    """Remove prose delimiters without damaging a balanced bracketed IPv6 host."""
+    url = url.rstrip(".,;!?'\"")
+    while url.endswith("]") and url.count("]") > url.count("["):
+        url = url[:-1]
+    return url
+
+
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
-        url = match.group(0)
+        url = _trim_url_candidate(match.group(0))
         try:
             host = urlsplit(url).hostname
         except ValueError:
