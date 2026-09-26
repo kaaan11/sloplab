@@ -509,7 +509,7 @@ def test_script_and_pilot_share_ledger_accounting(
     monkeypatch.setattr(llm_bench, "HttpLLMClient", _AlwaysFail)
     out = tmp_path / "llm-bench-results.jsonl"
     rc = llm_bench.main(["--max-cases", "1", "--repeats", "1", "--out", str(out)])
-    assert rc == 0
+    assert rc == 1
     assert out.read_bytes() == b""
     bundle = tmp_path / "llm-bench-results.bundle"
     outcomes = [
