@@ -144,6 +144,7 @@ def _sentence_for_match(text: str, match: re.Match[str]) -> str:
     right = min(rights) if rights else len(text)
     return text[left + 1 : right]
 
+
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
