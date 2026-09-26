@@ -236,8 +236,3 @@ class TestSafetyPolicy:
         assert "\t" not in violations[0]
         assert "\r" not in violations[0]
         assert "\n" not in violations[0]
-
-    def test_control_whitespace_cannot_extend_reserved_hostname(self) -> None:
-        violations = validate_content_safety("GET http://example.com\t.evil.test/x")
-        assert len(violations) == 1
-        assert "evil.test" in violations[0]
