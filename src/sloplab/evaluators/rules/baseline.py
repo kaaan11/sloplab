@@ -121,6 +121,9 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
 _SENTENCE_BREAK_RE = re.compile(r";|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))|\n\s*\n")
 _INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
+_SENTENCE_START_AFTER_INITIALISM_RE = re.compile(
+    r"^\s*(?:[\"'“‘(]*)(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
+)
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
     r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|"
     r"\.(?=\s+(?:[A-Z(]|$))|\n\s*\n"
@@ -153,7 +156,9 @@ def _has_sentence_break(text: str) -> bool:
     """True when text contains a real sentence or clause boundary."""
     for boundary in _SENTENCE_BREAK_RE.finditer(text):
         if boundary.group(0) == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
-            continue
+            following = text[boundary.end() :]
+            if not _SENTENCE_START_AFTER_INITIALISM_RE.match(following):
+                continue
         return True
     return False
 
