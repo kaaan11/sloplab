@@ -335,6 +335,22 @@ class TestSafetyPolicy:
         assert "\n" not in violations[0]
         assert "\r" not in violations[0]
 
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:\n\nattacker.com/x",
+            "http:\r\n\r\nattacker.com/x",
+        ],
+    )
+    def test_repeated_scheme_controls_before_bare_authority_are_scanned(
+        self, url: str
+    ) -> None:
+        violations = validate_content_safety(f"GET {url}")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\n" not in violations[0]
+        assert "\r" not in violations[0]
+
     @pytest.mark.parametrize("control", ["\n\n", "\r\n\r\n"])
     def test_repeated_authority_controls_before_userinfo_are_scanned(self, control: str) -> None:
         violations = validate_content_safety(f"GET http://localhost{control}@attacker.com/x")
