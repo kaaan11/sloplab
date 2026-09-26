@@ -160,9 +160,7 @@ def test_span_authorization_preserves_unspaced_trailing_hash() -> None:
     assert "Impact on C#" in replace_section_body(
         doc, section, "Updated.", expected_document_identity=identity
     )
-    assert "Impact on C#" not in remove_section(
-        doc, section, expected_document_identity=identity
-    )
+    assert "Impact on C#" not in remove_section(doc, section, expected_document_identity=identity)
 
 
 def test_utf8_passthrough() -> None:
