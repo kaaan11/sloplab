@@ -86,6 +86,11 @@ def find_unsafe_urls(text: str) -> list[str]:
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
         url = _trim_url_candidate(match.group(0))
+        authority = url.split("://", 1)[1]
+        authority = re.split(r"[/\?#]", authority, maxsplit=1)[0]
+        if "\\" in authority:
+            unsafe.add(url)
+            continue
         try:
             host = urlsplit(url).hostname
         except ValueError:

@@ -222,3 +222,8 @@ class TestSafetyPolicy:
         violations = validate_content_safety("See http://attacker.com, then continue.")
         assert len(violations) == 1
         assert "http://attacker.com" in violations[0]
+
+    def test_backslash_authority_cannot_disguise_external_host(self) -> None:
+        violations = validate_content_safety(r"GET http://attacker.com\@localhost/x")
+        assert len(violations) == 1
+        assert r"http://attacker.com\@localhost/x" in violations[0]
