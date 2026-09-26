@@ -55,7 +55,7 @@ def test_canonical_report_path_cannot_escape_corpus(tmp_path: Path, mode: str) -
 
 
 def _write_outside_derived(case_dir: Path, report_path: str) -> None:
-    case_dir.mkdir(parents=True)
+    case_dir.mkdir(parents=True, exist_ok=True)
     (case_dir / "report.md").write_text("# Derived boundary case\n\nExternal.\n", encoding="utf-8")
     manifest = {
         "id": "mut-boundary-001",
@@ -117,6 +117,41 @@ def test_suite_manifest_path_cannot_escape_materialized_root(tmp_path: Path, mod
     with pytest.raises(FixtureError, match="suite manifest_path.*(relative|allowed root)"):
         build_cases(index, corpus, materialized)
 
+
+@pytest.mark.parametrize("manifest_path", [".", "child/.."])
+def test_suite_manifest_path_cannot_collapse_to_materialized_root(
+    tmp_path: Path, manifest_path: str
+) -> None:
+    corpus = tmp_path / "corpus"
+    write_canonical_fixture(
+        corpus, "parent-001", fixture_id="canonical-parent-001", title="Parent report"
+    )
+    materialized = tmp_path / "materialized"
+    materialized.mkdir()
+    (materialized / "child").mkdir()
+    (materialized / "escaped-report.md").write_text(
+        "# Derived boundary case\n\nShould not be reached.\n", encoding="utf-8"
+    )
+    _write_outside_derived(tmp_path, "escaped-report.md")
+    index = materialized / "suite-index.jsonl"
+    index.write_text(
+        json.dumps({"record_type": "suite_header"})
+        + "\n"
+        + json.dumps(
+            {
+                "record_type": "suite_case",
+                "kind": "mutated",
+                "case_id": "mut-boundary-001",
+                "manifest_path": manifest_path,
+                "report_class": "valid",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(FixtureError, match="manifest_path must name an existing"):
+        build_cases(index, corpus, materialized)
 
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
