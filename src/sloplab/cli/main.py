@@ -619,6 +619,7 @@ def compare(results: tuple[str, ...]) -> None:
     """Compare metric summaries from two or more result files."""
     import hashlib
     import json
+    import os
     from pathlib import Path as _Path
 
     if len(results) < 1:
@@ -642,7 +643,7 @@ def compare(results: tuple[str, ...]) -> None:
         if source_id in seen_sources:
             raise click.ClickException(f"duplicate compare input: {metrics_dir}")
         seen_sources.add(source_id)
-        source_token = hashlib.sha256(str(source_id).encode("utf-8")).hexdigest()[:8]
+        source_token = hashlib.sha256(os.fsencode(source_id)).hexdigest()[:8]
         source_key = str(source_id)
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
