@@ -230,9 +230,7 @@ class TestIncompleteCoverageExitCode:
 
         monkeypatch.setattr(pilot_module, "time", DeadlineClock())
         out = tmp_path / "deadline-results.jsonl"
-        rc = llm_bench.main(
-            ["--config", str(config), "--max-cases", "1", "--out", str(out)]
-        )
+        rc = llm_bench.main(["--config", str(config), "--max-cases", "1", "--out", str(out)])
 
         assert rc == 1
         printed = capsys.readouterr().out
