@@ -170,6 +170,76 @@ class TestOutputsAndProvenance:
         assert "requests used: 4" in printed
 
 
+class TestIncompleteCoverageExitCode:
+    def test_deadline_not_run_returns_nonzero(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
+    ) -> None:
+        import sloplab.experiments.pilot as pilot_module
+
+        config = tmp_path / "deadline-pilot.yaml"
+        config.write_text(
+            yaml.safe_dump(
+                {
+                    "schema_version": 2,
+                    "name": "deadline-pilot",
+                    "suite": {
+                        "config_path": "benchmarks/suites/v1-core.yaml",
+                        "corpus_root": "corpus",
+                    },
+                    "base_seed": 1,
+                    "repeats": 1,
+                    "model_env": "SLOPLAB_LLM_MODEL",
+                    "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+                    "api_key_env": "SLOPLAB_LLM_API_KEY",
+                    "prompt_file": "experiments/prompts/triage-v1.md",
+                    "budget": {
+                        "max_requests": 10,
+                        "request_timeout_s": 60,
+                        "max_retries_per_case": 0,
+                        "min_interval_ms": 0,
+                        "deadline_s": 1,
+                    },
+                    "case_selection": "canonical_first",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        class DeadlineClock:
+            def __init__(self) -> None:
+                self.values = iter([0.0, 2.0, 2.0, 2.0])
+
+            def monotonic(self) -> float:
+                return next(self.values, 2.0)
+
+            def time(self) -> float:
+                return 0.0
+
+            def gmtime(self, value: float | None = None) -> Any:
+                import time
+
+                return time.gmtime(0 if value is None else value)
+
+            def strftime(self, fmt: str, value: Any) -> str:
+                import time
+
+                return time.strftime(fmt, value)
+
+            def sleep(self, seconds: float) -> None:
+                _ = seconds
+
+        monkeypatch.setattr(pilot_module, "time", DeadlineClock())
+        out = tmp_path / "deadline-results.jsonl"
+        rc = llm_bench.main(
+            ["--config", str(config), "--max-cases", "1", "--out", str(out)]
+        )
+
+        assert rc == 1
+        printed = capsys.readouterr().out
+        assert "NOT-RUN (deadline_exceeded)" in printed
+        assert "failed evaluations: 0/0" in printed
+
+
 class TestFailureExitCode:
     def test_failed_evaluation_returns_nonzero(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
