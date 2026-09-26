@@ -183,7 +183,7 @@ def main(argv: list[str] | None = None) -> int:
         f"{result.counters.get('timeouts', 0)}) | manifest: "
         f"{result.manifest_path}"
     )
-    return 0
+    return 1 if result.failed_evaluations else 0
 
 
 if __name__ == "__main__":
