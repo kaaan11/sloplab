@@ -78,9 +78,9 @@ _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     for p in (
         r"no security boundary",
         r"does not identify one",
-        r"no boundary [^.]*crossed",
+        r"no boundary [^.?!\n]*crossed",
         r"identifies none",
-        r"no boundary between [^.?!\\n]+ is crossed",
+        r"no boundary between [^.?!\n]+ is crossed",
         r"intended behavior",
         r"product preference",
         r"hardening (opportunity|suggestion)",
@@ -122,6 +122,7 @@ _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORE
 _CLAUSE_BARRIER_RE = re.compile(
     r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n"
 )
+_POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
 
 
 def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
@@ -162,21 +163,14 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                 return True
             continue
 
-        # A trailing marker may follow a short lexical match such as
-        # "no security boundary" while still governing the full denial
-        # ("... between tenants is crossed if ..."). If a crossed-predicate is
-        # present, only punctuation/space may remain after it before the marker;
-        # otherwise require the marker to follow the match directly.
+        # A trailing marker may follow a short lexical match while still
+        # governing the full denial ("no security boundary applies if ..." or
+        # "... is crossed if ..."). It is unrelated once a sentence/clause
+        # barrier or a coordinated follow-up (", and/or ...") intervenes.
         between = paragraph[match_end_rel : marker.start()]
-        if _CLAUSE_BARRIER_RE.search(between):
+        if _CLAUSE_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(between):
             continue
-        crossed = list(re.finditer(r"\bcrossed\b", between, re.IGNORECASE))
-        if crossed:
-            tail = between[crossed[-1].end() :]
-            if re.fullmatch(r"[\s,]*", tail):
-                return True
-        elif re.fullmatch(r"[\s,]*", between):
-            return True
+        return True
     return False
 
 
