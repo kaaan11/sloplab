@@ -170,6 +170,27 @@ class TestOutputsAndProvenance:
         assert "requests used: 4" in printed
 
 
+class TestFailureExitCode:
+    def test_failed_evaluation_returns_nonzero(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
+    ) -> None:
+        class InvalidJsonHttp(FakeHttp):
+            def complete(self, prompt: str) -> LLMResponse:
+                _ = prompt
+                self.calls += 1
+                return LLMResponse(text="{not-json", latency_ms=1)
+
+        monkeypatch.setenv("SLOPLAB_LLM_MODEL", "openai/gpt-oss-20b:free")
+        monkeypatch.setenv("SLOPLAB_LLM_ENDPOINT", "https://example.invalid/v1")
+        monkeypatch.setattr(llm_bench, "HttpLLMClient", InvalidJsonHttp)
+
+        out = tmp_path / "failed.jsonl"
+        rc = llm_bench.main(["--max-cases", "1", "--out", str(out)])
+
+        assert rc == 1
+        assert "failed evaluations: 1/1" in capsys.readouterr().out
+
+
 class TestEnvGuard:
     def test_missing_model_env_fails_fast(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
@@ -206,7 +227,7 @@ class TestNoLeakage:
 
         out = tmp_path / "llm-bench-results.jsonl"
         rc = llm_bench.main(["--max-cases", "2", "--out", str(out)])
-        assert rc == 0
+        assert rc == 1
 
         captured = capsys.readouterr()
         bundle = tmp_path / "llm-bench-results.bundle"
