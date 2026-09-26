@@ -59,6 +59,35 @@ _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 _TRAILING_URL_PUNCTUATION = ".,;!?\"'*_~"
 
 
+def _userinfo_separator_ahead(text: str, start: int) -> bool:
+    """Whether a stop-like character is still inside userinfo.
+
+    Quotes/Markdown delimiters normally terminate a prose URL, but URL parsers
+    treat them as part of userinfo when an @ follows before the authority ends.
+    In that case keep scanning so the full suspicious authority is rejected
+    instead of approving only a safe-looking prefix.
+    """
+    bracket_depth = 0
+    cursor = start
+    while cursor < len(text):
+        char = text[cursor]
+        if char.isspace() and char not in _URL_CONTROL_WHITESPACE:
+            return False
+        if char == "[":
+            bracket_depth += 1
+        elif char == "]":
+            if bracket_depth == 0:
+                return False
+            bracket_depth -= 1
+        elif bracket_depth == 0:
+            if char == "@":
+                return True
+            if char in "/?#":
+                return False
+        cursor += 1
+    return False
+
+
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
@@ -98,7 +127,9 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 # continuation. Once a path/query/fragment has started, controls
                 # cannot change the hostname and remain ordinary text delimiters.
                 break
-            if char in _URL_STOP_CHARS:
+            if char in _URL_STOP_CHARS and not (
+                not authority_done and _userinfo_separator_ahead(text, scan + 1)
+            ):
                 break
             if char == "[":
                 bracket_depth += 1
@@ -122,7 +153,11 @@ def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
     for url in _iter_url_tokens(text):
-        if "\\" in url or any(control in url for control in _URL_CONTROL_WHITESPACE):
+        if (
+            "\\" in url
+            or any(control in url for control in _URL_CONTROL_WHITESPACE)
+            or any(delimiter in url for delimiter in _URL_STOP_CHARS)
+        ):
             unsafe.add(url)
             continue
         try:
