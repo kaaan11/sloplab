@@ -86,14 +86,14 @@ def _trim_url_candidate(url: str) -> str:
     return url
 
 
-def _special_url_candidates(text: str) -> list[tuple[str, str]]:
+def _special_url_candidates(text: str) -> list[tuple[int, int, str, str]]:
     """Return non-standard HTTP(S) spellings and a canonical URL for host checks.
 
     WHATWG special schemes tolerate missing/extra slashes, backslash separators,
     and TAB/CR/LF controls. This scanner handles those forms without letting a
     single Markdown blank line merge unrelated prose into an authority.
     """
-    candidates: list[tuple[str, str]] = []
+    candidates: list[tuple[int, int, str, str]] = []
     for match in _URL_SCHEME_RE.finditer(text):
         scheme_raw = match.group(0)
         scheme = scheme_raw.replace("\t", "").replace("\r", "").replace("\n", "")
@@ -168,14 +168,15 @@ def _special_url_candidates(text: str) -> list[tuple[str, str]]:
             continue
 
         raw = _trim_url_candidate(text[match.start() : cursor])
-        candidates.append((raw, f"{scheme}//{authority}"))
+        candidates.append((match.start(), cursor, raw, f"{scheme}//{authority}"))
     return candidates
 
 
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
-    for raw, canonical in _special_url_candidates(text):
+    special_candidates = _special_url_candidates(text)
+    for _start, _end, raw, canonical in special_candidates:
         display_url = raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
         try:
             host = urlsplit(canonical).hostname
@@ -184,7 +185,10 @@ def find_unsafe_urls(text: str) -> list[str]:
         if host is None or not is_reserved_host(host):
             unsafe.add(display_url)
 
+    special_spans = [(start, end) for start, end, _raw, _canonical in special_candidates]
     for match in _URL_RE.finditer(text):
+        if any(match.start() < end and match.end() > start for start, end in special_spans):
+            continue
         url = _trim_url_candidate(match.group(0))
         authority = url.split("://", 1)[1]
         authority = re.split(r"[/\?#]", authority, maxsplit=1)[0]
