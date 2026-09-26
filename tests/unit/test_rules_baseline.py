@@ -153,6 +153,18 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
 
+    def test_separate_followup_if_sentence_does_not_condition_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed. If this is unexpected, "
+            "contact support.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     def test_unrelated_later_if_clause_does_not_condition_negation(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
