@@ -227,3 +227,17 @@ class TestSafetyPolicy:
         violations = validate_content_safety(r"GET http://attacker.com\@localhost/x")
         assert len(violations) == 1
         assert r"http://attacker.com\@localhost/x" in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_whitespace_cannot_disguise_external_host(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://localhost{control}@attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\t" not in violations[0]
+        assert "\r" not in violations[0]
+        assert "\n" not in violations[0]
+
+    def test_control_whitespace_cannot_extend_reserved_hostname(self) -> None:
+        violations = validate_content_safety("GET http://example.com\t.evil.test/x")
+        assert len(violations) == 1
+        assert "evil.test" in violations[0]

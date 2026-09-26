@@ -47,7 +47,7 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
-_URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
+_URL_RE = re.compile(r"https?://[^\x20\f\v)>`]+", re.IGNORECASE)
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 
@@ -88,15 +88,16 @@ def find_unsafe_urls(text: str) -> list[str]:
         url = _trim_url_candidate(match.group(0))
         authority = url.split("://", 1)[1]
         authority = re.split(r"[/\?#]", authority, maxsplit=1)[0]
+        display_url = url.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
         if "\\" in authority:
-            unsafe.add(url)
+            unsafe.add(display_url)
             continue
         try:
             host = urlsplit(url).hostname
         except ValueError:
             host = None
         if host is None or not is_reserved_host(host):
-            unsafe.add(url)
+            unsafe.add(display_url)
     return sorted(unsafe)
 
 
