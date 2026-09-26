@@ -617,6 +617,7 @@ def _write_comparison_markdown(
 @click.argument("results", nargs=-1, required=True, type=click.Path(exists=True, path_type=str))
 def compare(results: tuple[str, ...]) -> None:
     """Compare metric summaries from two or more result files."""
+    import hashlib
     import json
     from pathlib import Path as _Path
 
@@ -624,6 +625,7 @@ def compare(results: tuple[str, ...]) -> None:
         raise click.ClickException("compare needs at least one result file or directory")
 
     summaries: dict[str, dict[str, Any]] = {}
+    seen_sources: set[Path] = set()
     for result_path in results:
         path = _Path(result_path)
         try:
@@ -636,6 +638,12 @@ def compare(results: tuple[str, ...]) -> None:
                 err=True,
             )
         metrics_dir = path.parent if path.name == "run.jsonl" else path
+        source_id = metrics_dir.resolve()
+        if source_id in seen_sources:
+            raise click.ClickException(f"duplicate compare input: {metrics_dir}")
+        seen_sources.add(source_id)
+        source_token = hashlib.sha256(str(source_id).encode("utf-8")).hexdigest()[:8]
+        source_label = f"{metrics_dir.name}:{source_token}"
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
             raise click.ClickException(
@@ -651,13 +659,13 @@ def compare(results: tuple[str, ...]) -> None:
             except AnalysisError as exc:
                 raise click.ClickException(str(exc)) from exc
             for name in document.get("evaluators", []):
-                summaries[f"{name} ({metrics_dir.name})"] = document["bundles"][name]
+                summaries[f"{name} ({source_label})"] = document["bundles"][name]
             continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
             data = json.loads(mfile.read_text())
             name = data.get("evaluator_name", mfile.stem)
-            summaries[f"{name} ({mfile.parent.name})"] = data
+            summaries[f"{name} ({source_label})"] = data
 
     if not summaries:
         raise click.ClickException(f"no metrics-*.json files found for {results}")
