@@ -342,9 +342,7 @@ class TestSafetyPolicy:
             "http:\r\n\r\nattacker.com/x",
         ],
     )
-    def test_repeated_scheme_controls_before_bare_authority_are_scanned(
-        self, url: str
-    ) -> None:
+    def test_repeated_scheme_controls_before_bare_authority_are_scanned(self, url: str) -> None:
         violations = validate_content_safety(f"GET {url}")
         assert len(violations) == 1
         assert "attacker.com" in violations[0]
