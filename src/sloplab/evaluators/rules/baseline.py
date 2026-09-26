@@ -150,7 +150,7 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     clause_start = 0
     for boundary in _CLAUSE_START_RE.finditer(paragraph, 0, marker_start):
         clause_start = boundary.end()
-    prefix_raw = paragraph[clause_start:marker_start].strip()
+    prefix_raw = paragraph[clause_start:marker_start]
     prefix = _MARKDOWN_CLAUSE_PREFIX_RE.sub("", prefix_raw).strip().casefold()
     if prefix in {"", "and", "but", "or", "only", "even", "especially"}:
         return True
