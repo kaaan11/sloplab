@@ -47,9 +47,7 @@ def test_approved_hosts_remain_allowed(url: str) -> None:
 
 
 def test_url_parser_strips_markdown_terminator_but_keeps_ipv6_brackets() -> None:
-    assert find_unsafe_urls("[https://attacker.invalid/x].") == [
-        "https://attacker.invalid/x"
-    ]
+    assert find_unsafe_urls("[https://attacker.invalid/x].") == ["https://attacker.invalid/x"]
     assert find_unsafe_urls("http://[::1]/health") == []
 
 
