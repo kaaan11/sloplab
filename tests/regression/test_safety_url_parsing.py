@@ -63,6 +63,31 @@ def test_browser_style_backslash_cannot_hide_external_hostname() -> None:
 
 
 @pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost\t@attacker.com/x",
+        "http://localhost\n.attacker.com/x",
+        "http://example.com\tpany/x",
+        "http:\n\n//attacker.com/x",
+        "h\tt\ntp://attacker.com/x",
+    ],
+)
+def test_control_whitespace_cannot_hide_external_authority(url: str) -> None:
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
+    text = "https://example.org/path\nNext paragraph"
+    assert find_unsafe_urls(text) == []
+
+
+@pytest.mark.parametrize("text", ["**http://localhost**", "__https://example.org__", "~~http://127.0.0.1~~"])
+def test_markdown_emphasis_is_not_part_of_safe_hostname(text: str) -> None:
+    assert find_unsafe_urls(text) == []
+
+
+@pytest.mark.parametrize(
     "text",
     [
         '"http://localhost"',
