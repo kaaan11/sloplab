@@ -153,10 +153,7 @@ def _special_url_candidates(text: str) -> list[tuple[str, str]]:
                     else:
                         end += 1
                     line_breaks += 1
-                if (
-                    line_breaks > 1
-                    and (end >= len(text) or text[end] not in "@.%:")
-                ):
+                if line_breaks > 1 and (end >= len(text) or text[end] not in "@.%:"):
                     break
                 authority_control = True
                 cursor = end
