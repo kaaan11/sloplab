@@ -11,7 +11,11 @@ import pytest
 import yaml
 
 from sloplab.corpus.loader import FixtureError, load_canonical_fixture
-from sloplab.reporting.analysis import ANALYSIS_SCHEMA_VERSION, AnalysisError, read_versioned_analysis
+from sloplab.reporting.analysis import (
+    ANALYSIS_SCHEMA_VERSION,
+    AnalysisError,
+    read_versioned_analysis,
+)
 from sloplab.scoring.harness import build_cases
 from tests._helpers import write_canonical_fixture
 
@@ -86,7 +90,11 @@ def test_suite_index_manifest_path_cannot_escape_materialized_root(
     outside_dir.mkdir()
     outside_manifest = outside_dir / "mutation-manifest.yaml"
     outside_manifest.write_text("not: read\n", encoding="utf-8")
-    value = str(outside_manifest) if kind == "absolute" else "../outside-case/mutation-manifest.yaml"
+    value = (
+        str(outside_manifest)
+        if kind == "absolute"
+        else "../outside-case/mutation-manifest.yaml"
+    )
     index = materialized / "suite-index.jsonl"
     _write_index(index, value)
 
