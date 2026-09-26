@@ -108,7 +108,8 @@ class TestCanonicalHandling:
     def test_conditional_boundary_marker_after_negation_routes_to_review(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
-            "No security boundary between tenants is crossed if the request stays within one tenant.",
+            "No security boundary between tenants is crossed if the request stays within "
+            "one tenant.",
         )
         result = evaluate(text)
         assert result.decision == Decision.NEEDS_MANUAL_REVIEW
