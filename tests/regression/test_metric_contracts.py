@@ -221,6 +221,53 @@ def test_singularity_and_correct_consistency_enforced() -> None:
         compute_metrics([dangling], "t")
 
 
+def test_robustness_score_uses_canonical_not_overall_accuracy() -> None:
+    """The 15% score component is canonical-only when derived accuracy differs."""
+    records = [
+        record("parent", expected=Decision.ACCEPT, decision=Decision.ACCEPT, confidence=1.0),
+        record(
+            "child",
+            kind="mutated",
+            parent_id="parent",
+            operator="impact_inflation",
+            expected=Decision.REJECT,
+            decision=Decision.ACCEPT,
+            confidence=1.0,
+        ),
+    ]
+    bundle = compute_metrics(records, "t")
+
+    assert bundle.canonical_decision_accuracy == 1.0
+    assert bundle.decision_accuracy == 0.5
+    assert bundle.mutation_detection_rate is not None
+    assert bundle.false_reassurance_rate is not None
+    assert bundle.calibration_error is not None
+
+    parts = [
+        (0.40, bundle.mutation_detection_rate),
+        (0.25, 1.0 - bundle.false_reassurance_rate),
+        (0.15, bundle.canonical_decision_accuracy),
+        (0.10, 1.0 - bundle.calibration_error),
+    ]
+    expected = round(
+        sum(weight * value for weight, value in parts) / sum(weight for weight, _ in parts),
+        4,
+    )
+    old_overall_formula = round(
+        (
+            0.40 * bundle.mutation_detection_rate
+            + 0.25 * (1.0 - bundle.false_reassurance_rate)
+            + 0.15 * bundle.decision_accuracy
+            + 0.10 * (1.0 - bundle.calibration_error)
+        )
+        / 0.90,
+        4,
+    )
+
+    assert bundle.robustness_score == expected
+    assert bundle.robustness_score != old_overall_formula
+
+
 def test_every_metric_carries_coverage() -> None:
     """Normal bundle: all coverage entries present, defined metrics reason-free."""
     records = [
