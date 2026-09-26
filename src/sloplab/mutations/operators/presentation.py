@@ -214,7 +214,7 @@ class ConfidenceOverstatement:
         # Each hedge pattern replaces at most its first occurrence, scanning
         # unfenced prose in reading order; fenced code is never rewritten.
         for old, new in self._HEDGES:
-            pattern = re.compile(r"(?<!\\w)" + re.escape(old) + r"(?!\\w)", re.IGNORECASE)
+            pattern = re.compile(r"(?<!\w)" + re.escape(old) + r"(?!\w)", re.IGNORECASE)
             chunks = split_code_fences(text)
             replaced = False
             rebuilt: list[str] = []
