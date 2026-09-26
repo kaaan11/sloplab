@@ -157,10 +157,8 @@ def _special_url_candidates(text: str) -> list[tuple[str, str]]:
         if not authority or not (prefix_nonstandard or authority_control):
             continue
 
-        raw = _trim_url_candidate(text[match.start():cursor])
-        candidates.append(
-            (raw, f"{scheme}//{authority}")
-        )
+        raw = _trim_url_candidate(text[match.start() : cursor])
+        candidates.append((raw, f"{scheme}//{authority}"))
     return candidates
 
 
