@@ -158,7 +158,9 @@ def _special_url_candidates(text: str) -> list[tuple[str, str]]:
             continue
 
         raw = _trim_url_candidate(text[match.start():cursor])
-        candidates.append((raw, f"{scheme}//{authority}"))
+        candidates.append(
+            (raw, f"{scheme}//{authority}")
+        )
     return candidates
 
 
