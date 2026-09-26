@@ -295,6 +295,33 @@ class TestSafetyPolicy:
     def test_control_obfuscated_scheme_to_reserved_host_remains_allowed(self) -> None:
         assert validate_content_safety("GET htt\np://localhost/x") == []
 
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:attacker.com/x",
+            "http:/attacker.com/x",
+            r"http:\\attacker.com/x",
+            r"http:\\\\attacker.com/x",
+            "http:////attacker.com/x",
+        ],
+    )
+    def test_special_scheme_separator_variants_reject_external_host(self, url: str) -> None:
+        violations = validate_content_safety(f"GET {url}")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+
+    @pytest.mark.parametrize(
+        "url",
+        [
+            "http:localhost/x",
+            "http:/localhost/x",
+            r"http:\\localhost/x",
+            "http:////localhost/x",
+        ],
+    )
+    def test_special_scheme_separator_variants_allow_reserved_host(self, url: str) -> None:
+        assert validate_content_safety(f"GET {url}") == []
+
     def test_control_and_backslash_combination_is_rejected(self) -> None:
         violations = validate_content_safety("GET http://localhost\tattacker.com\\@localhost/x")
         assert len(violations) == 1
