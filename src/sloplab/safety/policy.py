@@ -86,6 +86,29 @@ def _trim_url_candidate(url: str) -> str:
     return url
 
 
+def _authority_continues_after_controls(text: str, start: int) -> bool:
+    """Whether text after repeated controls still looks like URL authority."""
+    if start >= len(text):
+        return False
+    cursor = start
+    while cursor < len(text):
+        char = text[cursor]
+        if char in "\t\r\n":
+            return False
+        if char in _AUTHORITY_DELIMITERS or char == "\\":
+            break
+        cursor += 1
+    if cursor == start:
+        return False
+    if cursor >= len(text):
+        return True
+    segment = text[start:cursor]
+    terminator = text[cursor]
+    if terminator in "/?#":
+        return True
+    return any(marker in segment for marker in ".@:%[]")
+
+
 def _special_url_candidates(text: str) -> list[tuple[int, int, str, str]]:
     """Return non-standard HTTP(S) spellings and a canonical URL for host checks.
 
@@ -153,7 +176,7 @@ def _special_url_candidates(text: str) -> list[tuple[int, int, str, str]]:
                     else:
                         end += 1
                     line_breaks += 1
-                if line_breaks > 1 and (end >= len(text) or text[end] not in "@.%:"):
+                if line_breaks > 1 and not _authority_continues_after_controls(text, end):
                     break
                 authority_control = True
                 cursor = end
