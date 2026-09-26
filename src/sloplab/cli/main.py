@@ -688,14 +688,15 @@ def compare(results: tuple[str, ...]) -> None:
         ("robustness_score", "aux robustness score"),
     ]
     labels = [display for display, _data in summaries.values()]
-    header = f"{'metric':<38}" + "".join(f"{label[:28]:>30}" for label in labels)
+    column_width = max(30, *(len(label) + 2 for label in labels))
+    header = f"{'metric':<38}" + "".join(f"{label:>{column_width}}" for label in labels)
     click.echo(header)
     click.echo("-" * len(header))
     for key, label in keys:
         row = f"{label:<38}"
         for _identity, (_display, data) in summaries.items():
             value = data.get(key)
-            row += f"{('n/a' if value is None else format(value, '.3f')):>30}"
+            row += f"{('n/a' if value is None else format(value, '.3f')):>{column_width}}"
         click.echo(row)
 
 
