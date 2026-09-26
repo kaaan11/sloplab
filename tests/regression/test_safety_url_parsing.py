@@ -82,6 +82,27 @@ def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
     assert find_unsafe_urls(text) == []
 
 
+def test_bare_safe_url_before_markdown_paragraph_break_is_not_merged() -> None:
+    text = "Endpoint: https://demo.example.org.\n\n## Next section\n"
+    assert find_unsafe_urls(text) == []
+
+
+def test_bare_safe_url_before_plain_prose_line_is_not_merged() -> None:
+    text = "Endpoint: https://example.org\nNext paragraph starts here."
+    assert find_unsafe_urls(text) == []
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "http://localhost\r\n.attacker.com/x",
+        "http://localhost\nattacker.com/x",
+    ],
+)
+def test_single_linebreak_with_authority_like_continuation_is_rejected(url: str) -> None:
+    assert find_unsafe_urls(url) == [url]
+
+
 @pytest.mark.parametrize("delimiter", ['"', "'", "`", "(", ")", "<", ">"])
 def test_authority_delimiter_before_userinfo_cannot_hide_external_host(delimiter: str) -> None:
     url = f"http://localhost{delimiter}@attacker.com/x"
