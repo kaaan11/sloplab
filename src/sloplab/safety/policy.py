@@ -103,6 +103,7 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         # lexical URL. Resume at its boundary rather than rescanning suffixes.
         cursor = max(scan, match.end())
 
+
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
