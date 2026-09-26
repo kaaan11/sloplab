@@ -87,6 +87,28 @@ def test_compare_hashes_non_utf8_posix_path(tmp_path) -> None:  # type: ignore[n
     assert expected in result.output
 
 
+def test_compare_preserves_distinct_long_evaluator_labels(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    import json
+
+    root = tmp_path / "results"
+    root.mkdir()
+    (root / "run.jsonl").write_text("", encoding="utf-8")
+    names = ("abcdefghijklmnopqrs-A", "abcdefghijklmnopqrs-B")
+    for name, accuracy in zip(names, (0.1, 0.9), strict=True):
+        (root / f"metrics-{name}.json").write_text(
+            json.dumps({"evaluator_name": name, "decision_accuracy": accuracy}),
+            encoding="utf-8",
+        )
+
+    result = CliRunner().invoke(cli, ["compare", str(root)])
+
+    assert result.exit_code == 0, result.output
+    assert names[0] in result.output
+    assert names[1] in result.output
+    assert "0.100" in result.output
+    assert "0.900" in result.output
+
+
 def test_compare_rejects_duplicate_input_directory(tmp_path) -> None:  # type: ignore[no-untyped-def]
     import json
 
