@@ -106,3 +106,17 @@ def test_valid_canonical_and_parent_links_pass_identity_validation(tmp_path: Pat
         if "duplicate canonical id" in issue.message or "does not reference" in issue.message
     ]
     assert identity_errors == []
+
+
+def test_derived_only_scope_does_not_claim_parent_is_orphan(tmp_path: Path) -> None:
+    corpus, canonical = _canonical_pair(tmp_path)
+    standalone = _derived(
+        corpus,
+        canonical[0],
+        parent_id=canonical[0].manifest.id,
+        case_id="mut-identity-standalone-000",
+    )
+
+    result = validate_corpus([], [standalone], corpus_root=standalone.directory)
+
+    assert not any("does not reference" in issue.message for issue in result.errors)
