@@ -48,11 +48,15 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}", re.IGNORECASE)
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
-_URL_START_RE = re.compile(r"https?://", re.IGNORECASE)
+_URL_CONTROL_WHITESPACE = "\t\r\n"
+_URL_START_RE = re.compile(
+    r"h[\t\r\n]*t[\t\r\n]*t[\t\r\n]*p(?:[\t\r\n]*s)?[\t\r\n]*:[\t\r\n]*/[\t\r\n]*/",
+    re.IGNORECASE,
+)
 _URL_STOP_CHARS = frozenset(("<", ">", "(", ")", "`", '"', "'"))
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
-_TRAILING_URL_PUNCTUATION = ".,;!?\"'"
+_TRAILING_URL_PUNCTUATION = ".,;!?\"'*_~"
 
 
 def is_reserved_host(host: str) -> bool:
