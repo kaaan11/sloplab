@@ -55,7 +55,8 @@ EvaluationResult(
    `report.fixture_id`, or `report.path`: these are opaque handles, and parsing
    them for signal is benchmark gaming. Tests assert operator identity is absent
    from evaluator-visible input.
-5. Register via `register_evaluator(instance)` at import time.
+5. Built-in implementations register via `register_evaluator(instance)`. External
+   BYOE modules must not register; return their object/factory result directly.
 
 ## Adding an evaluator
 
@@ -67,6 +68,16 @@ it, add unit tests (including the label-independence test), and import it from
 sloplab evaluate benchmarks/results/v1-core-example --evaluator your-name --out results/
 sloplab compare results/ benchmarks/results/v1-core-example
 ```
+
+## External evaluators (no source edits)
+
+Use `--evaluator-module FILE.py:ATTR` or `MODULE:ATTR` on `benchmark` / `evaluate`.
+`ATTR` is an evaluator object or zero-argument factory; it follows the same input
+and output contract above. Combine it with `--evaluator rules-baseline` to compare
+both in one run. External `requires_labels=True` is rejected. This executes trusted
+local Python with your user's privileges, not a sandbox. See
+[Bring your own evaluator](bring-your-own-evaluator.md) for setup, failure provenance
+and the offline HTML report.
 
 ## Reference implementations
 

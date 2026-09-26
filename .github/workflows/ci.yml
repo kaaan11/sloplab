@@ -28,3 +28,25 @@ jobs:
         run: uv run pytest
       - name: Validate corpus
         run: uv run sloplab validate corpus/
+      - name: BYOE and offline HTML smoke
+        run: |
+          uv run sloplab benchmark benchmarks/suites/v1-core.yaml \
+            --evaluator rules-baseline \
+            --evaluator-module examples/my_evaluator.py:make \
+            --out "${RUNNER_TEMP}/byoe"
+          uv run sloplab report "${RUNNER_TEMP}/byoe/run.jsonl" \
+            --format html --out "${RUNNER_TEMP}/byoe/report.html"
+          uv run sloplab report "${RUNNER_TEMP}/byoe/run.jsonl" \
+            --format html --out "${RUNNER_TEMP}/byoe/report-repeat.html"
+          cmp "${RUNNER_TEMP}/byoe/report.html" "${RUNNER_TEMP}/byoe/report-repeat.html"
+          git diff --exit-code -- uv.lock
+      - name: Retain BYOE smoke report
+        if: matrix.python-version == '3.13'
+        uses: actions/upload-artifact@v4
+        with:
+          name: byoe-html-smoke
+          path: |
+            ${{ runner.temp }}/byoe/run.jsonl
+            ${{ runner.temp }}/byoe/outcomes.jsonl
+            ${{ runner.temp }}/byoe/report.html
+          retention-days: 14

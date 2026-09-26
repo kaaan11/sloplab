@@ -1,0 +1,129 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>SlopLab results · v1-core</title><style>
+:root {
+  color-scheme: light dark;
+  --bg: #f5f7fa; --panel: #ffffff; --ink: #172b41; --muted: #495d72;
+  --line: #cbd5e1; --accent: #174cb0; --track: #dbe4f2;
+  --notice: #fff5dc; --notice-ink: #654600; --focus: #a03f00;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1520; --panel: #142131; --ink: #e8eef7; --muted: #b0c0d3;
+    --line: #40536a; --accent: #8cb7ff; --track: #33465e;
+    --notice: #302918; --notice-ink: #ffe0a0; --focus: #ffcf8a;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+main { width: min(1160px, calc(100% - 40px)); margin: 48px auto; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--focus);
+  outline-offset: 4px;
+  }
+.eyebrow { font-size: .78rem;
+  letter-spacing: .16em;
+  font-weight: 750;
+  text-transform: uppercase;
+  }
+h1 { font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.15;
+  margin: 12px 0;
+  letter-spacing: -.035em;
+  }
+h2 { font-size: 1.45rem; margin: 0 0 8px; letter-spacing: -.02em; }
+h3 { font-size: 1rem; margin: 18px 0 6px; }
+p { margin: 8px 0 16px; }
+.subtle { color: var(--muted); }
+nav { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 26px 0; }
+section { padding: 28px;
+  margin: 24px 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  }
+.notice { background: var(--notice);
+  color: var(--notice-ink);
+  border-left: 5px solid var(--notice-ink);
+  }
+.notice p:last-child { margin-bottom: 0; }
+.stats { display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 28px 0;
+  }
+.stat { padding: 16px 20px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  }
+.stat strong { font-size: 1.85rem; display: block; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: .85rem; }
+.table-scroll { max-width: 100%; overflow-x: auto; margin: 20px 0 6px; }
+table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+caption { text-align: left; color: var(--muted); margin-bottom: 10px; }
+th, td { padding: 13px 14px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  }
+th { font-weight: 700; }
+thead th { white-space: normal; }
+tbody th { min-width: 175px; overflow-wrap: anywhere; }
+.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
+small { display: block; font-size: .8rem; color: var(--muted); }
+.metric { min-width: 140px; }
+svg { display: block; margin-top: 7px; width: 144px; height: 8px; }
+.track { fill: var(--track); } .bar { fill: var(--accent); }
+code { font-size: .88em; overflow-wrap: anywhere; }
+dl { display: grid;
+  grid-template-columns: minmax(130px, 190px) minmax(0, 1fr);
+  gap: 12px 20px;
+  }
+dt { color: var(--muted); } dd { margin: 0; overflow-wrap: anywhere; }
+footer { color: var(--muted); font-size: .86rem; padding: 12px 0 30px; }
+@media (max-width: 640px) {
+  main { width: calc(100% - 24px); margin-top: 24px; }
+  section { padding: 18px; } .stats { grid-template-columns: 1fr; gap: 8px; }
+  .stat strong { font-size: 1.4rem; } dl { grid-template-columns: 1fr; gap: 4px; }
+  dd { margin-bottom: 12px; }
+}
+@media print { body { background: white; color: black; } section { break-inside: avoid; } }
+</style></head><body>
+<main><header><div class="eyebrow">SlopLab / Offline evaluation report</div>
+<h1>Evaluator comparison</h1>
+<p class="subtle">Suite: <strong>v1-core</strong> · Synthetic report corpus</p>
+<nav aria-label="Report sections"><a href="#interpretation">Read this first</a><a href="#summary">Evaluators</a><a href="#operators">Operators</a><a href="#failures">Execution failures</a><a href="#metadata">Run metadata</a></nav>
+</header><section id="interpretation" class="notice"><h2>What these numbers are</h2>
+<p><strong>Authored target agreement, not verified real-world triage accuracy or bug-bounty performance.</strong> These measurements compare evaluator decisions with human-authored targets on a synthetic corpus under controlled text mutations.</p>
+<p>Canonical reports and their variants are correlated, not independent real-world reports. Good agreement does not establish general security-review competence.</p>
+<p><strong>Rules-baseline surface-signature risk:</strong> its regex rules overlap with fixed mutation-template wording. Detection can reflect recognition of those phrases rather than semantic understanding. The pre-registered ablation was inconclusive; the larger post-hoc ablation is exploratory.</p></section>
+<p class="notice">Oracle is a label-reading plumbing control, not a content-based evaluator or a competitor.</p>
+<div class="stats"><div class="stat"><strong>2</strong><span>Evaluators in this run</span></div><div class="stat"><strong>594</strong><span>Scored case evaluations</span></div><div class="stat"><strong>Unknown</strong><span>Operational failures — not scored</span></div></div>
+<section id="summary"><h2>Evaluator summary</h2>
+<p class="subtle">Accuracy and mutation detection: higher is better. False reassurance, over-rejection and ECE: lower is better. Not available means no eligible observations, not zero error.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Agreement with authored targets, using only scored CaseRecord observations"><table><caption>Agreement with authored targets, using only scored CaseRecord observations</caption><thead><tr><th scope="col">Evaluator</th><th scope="col">Cases scored</th><th scope="col">Decision accuracy</th><th scope="col">95% bootstrap CI</th><th scope="col">Mutation detection</th><th scope="col">False reassurance</th><th scope="col">Over-rejection</th><th scope="col">ECE</th></tr></thead><tbody><tr><th scope="row">oracle<small>Version 0.1.0</small></th><td><span class="num">297</span></td><td><span class="num">100.0%</span><svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></td><td><span class="num">100.0% – 100.0%</span></td><td>100.0%</td><td>0.0%</td><td>0.0%</td><td>0.000</td></tr>
+<tr><th scope="row">rules-baseline<small>Version 0.1.0</small></th><td><span class="num">297</span></td><td><span class="num">81.1%</span><svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="116.848" height="8" rx="4"/></svg></td><td><span class="num">76.8% – 85.5%</span></td><td>80.2%</td><td>9.4%</td><td>0.0%</td><td>0.298</td></tr></tbody></table></div>
+<p class="subtle">Case-level percentile bootstrap: 2,000 resamples, 95% interval, explicit seed 20260825. This existing helper does not cluster by canonical parent; do not interpret its interval as real-world uncertainty.</p></section>
+<section id="operators"><h2>Operator breakdown</h2>
+<p class="subtle">Mutated cases only. Each cell shows scored cases and decision accuracy for that operator. Compare coverage before comparing percentages.</p>
+<div class="table-scroll" role="region" tabindex="0" aria-label="Per-operator decision accuracy"><table><caption>Per-operator decision accuracy</caption><thead><tr><th scope="col">Operator</th><th scope="col">oracle</th><th scope="col">rules-baseline</th></tr></thead><tbody><tr><th scope="row">add_irrelevant_detail</th><td><div class="metric">36 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">36 cases · 86.1%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="124.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">confidence_overstatement</th><td><div class="metric">5 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">5 cases · 80.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="115.200" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">contradict_observed_result</th><td><div class="metric">11 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">11 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">fabricate_reference</th><td><div class="metric">14 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">14 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">impact_inflation</th><td><div class="metric">11 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">11 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">impossible_precondition</th><td><div class="metric">12 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">12 cases · 0.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="0.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">invent_api_identifier</th><td><div class="metric">13 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">13 cases · 69.2%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="99.692" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">misattribute_cve</th><td><div class="metric">13 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">13 cases · 84.6%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="121.846" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">professionalize_language</th><td><div class="metric">48 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">48 cases · 75.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="108.000" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">remove_affected_version</th><td><div class="metric">26 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">26 cases · 88.5%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="127.385" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">remove_reproduction_step</th><td><div class="metric">26 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">26 cases · 84.6%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="121.846" height="8" rx="4"/></svg></div></td></tr>
+<tr><th scope="row">scope_expansion</th><td><div class="metric">22 cases · 100.0%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="144.000" height="8" rx="4"/></svg></div></td><td><div class="metric">22 cases · 95.5%<svg viewBox="0 0 144 8" aria-hidden="true" focusable="false"><rect class="track" width="144" height="8" rx="4"/><rect class="bar" width="137.455" height="8" rx="4"/></svg></div></td></tr></tbody></table></div>
+</section><section id="failures"><h2>Evaluation failures</h2>
+<p>Operational failures are not incorrect triage decisions. They are not added to accuracy denominators. Successful records remain the scoring source of truth.</p>
+<p class="notice">Operational failure ledger not available for this legacy run. Failure counts cannot be inferred from run.jsonl.</p>
+</section><section id="metadata"><h2>Run metadata</h2>
+<dl><dt>SlopLab version</dt><dd>0.2.2</dd><dt>Suite name</dt><dd>v1-core</dd><dt>Suite hash</dt><dd>e64565c0df63103899c4251b3c73ab8be2e911c2d3040754f0f0a905e138b17d</dd><dt>Git commit</dt><dd>7d27f67605a9997e379999d1e94e41a43ac161c1</dd><dt>Base seed</dt><dd>20260825</dd><dt>Recorded timestamp</dt><dd>2026-08-26T09:35:33.763831+00:00</dd></dl></section>
+<footer>Self-contained HTML · No JavaScript or external resource dependencies. <a href="https://github.com/kaaan11/sloplab/blob/main/docs/methodology.md">Methodology</a> · <a href="https://github.com/kaaan11/sloplab/blob/main/docs/threat-model.md">Limitations</a></footer></main></body></html>
