@@ -88,6 +88,50 @@ def _userinfo_separator_index(text: str, start: int) -> int | None:
     return last_at
 
 
+def _authority_continues_after_controls(text: str, start: int) -> bool:
+    """Distinguish URL-normalized controls from ordinary Markdown line breaks."""
+    cursor = start
+    line_breaks = 0
+    saw_tab = False
+    while cursor < len(text) and text[cursor] in _URL_CONTROL_WHITESPACE:
+        if text[cursor] == "\t":
+            saw_tab = True
+            cursor += 1
+        elif text[cursor] == "\r":
+            line_breaks += 1
+            cursor += 1
+            if cursor < len(text) and text[cursor] == "\n":
+                cursor += 1
+        else:
+            line_breaks += 1
+            cursor += 1
+
+    if cursor >= len(text):
+        return False
+    next_char = text[cursor]
+    if next_char in ".@:":
+        return True
+    if next_char.isspace() or next_char in _URL_STOP_CHARS or next_char in "/?#":
+        return False
+    if saw_tab and line_breaks == 0:
+        return True
+    if line_breaks != 1:
+        return False
+
+    end = cursor
+    while end < len(text):
+        char = text[end]
+        if char.isspace() or char in _URL_STOP_CHARS or char in "/?#":
+            break
+        end += 1
+    segment = text[cursor:end]
+    if not segment:
+        return False
+    if end < len(text) and text[end] in "/?#":
+        return True
+    return "." in segment or "@" in segment or ":" in segment
+
+
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
@@ -121,13 +165,11 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         scan = match.end()
         while scan < len(text):
             char = text[scan]
-            if char.isspace() and (char not in _URL_CONTROL_WHITESPACE or authority_done):
-                # WHATWG-style consumers discard TAB/CR/LF inside a URL. Keep
-                # those controls inside the candidate while we are still in the
-                # authority so a safe-looking prefix cannot hide an external
-                # continuation. Once a path/query/fragment has started, controls
-                # cannot change the hostname and remain ordinary text delimiters.
-                break
+            if char.isspace():
+                if char not in _URL_CONTROL_WHITESPACE or authority_done:
+                    break
+                if not _authority_continues_after_controls(text, scan):
+                    break
             if char in _URL_STOP_CHARS and (
                 authority_done or userinfo_separator is None or scan > userinfo_separator
             ):
