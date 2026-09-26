@@ -28,7 +28,7 @@ ANALYSIS_SCHEMA_VERSION = 2
 #: Definition version: metrics set, formulas, and eligibility rules covered.
 #: Bump when any of those change; readers accept only the current version
 #: and direct anything else to recomputation (no silent cross-version reads).
-ANALYSIS_DEFINITION_VERSION = 1
+ANALYSIS_DEFINITION_VERSION = 2
 
 
 def operator_metric_eligibility() -> dict[str, dict[str, object]]:
