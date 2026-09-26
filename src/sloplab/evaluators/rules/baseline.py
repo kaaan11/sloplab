@@ -119,41 +119,49 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
-_SENTENCE_BOUNDARY_RE = re.compile(r"[.!?](?=\s|$)|\n\s*\n")
-_CONDITIONAL_CLAUSE_BARRIER_RE = re.compile(
-    r";|--|—|\b(?:but|however|yet)\b",
+_CLAUSE_BARRIER_RE = re.compile(
+    r";|--|—|\b(?:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n",
     re.IGNORECASE,
 )
 
 
-def _sentence_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
-    """Return absolute sentence/paragraph bounds containing the match."""
-    left = 0
-    right = len(text)
-    for boundary in _SENTENCE_BOUNDARY_RE.finditer(text):
-        if boundary.end() <= match.start():
-            left = boundary.end()
-            continue
-        if boundary.start() >= match.end():
-            right = boundary.start()
-            break
+def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
+    """Return absolute blank-line-delimited bounds containing the match."""
+    left_boundary = text.rfind("\n\n", 0, match.start())
+    left = 0 if left_boundary < 0 else left_boundary + 2
+    right_boundary = text.find("\n\n", match.end())
+    right = len(text) if right_boundary < 0 else right_boundary
     return left, right
+
+
+def _paren_depth(text: str, pos: int) -> int:
+    """Approximate parenthesis nesting depth at ``pos`` within a paragraph."""
+    depth = 0
+    for char in text[:pos]:
+        if char == "(":
+            depth += 1
+        elif char == ")" and depth:
+            depth -= 1
+    return depth
 
 
 def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
     """Whether a conditional marker governs the same clause as the negation."""
-    left, right = _sentence_bounds_for_match(text, match)
-    sentence = text[left:right]
-    for marker in _CONDITIONAL_MARKER_RE.finditer(sentence):
-        marker_start = left + marker.start()
-        marker_end = left + marker.end()
-        between_start = min(marker_start, match.start())
-        between_end = max(marker_end, match.end())
-        between = text[between_start:between_end]
-        if not _CONDITIONAL_CLAUSE_BARRIER_RE.search(between):
+    left, right = _paragraph_bounds_for_match(text, match)
+    paragraph = text[left:right]
+    match_rel = match.start() - left
+    match_depth = _paren_depth(paragraph, match_rel)
+
+    for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
+        marker_depth = _paren_depth(paragraph, marker.start())
+        if marker_depth != match_depth:
+            continue
+        between_start = min(marker.end(), match_rel)
+        between_end = max(marker.start(), match.end() - left)
+        between = paragraph[between_start:between_end]
+        if not _CLAUSE_BARRIER_RE.search(between):
             return True
     return False
-
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
