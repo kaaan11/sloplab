@@ -110,6 +110,17 @@ def test_authority_delimiter_before_userinfo_cannot_hide_external_host(delimiter
     assert validate_content_safety(url)
 
 
+@pytest.mark.parametrize("bracket", ["[", "]"])
+def test_bracket_before_userinfo_cannot_hide_external_host(bracket: str) -> None:
+    url = f"http://localhost{bracket}@attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+def test_ipv6_brackets_after_userinfo_separator_remain_host_syntax() -> None:
+    assert find_unsafe_urls("http://demo@[::1]:8080/path") == []
+
+
 @pytest.mark.parametrize(
     "text",
     [
