@@ -262,6 +262,17 @@ class TestSafetyPolicy:
         assert "%2eattacker%2ecom" in violations[0]
         assert control not in violations[0]
 
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_plain_control_authority_continuation_is_validated(self, control: str) -> None:
+        violations = validate_content_safety(f"GET http://example.com{control}pany/x")
+        assert len(violations) == 1
+        assert "example.com" in violations[0]
+        assert control not in violations[0]
+
+    def test_blank_line_after_reserved_url_is_text_boundary(self) -> None:
+        text = "Visit https://demo.example.org.\n\nAll demo systems use reserved targets."
+        assert validate_content_safety(text) == []
+
     def test_control_and_backslash_combination_is_rejected(self) -> None:
         violations = validate_content_safety("GET http://localhost\tattacker.com\\@localhost/x")
         assert len(violations) == 1
