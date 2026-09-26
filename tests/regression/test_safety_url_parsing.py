@@ -68,6 +68,15 @@ def test_closing_quotes_are_not_part_of_safe_hostname(text: str) -> None:
     assert find_unsafe_urls(text) == []
 
 
+def test_closing_bracket_separates_adjacent_urls() -> None:
+    text = "[https://example.org/path]https://attacker.com/next"
+    assert find_unsafe_urls(text) == ["https://attacker.com/next"]
+
+
+def test_many_unmatched_closing_brackets_do_not_change_url_detection() -> None:
+    text = "https://example.org/path" + ("]" * 10_000) + "https://attacker.com/end"
+    assert find_unsafe_urls(text) == ["https://attacker.com/end"]
+
 def test_lowercase_real_year_cve_is_detected() -> None:
     assert find_real_year_cves("see cve-2021-44228") == ["cve-2021-44228"]
     violations = validate_content_safety("see cve-2021-44228")
