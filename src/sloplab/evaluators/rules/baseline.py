@@ -120,10 +120,14 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
 _SENTENCE_BOUNDARY_RE = re.compile(r"[.!?](?=\s|$)|\n\s*\n")
+_CONDITIONAL_CLAUSE_BARRIER_RE = re.compile(
+    r";|--|—|\b(?:but|however|yet)\b",
+    re.IGNORECASE,
+)
 
 
-def _sentence_for_match(text: str, match: re.Match[str]) -> str:
-    """Return the sentence/paragraph fragment containing the match."""
+def _sentence_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
+    """Return absolute sentence/paragraph bounds containing the match."""
     left = 0
     right = len(text)
     for boundary in _SENTENCE_BOUNDARY_RE.finditer(text):
@@ -133,7 +137,22 @@ def _sentence_for_match(text: str, match: re.Match[str]) -> str:
         if boundary.start() >= match.end():
             right = boundary.start()
             break
-    return text[left:right]
+    return left, right
+
+
+def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
+    """Whether a conditional marker governs the same clause as the negation."""
+    left, right = _sentence_bounds_for_match(text, match)
+    sentence = text[left:right]
+    for marker in _CONDITIONAL_MARKER_RE.finditer(sentence):
+        marker_start = left + marker.start()
+        marker_end = left + marker.end()
+        between_start = min(marker_start, match.start())
+        between_end = max(marker_end, match.end())
+        between = text[between_start:between_end]
+        if not _CONDITIONAL_CLAUSE_BARRIER_RE.search(between):
+            return True
+    return False
 
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
@@ -256,7 +275,7 @@ class RulesBaselineEvaluator:
         conditional_matches = [
             m
             for m in no_boundary_matches
-            if _CONDITIONAL_MARKER_RE.search(_sentence_for_match(full, m))
+            if _is_conditional_boundary_match(full, m)
         ]
         unconditional_matches = [m for m in no_boundary_matches if m not in conditional_matches]
         conditional_negation = bool(conditional_matches)
