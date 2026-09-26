@@ -159,6 +159,24 @@ def test_report_renders_from_verified_analysis(tmp_path: Path) -> None:
     assert "rules-baseline" in text
 
 
+def test_republish_retires_obsolete_analysis_versions(tmp_path: Path) -> None:
+    study_path, out_dir = _study_dir(tmp_path, "v-republish")
+    runner = CliRunner()
+    first = runner.invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert first.exit_code == 0, first.output
+
+    stale = out_dir / "analysis-v1.json"
+    assert stale != out_dir / analysis_filename()
+    stale.write_text('{"obsolete": true}\n', encoding="utf-8")
+
+    second = runner.invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert second.exit_code == 0, second.output
+    assert sorted(p.name for p in out_dir.glob("analysis-v*.json")) == [analysis_filename()]
+    assert read_versioned_analysis(out_dir / analysis_filename())["analysis_version"] == (
+        ANALYSIS_DEFINITION_VERSION
+    )
+
+
 def test_compare_refuses_ambiguous_versions(tmp_path: Path) -> None:
     """E4b: two versioned analyses in one dir is an explicit error."""
     out_dir = _published_run(tmp_path, "v-amb")
