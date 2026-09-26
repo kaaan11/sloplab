@@ -91,9 +91,7 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         scan = match.end()
         while scan < len(text):
             char = text[scan]
-            if char.isspace() and (
-                char not in _URL_CONTROL_WHITESPACE or authority_done
-            ):
+            if char.isspace() and (char not in _URL_CONTROL_WHITESPACE or authority_done):
                 # WHATWG-style consumers discard TAB/CR/LF inside a URL. Keep
                 # those controls inside the candidate while we are still in the
                 # authority so a safe-looking prefix cannot hide an external
