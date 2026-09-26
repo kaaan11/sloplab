@@ -17,13 +17,16 @@ def resolve_within_root(root: Path, path: str | Path, *, label: str) -> Path:
     Missing leaf paths are still allowed here; the caller keeps ownership of
     existence/type validation.
     """
-    root_resolved = root.resolve()
     candidate = Path(path)
     if candidate.is_absolute():
         raise PathBoundaryError(
             f"{label} must be relative to its root; absolute path is not allowed: {path!s}"
         )
-    resolved = (root_resolved / candidate).resolve()
+    try:
+        root_resolved = root.resolve()
+        resolved = (root_resolved / candidate).resolve()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise PathBoundaryError(f"{label} is not a valid path inside its root: {path!s}") from exc
     try:
         resolved.relative_to(root_resolved)
     except ValueError as exc:
