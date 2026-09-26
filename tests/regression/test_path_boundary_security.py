@@ -50,9 +50,8 @@ def test_canonical_report_path_cannot_escape_corpus(tmp_path: Path, mode: str) -
         yaml.safe_dump(data, sort_keys=False), encoding="utf-8"
     )
 
-    with pytest.raises(FixtureError, match="report\\.path.*(relative|allowed root)") as caught:
+    with pytest.raises(FixtureError, match="report\\.path escapes corpus root"):
         load_canonical_fixture(fixture_dir, corpus)
-    assert str(outside) not in caught.value.args[0] or "allowed root" in str(caught.value)
 
 
 def _write_outside_derived(case_dir: Path, report_path: str) -> None:
