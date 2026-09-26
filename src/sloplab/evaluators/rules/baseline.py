@@ -129,9 +129,7 @@ _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
     r"^\s*(?:(?:only|even|especially)\s+)?$",
     re.IGNORECASE,
 )
-_CLAUSE_START_RE = re.compile(
-    r";|:|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))"
-)
+_CLAUSE_START_RE = re.compile(r";|:|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))")
 
 
 def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
