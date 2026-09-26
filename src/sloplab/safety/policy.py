@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import ipaddress
 import re
+from collections.abc import Iterator
+from urllib.parse import urlsplit
 
 #: Fictional far-future year for all fabricated CVE references.
 FAKE_CVE_YEAR = "2099"
@@ -44,17 +46,19 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
     "D. Reviewer",
 )
 
-_FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
-_ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}")
-_URL_RE = re.compile(r"https?://(?P<host>[A-Za-z0-9.-]+)[^\s)\]>`]*", re.IGNORECASE)
+_FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}", re.IGNORECASE)
+_ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
+_URL_START_RE = re.compile(r"https?://", re.IGNORECASE)
+_URL_STOP_CHARS = frozenset(("<", ">", "(", ")", "`", '"', "'"))
 
-_LOCAL_HOST_SUFFIXES = ("localhost", ".localhost", ".local")
+_LOCAL_HOST_SUFFIXES = (".localhost", ".local")
+_TRAILING_URL_PUNCTUATION = ".,;!?\"'"
 
 
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
-    if any(host == suffix or host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
+    if host == "localhost" or any(host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
         return True
     if any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS):
         return True
@@ -72,12 +76,47 @@ def find_real_year_cves(text: str) -> list[str]:
     )
 
 
+def _iter_url_tokens(text: str) -> Iterator[str]:
+    """Yield disjoint HTTP(S) tokens while preserving bracketed IPv6 hosts."""
+    cursor = 0
+    while match := _URL_START_RE.search(text, cursor):
+        start = match.start()
+        end = match.end()
+        bracket_depth = 0
+        scan = match.end()
+        while scan < len(text):
+            char = text[scan]
+            if char.isspace() or char in _URL_STOP_CHARS:
+                break
+            if char == "[":
+                bracket_depth += 1
+            elif char == "]":
+                if bracket_depth == 0:
+                    break
+                bracket_depth -= 1
+            scan += 1
+            end = scan
+        token = text[start:end].rstrip(_TRAILING_URL_PUNCTUATION)
+        if token:
+            yield token
+        # The scanned token and any embedded scheme-like substrings form one
+        # lexical URL. Resume at its boundary rather than rescanning suffixes.
+        cursor = max(scan, match.end())
+
+
 def find_unsafe_urls(text: str) -> list[str]:
-    """URLs whose host is outside reserved domains and private/loopback addresses."""
+    """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
-    for match in _URL_RE.finditer(text):
-        if not is_reserved_host(match.group("host")):
-            unsafe.add(match.group(0))
+    for url in _iter_url_tokens(text):
+        if "\\" in url:
+            unsafe.add(url)
+            continue
+        try:
+            host = urlsplit(url).hostname
+        except ValueError:
+            host = None
+        if host is None or not is_reserved_host(host):
+            unsafe.add(url)
     return sorted(unsafe)
 
 
