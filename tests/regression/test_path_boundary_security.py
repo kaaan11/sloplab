@@ -153,6 +153,7 @@ def test_suite_manifest_path_cannot_collapse_to_materialized_root(
     with pytest.raises(FixtureError, match="manifest_path must name an existing"):
         build_cases(index, corpus, materialized)
 
+
 def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
