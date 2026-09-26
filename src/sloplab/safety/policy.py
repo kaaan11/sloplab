@@ -50,7 +50,7 @@ _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s<>()`]+", re.IGNORECASE)
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
-_TRAILING_URL_PUNCTUATION = ".,;!?"
+_TRAILING_URL_PUNCTUATION = ".,;!?\\\"\'"
 
 
 def is_reserved_host(host: str) -> bool:
@@ -87,6 +87,9 @@ def find_unsafe_urls(text: str) -> list[str]:
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
         url = _clean_url_token(match.group(0))
+        if "\\" in url:
+            unsafe.add(url)
+            continue
         try:
             host = urlsplit(url).hostname
         except ValueError:
