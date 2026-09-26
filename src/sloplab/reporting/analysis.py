@@ -241,9 +241,7 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
     if not isinstance(records_name, str) or not records_name:
         raise AnalysisError(f"{analysis_path}: bound records path is malformed")
     try:
-        records_path = resolve_within_root(
-            bundle_dir, records_name, label="analysis records_path"
-        )
+        records_path = resolve_within_root(bundle_dir, records_name, label="analysis records_path")
     except PathBoundaryError as exc:
         raise AnalysisError(f"{analysis_path}: {exc}") from exc
     if not records_path.is_file():
