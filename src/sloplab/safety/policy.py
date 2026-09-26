@@ -10,6 +10,7 @@ variants, and private/loopback/link-local IP literals (RFC 1918 / 127.0.0.0/8 /
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 import ipaddress
 import re
 from urllib.parse import urlsplit
@@ -47,7 +48,8 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}", re.IGNORECASE)
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
-_URL_RE = re.compile(r"https?://[^\s<>()`]+", re.IGNORECASE)
+_URL_START_RE = re.compile(r"https?://", re.IGNORECASE)
+_URL_STOP_CHARS = frozenset("<>()`\\\"\'")
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 _TRAILING_URL_PUNCTUATION = ".,;!?\"'"
@@ -74,19 +76,32 @@ def find_real_year_cves(text: str) -> list[str]:
     )
 
 
-def _clean_url_token(token: str) -> str:
-    """Remove prose/Markdown terminators without breaking bracketed IPv6 hosts."""
-    token = token.rstrip(_TRAILING_URL_PUNCTUATION)
-    while token.endswith("]") and token.count("]") > token.count("["):
-        token = token[:-1]
-    return token
+def _iter_url_tokens(text: str) -> Iterator[str]:
+    """Yield HTTP(S) tokens in one pass while preserving bracketed IPv6 hosts."""
+    for match in _URL_START_RE.finditer(text):
+        start = match.start()
+        end = match.end()
+        bracket_depth = 0
+        for index in range(match.end(), len(text)):
+            char = text[index]
+            if char.isspace() or char in _URL_STOP_CHARS:
+                break
+            if char == "[":
+                bracket_depth += 1
+            elif char == "]":
+                if bracket_depth == 0:
+                    break
+                bracket_depth -= 1
+            end = index + 1
+        token = text[start:end].rstrip(_TRAILING_URL_PUNCTUATION)
+        if token:
+            yield token
 
 
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
-    for match in _URL_RE.finditer(text):
-        url = _clean_url_token(match.group(0))
+    for url in _iter_url_tokens(text):
         if "\\" in url:
             unsafe.add(url)
             continue
