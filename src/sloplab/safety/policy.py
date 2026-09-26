@@ -10,9 +10,9 @@ variants, and private/loopback/link-local IP literals (RFC 1918 / 127.0.0.0/8 /
 
 from __future__ import annotations
 
-from collections.abc import Iterator
 import ipaddress
 import re
+from collections.abc import Iterator
 from urllib.parse import urlsplit
 
 #: Fictional far-future year for all fabricated CVE references.
