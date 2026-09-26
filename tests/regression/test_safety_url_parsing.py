@@ -82,7 +82,9 @@ def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
     assert find_unsafe_urls(text) == []
 
 
-@pytest.mark.parametrize("text", ["**http://localhost**", "__https://example.org__", "~~http://127.0.0.1~~"])
+@pytest.mark.parametrize(
+    "text", ["**http://localhost**", "__https://example.org__", "~~http://127.0.0.1~~"]
+)
 def test_markdown_emphasis_is_not_part_of_safe_hostname(text: str) -> None:
     assert find_unsafe_urls(text) == []
 
