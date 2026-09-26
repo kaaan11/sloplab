@@ -142,9 +142,7 @@ _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
     rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))"
 )
-_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(
-    r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?"
-)
+_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?")
 
 
 def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
