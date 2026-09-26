@@ -313,6 +313,20 @@ class TestSafetyPolicy:
     @pytest.mark.parametrize(
         "url",
         [
+            "http:\n\n//attacker.com/x",
+            "http:\r\n\r\n//attacker.com/x",
+        ],
+    )
+    def test_repeated_separator_controls_reject_external_host(self, url: str) -> None:
+        violations = validate_content_safety(f"GET {url}")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert "\n" not in violations[0]
+        assert "\r" not in violations[0]
+
+    @pytest.mark.parametrize(
+        "url",
+        [
             "http:localhost/x",
             "http:/localhost/x",
             r"http:\\localhost/x",
