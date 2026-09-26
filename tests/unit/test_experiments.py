@@ -167,9 +167,7 @@ class TestDeterministicStudy:
         monkeypatch.setattr(study_module, "utc_now_iso", _clock)
         monkeypatch.setattr(study_module, "run_suite_with_outcomes", _observed_run)
 
-        result = run_deterministic_study(
-            config, study_path, study_workspace / "timed-out"
-        )
+        result = run_deterministic_study(config, study_path, study_workspace / "timed-out")
         manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
 
         assert manifest["started_at"] == "2026-01-01T00:00:00+00:00"
