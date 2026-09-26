@@ -136,6 +136,12 @@ def write_versioned_analysis(
     if set(coverage) != set(bundles):
         raise AnalysisError("coverage evaluator set differs from bundles set")
     target = out_dir / analysis_filename()
+    # This publisher owns the versioned-analysis namespace. Retire older
+    # definition files before publishing the current one so a supported rerun
+    # cannot leave compare/report with multiple apparently current candidates.
+    for stale in out_dir.glob("analysis-v*.json"):
+        if stale != target:
+            stale.unlink()
     if not records_path.is_file():
         raise AnalysisError(f"records file missing: {records_path}")
     if outcomes_path is not None and outcomes_path.is_file():
