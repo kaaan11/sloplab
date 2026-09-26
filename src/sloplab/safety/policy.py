@@ -49,7 +49,7 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}", re.IGNORECASE)
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_START_RE = re.compile(r"https?://", re.IGNORECASE)
-_URL_STOP_CHARS = frozenset("<>()`\\\"\'")
+_URL_STOP_CHARS = frozenset(("<", ">", "(", ")", "`", '"', "'"))
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 _TRAILING_URL_PUNCTUATION = ".,;!?\"'"
