@@ -105,6 +105,173 @@ class TestCanonicalHandling:
         result = evaluate(VALID_BODY)
         assert result.decision == Decision.ACCEPT
 
+    def test_conditional_boundary_marker_after_negation_routes_to_review(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed if the request stays within "
+            "one tenant.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_distant_condition_in_same_sentence_is_not_window_limited(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If the optional same-tenant profile is selected and all documented tenant "
+            "controls remain active throughout this intentionally long explanatory clause, "
+            "no security boundary between tenants is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_dotted_token_does_not_split_conditional_sentence(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If version 2.0 is used, no security boundary between tenants is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_conditional_negation_does_not_mask_unconditional_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed if the request stays within one "
+            "tenant. There is no security boundary between tenant A and tenant B.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+
+    def test_leading_if_with_coordinated_denial_is_unconditional(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "Contact support if this is unexpected, and no security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_separate_leading_if_sentence_does_not_condition_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "Contact support if this is unexpected. No security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_separate_followup_if_sentence_does_not_condition_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed. If this is unexpected, "
+            "contact support.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_unrelated_later_if_clause_does_not_condition_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed, but contact support if this "
+            "is unexpected.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_abbreviation_does_not_split_conditional_clause(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If compatibility mode is enabled, e.g. for legacy clients, no security "
+            "boundary between tenants is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_parenthetical_if_does_not_condition_outer_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed (contact support if this is "
+            "unexpected).",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_coordinated_followup_if_does_not_condition_negation(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary between tenants is crossed, and contact support if this "
+            "is unexpected.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_multiple_conditional_denials_are_independently_conditional(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If profile A is enabled, no boundary between tenants is crossed. "
+            "If profile B is enabled, no boundary between roles is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_question_newline_does_not_merge_conditional_and_unconditional_denials(
+        self,
+    ) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If profile A is enabled, no boundary between tenants is crossed?\n"
+            "No boundary between environments is crossed!",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+
+    def test_applies_if_is_a_postfix_conditional_denial(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary applies if the feature is disabled.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     def test_no_boundary_report_rejected(self) -> None:
         result = evaluate(INVALID_BODY)
         assert result.decision == Decision.REJECT

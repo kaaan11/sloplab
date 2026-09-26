@@ -78,9 +78,9 @@ _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     for p in (
         r"no security boundary",
         r"does not identify one",
-        r"no boundary [^.]*crossed",
+        r"no boundary [^.?!\n]*crossed",
         r"identifies none",
-        r"no boundary between .+ is crossed",
+        r"no boundary between [^.?!\n]+ is crossed",
         r"intended behavior",
         r"product preference",
         r"hardening (opportunity|suggestion)",
@@ -115,9 +115,67 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 
-#: A boundary negation stated inside a conditional clause ("If X were enabled...")
-# does not assert that the report's own subject crosses no boundary.
-_CONDITIONAL_SENTENCE_RE = re.compile(r"\b(?:if|when|whether|unless)\b[^.?!]*$", re.IGNORECASE)
+#: A boundary negation stated inside a conditional sentence ("If X were enabled..."
+# or "... if X were enabled") does not assert that the report's own subject
+# crosses no boundary.
+_CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
+_CLAUSE_BARRIER_RE = re.compile(
+    r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n"
+)
+_POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
+
+
+def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
+    """Return absolute blank-line-delimited bounds containing the match."""
+    left_boundary = text.rfind("\n\n", 0, match.start())
+    left = 0 if left_boundary < 0 else left_boundary + 2
+    right_boundary = text.find("\n\n", match.end())
+    right = len(text) if right_boundary < 0 else right_boundary
+    return left, right
+
+
+def _paren_depth(text: str, pos: int) -> int:
+    """Approximate parenthesis nesting depth at ``pos`` within a paragraph."""
+    depth = 0
+    for char in text[:pos]:
+        if char == "(":
+            depth += 1
+        elif char == ")" and depth:
+            depth -= 1
+    return depth
+
+
+def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
+    """Whether a conditional marker governs the same clause as the negation."""
+    left, right = _paragraph_bounds_for_match(text, match)
+    paragraph = text[left:right]
+    match_rel = match.start() - left
+    match_depth = _paren_depth(paragraph, match_rel)
+
+    match_end_rel = match.end() - left
+    for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
+        marker_depth = _paren_depth(paragraph, marker.start())
+        if marker_depth != match_depth:
+            continue
+        if marker.start() < match_rel:
+            between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
+            if not (
+                _CLAUSE_BARRIER_RE.search(between)
+                or _POSTFIX_FOLLOWUP_RE.search(between)
+            ):
+                return True
+            continue
+
+        # A trailing marker may follow a short lexical match while still
+        # governing the full denial ("no security boundary applies if ..." or
+        # "... is crossed if ..."). It is unrelated once a sentence/clause
+        # barrier or a coordinated follow-up (", and/or ...") intervenes.
+        between = paragraph[match_end_rel : marker.end()]
+        if _CLAUSE_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(between):
+            continue
+        return True
+    return False
+
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
@@ -236,18 +294,17 @@ class RulesBaselineEvaluator:
         # do not assert the report's own subject is safe; they describe a
         # hypothetical and should route to review, not reject.
         no_boundary_matches = [m for rx in _NO_BOUNDARY_PATTERNS for m in rx.finditer(full)]
-        conditional_negation = any(
-            _CONDITIONAL_SENTENCE_RE.search(full[max(0, m.start() - 80) : m.start() + 1])
-            for m in no_boundary_matches
-        )
-        unconditional_negation = bool(no_boundary_matches) and not conditional_negation
+        conditional_matches = [
+            m for m in no_boundary_matches if _is_conditional_boundary_match(full, m)
+        ]
+        unconditional_matches = [m for m in no_boundary_matches if m not in conditional_matches]
+        conditional_negation = bool(conditional_matches)
+        unconditional_negation = bool(unconditional_matches)
         contradiction_hits = _count_pattern_hits(full, _CLAIM_CONTRADICTION_PATTERNS)
         summary_claimed = bool(_STRONG_CLAIM_PATTERN.search(_section_text(report, "summary") or ""))
 
         if unconditional_negation:
-            hit = next(
-                (m.group(0) for rx in _NO_BOUNDARY_PATTERNS for m in [rx.search(full)] if m), ""
-            )
+            hit = unconditional_matches[0].group(0)
             findings.append(
                 Finding(
                     code="NO_SECURITY_BOUNDARY_STATED",
@@ -255,9 +312,13 @@ class RulesBaselineEvaluator:
                     evidence=hit[:80],
                 )
             )
-        elif conditional_negation:
+        if conditional_negation:
             findings.append(
-                Finding(code="CONDITIONAL_BOUNDARY_STATEMENT", severity=Severity.MEDIUM)
+                Finding(
+                    code="CONDITIONAL_BOUNDARY_STATEMENT",
+                    severity=Severity.MEDIUM,
+                    evidence=conditional_matches[0].group(0)[:80],
+                )
             )
         for hit in contradiction_hits[:1]:
             findings.append(
@@ -365,6 +426,7 @@ class RulesBaselineEvaluator:
             or reproducibility < 0.8 - noise_penalty
             or completeness < 0.8 - noise_penalty
             or overall < 0.78 - noise_penalty
+            or conditional_negation
         ):
             decision = Decision.NEEDS_MANUAL_REVIEW
         elif uncertainty_hits:
