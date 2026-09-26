@@ -7,11 +7,11 @@
       "decision_accuracy": 0.5420875420875421,
       "false_reassurance_rate": 0.42857142857142855,
       "false_reassurance_count": 105,
-      "over_rejection_rate": 0.0,
+      "over_rejection_rate": 0,
       "over_rejection_count": 0,
       "mutation_detection_rate": 0.125,
       "mutation_detection_total": 96,
-      "robustness_delta": 0.0,
+      "robustness_delta": 0,
       "presentation_susceptibility": 0.006787330316742085,
       "calibration_error": 0.27011784511784503,
       "dimension_mae": {
@@ -27,7 +27,7 @@
         "valid": 0.43243243243243246,
         "canonical_overall": 0.75
       },
-      "robustness_score": 0.4465
+      "robustness_score": 0.4777
     },
     "rules-baseline": {
       "evaluator_name": "rules-baseline",
@@ -36,7 +36,7 @@
       "decision_accuracy": 0.8114478114478114,
       "false_reassurance_rate": 0.09387755102040816,
       "false_reassurance_count": 23,
-      "over_rejection_rate": 0.0,
+      "over_rejection_rate": 0,
       "over_rejection_count": 0,
       "mutation_detection_rate": 0.8020833333333334,
       "mutation_detection_total": 96,
@@ -56,7 +56,7 @@
         "valid": 0.8513513513513513,
         "canonical_overall": 0.8
       },
-      "robustness_score": 0.8393
+      "robustness_score": 0.8376
     }
   },
   "paired_comparisons": [
@@ -102,7 +102,7 @@
         "decision_accuracy": 0.7777777777777778,
         "false_reassurance_rate": 0.15384615384615385,
         "false_reassurance_count": 4,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -119,9 +119,9 @@
         "per_class_accuracy": {
           "invalid": 0.6,
           "review": 0.75,
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.822
+        "robustness_score": 0.841
       },
       "confidence_overstatement": {
         "evaluator_name": "evidence-graph-baseline:confidence_overstatement",
@@ -147,18 +147,18 @@
         "per_class_accuracy": {
           "review": 0.6
         },
-        "robustness_score": 0.6584
+        "robustness_score": 0.6834
       },
       "contradict_observed_result": {
         "evaluator_name": "evidence-graph-baseline:contradict_observed_result",
         "total_cases": 11,
         "correct_cases": 11,
-        "decision_accuracy": 1.0,
-        "false_reassurance_rate": 0.0,
+        "decision_accuracy": 1,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 1.0,
+        "mutation_detection_rate": 1,
         "mutation_detection_total": 11,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -171,20 +171,20 @@
           "scope_consistency": 0.08
         },
         "per_class_accuracy": {
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.9833
+        "robustness_score": 0.98
       },
       "fabricate_reference": {
         "evaluator_name": "evidence-graph-baseline:fabricate_reference",
         "total_cases": 14,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
-        "false_reassurance_rate": 1.0,
+        "decision_accuracy": 0,
+        "false_reassurance_rate": 1,
         "false_reassurance_count": 14,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 14,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -197,20 +197,20 @@
           "scope_consistency": 0.0836
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0348
+        "robustness_score": 0.0418
       },
       "impact_inflation": {
         "evaluator_name": "evidence-graph-baseline:impact_inflation",
         "total_cases": 11,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
-        "false_reassurance_rate": 1.0,
+        "decision_accuracy": 0,
+        "false_reassurance_rate": 1,
         "false_reassurance_count": 11,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 11,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -223,20 +223,20 @@
           "scope_consistency": 0.0809
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0344
+        "robustness_score": 0.0413
       },
       "impossible_precondition": {
         "evaluator_name": "evidence-graph-baseline:impossible_precondition",
         "total_cases": 12,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
-        "false_reassurance_rate": 1.0,
+        "decision_accuracy": 0,
+        "false_reassurance_rate": 1,
         "false_reassurance_count": 12,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 12,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -249,20 +249,20 @@
           "scope_consistency": 0.075
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0349
+        "robustness_score": 0.0419
       },
       "invent_api_identifier": {
         "evaluator_name": "evidence-graph-baseline:invent_api_identifier",
         "total_cases": 13,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
-        "false_reassurance_rate": 1.0,
+        "decision_accuracy": 0,
+        "false_reassurance_rate": 1,
         "false_reassurance_count": 13,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 13,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -275,20 +275,20 @@
           "scope_consistency": 0.0823
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0344
+        "robustness_score": 0.0413
       },
       "misattribute_cve": {
         "evaluator_name": "evidence-graph-baseline:misattribute_cve",
         "total_cases": 13,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
-        "false_reassurance_rate": 1.0,
+        "decision_accuracy": 0,
+        "false_reassurance_rate": 1,
         "false_reassurance_count": 13,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 13,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -301,9 +301,9 @@
           "scope_consistency": 0.0785
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0348
+        "robustness_score": 0.0418
       },
       "professionalize_language": {
         "evaluator_name": "evidence-graph-baseline:professionalize_language",
@@ -312,7 +312,7 @@
         "decision_accuracy": 0.6875,
         "false_reassurance_rate": 0.14705882352941177,
         "false_reassurance_count": 5,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -329,9 +329,9 @@
         "per_class_accuracy": {
           "invalid": 0.3888888888888889,
           "review": 0.75,
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.8178
+        "robustness_score": 0.8736
       },
       "remove_affected_version": {
         "evaluator_name": "evidence-graph-baseline:remove_affected_version",
@@ -340,7 +340,7 @@
         "decision_accuracy": 0.8461538461538461,
         "false_reassurance_rate": 0.125,
         "false_reassurance_count": 2,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -356,9 +356,9 @@
         },
         "per_class_accuracy": {
           "review": 0.75,
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.8189
+        "robustness_score": 0.8072
       },
       "remove_reproduction_step": {
         "evaluator_name": "evidence-graph-baseline:remove_reproduction_step",
@@ -385,7 +385,7 @@
           "review": 0.75,
           "valid": 0.1
         },
-        "robustness_score": 0.3335
+        "robustness_score": 0.3002
       },
       "scope_expansion": {
         "evaluator_name": "evidence-graph-baseline:scope_expansion",
@@ -396,7 +396,7 @@
         "false_reassurance_count": 14,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 12,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -410,9 +410,9 @@
         },
         "per_class_accuracy": {
           "invalid": 0.6,
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.1992
+        "robustness_score": 0.1845
       }
     },
     "rules-baseline": {
@@ -423,7 +423,7 @@
         "decision_accuracy": 0.8611111111111112,
         "false_reassurance_rate": 0.038461538461538464,
         "false_reassurance_count": 1,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -442,14 +442,14 @@
           "review": 0.8125,
           "valid": 0.9
         },
-        "robustness_score": 0.8891
+        "robustness_score": 0.9011
       },
       "confidence_overstatement": {
         "evaluator_name": "rules-baseline:confidence_overstatement",
         "total_cases": 5,
         "correct_cases": 4,
         "decision_accuracy": 0.8,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
@@ -468,18 +468,18 @@
         "per_class_accuracy": {
           "review": 0.8
         },
-        "robustness_score": 0.836
+        "robustness_score": 0.8514
       },
       "contradict_observed_result": {
         "evaluator_name": "rules-baseline:contradict_observed_result",
         "total_cases": 11,
         "correct_cases": 11,
-        "decision_accuracy": 1.0,
-        "false_reassurance_rate": 0.0,
+        "decision_accuracy": 1,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 1.0,
+        "mutation_detection_rate": 1,
         "mutation_detection_total": 11,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -492,20 +492,20 @@
           "scope_consistency": 0.12
         },
         "per_class_accuracy": {
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.9609
+        "robustness_score": 0.953
       },
       "fabricate_reference": {
         "evaluator_name": "rules-baseline:fabricate_reference",
         "total_cases": 14,
         "correct_cases": 14,
-        "decision_accuracy": 1.0,
-        "false_reassurance_rate": 0.0,
+        "decision_accuracy": 1,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 1.0,
+        "mutation_detection_rate": 1,
         "mutation_detection_total": 14,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -518,20 +518,20 @@
           "scope_consistency": 0.1164
         },
         "per_class_accuracy": {
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.9389
+        "robustness_score": 0.9267
       },
       "impact_inflation": {
         "evaluator_name": "rules-baseline:impact_inflation",
         "total_cases": 11,
         "correct_cases": 11,
-        "decision_accuracy": 1.0,
-        "false_reassurance_rate": 0.0,
+        "decision_accuracy": 1,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 1.0,
+        "mutation_detection_rate": 1,
         "mutation_detection_total": 11,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -544,20 +544,20 @@
           "scope_consistency": 0.1191
         },
         "per_class_accuracy": {
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.9389
+        "robustness_score": 0.9267
       },
       "impossible_precondition": {
         "evaluator_name": "rules-baseline:impossible_precondition",
         "total_cases": 12,
         "correct_cases": 0,
-        "decision_accuracy": 0.0,
+        "decision_accuracy": 0,
         "false_reassurance_rate": 0.9166666666666666,
         "false_reassurance_count": 11,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 0.0,
+        "mutation_detection_rate": 0,
         "mutation_detection_total": 12,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -570,16 +570,16 @@
           "scope_consistency": 0.125
         },
         "per_class_accuracy": {
-          "valid": 0.0
+          "valid": 0
         },
-        "robustness_score": 0.0433
+        "robustness_score": 0.052
       },
       "invent_api_identifier": {
         "evaluator_name": "rules-baseline:invent_api_identifier",
         "total_cases": 13,
         "correct_cases": 9,
         "decision_accuracy": 0.6923076923076923,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
@@ -598,14 +598,14 @@
         "per_class_accuracy": {
           "valid": 0.6923076923076923
         },
-        "robustness_score": 0.7432
+        "robustness_score": 0.7533
       },
       "misattribute_cve": {
         "evaluator_name": "rules-baseline:misattribute_cve",
         "total_cases": 13,
         "correct_cases": 11,
         "decision_accuracy": 0.8461538461538461,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
@@ -624,7 +624,7 @@
         "per_class_accuracy": {
           "valid": 0.8461538461538461
         },
-        "robustness_score": 0.8436
+        "robustness_score": 0.8431
       },
       "professionalize_language": {
         "evaluator_name": "rules-baseline:professionalize_language",
@@ -633,7 +633,7 @@
         "decision_accuracy": 0.75,
         "false_reassurance_rate": 0.14705882352941177,
         "false_reassurance_count": 5,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -652,16 +652,16 @@
           "review": 0.8125,
           "valid": 0.9285714285714286
         },
-        "robustness_score": 0.8004
+        "robustness_score": 0.822
       },
       "remove_affected_version": {
         "evaluator_name": "rules-baseline:remove_affected_version",
         "total_cases": 26,
         "correct_cases": 23,
         "decision_accuracy": 0.8846153846153846,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
@@ -677,9 +677,9 @@
         },
         "per_class_accuracy": {
           "review": 0.8125,
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.8803
+        "robustness_score": 0.8785
       },
       "remove_reproduction_step": {
         "evaluator_name": "rules-baseline:remove_reproduction_step",
@@ -706,18 +706,18 @@
           "review": 0.8125,
           "valid": 0.9
         },
-        "robustness_score": 0.859
+        "robustness_score": 0.8615
       },
       "scope_expansion": {
         "evaluator_name": "rules-baseline:scope_expansion",
         "total_cases": 22,
         "correct_cases": 21,
         "decision_accuracy": 0.9545454545454546,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
-        "mutation_detection_rate": 1.0,
+        "mutation_detection_rate": 1,
         "mutation_detection_total": 12,
         "robustness_delta": null,
         "presentation_susceptibility": null,
@@ -731,9 +731,9 @@
         },
         "per_class_accuracy": {
           "invalid": 0.9,
-          "valid": 1.0
+          "valid": 1
         },
-        "robustness_score": 0.9443
+        "robustness_score": 0.9423
       }
     }
   },
@@ -750,8 +750,8 @@
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
-        "robustness_delta": 0.0,
-        "presentation_susceptibility": 0.0,
+        "robustness_delta": 0,
+        "presentation_susceptibility": 0,
         "calibration_error": 0.34375,
         "dimension_mae": {
           "claim_evidence_consistency": 0.1741,
@@ -764,7 +764,7 @@
           "invalid": 0.53125,
           "canonical_overall": 0.5769230769230769
         },
-        "robustness_score": 0.7604
+        "robustness_score": 0.7718
       },
       "review": {
         "evaluator_name": "evidence-graph-baseline:review",
@@ -777,7 +777,7 @@
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
-        "robustness_delta": 0.0,
+        "robustness_delta": 0,
         "presentation_susceptibility": 0.01785714285714285,
         "calibration_error": 0.5693294117647059,
         "dimension_mae": {
@@ -791,7 +791,7 @@
           "review": 0.7411764705882353,
           "canonical_overall": 0.75
         },
-        "robustness_score": 0.7835
+        "robustness_score": 0.7857
       },
       "valid": {
         "evaluator_name": "evidence-graph-baseline:valid",
@@ -800,11 +800,11 @@
         "decision_accuracy": 0.43243243243243246,
         "false_reassurance_rate": 0.875,
         "false_reassurance_count": 84,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": 0.125,
         "mutation_detection_total": 96,
-        "robustness_delta": 0.0,
+        "robustness_delta": 0,
         "presentation_susceptibility": null,
         "calibration_error": 0.29278378378378384,
         "dimension_mae": {
@@ -816,9 +816,9 @@
         },
         "per_class_accuracy": {
           "valid": 0.43243243243243246,
-          "canonical_overall": 1.0
+          "canonical_overall": 1
         },
-        "robustness_score": 0.2409
+        "robustness_score": 0.3355
       }
     },
     "rules-baseline": {
@@ -834,7 +834,7 @@
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
         "robustness_delta": 0.02631578947368421,
-        "presentation_susceptibility": 0.0,
+        "presentation_susceptibility": 0,
         "calibration_error": 0.44721874999999994,
         "dimension_mae": {
           "claim_evidence_consistency": 0.6891,
@@ -847,21 +847,21 @@
           "invalid": 0.71875,
           "canonical_overall": 0.6923076923076923
         },
-        "robustness_score": 0.7835
+        "robustness_score": 0.7769
       },
       "review": {
         "evaluator_name": "rules-baseline:review",
         "total_cases": 85,
         "correct_cases": 69,
         "decision_accuracy": 0.8117647058823529,
-        "false_reassurance_rate": 0.0,
+        "false_reassurance_rate": 0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
         "over_rejection_count": 0,
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
-        "robustness_delta": 0.0,
-        "presentation_susceptibility": 0.0,
+        "robustness_delta": 0,
+        "presentation_susceptibility": 0,
         "calibration_error": 0.5188235294117647,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3982,
@@ -874,7 +874,7 @@
           "review": 0.8117647058823529,
           "canonical_overall": 0.8125
         },
-        "robustness_score": 0.8665
+        "robustness_score": 0.8667
       },
       "valid": {
         "evaluator_name": "rules-baseline:valid",
@@ -883,11 +883,11 @@
         "decision_accuracy": 0.8513513513513513,
         "false_reassurance_rate": 0.125,
         "false_reassurance_count": 12,
-        "over_rejection_rate": 0.0,
+        "over_rejection_rate": 0,
         "over_rejection_count": 0,
         "mutation_detection_rate": 0.8020833333333334,
         "mutation_detection_total": 96,
-        "robustness_delta": 0.0,
+        "robustness_delta": 0,
         "presentation_susceptibility": null,
         "calibration_error": 0.27849324324324315,
         "dimension_mae": {
@@ -901,7 +901,7 @@
           "valid": 0.8513513513513513,
           "canonical_overall": 0.9444444444444444
         },
-        "robustness_score": 0.8216
+        "robustness_score": 0.8371
       }
     }
   },
@@ -917,4 +917,4 @@
       "high": 0.8552188552188552
     }
   }
-}
+}\n
