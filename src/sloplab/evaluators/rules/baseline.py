@@ -158,7 +158,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         if marker_depth != match_depth:
             continue
         if marker.start() < match_rel:
-            between = paragraph[marker.end() : match_rel]
+            between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
             if not _CLAUSE_BARRIER_RE.search(between):
                 return True
             continue
