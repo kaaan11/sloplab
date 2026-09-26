@@ -50,7 +50,7 @@ _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s<>()`]+", re.IGNORECASE)
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
-_TRAILING_URL_PUNCTUATION = ".,;!?\\\"\'"
+_TRAILING_URL_PUNCTUATION = ".,;!?\"'"
 
 
 def is_reserved_host(host: str) -> bool:
