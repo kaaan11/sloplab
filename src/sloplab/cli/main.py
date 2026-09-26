@@ -624,7 +624,7 @@ def compare(results: tuple[str, ...]) -> None:
     if len(results) < 1:
         raise click.ClickException("compare needs at least one result file or directory")
 
-    summaries: dict[str, dict[str, Any]] = {}
+    summaries: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
     seen_sources: set[Path] = set()
     for result_path in results:
         path = _Path(result_path)
@@ -643,7 +643,7 @@ def compare(results: tuple[str, ...]) -> None:
             raise click.ClickException(f"duplicate compare input: {metrics_dir}")
         seen_sources.add(source_id)
         source_token = hashlib.sha256(str(source_id).encode("utf-8")).hexdigest()[:8]
-        source_label = f"{metrics_dir.name}:{source_token}"
+        source_key = str(source_id)
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
             raise click.ClickException(
@@ -659,13 +659,19 @@ def compare(results: tuple[str, ...]) -> None:
             except AnalysisError as exc:
                 raise click.ClickException(str(exc)) from exc
             for name in document.get("evaluators", []):
-                summaries[f"{name} ({source_label})"] = document["bundles"][name]
+                summaries[(source_key, name)] = (
+                    f"{source_token}:{name} ({metrics_dir.name})",
+                    document["bundles"][name],
+                )
             continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
             data = json.loads(mfile.read_text())
             name = data.get("evaluator_name", mfile.stem)
-            summaries[f"{name} ({source_label})"] = data
+            summaries[(source_key, name)] = (
+                f"{source_token}:{name} ({metrics_dir.name})",
+                data,
+            )
 
     if not summaries:
         raise click.ClickException(f"no metrics-*.json files found for {results}")
@@ -680,13 +686,14 @@ def compare(results: tuple[str, ...]) -> None:
         ("calibration_error", "calibration error (lower=better)"),
         ("robustness_score", "aux robustness score"),
     ]
-    header = f"{'metric':<38}" + "".join(f"{n[:28]:>30}" for n in summaries)
+    labels = [display for display, _data in summaries.values()]
+    header = f"{'metric':<38}" + "".join(f"{label[:28]:>30}" for label in labels)
     click.echo(header)
     click.echo("-" * len(header))
     for key, label in keys:
         row = f"{label:<38}"
-        for name in summaries:
-            value = summaries[name].get(key)
+        for _identity, (_display, data) in summaries.items():
+            value = data.get(key)
             row += f"{('n/a' if value is None else format(value, '.3f')):>30}"
         click.echo(row)
 
