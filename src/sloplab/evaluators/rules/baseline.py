@@ -213,7 +213,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         if marker.start() < match_rel:
             if not _marker_starts_clause(paragraph, marker.start()):
                 continue
-            between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
+            between = paragraph[marker.end() : min(len(paragraph), match_end_rel)]
             if not _has_sentence_break(between):
                 return True
             continue
