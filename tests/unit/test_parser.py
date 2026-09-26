@@ -87,7 +87,7 @@ def test_shorter_or_different_fence_does_not_close_code_block() -> None:
     raw = """# Title
 
 ~~~~bash
-~~~ 
+~~~
 ## Still inside fence
 ```
 ## Also inside fence
