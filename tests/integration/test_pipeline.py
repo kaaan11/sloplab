@@ -147,6 +147,44 @@ def test_benchmark_stops_on_materialization_safety_block(
     assert not (out_dir / "run.jsonl").exists()
 
 
+def test_benchmark_reuse_rejects_safety_blocked_ledger(
+    tmp_path: Path, make_fixture: Any, monkeypatch: Any
+) -> None:
+    import sloplab.mutations.materialize as materialize_module
+
+    workspace = build_workspace(tmp_path, make_fixture)
+    materialized = workspace / "blocked-materialized"
+    monkeypatch.setattr(
+        materialize_module,
+        "validate_content_safety",
+        lambda text: ["synthetic safety violation"],
+    )
+    runner = CliRunner()
+    materialize_result = runner.invoke(
+        cli,
+        ["materialize", str(workspace / "suite.yaml"), "--out", str(materialized)],
+    )
+    assert materialize_result.exit_code != 0
+    assert (materialized / "materialization-ledger.jsonl").is_file()
+
+    result = runner.invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(materialized),
+            "--no-materialize",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "safety-blocked" in result.output
+    assert not (materialized / "run.jsonl").exists()
+
+
 def test_rerun_is_byte_identical(tmp_path: Path, make_fixture: Any) -> None:
     workspace = build_workspace(tmp_path, make_fixture)
     out_a, out_b = workspace / "a", workspace / "b"
