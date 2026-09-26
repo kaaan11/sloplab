@@ -84,6 +84,20 @@ def _trim_url_candidate(url: str) -> str:
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
+    for match in _URL_AUTHORITY_CONTROL_RE.finditer(text):
+        raw = match.group(0)
+        normalized = raw.replace("\\t", "").replace("\\r", "").replace("\\n", "")
+        try:
+            host = urlsplit(normalized).hostname
+        except ValueError:
+            host = None
+        if host is None or not is_reserved_host(host):
+            unsafe.add(
+                raw.replace("\\t", "\\\\t")
+                .replace("\\r", "\\\\r")
+                .replace("\\n", "\\\\n")
+            )
+
     for match in _URL_RE.finditer(text):
         url = _trim_url_candidate(match.group(0))
         authority = url.split("://", 1)[1]
