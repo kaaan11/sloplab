@@ -122,8 +122,7 @@ def find_unsafe_urls(text: str) -> list[str]:
     for candidate in _control_authority_candidates(text):
         raw = _trim_url_candidate(candidate)
         display_url = raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
-        raw_authority = raw.split("://", 1)[1]
-        if "\\" in raw_authority:
+        if "\\" in raw:
             unsafe.add(display_url)
             continue
         normalized = raw.replace("\t", "").replace("\r", "").replace("\n", "")
