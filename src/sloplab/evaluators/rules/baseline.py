@@ -163,6 +163,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
             return True
     return False
 
+
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
