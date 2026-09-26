@@ -177,9 +177,7 @@ class TestStrictParsing:
             ("high", Severity.HIGH),
         ],
     )
-    def test_finding_severity_uses_enum_values(
-        self, raw_severity: str, expected: Severity
-    ) -> None:
+    def test_finding_severity_uses_enum_values(self, raw_severity: str, expected: Severity) -> None:
         findings = [{"code": "SEVERITY_CASE", "severity": raw_severity, "evidence": "x"}]
         result = self.evaluator_with(payload_text(findings=findings)).evaluate(
             make_report(), make_context()
