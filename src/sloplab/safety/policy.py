@@ -109,10 +109,15 @@ def _special_url_candidates(text: str) -> list[tuple[str, str]]:
                 cursor += 1
                 continue
             if char in "\r\n":
-                end = cursor + 1
-                if char == "\r" and end < len(text) and text[end] == "\n":
-                    end += 1
-                if end < len(text) and text[end] in "\r\n":
+                end = cursor
+                line_breaks = 0
+                while end < len(text) and text[end] in "\r\n":
+                    if text[end] == "\r" and end + 1 < len(text) and text[end + 1] == "\n":
+                        end += 2
+                    else:
+                        end += 1
+                    line_breaks += 1
+                if line_breaks > 1 and (end >= len(text) or text[end] not in "/\\"):
                     boundary = True
                     break
                 prefix_nonstandard = True
