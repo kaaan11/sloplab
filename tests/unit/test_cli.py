@@ -1,7 +1,7 @@
 """Tests for the CLI entry point."""
 
-from click.testing import CliRunner
 import pytest
+from click.testing import CliRunner
 
 from sloplab import __version__
 from sloplab.cli.main import cli
