@@ -201,9 +201,10 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         # "... is crossed if ..."). It is unrelated once a sentence/clause
         # barrier or a coordinated follow-up (", and/or ...") intervenes.
         between = paragraph[match_end_rel : marker.end()]
-        if _TRAILING_CONDITION_BARRIER_RE.search(
-            between
-        ) or _POSTFIX_FOLLOWUP_RE.search(between):
+        if (
+            _TRAILING_CONDITION_BARRIER_RE.search(between)
+            or _POSTFIX_FOLLOWUP_RE.search(between)
+        ):
             continue
         return True
     return False
