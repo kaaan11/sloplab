@@ -176,6 +176,10 @@ class TestIncompleteCoverageExitCode:
     ) -> None:
         import sloplab.experiments.pilot as pilot_module
 
+        monkeypatch.setenv("SLOPLAB_LLM_MODEL", "openai/gpt-oss-20b:free")
+        monkeypatch.setenv("SLOPLAB_LLM_ENDPOINT", "https://example.invalid/v1")
+        monkeypatch.setattr(llm_bench, "HttpLLMClient", FakeHttp)
+
         config = tmp_path / "deadline-pilot.yaml"
         config.write_text(
             yaml.safe_dump(
