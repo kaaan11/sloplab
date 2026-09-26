@@ -169,7 +169,7 @@ class EvidenceGraphBaselineEvaluator:
             findings.append(
                 Finding(code="GRAPH_MISSING_BOUNDARY_SUPPORT", severity=Severity.MEDIUM)
             )
-        elif boundary_negated:
+        elif boundary_negated and impact_claims:
             findings.append(
                 Finding(code="GRAPH_BOUNDARY_CONTRADICTS_CLAIM", severity=Severity.HIGH)
             )
