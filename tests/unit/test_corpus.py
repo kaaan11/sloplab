@@ -281,9 +281,7 @@ class TestSafetyPolicy:
         assert control not in violations[0]
 
     @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
-    def test_control_inside_url_separators_cannot_hide_external_host(
-        self, control: str
-    ) -> None:
+    def test_control_inside_url_separators_cannot_hide_external_host(self, control: str) -> None:
         samples = (
             f"http:{control}//attacker.com/x",
             f"http:/{control}/attacker.com/x",
