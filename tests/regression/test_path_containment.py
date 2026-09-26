@@ -91,9 +91,7 @@ def test_suite_index_manifest_path_cannot_escape_materialized_root(
     outside_manifest = outside_dir / "mutation-manifest.yaml"
     outside_manifest.write_text("not: read\n", encoding="utf-8")
     value = (
-        str(outside_manifest)
-        if kind == "absolute"
-        else "../outside-case/mutation-manifest.yaml"
+        str(outside_manifest) if kind == "absolute" else "../outside-case/mutation-manifest.yaml"
     )
     index = materialized / "suite-index.jsonl"
     _write_index(index, value)

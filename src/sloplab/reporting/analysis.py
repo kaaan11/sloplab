@@ -241,9 +241,7 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
     records_path: Path | None = None
     if isinstance(records_name, str):
         try:
-            records_path = resolve_within(
-                bundle_dir, records_name, purpose="analysis records_path"
-            )
+            records_path = resolve_within(bundle_dir, records_name, purpose="analysis records_path")
         except ValueError as exc:
             raise AnalysisError(f"{analysis_path}: {exc}") from exc
     if records_path is None or not records_path.is_file():
