@@ -10,7 +10,8 @@ import re
 
 from sloplab.models.report import ReportDocument, ReportSection, SourceLocation
 
-_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})\s+(?P<text>.*?)\s*#*\s*$")
+_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})[ \t]+(?P<text>.*)$")
+_ATX_CLOSING_RE = re.compile(r"[ \t]+#+[ \t]*$")
 _FENCE_RE = re.compile(r"^\s*(?P<fence>`{3,}|~{3,})")
 
 
@@ -28,6 +29,7 @@ def parse_report(
     section_start = 1
     in_fence = False
     fence_marker = ""
+    fence_length = 0
 
     def close_section(end_line: int) -> None:
         body = "\n".join(lines[section_start - 1 : end_line]).strip("\n")
@@ -49,8 +51,15 @@ def parse_report(
             if not in_fence:
                 in_fence = True
                 fence_marker = marker[0]
-            elif marker[0] == fence_marker and len(marker) >= 3:
+                fence_length = len(marker)
+            elif (
+                marker[0] == fence_marker
+                and len(marker) >= fence_length
+                and not line[fence_match.end() :].strip()
+            ):
                 in_fence = False
+                fence_marker = ""
+                fence_length = 0
             continue
 
         if in_fence:
@@ -61,7 +70,12 @@ def parse_report(
             # Skip an empty preamble when the document starts with a heading.
             if not (current_heading is None and section_start > index - 1):
                 close_section(index - 1)
-            current_heading = heading_match.group("text").strip()
+            heading_text = heading_match.group("text").rstrip(" \t")
+            if re.fullmatch(r"#+", heading_text):
+                heading_text = ""
+            else:
+                heading_text = _ATX_CLOSING_RE.sub("", heading_text).rstrip(" \t")
+            current_heading = heading_text
             current_level = len(heading_match.group("hashes"))
             section_start = index
 

@@ -1,5 +1,6 @@
 """Tests for the Markdown report parser (source locations, fences, sections)."""
 
+from sloplab.corpus.conventions import EVIDENCE_SECTION_PATTERNS
 from sloplab.corpus.parser import parse_report
 
 SAMPLE = """\
@@ -80,3 +81,40 @@ def test_document_starting_with_heading_has_no_preamble() -> None:
 def test_document_without_h1_falls_back_to_fixture_id() -> None:
     doc = parse_report("## Only H2\n\ntext\n", fixture_id="canonical-x-001", path="y.md")
     assert doc.title == "canonical-x-001"
+
+
+def test_shorter_or_different_fence_does_not_close_code_block() -> None:
+    raw = """# Title
+
+~~~~bash
+~~~ 
+## Still inside fence
+```
+## Also inside fence
+~~~~
+
+## Real Section
+
+body
+"""
+    doc = parse_report(raw, fixture_id="canonical-fence-001", path="x.md")
+    headings = [section.heading for section in doc.sections if section.heading is not None]
+    assert "Still inside fence" not in headings
+    assert "Also inside fence" not in headings
+    assert "Real Section" in headings
+
+
+def test_atx_closing_hashes_do_not_strip_csharp_title() -> None:
+    raw = "# C#\n\n## Details ###\n\nbody\n"
+    doc = parse_report(raw, fixture_id="canonical-heading-001", path="x.md")
+    assert doc.title == "C#"
+    headings = [section.heading for section in doc.sections if section.heading is not None]
+    assert "Details" in headings
+
+
+def test_plural_expected_security_boundaries_heading_is_recognized() -> None:
+    raw = "# T\n\n## Expected Security Boundaries\n\nTenant isolation applies.\n"
+    doc = parse_report(raw, fixture_id="canonical-boundary-001", path="x.md")
+    matches = doc.find_sections(EVIDENCE_SECTION_PATTERNS["expected_security_boundary"])
+    assert len(matches) == 1
+    assert matches[0].heading == "Expected Security Boundaries"

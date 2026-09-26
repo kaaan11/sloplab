@@ -113,9 +113,9 @@ def test_fence_contents_stay_in_body_but_hide_headings() -> None:
 
 
 def test_tilde_and_long_fences() -> None:
-    """~~~ and ```` fences open; same-char markers close regardless of length."""
+    """~~~ and ```` fences close with same-char markers of sufficient length."""
     doc = parse_report(
-        "# T\n\n~~~\n# hidden\n~~~\n\n## A\n\nbody\n\n````\n# also hidden\n```\n\n## B\n\nend\n",
+        "# T\n\n~~~\n# hidden\n~~~\n\n## A\n\nbody\n\n````\n# also hidden\n````\n\n## B\n\nend\n",
         fixture_id="x",
         path="x",
     )
