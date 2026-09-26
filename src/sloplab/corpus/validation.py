@@ -109,6 +109,12 @@ def validate_identity_links(
             f"duplicate canonical id '{fixture_id}'; first declared at '{first.directory}'",
         )
 
+    # Parent-link integrity is a corpus-scope invariant. A standalone
+    # derived fixture/subtree has no canonical namespace in the validation
+    # scope, so it cannot prove or disprove parent existence here.
+    if not canonical:
+        return
+
     canonical_ids = set(seen_canonical)
     for fixture in derived:
         parent_id = fixture.manifest.parent_id
