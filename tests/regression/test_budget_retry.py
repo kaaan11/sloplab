@@ -636,7 +636,7 @@ def test_script_uses_same_ledger_path(
     rc = llm_bench.main(
         ["--config", str(config), "--max-cases", "2", "--repeats", "1", "--out", str(out)]
     )
-    assert rc == 0
+    assert rc == 1
     bundle = tmp_path / "llm-bench-results.bundle"
     outcomes = [
         json.loads(line)
