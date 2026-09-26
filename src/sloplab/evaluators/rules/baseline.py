@@ -138,7 +138,23 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     for boundary in _CLAUSE_START_RE.finditer(paragraph, 0, marker_start):
         clause_start = boundary.end()
     prefix = paragraph[clause_start:marker_start].strip().casefold()
-    return prefix in {"", "and", "but", "or"}
+    if prefix in {"", "and", "but", "or", "only", "even", "especially"}:
+        return True
+    parts = prefix.split()
+    return (
+        len(parts) == 2
+        and parts[0] in {"and", "but", "or"}
+        and parts[1] in {"only", "even", "especially"}
+    )
+
+
+def _has_sentence_break(text: str) -> bool:
+    """True when text contains a real sentence or clause boundary."""
+    for boundary in _SENTENCE_BREAK_RE.finditer(text):
+        if boundary.group(0) == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
+            continue
+        return True
+    return False
 
 
 def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
@@ -192,7 +208,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
             if not _marker_starts_clause(paragraph, marker.start()):
                 continue
             between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
-            if not _SENTENCE_BREAK_RE.search(between):
+            if not _has_sentence_break(between):
                 return True
             continue
 
