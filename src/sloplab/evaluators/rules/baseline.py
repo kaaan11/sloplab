@@ -163,7 +163,8 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
             # qualifier merely because it contains a later marker.
             if marker_depth == match_depth + 1 and marker.start() >= match_rel:
                 open_paren = paragraph.rfind("(", match_rel, marker.start() + 1)
-                if open_paren >= match_rel and not paragraph[open_paren + 1 : marker.start()].strip():
+                parenthetical_prefix = paragraph[open_paren + 1 : marker.start()]
+                if open_paren >= match_rel and not parenthetical_prefix.strip():
                     return True
             continue
         if marker.start() < match_rel:
