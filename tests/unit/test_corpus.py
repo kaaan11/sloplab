@@ -273,6 +273,30 @@ class TestSafetyPolicy:
         text = "Visit https://demo.example.org.\n\nAll demo systems use reserved targets."
         assert validate_content_safety(text) == []
 
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_inside_url_scheme_cannot_hide_external_host(self, control: str) -> None:
+        violations = validate_content_safety(f"GET htt{control}p://attacker.com/x")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_control_inside_url_separators_cannot_hide_external_host(
+        self, control: str
+    ) -> None:
+        samples = (
+            f"http:{control}//attacker.com/x",
+            f"http:/{control}/attacker.com/x",
+        )
+        for sample in samples:
+            violations = validate_content_safety(f"GET {sample}")
+            assert len(violations) == 1
+            assert "attacker.com" in violations[0]
+            assert control not in violations[0]
+
+    def test_control_obfuscated_scheme_to_reserved_host_remains_allowed(self) -> None:
+        assert validate_content_safety("GET htt\np://localhost/x") == []
+
     def test_control_and_backslash_combination_is_rejected(self) -> None:
         violations = validate_content_safety("GET http://localhost\tattacker.com\\@localhost/x")
         assert len(violations) == 1
