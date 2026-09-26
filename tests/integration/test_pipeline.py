@@ -117,6 +117,36 @@ def test_full_benchmark_pipeline(tmp_path: Path, make_fixture: Any) -> None:
     assert "`rules-baseline`" in report_text
 
 
+def test_benchmark_stops_on_materialization_safety_block(
+    tmp_path: Path, make_fixture: Any, monkeypatch: Any
+) -> None:
+    import sloplab.mutations.materialize as materialize_module
+
+    workspace = build_workspace(tmp_path, make_fixture)
+    out_dir = workspace / "blocked-results"
+    monkeypatch.setattr(
+        materialize_module,
+        "validate_content_safety",
+        lambda text: ["synthetic safety violation"],
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "safety-blocked" in result.output
+    assert not (out_dir / "run.jsonl").exists()
+
+
 def test_rerun_is_byte_identical(tmp_path: Path, make_fixture: Any) -> None:
     workspace = build_workspace(tmp_path, make_fixture)
     out_a, out_b = workspace / "a", workspace / "b"
