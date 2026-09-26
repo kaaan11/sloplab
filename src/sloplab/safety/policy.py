@@ -59,33 +59,33 @@ _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 _TRAILING_URL_PUNCTUATION = ".,;!?\"'*_~"
 
 
-def _userinfo_separator_ahead(text: str, start: int) -> bool:
-    """Whether a stop-like character is still inside userinfo.
+def _userinfo_separator_index(text: str, start: int) -> int | None:
+    """Return the last @ before the authority ends, ignoring prose-like chars.
 
-    Quotes/Markdown delimiters normally terminate a prose URL, but URL parsers
-    treat them as part of userinfo when an @ follows before the authority ends.
-    In that case keep scanning so the full suspicious authority is rejected
-    instead of approving only a safe-looking prefix.
+    This single lookahead lets the main scanner distinguish a closing quote or
+    Markdown delimiter from the same character inside userinfo without
+    repeatedly rescanning the suffix.
     """
     bracket_depth = 0
+    last_at: int | None = None
     cursor = start
     while cursor < len(text):
         char = text[cursor]
         if char.isspace() and char not in _URL_CONTROL_WHITESPACE:
-            return False
+            break
         if char == "[":
             bracket_depth += 1
         elif char == "]":
             if bracket_depth == 0:
-                return False
+                break
             bracket_depth -= 1
         elif bracket_depth == 0:
-            if char == "@":
-                return True
             if char in "/?#":
-                return False
+                break
+            if char == "@":
+                last_at = cursor
         cursor += 1
-    return False
+    return last_at
 
 
 def is_reserved_host(host: str) -> bool:
@@ -117,6 +117,7 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         end = match.end()
         bracket_depth = 0
         authority_done = False
+        userinfo_separator = _userinfo_separator_index(text, match.end())
         scan = match.end()
         while scan < len(text):
             char = text[scan]
@@ -127,8 +128,8 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 # continuation. Once a path/query/fragment has started, controls
                 # cannot change the hostname and remain ordinary text delimiters.
                 break
-            if char in _URL_STOP_CHARS and not (
-                not authority_done and _userinfo_separator_ahead(text, scan + 1)
+            if char in _URL_STOP_CHARS and (
+                authority_done or userinfo_separator is None or scan > userinfo_separator
             ):
                 break
             if char == "[":
