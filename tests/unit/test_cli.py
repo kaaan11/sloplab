@@ -33,6 +33,7 @@ def test_validate_requires_existing_path(tmp_path) -> None:  # type: ignore[no-u
 
 
 def test_compare_keeps_same_basename_directories_separate(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    import hashlib
     import json
 
     runner = CliRunner()
@@ -55,7 +56,11 @@ def test_compare_keeps_same_basename_directories_separate(tmp_path) -> None:  # 
     assert result.exit_code == 0, result.output
     assert "0.100" in result.output
     assert "0.900" in result.output
-    assert result.output.count("rules-baseline") >= 2
+    token_a = hashlib.sha256(str(roots[0].resolve()).encode("utf-8")).hexdigest()[:8]
+    token_b = hashlib.sha256(str(roots[1].resolve()).encode("utf-8")).hexdigest()[:8]
+    assert token_a in result.output
+    assert token_b in result.output
+    assert token_a != token_b
 
 
 def test_compare_rejects_duplicate_input_directory(tmp_path) -> None:  # type: ignore[no-untyped-def]
