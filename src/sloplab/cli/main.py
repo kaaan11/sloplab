@@ -645,6 +645,7 @@ def compare(results: tuple[str, ...]) -> None:
         seen_sources.add(source_id)
         source_token = hashlib.sha256(os.fsencode(source_id)).hexdigest()[:8]
         source_key = str(source_id)
+        source_label = os.fsencode(metrics_dir.name).decode("utf-8", errors="backslashreplace")
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
             raise click.ClickException(
@@ -661,7 +662,7 @@ def compare(results: tuple[str, ...]) -> None:
                 raise click.ClickException(str(exc)) from exc
             for name in document.get("evaluators", []):
                 summaries[(source_key, name)] = (
-                    f"{source_token}:{name} ({metrics_dir.name})",
+                    f"{source_token}:{name} ({source_label})",
                     document["bundles"][name],
                 )
             continue
@@ -670,7 +671,7 @@ def compare(results: tuple[str, ...]) -> None:
             data = json.loads(mfile.read_text())
             name = data.get("evaluator_name", mfile.stem)
             summaries[(source_key, name)] = (
-                f"{source_token}:{name} ({metrics_dir.name})",
+                f"{source_token}:{name} ({source_label})",
                 data,
             )
 
