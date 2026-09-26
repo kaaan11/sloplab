@@ -116,11 +116,11 @@ def validate_identity_links(
         return
 
     canonical_ids = set(seen_canonical)
-    for fixture in derived:
-        parent_id = fixture.manifest.parent_id
+    for derived_fixture in derived:
+        parent_id = derived_fixture.manifest.parent_id
         if parent_id not in canonical_ids:
             result.error(
-                str(fixture.directory),
+                str(derived_fixture.directory),
                 f"parent_id '{parent_id}' does not reference a canonical fixture in this corpus",
             )
 
