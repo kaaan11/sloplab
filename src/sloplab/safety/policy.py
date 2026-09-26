@@ -49,8 +49,7 @@ _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
 _URL_SCHEME_RE = re.compile(
-    r"h[\t\r\n]*t[\t\r\n]*t[\t\r\n]*p[\t\r\n]*"
-    r"(?:s[\t\r\n]*)?:[\t\r\n]*/[\t\r\n]*/",
+    r"h[\t\r\n]*t[\t\r\n]*t[\t\r\n]*p[\t\r\n]*(?:s[\t\r\n]*)?:",
     re.IGNORECASE,
 )
 _AUTHORITY_DELIMITERS = frozenset(" \f\v/?#)>`")
@@ -87,18 +86,57 @@ def _trim_url_candidate(url: str) -> str:
     return url
 
 
-def _control_authority_candidates(text: str) -> list[str]:
-    """Extract URL authorities containing TAB/CR/LF without crossing blank lines."""
-    candidates: list[str] = []
+def _special_url_candidates(text: str) -> list[tuple[str, str]]:
+    """Return non-standard HTTP(S) spellings and a canonical URL for host checks.
+
+    WHATWG special schemes tolerate missing/extra slashes, backslash separators,
+    and TAB/CR/LF controls. This scanner handles those forms without letting a
+    single Markdown blank line merge unrelated prose into an authority.
+    """
+    candidates: list[tuple[str, str]] = []
     for match in _URL_SCHEME_RE.finditer(text):
+        scheme_raw = match.group(0)
+        scheme = scheme_raw.replace("\t", "").replace("\r", "").replace("\n", "")
         cursor = match.end()
-        saw_control = any(char in "\t\r\n" for char in match.group(0))
+        prefix_nonstandard = any(char in "\t\r\n" for char in scheme_raw)
+        separators: list[str] = []
+        boundary = False
+
         while cursor < len(text):
             char = text[cursor]
-            if char in _AUTHORITY_DELIMITERS:
+            if char == "\t":
+                prefix_nonstandard = True
+                cursor += 1
+                continue
+            if char in "\r\n":
+                end = cursor + 1
+                if char == "\r" and end < len(text) and text[end] == "\n":
+                    end += 1
+                if end < len(text) and text[end] in "\r\n":
+                    boundary = True
+                    break
+                prefix_nonstandard = True
+                cursor = end
+                continue
+            if char in "/\\":
+                separators.append(char)
+                cursor += 1
+                continue
+            break
+
+        if boundary:
+            continue
+        if separators != ["/", "/"]:
+            prefix_nonstandard = True
+
+        authority_start = cursor
+        authority_control = False
+        while cursor < len(text):
+            char = text[cursor]
+            if char in _AUTHORITY_DELIMITERS or char == "\\":
                 break
             if char == "\t":
-                saw_control = True
+                authority_control = True
                 cursor += 1
                 continue
             if char in "\r\n":
@@ -107,27 +145,30 @@ def _control_authority_candidates(text: str) -> list[str]:
                     end += 1
                 if end < len(text) and text[end] in "\r\n":
                     break
-                saw_control = True
+                authority_control = True
                 cursor = end
                 continue
             cursor += 1
-        if saw_control:
-            candidates.append(text[match.start() : cursor])
+
+        authority_raw = text[authority_start:cursor]
+        authority = _trim_url_candidate(
+            authority_raw.replace("\t", "").replace("\r", "").replace("\n", "")
+        )
+        if not authority or not (prefix_nonstandard or authority_control):
+            continue
+
+        raw = _trim_url_candidate(text[match.start():cursor])
+        candidates.append((raw, f"{scheme}//{authority}"))
     return candidates
 
 
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
-    for candidate in _control_authority_candidates(text):
-        raw = _trim_url_candidate(candidate)
+    for raw, canonical in _special_url_candidates(text):
         display_url = raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
-        if "\\" in raw:
-            unsafe.add(display_url)
-            continue
-        normalized = raw.replace("\t", "").replace("\r", "").replace("\n", "")
         try:
-            host = urlsplit(normalized).hostname
+            host = urlsplit(canonical).hostname
         except ValueError:
             host = None
         if host is None or not is_reserved_host(host):
