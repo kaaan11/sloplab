@@ -402,6 +402,11 @@ def benchmark(
             )
         result = materialize_suite(config, canonical, out_dir, corpus_root_resolved=corpus_root)
         click.echo(result.summary())
+        if result.safety_violations:
+            raise click.ClickException(
+                "materialization produced safety-blocked cases; "
+                "refusing to evaluate a partial unsafe suite"
+            )
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
 
