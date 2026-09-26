@@ -252,9 +252,7 @@ class TestSafetyPolicy:
         assert control not in violations[0]
 
     def test_control_and_backslash_combination_is_rejected(self) -> None:
-        violations = validate_content_safety(
-            "GET http://localhost\tattacker.com\\@localhost/x"
-        )
+        violations = validate_content_safety("GET http://localhost\tattacker.com\\@localhost/x")
         assert len(violations) == 1
         assert "attacker.com" in violations[0]
         assert "\t" not in violations[0]
