@@ -236,3 +236,14 @@ class TestSafetyPolicy:
         assert "\t" not in violations[0]
         assert "\r" not in violations[0]
         assert "\n" not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_nonadjacent_control_in_userinfo_cannot_hide_external_host(
+        self, control: str
+    ) -> None:
+        violations = validate_content_safety(
+            f"GET http://localhost{control}user@attacker.com/x"
+        )
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+        assert control not in violations[0]
