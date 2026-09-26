@@ -267,6 +267,8 @@ class TestWorkflowContract:
             s for s in steps if str(s.get("uses", "")).startswith("actions/upload-artifact")
         )
         assert "llm-bench-results.bundle/" in upload["with"]["path"]
+        assert upload["if"] == "${{ always() }}"
+        assert upload["with"]["if-no-files-found"] == "ignore"
         assert "MANUAL-ONLY" in raw
 
     def test_dispatch_input_never_interpolated_into_shell(self) -> None:
