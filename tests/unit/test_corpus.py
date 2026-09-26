@@ -187,3 +187,29 @@ class TestSafetyPolicy:
 
     def test_subdomain_of_reserved_allowed(self) -> None:
         assert validate_content_safety("https://deep.sub.example.net/x") == []
+
+    def test_url_userinfo_does_not_hide_external_hostname(self) -> None:
+        violations = validate_content_safety("GET http://localhost@attacker.com/private")
+        assert len(violations) == 1
+        assert "attacker.com" in violations[0]
+
+    def test_localhost_suffix_requires_hostname_boundary(self) -> None:
+        violations = validate_content_safety(
+            "GET http://fakelocalhost/path and http://notreally.localhost.evil.example/path"
+        )
+        assert len(violations) == 2
+
+    def test_local_hostname_variants_and_ipv6_loopback_allowed(self) -> None:
+        text = (
+            "GET http://api.localhost:8080/x and http://device.local/y "
+            "and http://user@localhost/z and http://[::1]:9000/health"
+        )
+        assert validate_content_safety(text) == []
+
+    def test_lowercase_real_year_cve_detected(self) -> None:
+        violations = validate_content_safety("See cve-2021-44228 for details.")
+        assert len(violations) == 1
+        assert "cve-2021-44228" in violations[0]
+
+    def test_lowercase_fake_year_cve_allowed(self) -> None:
+        assert validate_content_safety("Reference cve-2099-12345.") == []
