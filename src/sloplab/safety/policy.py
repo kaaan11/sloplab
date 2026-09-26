@@ -77,13 +77,15 @@ def find_real_year_cves(text: str) -> list[str]:
 
 
 def _iter_url_tokens(text: str) -> Iterator[str]:
-    """Yield HTTP(S) tokens in one pass while preserving bracketed IPv6 hosts."""
-    for match in _URL_START_RE.finditer(text):
+    """Yield disjoint HTTP(S) tokens while preserving bracketed IPv6 hosts."""
+    cursor = 0
+    while match := _URL_START_RE.search(text, cursor):
         start = match.start()
         end = match.end()
         bracket_depth = 0
-        for index in range(match.end(), len(text)):
-            char = text[index]
+        scan = match.end()
+        while scan < len(text):
+            char = text[scan]
             if char.isspace() or char in _URL_STOP_CHARS:
                 break
             if char == "[":
@@ -92,11 +94,14 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 if bracket_depth == 0:
                     break
                 bracket_depth -= 1
-            end = index + 1
+            scan += 1
+            end = scan
         token = text[start:end].rstrip(_TRAILING_URL_PUNCTUATION)
         if token:
             yield token
-
+        # The scanned token and any embedded scheme-like substrings form one
+        # lexical URL. Resume at its boundary rather than rescanning suffixes.
+        cursor = max(scan, match.end())
 
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
