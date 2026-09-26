@@ -81,7 +81,7 @@ def test_content_accessibility_and_no_active_resources() -> None:
 
 
 @pytest.mark.parametrize(
-    "payload", ["<script>alert(1)</script>", '\"><img src=x onerror=alert(1)>', "& < >"]
+    "payload", ["<script>alert(1)</script>", '"><img src=x onerror=alert(1)>', "& < >"]
 )
 def test_untrusted_fields_escaped(tmp_path: Path, payload: str) -> None:
     rec = record("child", kind="mutated", parent_id="parent", operator=payload)
