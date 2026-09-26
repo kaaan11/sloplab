@@ -164,7 +164,12 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
             if marker_depth == match_depth + 1 and marker.start() >= match_rel:
                 open_paren = paragraph.rfind("(", match_rel, marker.start() + 1)
                 parenthetical_prefix = paragraph[open_paren + 1 : marker.start()]
-                if open_paren >= match_rel and not parenthetical_prefix.strip():
+                denial_to_paren = paragraph[match_end_rel:open_paren]
+                if (
+                    open_paren >= match_end_rel
+                    and not parenthetical_prefix.strip()
+                    and not _CLAUSE_BARRIER_RE.search(denial_to_paren)
+                ):
                     return True
             continue
         if marker.start() < match_rel:
