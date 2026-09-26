@@ -48,12 +48,8 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
 _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
-_URL_AUTHORITY_CONTROL_RE = re.compile(
-    r"https?://[^\x20\t\r\n\f\v/?#)>`]*[\t\r\n]+"
-    r"(?=[^\x20\f\v/?#)>`]*(?:@|\\|%[0-9A-Fa-f]{2}|\.[A-Za-z0-9]))"
-    r"[^\x20\f\v/?#)>`]+",
-    re.IGNORECASE,
-)
+_URL_SCHEME_RE = re.compile(r"https?://", re.IGNORECASE)
+_AUTHORITY_DELIMITERS = frozenset(" \f\v/?#)>`")
 
 _LOCAL_HOST_SUFFIXES = (".localhost", ".local")
 
@@ -87,11 +83,40 @@ def _trim_url_candidate(url: str) -> str:
     return url
 
 
+def _control_authority_candidates(text: str) -> list[str]:
+    """Extract URL authorities containing TAB/CR/LF without crossing blank lines."""
+    candidates: list[str] = []
+    for match in _URL_SCHEME_RE.finditer(text):
+        cursor = match.end()
+        saw_control = False
+        while cursor < len(text):
+            char = text[cursor]
+            if char in _AUTHORITY_DELIMITERS:
+                break
+            if char == "\t":
+                saw_control = True
+                cursor += 1
+                continue
+            if char in "\r\n":
+                end = cursor + 1
+                if char == "\r" and end < len(text) and text[end] == "\n":
+                    end += 1
+                if end < len(text) and text[end] in "\r\n":
+                    break
+                saw_control = True
+                cursor = end
+                continue
+            cursor += 1
+        if saw_control:
+            candidates.append(text[match.start() : cursor])
+    return candidates
+
+
 def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose host is outside reserved domains and private/loopback addresses."""
     unsafe: set[str] = set()
-    for match in _URL_AUTHORITY_CONTROL_RE.finditer(text):
-        raw = match.group(0)
+    for candidate in _control_authority_candidates(text):
+        raw = _trim_url_candidate(candidate)
         display_url = raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n")
         raw_authority = raw.split("://", 1)[1]
         if "\\" in raw_authority:
