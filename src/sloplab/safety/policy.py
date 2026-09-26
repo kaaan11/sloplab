@@ -60,30 +60,21 @@ _TRAILING_URL_PUNCTUATION = ".,;!?\"'*_~"
 
 
 def _userinfo_separator_index(text: str, start: int) -> int | None:
-    """Return the last @ before the authority ends, ignoring prose-like chars.
+    """Return the last @ before the authority ends.
 
-    This single lookahead lets the main scanner distinguish a closing quote or
-    Markdown delimiter from the same character inside userinfo without
-    repeatedly rescanning the suffix.
+    Brackets and prose-like punctuation before that separator are userinfo data,
+    not host syntax. IPv6 bracket semantics only matter after userinfo has ended.
     """
-    bracket_depth = 0
     last_at: int | None = None
     cursor = start
     while cursor < len(text):
         char = text[cursor]
         if char.isspace() and char not in _URL_CONTROL_WHITESPACE:
             break
-        if char == "[":
-            bracket_depth += 1
-        elif char == "]":
-            if bracket_depth == 0:
-                break
-            bracket_depth -= 1
-        elif bracket_depth == 0:
-            if char in "/?#":
-                break
-            if char == "@":
-                last_at = cursor
+        if char in "/?#":
+            break
+        if char == "@":
+            last_at = cursor
         cursor += 1
     return last_at
 
@@ -170,16 +161,17 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                     break
                 if not _authority_continues_after_controls(text, scan):
                     break
-            if char in _URL_STOP_CHARS and (
-                authority_done or userinfo_separator is None or scan > userinfo_separator
-            ):
+            in_userinfo = userinfo_separator is not None and scan < userinfo_separator
+            if char in _URL_STOP_CHARS and (authority_done or not in_userinfo):
                 break
             if char == "[":
-                bracket_depth += 1
+                if not in_userinfo:
+                    bracket_depth += 1
             elif char == "]":
-                if bracket_depth == 0:
-                    break
-                bracket_depth -= 1
+                if not in_userinfo:
+                    if bracket_depth == 0:
+                        break
+                    bracket_depth -= 1
             elif bracket_depth == 0 and char in "/?#":
                 authority_done = True
             scan += 1
