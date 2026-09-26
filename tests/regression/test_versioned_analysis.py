@@ -148,21 +148,21 @@ def test_report_renders_from_verified_analysis(tmp_path: Path) -> None:
             "report",
             str(out_dir / "records.jsonl"),
             "--analysis",
-            str(out_dir / "analysis-v1.json"),
+            str(out_dir / analysis_filename()),
             "--out",
             str(out),
         ],
     )
     assert result.exit_code == 0, result.output
     text = out.read_text(encoding="utf-8")
-    assert "analysis v1" in text
+    assert f"analysis v{ANALYSIS_DEFINITION_VERSION}" in text
     assert "rules-baseline" in text
 
 
 def test_compare_refuses_ambiguous_versions(tmp_path: Path) -> None:
     """E4b: two versioned analyses in one dir is an explicit error."""
     out_dir = _published_run(tmp_path, "v-amb")
-    (out_dir / "analysis-v2.json").write_bytes((out_dir / analysis_filename()).read_bytes())
+    (out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json").write_bytes(\n        (out_dir / analysis_filename()).read_bytes()\n    )
     result = CliRunner().invoke(cli, ["compare", str(out_dir)])
     assert result.exit_code != 0
     assert "ambiguous" in result.output
@@ -189,7 +189,7 @@ def test_consumers_call_the_verified_reader(
                 "report",
                 str(out_dir / "records.jsonl"),
                 "--analysis",
-                str(out_dir / "analysis-v1.json"),
+                str(out_dir / analysis_filename()),
             ],
         )
         .exit_code
