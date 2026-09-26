@@ -218,6 +218,10 @@ class TestSafetyPolicy:
         text = "See http://example.com, then 'http://localhost' and http://api.localhost."
         assert validate_content_safety(text) == []
 
+    def test_reserved_url_with_markdown_emphasis_allowed(self) -> None:
+        text = "**http://localhost** and __https://demo.example.org__"
+        assert validate_content_safety(text) == []
+
     def test_external_url_with_trailing_prose_punctuation_still_rejected(self) -> None:
         violations = validate_content_safety("See http://attacker.com, then continue.")
         assert len(violations) == 1
@@ -249,6 +253,15 @@ class TestSafetyPolicy:
         violations = validate_content_safety(f"GET http://localhost{control}.attacker.com/x")
         assert len(violations) == 1
         assert "attacker.com" in violations[0]
+        assert control not in violations[0]
+
+    @pytest.mark.parametrize("control", ["\t", "\r", "\n"])
+    def test_encoded_dot_after_control_cannot_extend_localhost(self, control: str) -> None:
+        violations = validate_content_safety(
+            f"GET http://localhost{control}%2eattacker%2ecom/x"
+        )
+        assert len(violations) == 1
+        assert "%2eattacker%2ecom" in violations[0]
         assert control not in violations[0]
 
     def test_control_and_backslash_combination_is_rejected(self) -> None:
