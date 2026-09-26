@@ -18,6 +18,7 @@ EXAMPLE = REPO_ROOT / "benchmarks" / "results" / "v1-core-example"
 REASON_PAIRED_FIX = "paired susceptibility fix (E4a)"
 REASON_CLOSED_BIN = "closed-bin ECE fix (E4a)"
 REASON_COVERAGE_ENVELOPE = "coverage envelope added (E4a)"
+REASON_CANONICAL_ACCURACY = "canonical robustness accuracy fix (#23)"
 REASON_UNCHANGED = "unchanged"
 
 
@@ -62,6 +63,10 @@ def test_every_difference_has_a_recorded_reason() -> None:
                 table[key] = REASON_PAIRED_FIX if old_value != new_value else REASON_UNCHANGED
             elif key == "calibration_error":
                 table[key] = REASON_CLOSED_BIN if old_value != new_value else REASON_UNCHANGED
+            elif key == "robustness_score":
+                table[key] = (
+                    REASON_CANONICAL_ACCURACY if old_value != new_value else REASON_UNCHANGED
+                )
             else:
                 assert old_value == new_value, f"{name}.{key}: {old_value} != {new_value}"
                 table[key] = REASON_UNCHANGED
@@ -69,6 +74,7 @@ def test_every_difference_has_a_recorded_reason() -> None:
                 REASON_PAIRED_FIX,
                 REASON_CLOSED_BIN,
                 REASON_COVERAGE_ENVELOPE,
+                REASON_CANONICAL_ACCURACY,
                 REASON_UNCHANGED,
             }
         reasons[name] = table
@@ -80,4 +86,5 @@ def test_every_difference_has_a_recorded_reason() -> None:
     assert reasons["rules-baseline"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["oracle"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["rules-baseline"]["decision_accuracy"] == REASON_UNCHANGED
+    assert reasons["rules-baseline"]["robustness_score"] == REASON_CANONICAL_ACCURACY
     assert set(reasons) == {"oracle", "rules-baseline"}
