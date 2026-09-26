@@ -140,7 +140,7 @@ def _special_url_candidates(text: str) -> list[tuple[int, int, str, str]]:
                     else:
                         end += 1
                     line_breaks += 1
-                if line_breaks > 1 and (end >= len(text) or text[end] not in "/\\"):
+                if line_breaks > 1 and not _authority_continues_after_controls(text, end):
                     boundary = True
                     break
                 prefix_nonstandard = True
