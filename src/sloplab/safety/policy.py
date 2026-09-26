@@ -96,11 +96,7 @@ def find_unsafe_urls(text: str) -> list[str]:
         except ValueError:
             host = None
         if host is None or not is_reserved_host(host):
-            unsafe.add(
-                raw.replace("\t", "\\t")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n")
-            )
+            unsafe.add(raw.replace("\t", "\\t").replace("\r", "\\r").replace("\n", "\\n"))
 
     for match in _URL_RE.finditer(text):
         url = _trim_url_candidate(match.group(0))
