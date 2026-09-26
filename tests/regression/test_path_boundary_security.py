@@ -219,7 +219,7 @@ def test_suite_manifest_path_with_nul_is_actionable_boundary_error(tmp_path: Pat
                 "record_type": "suite_case",
                 "kind": "mutated",
                 "case_id": "mut-boundary-001",
-                "manifest_path": "bad\\u0000name",
+                "manifest_path": "bad" + chr(0) + "name",
                 "report_class": "valid",
             }
         )
@@ -235,7 +235,7 @@ def test_analysis_bound_path_with_nul_is_actionable_boundary_error(tmp_path: Pat
     out_dir = _published_run(tmp_path, "path-nul")
     marker = out_dir / analysis_filename()
     document = json.loads(marker.read_text(encoding="utf-8"))
-    document["records_path"] = "bad\\u0000name"
+    document["records_path"] = "bad" + chr(0) + "name"
     marker.write_text(json.dumps(document, sort_keys=True), encoding="utf-8")
     write_completion(out_dir, kind="study")
 
