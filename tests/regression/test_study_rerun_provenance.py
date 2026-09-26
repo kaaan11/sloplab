@@ -81,9 +81,7 @@ def test_successful_rerun_removes_stale_outcomes(tmp_path: Path) -> None:
     assert manifest["error_count"] == 0
 
 
-def test_provenance_timestamps_bracket_evaluation(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
+def test_provenance_timestamps_bracket_evaluation(tmp_path: Path, monkeypatch: Any) -> None:
     config, study_path = _workspace(tmp_path)
     calls: list[str] = []
 
