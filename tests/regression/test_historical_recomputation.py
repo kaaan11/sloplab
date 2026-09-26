@@ -63,10 +63,6 @@ def test_every_difference_has_a_recorded_reason() -> None:
                 table[key] = REASON_PAIRED_FIX if old_value != new_value else REASON_UNCHANGED
             elif key == "calibration_error":
                 table[key] = REASON_CLOSED_BIN if old_value != new_value else REASON_UNCHANGED
-            elif key == "robustness_score":
-                table[key] = (
-                    REASON_CANONICAL_ACCURACY if old_value != new_value else REASON_UNCHANGED
-                )
             else:
                 assert old_value == new_value, f"{name}.{key}: {old_value} != {new_value}"
                 table[key] = REASON_UNCHANGED
