@@ -13,7 +13,7 @@ import sloplab.experiments.study as study_module
 from sloplab.evaluators.llm.failures import EvaluationFailure
 from sloplab.experiments.runner import load_study_config
 from sloplab.experiments.study import run_deterministic_study
-from sloplab.scoring.harness import CaseOutcome
+from sloplab.scoring.harness import CaseOutcome, run_suite_with_outcomes
 from tests._helpers import write_canonical_fixture
 
 
@@ -85,7 +85,7 @@ def test_reused_output_drops_stale_outcomes_after_clean_run(
 ) -> None:
     study_path, out_dir = _workspace(tmp_path)
     config = load_study_config(study_path)
-    real_run = study_module.run_suite_with_outcomes
+    real_run = run_suite_with_outcomes
 
     monkeypatch.setattr(study_module, "run_suite_with_outcomes", _failed_outcomes)
     failed = run_deterministic_study(config, study_path, out_dir)
