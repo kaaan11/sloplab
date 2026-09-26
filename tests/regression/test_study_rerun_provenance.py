@@ -111,9 +111,7 @@ def test_provenance_timestamps_bracket_evaluation(tmp_path: Path, monkeypatch: A
     ]
 
 
-def test_provenance_error_count_matches_failed_outcomes(
-    tmp_path: Path, monkeypatch: Any
-) -> None:
+def test_provenance_error_count_matches_failed_outcomes(tmp_path: Path, monkeypatch: Any) -> None:
     config, study_path = _workspace(tmp_path)
 
     def _all_fail(evaluator: Any, cases: list[Any]) -> tuple[list[Any], list[CaseOutcome]]:
