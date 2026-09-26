@@ -106,8 +106,7 @@ def validate_identity_links(
             continue
         result.error(
             str(fixture.directory),
-            f"duplicate canonical id '{fixture_id}'; "
-            f"first declared at '{first.directory}'",
+            f"duplicate canonical id '{fixture_id}'; first declared at '{first.directory}'",
         )
 
     canonical_ids = set(seen_canonical)
