@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import ipaddress
 import re
+from urllib.parse import urlsplit
 
 #: Fictional far-future year for all fabricated CVE references.
 FAKE_CVE_YEAR = "2099"
@@ -54,7 +55,7 @@ _LOCAL_HOST_SUFFIXES = ("localhost", ".localhost", ".local")
 def is_reserved_host(host: str) -> bool:
     """True if host is a reserved documentation domain, localhost, or private IP."""
     host = host.lower().rstrip(".")
-    if any(host == suffix or host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
+    if host == "localhost" or any(host.endswith(suffix) for suffix in _LOCAL_HOST_SUFFIXES):
         return True
     if any(host == d or host.endswith("." + d) for d in RESERVED_DOMAINS):
         return True
@@ -72,12 +73,25 @@ def find_real_year_cves(text: str) -> list[str]:
     )
 
 
+def _clean_url_token(token: str) -> str:
+    """Remove prose/Markdown terminators without breaking bracketed IPv6 hosts."""
+    token = token.rstrip(_TRAILING_URL_PUNCTUATION)
+    while token.endswith("]") and token.count("]") > token.count("["):
+        token = token[:-1]
+    return token
+
+
 def find_unsafe_urls(text: str) -> list[str]:
-    """URLs whose host is outside reserved domains and private/loopback addresses."""
+    """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
     for match in _URL_RE.finditer(text):
-        if not is_reserved_host(match.group("host")):
-            unsafe.add(match.group(0))
+        url = _clean_url_token(match.group(0))
+        try:
+            host = urlsplit(url).hostname
+        except ValueError:
+            host = None
+        if host is None or not is_reserved_host(host):
+            unsafe.add(url)
     return sorted(unsafe)
 
 
