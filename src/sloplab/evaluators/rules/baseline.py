@@ -123,6 +123,7 @@ _CLAUSE_BARRIER_RE = re.compile(
     r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n"
 )
 _POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
+_PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(r"^\s*(?:(?:only|even|especially)\s+)?$", re.IGNORECASE)
 
 
 def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
@@ -167,7 +168,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                 denial_to_paren = paragraph[match_end_rel:open_paren]
                 if (
                     open_paren >= match_end_rel
-                    and not parenthetical_prefix.strip()
+                    and _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(parenthetical_prefix)
                     and not _CLAUSE_BARRIER_RE.search(denial_to_paren)
                 ):
                     return True
