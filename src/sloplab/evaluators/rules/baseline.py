@@ -80,7 +80,7 @@ _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"does not identify one",
         r"no boundary [^.]*crossed",
         r"identifies none",
-        r"no boundary between .+ is crossed",
+        r"no boundary between [^.?!\\n]+ is crossed",
         r"intended behavior",
         r"product preference",
         r"hardening (opportunity|suggestion)",
@@ -151,14 +151,22 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
     match_rel = match.start() - left
     match_depth = _paren_depth(paragraph, match_rel)
 
+    match_end_rel = match.end() - left
     for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
         marker_depth = _paren_depth(paragraph, marker.start())
         if marker_depth != match_depth:
             continue
-        between_start = min(marker.end(), match_rel)
-        between_end = max(marker.start(), match.end() - left)
-        between = paragraph[between_start:between_end]
-        if not _CLAUSE_BARRIER_RE.search(between):
+        if marker.start() < match_rel:
+            between = paragraph[marker.end() : match_rel]
+            if not _CLAUSE_BARRIER_RE.search(between):
+                return True
+            continue
+
+        # A trailing marker conditions the denial only when it starts directly
+        # after the matched negation ("... is crossed if ..."). Words between
+        # the denial and marker indicate a separate coordinated/follow-up clause.
+        between = paragraph[match_end_rel : marker.start()]
+        if re.fullmatch(r"[\s,]*", between):
             return True
     return False
 
