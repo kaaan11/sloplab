@@ -119,30 +119,21 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
+_SENTENCE_BOUNDARY_RE = re.compile(r"[.!?](?=\s|$)|\n\s*\n")
 
 
 def _sentence_for_match(text: str, match: re.Match[str]) -> str:
     """Return the sentence/paragraph fragment containing the match."""
-    start = match.start()
-    end = match.end()
-    left = max(
-        text.rfind(".", 0, start),
-        text.rfind("?", 0, start),
-        text.rfind("!", 0, start),
-        text.rfind("\n\n", 0, start),
-    )
-    rights = [
-        pos
-        for pos in (
-            text.find(".", end),
-            text.find("?", end),
-            text.find("!", end),
-            text.find("\n\n", end),
-        )
-        if pos >= 0
-    ]
-    right = min(rights) if rights else len(text)
-    return text[left + 1 : right]
+    left = 0
+    right = len(text)
+    for boundary in _SENTENCE_BOUNDARY_RE.finditer(text):
+        if boundary.end() <= match.start():
+            left = boundary.end()
+            continue
+        if boundary.start() >= match.end():
+            right = boundary.start()
+            break
+    return text[left:right]
 
 
 _CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
