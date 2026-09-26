@@ -91,14 +91,15 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         scan = match.end()
         while scan < len(text):
             char = text[scan]
-            if char.isspace():
+            if char.isspace() and (
+                char not in _URL_CONTROL_WHITESPACE or authority_done
+            ):
                 # WHATWG-style consumers discard TAB/CR/LF inside a URL. Keep
                 # those controls inside the candidate while we are still in the
                 # authority so a safe-looking prefix cannot hide an external
                 # continuation. Once a path/query/fragment has started, controls
                 # cannot change the hostname and remain ordinary text delimiters.
-                if char not in _URL_CONTROL_WHITESPACE or authority_done:
-                    break
+                break
             if char in _URL_STOP_CHARS:
                 break
             if char == "[":
