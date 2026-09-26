@@ -79,35 +79,25 @@ def _userinfo_separator_index(text: str, start: int) -> int | None:
     return last_at
 
 
-def _authority_continues_after_controls(text: str, start: int) -> bool:
-    """Distinguish URL-normalized controls from ordinary Markdown line breaks."""
+def _authority_control_run(text: str, start: int) -> tuple[bool, int]:
+    """Return (continues_authority, first_non_control_index) for one control run.
+
+    TAB/CR/LF are removed by browser URL parsing, but Markdown line breaks also
+    delimit prose. Treat the run as URL-internal only when what follows still
+    looks authority-like; consume the whole run once so adversarial inputs stay
+    linear-time.
+    """
     cursor = start
-    line_breaks = 0
-    saw_tab = False
     while cursor < len(text) and text[cursor] in _URL_CONTROL_WHITESPACE:
-        if text[cursor] == "\t":
-            saw_tab = True
-            cursor += 1
-        elif text[cursor] == "\r":
-            line_breaks += 1
-            cursor += 1
-            if cursor < len(text) and text[cursor] == "\n":
-                cursor += 1
-        else:
-            line_breaks += 1
-            cursor += 1
+        cursor += 1
 
     if cursor >= len(text):
-        return False
+        return False, cursor
     next_char = text[cursor]
     if next_char in ".@:":
-        return True
+        return True, cursor
     if next_char.isspace() or next_char in _URL_STOP_CHARS or next_char in "/?#":
-        return False
-    if saw_tab and line_breaks == 0:
-        return True
-    if line_breaks != 1:
-        return False
+        return False, cursor
 
     end = cursor
     while end < len(text):
@@ -117,10 +107,10 @@ def _authority_continues_after_controls(text: str, start: int) -> bool:
         end += 1
     segment = text[cursor:end]
     if not segment:
-        return False
+        return False, cursor
     if end < len(text) and text[end] in "/?#":
-        return True
-    return "." in segment or "@" in segment or ":" in segment
+        return True, cursor
+    return ("." in segment or "@" in segment or ":" in segment), cursor
 
 
 def is_reserved_host(host: str) -> bool:
@@ -159,8 +149,12 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
             if char.isspace():
                 if char not in _URL_CONTROL_WHITESPACE or authority_done:
                     break
-                if not _authority_continues_after_controls(text, scan):
+                continues, control_end = _authority_control_run(text, scan)
+                if not continues:
                     break
+                scan = control_end
+                end = scan
+                continue
             in_userinfo = userinfo_separator is not None and scan < userinfo_separator
             if char in _URL_STOP_CHARS and (authority_done or not in_userinfo):
                 break
