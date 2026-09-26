@@ -49,9 +49,9 @@ _FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}")
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_RE = re.compile(r"https?://[^\s)>`]+", re.IGNORECASE)
 _URL_AUTHORITY_CONTROL_RE = re.compile(
-    r"https?://(?:[^\\x20\\t\\r\\n/?#)>`]*[\\t\\r\\n]+@"
-    r"|[^\\x20\\t\\r\\n/?#)>`]*@[\\t\\r\\n]+)"
-    r"[^\\x20\\t\\r\\n/?#)>`]+",
+    r"https?://(?:[^\x20\t\r\n/?#)>`]*[\t\r\n]+@"
+    r"|[^\x20\t\r\n/?#)>`]*@[\t\r\n]+)"
+    r"[^\x20\t\r\n/?#)>`]+",
     re.IGNORECASE,
 )
 
