@@ -347,9 +347,7 @@ class TestSafetyPolicy:
     def test_repeated_controls_with_plain_authority_continuation_are_scanned(
         self, control: str
     ) -> None:
-        violations = validate_content_safety(
-            f"GET http://localhost{control}attacker.com/x"
-        )
+        violations = validate_content_safety(f"GET http://localhost{control}attacker.com/x")
         assert len(violations) == 1
         assert "attacker.com" in violations[0]
         assert "\n" not in violations[0]
