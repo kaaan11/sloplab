@@ -80,6 +80,80 @@ def _import_source(source: str) -> ModuleType:
     return importlib.import_module(source)
 
 
+@contextmanager
+def _loaded_source(source: str) -> Iterator[ModuleType]:
+    """Keep import-cache ownership alive through validation and registry exit.
+
+    A rejected importable module must not be reused without executing its body.
+    Track only newly imported entries in its package namespace, including parents
+    and relative helpers; never sweep unrelated imports or evict pre-existing
+    modules. Like registry restoration, this assumes serialized BYOE resolution,
+    not arbitrary concurrent imports or sandboxing of Python side effects.
+    """
+    namespace = (
+        None if source.endswith(".py") or "/" in source or "\\" in source else source.split(".")[0]
+    )
+
+    def in_namespace(name: str) -> bool:
+        return namespace is not None and (name == namespace or name.startswith(namespace + "."))
+
+    previous = {name: module for name, module in sys.modules.copy().items() if in_namespace(name)}
+    bindings = {
+        name: vars(module).copy()
+        for name, module in previous.items()
+        if isinstance(module, ModuleType)
+    }
+    owned: dict[str, ModuleType] = {}
+
+    def remember_imports() -> None:
+        for name, module in sys.modules.copy().items():
+            if in_namespace(name) and name not in previous and isinstance(module, ModuleType):
+                # Do not adopt a replacement installed later by a factory.
+                owned.setdefault(name, module)
+
+    try:
+        with _preserve_registry():
+            try:
+                try:
+                    module = _import_source(source)
+                finally:
+                    # Also record successful parent imports if the leaf fails.
+                    remember_imports()
+            except ExternalEvaluatorError:
+                raise
+            except Exception as exc:
+                raise ExternalEvaluatorError(
+                    f"Cannot import evaluator module '{source}' ({type(exc).__name__}); "
+                    "check the module path and its dependencies."
+                ) from exc
+            try:
+                yield module
+            finally:
+                remember_imports()  # include imports made by the factory
+    except BaseException:
+        missing = object()
+        for name in sorted(owned, key=lambda key: (key.count("."), key), reverse=True):
+            module = owned[name]
+            if sys.modules.get(name) is not module:
+                continue  # do not delete a replacement we did not import
+            del sys.modules[name]
+            parent_name, _, child = name.rpartition(".")
+            parent = previous.get(parent_name, owned.get(parent_name))
+            if (
+                isinstance(parent, ModuleType)
+                and sys.modules.get(parent_name) is parent
+                and vars(parent).get(child, missing) is module
+            ):
+                # importlib binds a submodule on its parent as well as in the
+                # cache. Restore only that binding, not the parent's whole dict.
+                prior = bindings.get(parent_name, {}).get(child, missing)
+                if prior is missing:
+                    del vars(parent)[child]
+                else:
+                    vars(parent)[child] = prior
+        raise
+
+
 def _validate(candidate: object) -> Evaluator:
     for field in ("name", "version"):
         value = getattr(candidate, field, None)
@@ -158,16 +232,7 @@ def load_external_evaluator(spec: str) -> Evaluator:
         raise ExternalEvaluatorError(
             "Evaluator spec requires :ATTR: use FILE.py:make or package.module:evaluator."
         )
-    with _preserve_registry():
-        try:
-            module = _import_source(source)
-        except ExternalEvaluatorError:
-            raise
-        except Exception as exc:
-            raise ExternalEvaluatorError(
-                f"Cannot import evaluator module '{source}' ({type(exc).__name__}); "
-                "check the module path and its dependencies."
-            ) from exc
+    with _loaded_source(source) as module:
         if not hasattr(module, attribute):
             raise ExternalEvaluatorError(
                 f"Evaluator attribute '{attribute}' not found in '{source}'."
