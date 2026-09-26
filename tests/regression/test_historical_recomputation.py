@@ -18,7 +18,6 @@ EXAMPLE = REPO_ROOT / "benchmarks" / "results" / "v1-core-example"
 REASON_PAIRED_FIX = "paired susceptibility fix (E4a)"
 REASON_CLOSED_BIN = "closed-bin ECE fix (E4a)"
 REASON_COVERAGE_ENVELOPE = "coverage envelope added (E4a)"
-REASON_CANONICAL_ACCURACY = "canonical robustness accuracy fix (#23)"
 REASON_UNCHANGED = "unchanged"
 
 
@@ -70,7 +69,6 @@ def test_every_difference_has_a_recorded_reason() -> None:
                 REASON_PAIRED_FIX,
                 REASON_CLOSED_BIN,
                 REASON_COVERAGE_ENVELOPE,
-                REASON_CANONICAL_ACCURACY,
                 REASON_UNCHANGED,
             }
         reasons[name] = table
@@ -82,5 +80,5 @@ def test_every_difference_has_a_recorded_reason() -> None:
     assert reasons["rules-baseline"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["oracle"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["rules-baseline"]["decision_accuracy"] == REASON_UNCHANGED
-    assert reasons["rules-baseline"]["robustness_score"] == REASON_CANONICAL_ACCURACY
+    assert reasons["rules-baseline"]["robustness_score"] == REASON_UNCHANGED
     assert set(reasons) == {"oracle", "rules-baseline"}
