@@ -119,8 +119,12 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
-_CLAUSE_BARRIER_RE = re.compile(
-    r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|\.(?=\s+[A-Z])|\n\s*\n"
+_LEADING_CONDITION_BARRIER_RE = re.compile(
+    r";|--|—|[!?](?=\s|$)|\.(?=\s+(?:[A-Z(]|$))|\n\s*\n"
+)
+_TRAILING_CONDITION_BARRIER_RE = re.compile(
+    r";|--|—|\b(?i:but|however|yet)\b|[!?](?=\s|$)|"
+    r"\.(?=\s+(?:[A-Z(]|$))|\n\s*\n"
 )
 _POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
 _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
@@ -172,13 +176,16 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                 if (
                     open_paren >= match_end_rel
                     and _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(parenthetical_prefix)
-                    and not _CLAUSE_BARRIER_RE.search(denial_to_paren)
+                    and not _TRAILING_CONDITION_BARRIER_RE.search(denial_to_paren)
                 ):
                     return True
             continue
         if marker.start() < match_rel:
             between = paragraph[marker.end() : min(len(paragraph), match_rel + 1)]
-            if not (_CLAUSE_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(between)):
+            if not (
+                _LEADING_CONDITION_BARRIER_RE.search(between)
+                or _POSTFIX_FOLLOWUP_RE.search(between)
+            ):
                 return True
             continue
 
@@ -187,7 +194,9 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         # "... is crossed if ..."). It is unrelated once a sentence/clause
         # barrier or a coordinated follow-up (", and/or ...") intervenes.
         between = paragraph[match_end_rel : marker.end()]
-        if _CLAUSE_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(between):
+        if _TRAILING_CONDITION_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(
+            between
+        ):
             continue
         return True
     return False
