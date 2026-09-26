@@ -12,7 +12,7 @@ import sloplab.experiments.study as study_module
 from sloplab.evaluators.llm.failures import EvaluationFailure
 from sloplab.experiments.config import DeterministicStudyConfig
 from sloplab.experiments.study import run_deterministic_study
-from sloplab.scoring.harness import CaseOutcome
+from sloplab.scoring.harness import CaseOutcome, run_suite_with_outcomes
 from tests._helpers import write_canonical_fixture
 
 
@@ -90,7 +90,7 @@ def test_provenance_timestamps_bracket_evaluation(tmp_path: Path, monkeypatch: A
         calls.append(value)
         return value
 
-    real_run = study_module.run_suite_with_outcomes
+    real_run = run_suite_with_outcomes
 
     def _checked_run(*args: Any, **kwargs: Any) -> Any:
         assert calls == ["2026-09-26T10:00:00+00:00"]
