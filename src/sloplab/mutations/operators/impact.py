@@ -29,7 +29,7 @@ from sloplab.mutations.textops import (
     replace_section_body,
 )
 
-_IMPACT_PATTERN = r"impact"
+_IMPACT_PATTERN = r"^impact$"
 _COMPONENT_PATTERN = r"affected\s+components?"
 _VERSIONS_PATTERN = r"affected\s+versions?"
 
