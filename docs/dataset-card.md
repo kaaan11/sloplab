@@ -17,10 +17,10 @@ the mutation engine and are not committed as source data.
 
 ## Provenance
 
-The 60 canonical reports were **fully synthetic** and written with model
+The 60 canonical reports are **fully synthetic** and written with model
 assistance (OpenAI Codex and/or Meta Muse Spark); the owner set the report
 classes and targets and then curated the corpus. There is no per-fixture record
-of which model authored any individual fixture, so authorship is stated only as
+of which model wrote which fixture, so authorship is stated only as
 "Codex and/or Muse Spark" — never as fact about a specific fixture.
 
 Every fixture is fully synthetic. No real bug-bounty reports, private program
