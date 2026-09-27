@@ -17,9 +17,15 @@ the mutation engine and are not committed as source data.
 
 ## Provenance
 
-Every fixture is **fully synthetic**, authored for SlopLab. No real bug-bounty
-reports, private program data, or third-party copyrighted material is included.
-All scenarios take place in fictional demo applications:
+The 60 canonical reports are **fully synthetic** and were written with model
+assistance (OpenAI Codex and/or Meta Muse Spark); the owner set the report
+classes and targets and then curated the corpus. There is no per-fixture record
+of which model wrote which fixture, so authorship is stated only as
+"Codex and/or Muse Spark" — never as fact about a specific fixture.
+
+Every fixture is fully synthetic. No real bug-bounty reports, private program
+data, or third-party copyrighted material is included. All scenarios take place
+in fictional demo applications:
 
 | Fictional asset | Used for |
 |---|---|
@@ -59,9 +65,12 @@ truth across the pair by construction.
 
 ## Known limitations
 
-- English only; phrasing diversity is limited to what 60 hand-authored reports can
-  cover.
+- English only; phrasing diversity is limited to what 60 model-assisted,
+  maintainer-curated reports can cover.
 - Review-class ground truth reflects maintainer judgment for the fictional
   scenarios; reasonable people could disagree on individual classifications.
 - The uncertainty-detector overlap noted in methodology.md applies to baseline
   evaluation of review-class fixtures.
+- Earlier release notes (e.g. `release-notes-v0.1.0.md`) described the canonical
+  fixtures as "hand-authored"; that wording is corrected by this card: the
+  reports were model-assisted, maintainer-curated.

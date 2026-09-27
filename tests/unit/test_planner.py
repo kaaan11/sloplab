@@ -105,7 +105,9 @@ class TestMaterialization:
         index_path = out / SUITE_INDEX_NAME
         lines = [json.loads(line) for line in index_path.read_text().splitlines()]
         assert lines[0]["record_type"] == "suite_header"
-        assert lines[0]["corpus_root"] == config.corpus_root
+        # #60: the header carries the corpus root relative to the output root
+        # (here the corpus lives one level above the suite output directory).
+        assert lines[0]["corpus_root"] == "../canonical"
         kinds: dict[str, int] = {}
         for line in lines:
             if line.get("record_type") != "suite_case":
