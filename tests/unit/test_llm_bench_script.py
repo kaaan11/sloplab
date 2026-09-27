@@ -170,6 +170,99 @@ class TestOutputsAndProvenance:
         assert "requests used: 4" in printed
 
 
+class TestIncompleteCoverageExitCode:
+    def test_deadline_not_run_returns_nonzero(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
+    ) -> None:
+        import sloplab.experiments.pilot as pilot_module
+
+        monkeypatch.setenv("SLOPLAB_LLM_MODEL", "openai/gpt-oss-20b:free")
+        monkeypatch.setenv("SLOPLAB_LLM_ENDPOINT", "https://example.invalid/v1")
+        monkeypatch.setattr(llm_bench, "HttpLLMClient", FakeHttp)
+
+        config = tmp_path / "deadline-pilot.yaml"
+        config.write_text(
+            yaml.safe_dump(
+                {
+                    "schema_version": 2,
+                    "name": "deadline-pilot",
+                    "suite": {
+                        "config_path": "benchmarks/suites/v1-core.yaml",
+                        "corpus_root": "corpus",
+                    },
+                    "base_seed": 1,
+                    "repeats": 1,
+                    "model_env": "SLOPLAB_LLM_MODEL",
+                    "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+                    "api_key_env": "SLOPLAB_LLM_API_KEY",
+                    "prompt_file": "experiments/prompts/triage-v1.md",
+                    "budget": {
+                        "max_requests": 10,
+                        "request_timeout_s": 60,
+                        "max_retries_per_case": 0,
+                        "min_interval_ms": 0,
+                        "deadline_s": 1,
+                    },
+                    "case_selection": "canonical_first",
+                }
+            ),
+            encoding="utf-8",
+        )
+
+        class DeadlineClock:
+            def __init__(self) -> None:
+                self.values = iter([0.0, 2.0, 2.0, 2.0])
+
+            def monotonic(self) -> float:
+                return next(self.values, 2.0)
+
+            def time(self) -> float:
+                return 0.0
+
+            def gmtime(self, value: float | None = None) -> Any:
+                import time
+
+                return time.gmtime(0 if value is None else value)
+
+            def strftime(self, fmt: str, value: Any) -> str:
+                import time
+
+                return time.strftime(fmt, value)
+
+            def sleep(self, seconds: float) -> None:
+                _ = seconds
+
+        monkeypatch.setattr(pilot_module, "time", DeadlineClock())
+        out = tmp_path / "deadline-results.jsonl"
+        rc = llm_bench.main(["--config", str(config), "--max-cases", "1", "--out", str(out)])
+
+        assert rc == 1
+        printed = capsys.readouterr().out
+        assert "NOT-RUN (deadline_exceeded)" in printed
+        assert "failed evaluations: 0/0" in printed
+
+
+class TestFailureExitCode:
+    def test_failed_evaluation_returns_nonzero(
+        self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
+    ) -> None:
+        class InvalidJsonHttp(FakeHttp):
+            def complete(self, prompt: str) -> LLMResponse:
+                _ = prompt
+                self.calls += 1
+                return LLMResponse(text="{not-json", latency_ms=1)
+
+        monkeypatch.setenv("SLOPLAB_LLM_MODEL", "openai/gpt-oss-20b:free")
+        monkeypatch.setenv("SLOPLAB_LLM_ENDPOINT", "https://example.invalid/v1")
+        monkeypatch.setattr(llm_bench, "HttpLLMClient", InvalidJsonHttp)
+
+        out = tmp_path / "failed.jsonl"
+        rc = llm_bench.main(["--max-cases", "1", "--out", str(out)])
+
+        assert rc == 1
+        assert "failed evaluations: 1/1" in capsys.readouterr().out
+
+
 class TestEnvGuard:
     def test_missing_model_env_fails_fast(
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: Any
@@ -206,7 +299,7 @@ class TestNoLeakage:
 
         out = tmp_path / "llm-bench-results.jsonl"
         rc = llm_bench.main(["--max-cases", "2", "--out", str(out)])
-        assert rc == 0
+        assert rc == 1
 
         captured = capsys.readouterr()
         bundle = tmp_path / "llm-bench-results.bundle"
@@ -246,6 +339,8 @@ class TestWorkflowContract:
             s for s in steps if str(s.get("uses", "")).startswith("actions/upload-artifact")
         )
         assert "llm-bench-results.bundle/" in upload["with"]["path"]
+        assert upload["if"] == "${{ always() }}"
+        assert upload["with"]["if-no-files-found"] == "ignore"
         assert "MANUAL-ONLY" in raw
 
     def test_dispatch_input_never_interpolated_into_shell(self) -> None:

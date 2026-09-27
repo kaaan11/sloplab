@@ -380,7 +380,13 @@ def benchmark(
     from pathlib import Path as _Path
 
     from sloplab.corpus.loader import FixtureError, discover_fixtures
-    from sloplab.mutations.materialize import SUITE_INDEX_NAME, load_suite_config, materialize_suite
+    from sloplab.mutations.materialize import (
+        LEDGER_FILE_NAME,
+        SUITE_INDEX_NAME,
+        load_suite_config,
+        materialize_suite,
+        read_materialization_ledger,
+    )
     from sloplab.reporting.writers import write_markdown_report, write_records_csv
 
     selected = _select_evaluators(evaluators, evaluator_modules)
@@ -388,6 +394,14 @@ def benchmark(
     config = load_suite_config(suite_path)
     out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # A rerun owns the evaluation artifacts in its output directory. Invalidate
+    # them before materialization/ledger checks so any later failure cannot leave
+    # stale scores that look current for a newly written suite index.
+    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    for stale_metrics in out_dir.glob("metrics-*.json"):
+        stale_metrics.unlink()
 
     if do_materialize:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
@@ -404,6 +418,18 @@ def benchmark(
         click.echo(result.summary())
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
+
+    ledger_path = out_dir / LEDGER_FILE_NAME
+    if ledger_path.is_file():
+        try:
+            ledger_header, _ledger_rows = read_materialization_ledger(out_dir)
+        except (OSError, ValueError) as exc:
+            raise click.ClickException(f"invalid materialization ledger: {exc}") from exc
+        if int(ledger_header.get("safety_blocked", 0)) > 0:
+            raise click.ClickException(
+                "materialization contains safety-blocked cases; "
+                "refusing to evaluate a partial unsafe suite"
+            )
 
     index_path = out_dir / SUITE_INDEX_NAME
     bundles = _run_evaluators_over_suite(
