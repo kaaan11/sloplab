@@ -97,26 +97,128 @@ class TestSchema:
     def test_schema_is_valid_draft_2020_12(self) -> None:
         Draft202012Validator.check_schema(_card_schema())
 
+    def _owner_judgment_schema_path(self) -> Path:
+        return CARDS_DIR / "schema" / "owner-judgment-v0.1.schema.json"
+
     def test_owner_judgment_schema_is_valid(self) -> None:
-        path = CARDS_DIR / "schema" / "owner-judgment-v0.1.schema.json"
-        schema = json.loads(path.read_text(encoding="utf-8"))
+        schema = json.loads(self._owner_judgment_schema_path().read_text(encoding="utf-8"))
         Draft202012Validator.check_schema(schema)
 
     def test_owner_judgment_template_is_empty_and_unhinting(self) -> None:
-        template = yaml.safe_load(
-            (CARDS_DIR / "v0.1" / "owner-judgment.template.yaml").read_text(encoding="utf-8")
+        for input_path in COMMITTED_INPUTS:
+            card_id = input_path.parent.name
+            template_path = input_path.parent / "owner-judgment.template.yaml"
+            assert template_path.exists(), template_path
+            template = yaml.safe_load(template_path.read_text(encoding="utf-8"))
+            assert template["schema_version"] == "owner-judgment-v0.1", card_id
+            assert template["card_id"] == card_id, card_id
+            assert template["judge"] == ""
+            assert template["judged_date"] == ""
+            for field in ("action", "confidence", "rationale"):
+                assert template[field] == "", (card_id, field)
+            assert template["action_claim_ids"] == [], card_id
+            expected_ids = [
+                claim["id"]
+                for claim in json.loads(input_path.read_text(encoding="utf-8"))["claims"]
+            ]
+            assert [claim["claim_id"] for claim in template["claims"]] == expected_ids, card_id
+            for claim in template["claims"]:
+                assert set(claim) <= {"claim_id", "status", "note"}, (card_id, claim)
+                assert claim["status"] == "", (card_id, claim)
+            blob = _text_blob(template)
+            for pattern in TOKEN_PATTERNS:
+                assert not pattern.search(blob), (card_id, pattern.pattern)
+            for operator_name in list_operators():
+                assert operator_name not in blob, (card_id, operator_name)
+            header_text = template_path.read_text(encoding="utf-8")
+            assert not header_text.lstrip().startswith(" "), card_id
+            for pattern_name in (r"FM\d{2}", r"R1-\d{3}", r"R2-\d{3}"):
+                assert not re.search(pattern_name, header_text), (card_id, pattern_name)
+            for operator_name in list_operators():
+                assert operator_name not in header_text, (card_id, operator_name)
+
+    def test_owner_judgment_template_headers_are_neutral_and_identical(self) -> None:
+        """Every card template shares one neutral header; enum order fixed, no defaults."""
+        headers: list[str] = []
+        for input_path in COMMITTED_INPUTS:
+            text = (input_path.parent / "owner-judgment.template.yaml").read_text(encoding="utf-8")
+            header_lines = [line for line in text.splitlines() if line.startswith("#")]
+            assert header_lines, input_path
+            headers.append("\n".join(header_lines))
+        assert len(set(headers)) == 1, "template headers differ between cards"
+        header_blob = json.dumps(headers[0])
+        for operator_name in list_operators():
+            assert operator_name not in header_blob, operator_name
+        for pattern_name in (r"FM\d{2}", r"R1-\d{3}", r"R2-\d{3}"):
+            assert not re.search(pattern_name, header_blob), pattern_name
+
+    def test_filled_owner_judgment_template_validates(self) -> None:
+        """Filling a template with arbitrary schema-valid values validates."""
+        validator = Draft202012Validator(
+            json.loads(self._owner_judgment_schema_path().read_text(encoding="utf-8")),
+            format_checker=FormatChecker(),
         )
-        assert template["card_id"] == ""
-        assert template["judge"] == ""
-        assert template["judged_date"] == ""
-        claim_ids = [claim["claim_id"] for claim in template["claims"]]
-        assert claim_ids == ["C1", "C2", "C3"]
+        statuses = ["supported", "missing", "contradictory"]
+        actions = ["verify", "request_specific_information", "likely_out_of_scope"]
+        confidences = ["low", "medium", "high"]
+        for input_path in COMMITTED_INPUTS:
+            card_id = input_path.parent.name
+            template = yaml.safe_load(
+                (input_path.parent / "owner-judgment.template.yaml").read_text(encoding="utf-8")
+            )
+            for index, claim in enumerate(template["claims"]):
+                claim["status"] = statuses[index % len(statuses)]
+            template["judge"] = "Test Filler"
+            template["judged_date"] = "2099-01-01"
+            template["action"] = actions[len(template["claims"]) % len(actions)]
+            template["action_claim_ids"] = [template["claims"][0]["claim_id"]]
+            template["confidence"] = confidences[len(template["claims"]) % len(confidences)]
+            template["rationale"] = "Filled line for validation only."
+            errors = sorted(validator.iter_errors(template), key=lambda e: e.message)
+            assert not errors, f"{card_id}: {[e.message for e in errors]}"
+
+    def test_multiline_rationale_fails_validation(self) -> None:
+        """The card-level rationale must be a single line."""
+        schema = json.loads(self._owner_judgment_schema_path().read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        input_path = COMMITTED_INPUTS[0]
+        template = yaml.safe_load(
+            (input_path.parent / "owner-judgment.template.yaml").read_text(encoding="utf-8")
+        )
+        template["judge"] = "Test Filler"
+        template["judged_date"] = "2099-01-01"
+        template["action"] = "verify"
+        template["action_claim_ids"] = []
+        template["confidence"] = "medium"
+        template["rationale"] = "First line\nSecond line"
         for claim in template["claims"]:
-            for field in ("status", "action", "rationale", "confidence"):
-                assert claim[field] in ("", None), claim
-        blob = _text_blob(template)
-        for pattern in TOKEN_PATTERNS:
-            assert not pattern.search(blob), pattern.pattern
+            claim["status"] = "supported"
+        errors = sorted(validator.iter_errors(template), key=lambda e: e.message)
+        assert errors, "multi-line rationale must fail validation"
+        template["rationale"] = "Single line now."
+        errors = sorted(validator.iter_errors(template), key=lambda e: e.message)
+        assert not errors, f"only the newline should fail: {[e.message for e in errors]}"
+
+    def test_per_claim_action_field_is_rejected(self) -> None:
+        """Claims carry only claim_id/status/note; an action key is rejected."""
+        schema = json.loads(self._owner_judgment_schema_path().read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema)
+        input_path = COMMITTED_INPUTS[0]
+        template = yaml.safe_load(
+            (input_path.parent / "owner-judgment.template.yaml").read_text(encoding="utf-8")
+        )
+        template["judge"] = "Test Filler"
+        template["judged_date"] = "2099-01-01"
+        template["action"] = "verify"
+        template["action_claim_ids"] = []
+        template["confidence"] = "medium"
+        template["rationale"] = "Filled line for validation only."
+        for claim in template["claims"]:
+            claim["status"] = "supported"
+        template["claims"][0]["action"] = "verify"
+        errors = sorted(validator.iter_errors(template), key=lambda e: e.message)
+        assert errors, "per-claim action field must fail validation"
+        assert any("action" in e.message for e in errors), [e.message for e in errors]
 
     def test_committed_inputs_validate_against_input_subschema(self) -> None:
         validator = Draft202012Validator(_input_subschema())
@@ -227,7 +329,108 @@ class TestExportDeterminism:
         )
         assert proc.returncode == 0, proc.stdout + proc.stderr
         assert "CHECK FAIL" not in proc.stdout + proc.stderr
-        assert proc.stdout.count("CHECK OK") == len(card_paths)
+        assert proc.stdout.count("CHECK OK") == 2 * len(card_paths)
+        assert proc.stdout.count("owner-judgment.template.yaml") == len(card_paths)
+
+    def test_check_mode_detects_tampered_template(self, tmp_path: Path) -> None:
+        """--check must also fail when a committed template was edited."""
+        card = SEALED_DIR / "c01" / "card.yaml"
+        if not card.exists():
+            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        out = tmp_path / "out"
+        first = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(card),
+                "--out",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert first.returncode == 0, first.stdout + first.stderr
+        tampered = out / "c01" / "owner-judgment.template.yaml"
+        tampered.write_text(
+            tampered.read_text(encoding="utf-8") + "# stray edit\n", encoding="utf-8"
+        )
+        second = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(card),
+                "--out",
+                str(out),
+                "--check",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert second.returncode == 1, second.stdout + second.stderr
+        assert "CHECK FAIL" in second.stderr
+
+
+class TestExportErrorHandling:
+    def test_malformed_card_fails_cleanly(self, tmp_path: Path) -> None:
+        """A malformed card yields one clean stderr line and exit code 2."""
+        malformed = tmp_path / "bad-card.yaml"
+        malformed.write_text("schema_version: case-card-v0.1\n", encoding="utf-8")
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(malformed),
+                "--out",
+                str(tmp_path / "out"),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert proc.returncode == 2, proc.stdout + proc.stderr
+        err_lines = [line for line in proc.stderr.splitlines() if line.strip()]
+        assert len(err_lines) == 1, proc.stderr
+        assert "Traceback" not in proc.stderr
+        assert "bad-card.yaml" in err_lines[0]
+
+    def test_malformed_cards_run_together_fails_at_first(self, tmp_path: Path) -> None:
+        """A valid card exports, then one malformed card aborts with exit code 2."""
+        valid = tmp_path / "first-card.yaml"
+        valid.write_text(
+            "schema_version: case-card-v0.1\n"
+            "card_id: first-card\n"
+            "input:\n"
+            "  opaque_id: case-test-001\n"
+            "  context: []\n"
+            "  report: []\n"
+            "  artifacts: []\n"
+            "  claims:\n"
+            "  - id: C1\n"
+            "    statement: A claim.\n",
+            encoding="utf-8",
+        )
+        second = tmp_path / "second-card.yaml"
+        second.write_text("- just\n- a list\n", encoding="utf-8")
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(valid),
+                str(second),
+                "--out",
+                str(tmp_path / "out"),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert proc.returncode == 2, proc.stdout + proc.stderr
+        assert "Traceback" not in proc.stderr
+        err_lines = [line for line in proc.stderr.splitlines() if line.strip()]
+        assert len(err_lines) == 1, proc.stderr
+        assert "second-card.yaml" in err_lines[0]
 
 
 class TestSafety:

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/kaaan11/sloplab/main/cards/schema/owner-judgment-v0.1.schema.json",
   "title": "SlopLab owner-judgment-v0.1",
-  "description": "The case owner's blind judgment over one card's input view: per-claim status, one proposed action, a one-line rationale. Written before the answer key is seen.",
+  "description": "The case owner's blind judgment over one card's input view: one proposed action for the card, an ordinal confidence, a one-line rationale, and a per-claim evidence status. Written before the answer key is seen.",
   "type": "object",
   "properties": {
     "schema_version": {
@@ -19,6 +19,34 @@
     "judged_date": {
       "type": "string",
       "format": "date"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "verify",
+        "request_specific_information",
+        "likely_out_of_scope"
+      ]
+    },
+    "action_claim_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^C[0-9]{1,2}$"
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\n\\r]*$"
     },
     "claims": {
       "type": "array",
@@ -37,32 +65,14 @@
               "contradictory"
             ]
           },
-          "action": {
+          "note": {
             "type": "string",
-            "enum": [
-              "verify",
-              "request_specific_information",
-              "likely_out_of_scope"
-            ]
-          },
-          "rationale": {
-            "type": "string",
-            "minLength": 1
-          },
-          "confidence": {
-            "type": "string",
-            "enum": [
-              "low",
-              "medium",
-              "high"
-            ]
+            "pattern": "^[^\\n\\r]*$"
           }
         },
         "required": [
           "claim_id",
-          "status",
-          "action",
-          "rationale"
+          "status"
         ],
         "additionalProperties": false
       },
@@ -74,6 +84,9 @@
     "card_id",
     "judge",
     "judged_date",
+    "action",
+    "confidence",
+    "rationale",
     "claims"
   ],
   "additionalProperties": false
