@@ -120,19 +120,28 @@ _UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
 # or "... if X were enabled") does not assert that the report's own subject
 # crosses no boundary.
 _CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
-_SENTENCE_CLOSERS = r"[\"'”’)]*"
-_SENTENCE_OPENERS = r"[\"'“‘(]*"
+_SENTENCE_CLOSERS = r"(?:[\"'”’)]|[*_~]{1,2})*"
+_SENTENCE_MARKDOWN_PREFIX = (
+    r"(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?"
+    r"(?:[*_~]{1,2})?[\"'“‘(]*"
+)
 _SENTENCE_BREAK_RE = re.compile(
     rf";|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))|\n\s*\n"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|\n\s*\n"
 )
 _INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
-_SENTENCE_START_AFTER_INITIALISM_RE = re.compile(
-    r"^\s*(?:[\"'“‘(]*)(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
+_INITIALISM_CLEAR_OPENER_RE = re.compile(
+    r"^(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
+)
+_INITIALISM_SUBJECT_VERB_RE = re.compile(
+    r"^[A-Z][A-Za-z0-9_'-]*\s+"
+    r"(?:is|are|was|were|has|have|had|does|do|did|can|could|may|might|must|"
+    r"should|will|would)\b",
+    re.IGNORECASE,
 )
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
     rf";|--|—|\b(?i:but|however|yet)\b|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))|\n\s*\n"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|\n\s*\n"
 )
 _POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
 _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
@@ -141,11 +150,9 @@ _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
 )
 _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))"
 )
-_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(
-    r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?[\"'“‘(]*\s*"
-)
+_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(rf"^{_SENTENCE_MARKDOWN_PREFIX}\s*")
 
 
 def _has_trailing_condition_barrier(segment: str) -> bool:
@@ -182,12 +189,26 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     )
 
 
+def _starts_sentence_after_initialism(text: str) -> bool:
+    """Recognize a new sentence after an initialism without subject whitelists."""
+    stripped = text.lstrip()
+    prefix = re.match(_SENTENCE_MARKDOWN_PREFIX, stripped)
+    if prefix is not None:
+        stripped = stripped[prefix.end() :]
+    if not stripped:
+        return True
+    return bool(
+        _INITIALISM_CLEAR_OPENER_RE.match(stripped)
+        or _INITIALISM_SUBJECT_VERB_RE.match(stripped)
+    )
+
+
 def _has_sentence_break(text: str) -> bool:
     """True when text contains a real sentence or clause boundary."""
     for boundary in _SENTENCE_BREAK_RE.finditer(text):
         if boundary.group(0) == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
             following = text[boundary.end() :]
-            if not _SENTENCE_START_AFTER_INITIALISM_RE.match(following):
+            if not _starts_sentence_after_initialism(following):
                 continue
         return True
     return False
