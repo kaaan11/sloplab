@@ -252,9 +252,10 @@ def _run_evaluators_over_suite(
         bundles.append(bundle)
 
         metrics_path = out_dir / _metrics_filename(evaluator.name)
+        from sloplab.reporting.analysis import write_text_atomic
         from sloplab.reporting.writers import metrics_to_dict
 
-        metrics_path.write_text(json.dumps(metrics_to_dict(bundle), indent=2), encoding="utf-8")
+        write_text_atomic(metrics_path, json.dumps(metrics_to_dict(bundle), indent=2))
 
     outcomes_hash = write_failure_outcomes(out_dir / OUTCOMES_NAME, failures)
     metadata = default_run_metadata(
@@ -395,15 +396,10 @@ def benchmark(
     out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # A rerun owns the evaluation artifacts in its output directory. Invalidate
-    # them before materialization/ledger checks so any later failure cannot leave
-    # stale scores that look current for a newly written suite index.
-    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
-        (out_dir / stale_name).unlink(missing_ok=True)
-    for stale_metrics in out_dir.glob("metrics-*.json"):
-        stale_metrics.unlink()
-
     if do_materialize:
+        # Validate before touching any previous output (issue #59): a broken
+        # corpus config fails here with the previous good results still in
+        # place. Nothing above this block deletes or overwrites.
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
         try:
             canonical, _derived = discover_fixtures(corpus_root)
@@ -418,6 +414,16 @@ def benchmark(
         click.echo(result.summary())
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
+
+    # A rerun owns the evaluation artifacts in its output directory. Invalidate
+    # them only now — after validation and materialization — so a later failure
+    # (safety-blocked ledger, evaluation error) cannot leave stale scores that
+    # look current for a newly written suite index, while a failure before this
+    # point leaves the previous results byte-identical.
+    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    for stale_metrics in out_dir.glob("metrics-*.json"):
+        stale_metrics.unlink()
 
     ledger_path = out_dir / LEDGER_FILE_NAME
     if ledger_path.is_file():
