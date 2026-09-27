@@ -133,11 +133,10 @@ _INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
 _INITIALISM_CLEAR_OPENER_RE = re.compile(
     r"^(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
 )
-_INITIALISM_SUBJECT_VERB_RE = re.compile(
-    r"^[A-Z][A-Za-z0-9_'-]*\s+"
+_INITIALISM_CONTINUATION_RE = re.compile(
+    r"^[A-Z][A-Za-z0-9_'-]*(?:\s+[A-Za-z0-9_'-]+){0,5}\s+"
     r"(?:is|are|was|were|has|have|had|does|do|did|can|could|may|might|must|"
-    r"should|will|would)\b",
-    re.IGNORECASE,
+    r"should|will|would)\b[^.?!]*,\s*"
 )
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
     rf";|--|—|\b(?i:but|however|yet)\b|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
@@ -154,6 +153,10 @@ _CONDITION_INTRO_PREFIX_RE = re.compile(
     r"contingent\s+(?:on|upon)|subject\s+to)$",
     re.IGNORECASE,
 )
+_DENIAL_PREDICATE_PREFIX_RE = re.compile(
+    r"^(?:applies|is\s+crossed|between\b(?:(?![.?!;]).)*\bis\s+crossed)\b",
+    re.IGNORECASE,
+)
 _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
     rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))"
@@ -162,9 +165,12 @@ _MARKDOWN_CLAUSE_PREFIX_RE = re.compile(rf"^{_SENTENCE_MARKDOWN_PREFIX}\s*")
 
 
 def _trailing_marker_introduces_condition(segment: str) -> bool:
-    """Whether text between the denial and marker is only condition syntax."""
-    prefix = segment.strip()
-    prefix = re.sub(r"^(?:,|--|—)\s*", "", prefix).strip().casefold()
+    """Whether text between a lexical denial match and marker is condition syntax."""
+    prefix = segment.strip().casefold()
+    predicate = _DENIAL_PREDICATE_PREFIX_RE.match(prefix)
+    if predicate is not None:
+        prefix = prefix[predicate.end() :].strip()
+    prefix = re.sub(r"^(?:,|--|—)\s*", "", prefix).strip()
     if prefix in {"", "only", "even", "especially"}:
         return True
     return _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix) is not None
@@ -214,9 +220,11 @@ def _starts_sentence_after_initialism(text: str) -> bool:
         stripped = stripped[prefix.end() :]
     if not stripped:
         return True
-    return bool(
-        _INITIALISM_CLEAR_OPENER_RE.match(stripped) or _INITIALISM_SUBJECT_VERB_RE.match(stripped)
-    )
+    if _INITIALISM_CLEAR_OPENER_RE.match(stripped):
+        return True
+    if _INITIALISM_CONTINUATION_RE.match(stripped):
+        return False
+    return bool(re.match(r"^[A-Z]", stripped))
 
 
 def _has_sentence_break(text: str) -> bool:
@@ -284,6 +292,8 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
 
     match_end_rel = match.end() - left
     for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
+        if match_rel <= marker.start() < match_end_rel:
+            continue
         marker_depth = _paren_depth(paragraph, marker.start())
         if marker_depth != match_depth:
             # A parenthetical that begins with the conditional marker and
