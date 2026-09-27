@@ -1,0 +1,90 @@
+{
+  "artifacts": [
+    {
+      "id": "E1",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: host=status.example.org; path=/components; authenticated=false; result=200; listed=queue-worker 2.8.4, report-renderer 1.19.0, auth-gateway 4.2.1."
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "report_refs": [
+        "R02",
+        "R03",
+        "R04"
+      ],
+      "statement": "The status page lists internal component names with exact version strings."
+    },
+    {
+      "id": "C2",
+      "report_refs": [
+        "R03"
+      ],
+      "statement": "The list is visible without authentication."
+    },
+    {
+      "id": "C3",
+      "report_refs": [
+        "R05"
+      ],
+      "statement": "The listed versions could help someone look for known weaknesses in those components."
+    }
+  ],
+  "context": [
+    {
+      "id": "P1",
+      "kind": "setting",
+      "text": "This is a fully fictional exercise about SandboxSuite 5.0. There is no running target and no tests were executed to produce these materials."
+    },
+    {
+      "id": "P2",
+      "kind": "program_policy",
+      "text": "The fictional program scope. In scope: the SandboxSuite web application and API at https://app.example.org. Out of scope: https://status.example.org, which is operated by a third-party status provider outside this program; and disclosure of software names or version strings without a demonstrated security impact on an in-scope asset."
+    },
+    {
+      "id": "P3",
+      "kind": "program_policy",
+      "text": "To begin human verification the program requires the exact asset, the observed result and, for in-scope assets, the affected build."
+    },
+    {
+      "id": "P4",
+      "kind": "assistant_role",
+      "text": "Only a human can confirm whether a vulnerability exists. The assistant recommends a verification step, requests specific missing information, or identifies likely policy exclusions. It does not assign rewards, close submissions, or advise how a report could pass triage."
+    },
+    {
+      "id": "P5",
+      "kind": "stipulated_fact",
+      "text": "Artifact E1 is a stipulated fictional record of what the reporter says they observed; it is not independent reproduction."
+    }
+  ],
+  "note": "Annotator-visible view of a case card. Contains only the neutral input context, report, artifacts and claim inventory. The card's review, provenance and answer key are intentionally excluded.",
+  "opaque_id": "case-a83d51f6e0c9",
+  "report": [
+    {
+      "id": "R01",
+      "text": "# Internal component versions visible on public status page"
+    },
+    {
+      "id": "R02",
+      "text": "Asset https://status.example.org/components, observed on the public status page for SandboxSuite."
+    },
+    {
+      "id": "R03",
+      "text": "Without logging in, the page lists internal component names with exact version strings (E1)."
+    },
+    {
+      "id": "R04",
+      "text": "Examples from the page: queue-worker 2.8.4, report-renderer 1.19.0, auth-gateway 4.2.1."
+    },
+    {
+      "id": "R05",
+      "text": "An attacker could use these versions to look for known weaknesses in those components."
+    },
+    {
+      "id": "R06",
+      "text": "I did not test any SandboxSuite application or API endpoint."
+    }
+  ],
+  "schema_version": "case-card-v0.1"
+}
