@@ -444,6 +444,26 @@ class TestCanonicalHandling:
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
         assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
 
+    def test_query_punctuation_inside_boundary_denial_is_rejected(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No boundary between /api/items?tenant=A and tenant B is crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_sentence_ending_question_does_not_join_next_boundary_clause(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No boundary between tenant A? Tenant B is crossed.",
+        )
+        result = evaluate(text)
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     def test_no_boundary_report_rejected(self) -> None:
         result = evaluate(INVALID_BODY)
         assert result.decision == Decision.REJECT
