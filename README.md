@@ -104,14 +104,14 @@ robustness; no independent human validation of the targets has been completed.
 The rules baseline was developed against this very corpus: the PR #33 accuracy
 gain (0.811 -> 0.848 from 11 conditional-boundary corrections) is in-domain
 target agreement, not generalization evidence. An ablation study
-(post-hoc, exploratory) found that most of the baseline's mutation detections depend
-on regex patterns that share literal text with the mutation operators' templates;
-see [Threat model](docs/threat-model.md).
+(post-hoc, exploratory) found that most of the baseline's
+decision-changing-target hits depend on regex patterns that share literal text
+with the mutation operators' templates; see [Threat model](docs/threat-model.md).
 
 | metric | value |
 |---|---|
 | decision accuracy | 0.848 |
-| mutation detection rate | 0.802 |
+| decision-changing target accuracy (formerly "mutation detection rate") | 0.802 |
 | false reassurance rate | 0.094 |
 | over-rejection rate | 0.000 |
 | calibration error | 0.339 |
@@ -164,20 +164,29 @@ Primary metrics are reported per dimension:
 | Metric | Question it answers |
 |---|---|
 | Decision accuracy | Does the decision match ground truth? |
-| Mutation detection rate | Was a known degradation noticed? |
+| Decision-changing target accuracy | Of derived cases whose expected decision is designed to change the parent-class decision, how often does the evaluator match the changed decision? |
 | False reassurance rate | Did the evaluator `accept` a case that should not be accepted? |
 | Over-rejection rate | How often are valid reports rejected? |
-| Robustness delta | How much does behavior change between canonical and mutated variants? |
-| Presentation susceptibility | Does polished language buy acceptance for broken content? |
+| Decision-preserving drift | On decision-preserving mutations, how often does the evaluator's decision differ from its canonical-parent decision? |
+| Presentation susceptibility | Acceptance gained by polished-but-broken variants over their canonical parents (operator-generated presentation mutations only). |
 | Dimension error | Per-quality-dimension score error where expected values exist. |
 | Calibration error | Do confidence values track actual correctness? |
 
 A weighted **Robustness Score** exists only as an auxiliary summary and is
-documented in [docs/methodology.md](docs/methodology.md).
+documented in [docs/methodology.md](docs/methodology.md). It must not be used
+for ranking: a blind always-`needs_manual_review` policy scores 0.740 on it
+(rules-baseline 0.839); the same blind policy reaches 0.760 decision-changing
+target accuracy with zero false reassurance. Reproduce with:
+`uv run python scripts/blind_policy_compare.py` (#45).
+
+Old metric names ("mutation detection rate", "quality-neutral mutations",
+"robustness delta") and their replacements are mapped in
+[docs/terminology-changes.md](docs/terminology-changes.md).
 
 ## Documentation
 
 - [Methodology](docs/methodology.md) — metric definitions and benchmark protocol
+- [Terminology changes](docs/terminology-changes.md) — old metric names → new names, and why (#44–#52)
 - [Evaluator study guide](docs/evaluator-study.md) — run and read comparative studies
 - [LLM pilot runbook](docs/llm-pilot-runbook.md) — the only manual, metered step
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not

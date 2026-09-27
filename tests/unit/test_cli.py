@@ -128,3 +128,19 @@ def test_compare_rejects_duplicate_input_directory(tmp_path) -> None:  # type: i
 
     assert result.exit_code != 0
     assert "duplicate compare input" in result.output
+
+
+def test_portable_path_str_falls_back_to_absolute_on_cross_drive(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """F3 (#60): os.path.relpath ValueError (Windows cross-drive) keeps absolute."""
+    from pathlib import Path
+    from typing import Any
+
+    from sloplab.cli.main import _portable_path_str
+
+    def _cross_drive(*_args: Any, **_kwargs: Any) -> str:
+        raise ValueError("path is on mount 'C:', start on mount 'D:'")
+
+    monkeypatch.setattr("os.path.relpath", _cross_drive)
+    assert _portable_path_str(Path("/repo/out/suite-index.jsonl")) == "/repo/out/suite-index.jsonl"

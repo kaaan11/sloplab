@@ -22,10 +22,20 @@ A benchmark run evaluates two kinds of cases:
 
 Derived cases split into:
 
-- **Degrading mutations**: expected decision differs from the parent class default
-  (the mutation should change what a correct triage system does).
-- **Quality-neutral mutations**: expected decision equals the parent class default;
-  correct triage should be unchanged (professionalization, noise).
+- **Degrading / decision-changing mutations**: expected decision differs from
+  the parent class default (the mutation should change what a correct triage
+  system does). Formerly called "quality-degrading mutations"; renaming does
+  not change the population — see [terminology-changes.md](terminology-changes.md).
+- **Decision-preserving mutations** (formerly "quality-neutral mutations"):
+  expected decision equals the parent class default. Correct triage should be
+  unchanged. Note: the operators that produce these cases mostly lower one or
+  more expected quality-dimension values — 93 of the 141 decision-preserving
+  cases in the v0.2 study come from operators whose `dimension_deltas` lower
+  quality dimensions (e.g., `add_irrelevant_detail`, `remove_affected_version`,
+  `remove_reproduction_step`, `scope_expansion`, `confidence_overstatement`),
+  and only 48 come from the substance-untouched
+  `professionalize_language`. Keeping the decision is not the same as keeping
+  quality; this metric measures decision stability only (issue #47).
 
 No-op exclusion (v0.2.2, R01): an operator plan whose application leaves the
 report text byte-identical to its parent is **never written** as a derived case
@@ -52,22 +62,39 @@ content passes automated triage.
 Among accept-expected (valid) cases: the fraction rejected. High values mean the
 evaluator suppresses genuine reports.
 
-### Mutation detection rate
+### Decision-changing target accuracy (formerly "mutation detection rate")
 
 Among degrading mutations: the fraction where the evaluator matched the expected
-(mutated) decision rather than the parent's expectation.
+(mutated) decision rather than the parent's expectation. Reading the old name
+literally is a known methodological error (#45): the score does *not* measure
+whether the evaluator detected that a mutation occurred, and it does not require
+the parent decision to be correct or reflect a real-world decision change. On
+the v0.2 study, a blind policy that always answers `needs_manual_review` scores
+0.760 on this metric (rules-baseline 0.802); reproduce the comparison with
+`uv run python scripts/blind_policy_compare.py`. Report this number only
+against that blind floor, never as a detection or competence claim.
 
-### Robustness delta (decision drift)
+### Decision-preserving drift (formerly "Robustness delta")
 
-For quality-neutral mutations: how often the evaluator's decision differs from the
-decision it gave the canonical parent. Low is good; substance-neutral edits should
-not wobble automated triage.
+For decision-preserving mutations: how often the evaluator's decision differs
+from the decision it gave the canonical parent. Low is good; edits that do not
+change the expected decision should not wobble automated triage. This is a
+decision-level consistency measure only — it does not measure whether content
+quality was preserved (see decision-preserving mutations above, #47).
 
 ### Presentation susceptibility
 
 Acceptance-rate delta between presentation-mutated cases (`professionalize_language`,
 `confidence_overstatement`) and their canonical parents, computed over non-accept-
 expected cases only. Positive values mean polished-but-broken content buys acceptance.
+
+Scope caution (#50): this metric covers only operator-generated presentation
+mutations. The 8 authored plain/polished presentation pairs in the corpus are
+*not* part of this population — on those pairs the rules-baseline decision
+changes on 7 of 8, with the plain members accepted 4 of 8 times and the
+polished members 0 of 8. Additionally, because `professionalize_language`
+also inserts a neutral "authorized sandbox" preamble sentence, any measured
+effect cannot be attributed to language polish alone.
 
 ### Dimension error
 
@@ -83,17 +110,23 @@ correctness as the outcome.
 
 ### Robustness Score (auxiliary)
 
-A weighted summary for convenience ranking only:
+A weighted auxiliary summary; must not be used alone or for ranking (#45):
 
 ```
-40% mutation detection + 25% (1 - false reassurance) + 15% canonical decision accuracy
+40% decision-changing target accuracy + 25% (1 - false reassurance) + 15% canonical decision accuracy
 + 10% (1 - calibration error) + 10% (1 - presentation susceptibility)
 ```
 
 Canonical decision accuracy is computed over scored canonical cases only; derived
 case accuracy does not enter that 15% component. Missing components are reweighted
 by their available mass. Primary results are always the per-metric values above;
-never cite the auxiliary score alone.
+never cite the auxiliary score alone. Caveat (#45): the auxiliary score is
+*not blind-policy safe*. On the committed v1-core corpus a policy that always
+answers `needs_manual_review` reaches 0.740 (rules-baseline 0.839): the gap
+between a genuinely discriminating evaluator and a blind one is only ten
+points, so this
+score must not be used to rank evaluators. Reproduce all values with
+`uv run python scripts/blind_policy_compare.py`.
 
 ## Protocol
 
@@ -131,8 +164,8 @@ See [reproducibility.md](reproducibility.md). The committed example results unde
 
 The rules baseline is deliberately imperfect (it is a floor to beat, not a ceiling):
 
-- It misses roughly a quarter of degrading mutations in the v1-core suite, mostly
-  evidence removals phrased unusually.
+- It misses roughly a quarter of decision-changing derived cases in the v1-core
+  suite, mostly evidence removals phrased unusually.
 - A small residual false reassurance rate remains on polished presentation-pair
   members, which is precisely the phenomenon the benchmark is designed to expose.
 - Its uncertainty detector overlaps stylistically with this corpus's review-class

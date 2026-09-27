@@ -11,7 +11,11 @@ import click
 from sloplab import __version__
 from sloplab.evaluators.base import Evaluator
 from sloplab.experiments.bundle import BundleError, open_result_dir
+from sloplab.portable_paths import portable_path_str
 from sloplab.scoring.metrics import MetricBundle
+
+# Internal alias kept for the #60 provenance helpers below.
+_portable_path_str = portable_path_str
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -184,13 +188,20 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
     candidate = Path(corpus_root_str)
     if candidate.is_absolute() and candidate.is_dir():
         return index_path, candidate, materialized_root
-    for anchor in [Path.cwd(), *index_path.absolute().parents]:
+    # Relative corpus roots (#60) resolve from the bundle's own location and its
+    # ancestor chain, in the inverse direction of how the writer computed them;
+    # the CWD is only a last resort so a same-named stray directory under the
+    # CWD cannot shadow the bundle's corpus, while legacy relative-to-cwd
+    # bundles keep evaluating.
+    anchors = [*index_path.absolute().parents, Path.cwd()]
+    for anchor in anchors:
         resolved = anchor / candidate
         if resolved.is_dir():
             return index_path, resolved, materialized_root
     raise click.ClickException(
         f"corpus_root '{corpus_root_str}' from suite index does not exist relative to "
-        f"the current directory or the index location"
+        "the index location or the current directory "
+        f"({', '.join(str(anchor) for anchor in anchors)})"
     )
 
 
@@ -252,9 +263,10 @@ def _run_evaluators_over_suite(
         bundles.append(bundle)
 
         metrics_path = out_dir / _metrics_filename(evaluator.name)
+        from sloplab.reporting.analysis import write_text_atomic
         from sloplab.reporting.writers import metrics_to_dict
 
-        metrics_path.write_text(json.dumps(metrics_to_dict(bundle), indent=2), encoding="utf-8")
+        write_text_atomic(metrics_path, json.dumps(metrics_to_dict(bundle), indent=2))
 
     outcomes_hash = write_failure_outcomes(out_dir / OUTCOMES_NAME, failures)
     metadata = default_run_metadata(
@@ -262,8 +274,10 @@ def _run_evaluators_over_suite(
         base_seed=base_seed,
         evaluators=infos,
         suite_config={
-            "index": str(index_path),
-            "corpus_root": str(corpus_root),
+            # #60: record provenance locations portably so committed bundles
+            # stay machine-independent.
+            "index": _index_provenance_str(index_path, out_dir),
+            "corpus_root": _portable_path_str(corpus_root),
             OUTCOMES_HASH_KEY: outcomes_hash,
         },
         suite_hash=_hash_file(index_path),
@@ -309,6 +323,20 @@ def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
     raise click.ClickException(
         f"corpus_root '{corpus_root}' does not exist relative to any of {[str(a) for a in anchors]}"
     )
+
+
+def _index_provenance_str(index_path: Path, out_dir: Path) -> str:
+    """Record the suite index relative to the output bundle when it lives there.
+
+    #60: ``benchmark`` materializes the index into its own output directory, so
+    the header records ``suite-index.jsonl`` instead of the scratch location the
+    run happened in. An index outside the output bundle (``evaluate`` input)
+    falls back to the portable cwd-relative rendering.
+    """
+    try:
+        return str(index_path.relative_to(out_dir))
+    except ValueError:
+        return _portable_path_str(index_path)
 
 
 def _hash_file(path: Path) -> str:
@@ -395,15 +423,10 @@ def benchmark(
     out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    # A rerun owns the evaluation artifacts in its output directory. Invalidate
-    # them before materialization/ledger checks so any later failure cannot leave
-    # stale scores that look current for a newly written suite index.
-    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
-        (out_dir / stale_name).unlink(missing_ok=True)
-    for stale_metrics in out_dir.glob("metrics-*.json"):
-        stale_metrics.unlink()
-
     if do_materialize:
+        # Validate before touching any previous output (issue #59): a broken
+        # corpus config fails here with the previous good results still in
+        # place. Nothing above this block deletes or overwrites.
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
         try:
             canonical, _derived = discover_fixtures(corpus_root)
@@ -418,6 +441,16 @@ def benchmark(
         click.echo(result.summary())
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
+
+    # A rerun owns the evaluation artifacts in its output directory. Invalidate
+    # them only now — after validation and materialization — so a later failure
+    # (safety-blocked ledger, evaluation error) cannot leave stale scores that
+    # look current for a newly written suite index, while a failure before this
+    # point leaves the previous results byte-identical.
+    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    for stale_metrics in out_dir.glob("metrics-*.json"):
+        stale_metrics.unlink()
 
     ledger_path = out_dir / LEDGER_FILE_NAME
     if ledger_path.is_file():
