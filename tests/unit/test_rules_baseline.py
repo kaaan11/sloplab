@@ -485,6 +485,7 @@ class TestCanonicalHandling:
         codes = {f.code for f in result.findings}
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     @pytest.mark.parametrize(
         "phrase",
         [
@@ -514,7 +515,6 @@ class TestCanonicalHandling:
         codes = {f.code for f in result.findings}
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
-
 
     @pytest.mark.parametrize("dash", ["—", "--"])
     def test_dash_introduced_postfix_condition_qualifies_denial(self, dash: str) -> None:
