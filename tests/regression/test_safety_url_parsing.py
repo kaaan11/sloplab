@@ -22,6 +22,16 @@ def test_url_userinfo_with_actual_localhost_is_allowed() -> None:
     assert find_unsafe_urls("http://demo-user@localhost:8080/path") == []
 
 
+def test_space_before_userinfo_separator_cannot_hide_external_host() -> None:
+    url = "http://localhost @attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+def test_space_in_userinfo_with_actual_localhost_remains_allowed() -> None:
+    assert find_unsafe_urls("http://demo user@localhost:8080/path") == []
+
+
 @pytest.mark.parametrize(
     "url",
     [
@@ -121,6 +131,26 @@ def test_delimiter_joined_hostname_without_userinfo_is_rejected(delimiter: str) 
     url = f"http://localhost{delimiter}attacker.com/x"
     assert find_unsafe_urls(url) == [url]
     assert validate_content_safety(url)
+
+
+@pytest.mark.parametrize("delimiter", ["'", '"', "`", "(", ")", "<", ">"])
+def test_delimiter_then_punctuation_cannot_hide_hostname_continuation(delimiter: str) -> None:
+    url = f"http://localhost{delimiter}.attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        '"http://localhost".',
+        "'https://example.org', next",
+        "<https://example.com>.",
+        "(http://localhost), next",
+    ],
+)
+def test_delimiter_punctuation_run_can_close_wrapped_prose_url(text: str) -> None:
+    assert find_unsafe_urls(text) == []
 
 
 @pytest.mark.parametrize("delimiter", ['"', "'", "`", "(", ")", "<", ">"])
