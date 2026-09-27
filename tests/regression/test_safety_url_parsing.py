@@ -92,6 +92,18 @@ def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
     assert find_unsafe_urls(text) == []
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "https://tracker.example.org/billing/invoices/<id>/download",
+        "https://shop.example.org/api/search?q=<term>",
+        "https://shop.example.org/login?next=<path>",
+    ],
+)
+def test_path_and_query_placeholders_do_not_change_reserved_host(text: str) -> None:
+    assert find_unsafe_urls(text) == []
+
+
 def test_bare_safe_url_before_markdown_paragraph_break_is_not_merged() -> None:
     text = "Endpoint: https://demo.example.org.\n\n## Next section\n"
     assert find_unsafe_urls(text) == []
@@ -107,12 +119,21 @@ def test_bare_url_before_plain_prose_line_fails_closed() -> None:
     [
         "http://localhost\r\n.attacker.com/x",
         "http://localhost\nattacker.com/x",
+    ],
+)
+def test_single_linebreak_with_authority_like_continuation_is_rejected(url: str) -> None:
+    assert find_unsafe_urls(url) == [url]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
         "http://localhost\n\nattacker.com/x",
         "http://localhost\n\t\nattacker.com/x",
     ],
 )
-def test_linebreak_run_with_authority_like_continuation_is_rejected(url: str) -> None:
-    assert find_unsafe_urls(url) == [url]
+def test_blank_line_is_a_markdown_url_boundary(text: str) -> None:
+    assert find_unsafe_urls(text) == []
 
 
 def test_long_tab_run_before_authority_continuation_is_rejected() -> None:
