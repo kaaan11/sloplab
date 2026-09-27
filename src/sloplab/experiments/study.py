@@ -26,6 +26,7 @@ from sloplab.experiments.runner import (
     write_run_bundle,
 )
 from sloplab.mutations.materialize import load_suite_config, materialize_suite
+from sloplab.reporting.analysis import write_text_atomic
 from sloplab.scoring.harness import build_cases, run_suite_with_outcomes
 
 
@@ -119,10 +120,10 @@ def run_deterministic_study(
     from sloplab.experiments.bundle import begin_publish
 
     begin_publish(out_dir, kind="study")
-    # A successful rerun owns the current failure ledger. Remove any previous
-    # run's optional outcomes before materialization so a no-failure rerun
-    # cannot accidentally republish stale failure rows.
-    (out_dir / "outcomes.jsonl").unlink(missing_ok=True)
+    # The previous failure ledger (if any) stays in place until the new run
+    # has fully succeeded: only then is it atomically replaced — or retired
+    # when the rerun has no failures — so an interrupted rerun never loses
+    # the previous good rows (issue #59). Stale protection lives at the end.
     started_at = utc_now_iso()
     anchors = [Path.cwd(), *study_config_path.absolute().parents]
     suite_yaml_path = resolve_against_anchors(config.suite.config_path, anchors)
@@ -217,15 +218,19 @@ def run_deterministic_study(
     )
     manifest_path, records_path = write_run_bundle(out_dir, provenance, records_jsonl)
 
-    # Failed evaluations are isolated per case, never scored and never fatal:
-    # they surface here as outcome rows (present only when failures exist),
-    # covered by the publish completion marker downstream.
+    # Failed evaluations are isolated per case, never scored and never fatal.
+    # Publish the failure ledger only now that evaluation fully succeeded:
+    # new rows replace any previous ledger atomically, and a no-failure
+    # rerun retires a stale previous ledger — so a successful rerun never
+    # republishes stale failure rows, while an interrupted rerun keeps them.
+    outcomes_path = out_dir / "outcomes.jsonl"
     if failed_outcomes:
-        outcomes_path = out_dir / "outcomes.jsonl"
-        outcomes_path.write_text(
+        write_text_atomic(
+            outcomes_path,
             "".join(json.dumps(row, sort_keys=True) + "\n" for row in failed_outcomes),
-            encoding="utf-8",
         )
+    else:
+        outcomes_path.unlink(missing_ok=True)
 
     return StudyRunResult(
         out_dir=out_dir,
