@@ -24,7 +24,6 @@ MockMart 1.8.2 (demo builds only).
 
 ## Reproduction Steps
 
-   interleaved to cancel drift.
 2. Record response times and compare group medians.
 3. Repeat the whole procedure three times.
 ## Observed Result
