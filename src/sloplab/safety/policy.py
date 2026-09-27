@@ -86,9 +86,23 @@ def _authority_control_run(text: str, start: int) -> tuple[bool, int]:
     linear-time.
     """
     cursor = start
+    line_breaks = 0
     while cursor < len(text) and text[cursor] in _URL_CONTROL_WHITESPACE:
+        char = text[cursor]
+        if char == "\r":
+            line_breaks += 1
+            cursor += 1
+            if cursor < len(text) and text[cursor] == "\n":
+                cursor += 1
+            continue
+        if char == "\n":
+            line_breaks += 1
         cursor += 1
 
+    # SlopLab validates Markdown source, not an already-concatenated browser URL.
+    # A blank line is a paragraph boundary and therefore ends a lexical URL.
+    if line_breaks >= 2:
+        return False, cursor
     if cursor >= len(text):
         return False, cursor
     next_char = text[cursor]
@@ -188,12 +202,11 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 end = scan
                 continue
             in_userinfo = userinfo_separator is not None and scan < userinfo_separator
-            if (
-                char in _URL_STOP_CHARS
-                and (authority_done or not in_userinfo)
-                and _stop_char_is_prose_boundary(text, scan)
-            ):
-                break
+            if char in _URL_STOP_CHARS:
+                if authority_done:
+                    break
+                if not in_userinfo and _stop_char_is_prose_boundary(text, scan):
+                    break
             if char == "[":
                 if not in_userinfo:
                     bracket_depth += 1
