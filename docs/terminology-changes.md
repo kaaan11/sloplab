@@ -19,7 +19,7 @@ with a "formerly ..." note.
 | "Quality-neutral mutations"; "substance-neutral edits" | **Decision-preserving mutations**: expected decision equals the parent-class default. 93 of the 141 such cases in the v0.2 study come from operators whose `dimension_deltas` lower quality dimensions; preserving the decision is not preserving quality. | (derived-case population, no single field) | #47 | The old names conflated decision stability with content-quality stability. |
 | "Robustness delta" | **Decision-preserving drift** | robustness/drift component of metric bundles | #45, #47 | Clarifies it measures decision wobble on decision-preserving cases only. |
 | "Presentation susceptibility: Does polished language buy acceptance for broken content?" (broad phrasing) | Name kept; scope narrowed: covers only operator-generated presentation mutations (`professionalize_language`, `confidence_overstatement`); the 8 authored plain/polished pairs are excluded (the rules decision changes 7/8; accepts 4/8 → 0/8); `professionalize_language` also inserts an "authorized sandbox" preamble, so the effect cannot be attributed to language polish alone. | `presentation_susceptibility` | #50 | The old question over-claimed coverage. |
-| Auxiliary Robustness Score quoted without caveat | Same score, plus warning: blind always-`needs_manual_review` policy scores 0.739 (rules-baseline 0.839), rounded from the reproduction block below (single source: `scripts/blind_policy_compare.py`); must not be used for ranking. | `robustness_score` | #45 | The score is not blind-policy safe (PR #37 formula, recomputed at PR #33 values). |
+| Auxiliary Robustness Score quoted without caveat | Same score, plus warning: blind always-`needs_manual_review` policy scores 0.740 (rules-baseline 0.839), rounded from the reproduction block below (single source: `scripts/blind_policy_compare.py`); must not be used for ranking. | `robustness_score` | #45 | The score is not blind-policy safe (PR #37 formula, recomputed at PR #33 values). |
 | Threat model "Fixture leakage into training data" as a privacy-mitigated threat | Split outcomes: (a) privacy - synthetic corpus leaks no real data; (b) measurement validity - the public CC0 corpus may be in an LLM's training data; that is an explicit, unmitigated risk. | (none) | #52 | Privacy and measurement-validity risks were conflated; (b) is not mitigated. |
 
 ## Reproduction of the blind-policy numbers
@@ -42,7 +42,7 @@ Command run at the current `main` (aedb268 + this PR) against the committed
 
 Single source: this script output. Every blind-policy / rules-baseline number
 quoted in the live docs is this block rounded to three decimals:
-0.760 / 0.802 (decision-changing target accuracy), 0.739 / 0.839 (robustness
+0.760 / 0.802 (decision-changing target accuracy), 0.740 / 0.839 (robustness
 score), 0.094 / 0.000 (false reassurance).
 
 (JSON field names keep the historical names per the issue #57 contract.)

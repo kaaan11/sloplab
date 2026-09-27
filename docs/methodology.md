@@ -122,7 +122,7 @@ case accuracy does not enter that 15% component. Missing components are reweight
 by their available mass. Primary results are always the per-metric values above;
 never cite the auxiliary score alone. Caveat (#45): the auxiliary score is
 *not blind-policy safe*. On the committed v1-core corpus a policy that always
-answers `needs_manual_review` reaches 0.739 (rules-baseline 0.839): the gap
+answers `needs_manual_review` reaches 0.740 (rules-baseline 0.839): the gap
 between a genuinely discriminating evaluator and a blind one is only ten
 points, so this
 score must not be used to rank evaluators. Reproduce all values with

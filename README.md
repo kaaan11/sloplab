@@ -156,7 +156,7 @@ Primary metrics are reported per dimension:
 
 A weighted **Robustness Score** exists only as an auxiliary summary and is
 documented in [docs/methodology.md](docs/methodology.md). It must not be used
-for ranking: a blind always-`needs_manual_review` policy scores 0.739 on it
+for ranking: a blind always-`needs_manual_review` policy scores 0.740 on it
 (rules-baseline 0.839); the same blind policy reaches 0.760 decision-changing
 target accuracy with zero false reassurance. Reproduce with:
 `uv run python scripts/blind_policy_compare.py` (#45).
