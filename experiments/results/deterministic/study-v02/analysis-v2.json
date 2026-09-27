@@ -1,0 +1,191 @@
+{
+  "analysis_schema": 2,
+  "analysis_version": 2,
+  "bundles": {
+    "evidence-graph-baseline": {
+      "calibration_error": 0.27011784511784503,
+      "correct_cases": 161,
+      "decision_accuracy": 0.5420875420875421,
+      "dimension_mae": {
+        "claim_evidence_consistency": 0.1675,
+        "evidence_completeness": 0.327,
+        "impact_calibration": 0.2982,
+        "reproducibility": 0.2605,
+        "scope_consistency": 0.2455
+      },
+      "evaluator_name": "evidence-graph-baseline",
+      "false_reassurance_count": 105,
+      "false_reassurance_rate": 0.42857142857142855,
+      "metric_coverage": {
+        "calibration_error": {
+          "binned": 297,
+          "observations": 297,
+          "out_of_range_excluded": 0,
+          "undefined_reason": null
+        },
+        "decision_accuracy": {
+          "presented": 297,
+          "scored": 297,
+          "undefined_reason": null,
+          "unscored_no_expectation": 0
+        },
+        "dimension_mae": {
+          "observations": 297,
+          "undefined_reason": null
+        },
+        "false_reassurance": {
+          "eligible": 245,
+          "undefined_reason": null
+        },
+        "mutation_detection": {
+          "eligible": 96,
+          "undefined_reason": null
+        },
+        "over_rejection": {
+          "eligible": 52,
+          "undefined_reason": null
+        },
+        "per_class_accuracy": {
+          "groups": 4,
+          "undefined_reason": null
+        },
+        "presentation_susceptibility": {
+          "children_considered": 39,
+          "pairs": 39,
+          "pairs_unresolved": 0,
+          "undefined_reason": null
+        },
+        "robustness_delta": {
+          "considered": 141,
+          "pairs": 141,
+          "pairs_missing_parent": 0,
+          "undefined_reason": null
+        },
+        "robustness_score": {
+          "undefined_reason": null
+        }
+      },
+      "mutation_detection_rate": 0.125,
+      "mutation_detection_total": 96,
+      "over_rejection_count": 0,
+      "over_rejection_rate": 0.0,
+      "per_class_accuracy": {
+        "canonical_overall": 0.75,
+        "invalid": 0.53125,
+        "review": 0.7411764705882353,
+        "valid": 0.43243243243243246
+      },
+      "presentation_susceptibility": 0.0,
+      "robustness_delta": 0.0,
+      "robustness_score": 0.4783,
+      "total_cases": 297
+    },
+    "rules-baseline": {
+      "calibration_error": 0.33851515151515155,
+      "correct_cases": 252,
+      "decision_accuracy": 0.8484848484848485,
+      "dimension_mae": {
+        "claim_evidence_consistency": 0.3678,
+        "evidence_completeness": 0.2801,
+        "impact_calibration": 0.4227,
+        "reproducibility": 0.2428,
+        "scope_consistency": 0.325
+      },
+      "evaluator_name": "rules-baseline",
+      "false_reassurance_count": 23,
+      "false_reassurance_rate": 0.09387755102040816,
+      "metric_coverage": {
+        "calibration_error": {
+          "binned": 297,
+          "observations": 297,
+          "out_of_range_excluded": 0,
+          "undefined_reason": null
+        },
+        "decision_accuracy": {
+          "presented": 297,
+          "scored": 297,
+          "undefined_reason": null,
+          "unscored_no_expectation": 0
+        },
+        "dimension_mae": {
+          "observations": 297,
+          "undefined_reason": null
+        },
+        "false_reassurance": {
+          "eligible": 245,
+          "undefined_reason": null
+        },
+        "mutation_detection": {
+          "eligible": 96,
+          "undefined_reason": null
+        },
+        "over_rejection": {
+          "eligible": 52,
+          "undefined_reason": null
+        },
+        "per_class_accuracy": {
+          "groups": 4,
+          "undefined_reason": null
+        },
+        "presentation_susceptibility": {
+          "children_considered": 39,
+          "pairs": 39,
+          "pairs_unresolved": 0,
+          "undefined_reason": null
+        },
+        "robustness_delta": {
+          "considered": 141,
+          "pairs": 141,
+          "pairs_missing_parent": 0,
+          "undefined_reason": null
+        },
+        "robustness_score": {
+          "undefined_reason": null
+        }
+      },
+      "mutation_detection_rate": 0.8020833333333334,
+      "mutation_detection_total": 96,
+      "over_rejection_count": 0,
+      "over_rejection_rate": 0.0,
+      "per_class_accuracy": {
+        "canonical_overall": 0.8333333333333334,
+        "invalid": 0.71875,
+        "review": 0.9411764705882353,
+        "valid": 0.8513513513513513
+      },
+      "presentation_susceptibility": 0.0,
+      "robustness_delta": 0.0070921985815602835,
+      "robustness_score": 0.8385,
+      "total_cases": 297
+    }
+  },
+  "coverage": {
+    "evidence-graph-baseline": {
+      "failed": 0,
+      "not_run": 0,
+      "planned": 297,
+      "scored": 297
+    },
+    "rules-baseline": {
+      "failed": 0,
+      "not_run": 0,
+      "planned": 297,
+      "scored": 297
+    }
+  },
+  "evaluators": [
+    "evidence-graph-baseline",
+    "rules-baseline"
+  ],
+  "kind": "study",
+  "note": "descriptive case-weighted metrics; no estimand, weighting, or interval claim beyond docs/metric-contracts.md",
+  "outcomes": {
+    "lines": 0,
+    "path": null,
+    "present": false,
+    "sha256": null
+  },
+  "records_count": 594,
+  "records_path": "records.jsonl",
+  "records_sha256": "b8c9112dd0ce8dd1f9af56fa8848709556a90c919831932a52053fc470e5f015"
+}

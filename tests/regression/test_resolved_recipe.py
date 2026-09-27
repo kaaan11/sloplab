@@ -387,7 +387,9 @@ def test_two_roots_same_semantics_same_hashes(tmp_path: Path) -> None:
     assert generation_hash(recipe_a) == generation_hash(recipe_b)
     assert evaluation_hash(recipe_a) == evaluation_hash(recipe_b)
     assert recipe_a.locations is not None and recipe_b.locations is not None
-    assert recipe_a.locations.corpus_root != recipe_b.locations.corpus_root
+    # #60: locations record the corpus root as configured, but each run still
+    # has its own study config, so the two roots must remain distinguishable.
+    assert recipe_a.locations.suite_config_path != recipe_b.locations.suite_config_path
     assert settings_hash(
         generation_hash(recipe_a), evaluation_hash(recipe_a), "0" * 64
     ) == settings_hash(generation_hash(recipe_b), evaluation_hash(recipe_b), "0" * 64)

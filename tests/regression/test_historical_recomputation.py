@@ -54,8 +54,15 @@ def test_every_difference_has_a_recorded_reason() -> None:
         table: dict[str, str] = {}
         for key, new_value in sorted(new.items()):
             if key == "metric_coverage":
-                assert key not in old
-                table[key] = REASON_COVERAGE_ENVELOPE
+                # PR #33 regenerated the committed bundle with current code, so
+                # the E4a coverage envelope is now baked into the committed
+                # files (legacy bundles predate it). Either shape is accepted,
+                # but a present envelope must recompute exactly.
+                if key not in old:
+                    table[key] = REASON_COVERAGE_ENVELOPE
+                    continue
+                assert old[key] == new_value, f"{name}.{key}: envelope changed"
+                table[key] = REASON_UNCHANGED
                 continue
             old_value = old.get(key)
             if key == "presentation_susceptibility":
@@ -74,10 +81,18 @@ def test_every_difference_has_a_recorded_reason() -> None:
         reasons[name] = table
     # Pinned expectations on the committed bundle: only the paired fix bites,
     # and only where unbalanced pairs exist.
-    assert reasons["rules-baseline"]["presentation_susceptibility"] == REASON_PAIRED_FIX
+    # PR #33 note: the committed bundle was regenerated with current code, so
+    # the paired-fix value is now baked in (reason UNCHANGED, value still 0.0).
+    # The legacy -0.0188 -> 0.0 shift is this PR's behavior change: two of the
+    # 11 corrected cases are professionalize-language pairs
+    # (mut-graphql-028-professionalize-language-03,
+    # mut-wstoken-022-professionalize-language-04), both reject ->
+    # needs_manual_review with no acceptance delta.
+    assert reasons["rules-baseline"]["presentation_susceptibility"] == REASON_UNCHANGED
     assert current["rules-baseline"]["presentation_susceptibility"] == 0.0
     assert reasons["oracle"]["presentation_susceptibility"] == REASON_UNCHANGED
     assert reasons["rules-baseline"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["oracle"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["rules-baseline"]["decision_accuracy"] == REASON_UNCHANGED
+    assert reasons["rules-baseline"]["robustness_score"] == REASON_UNCHANGED
     assert set(reasons) == {"oracle", "rules-baseline"}

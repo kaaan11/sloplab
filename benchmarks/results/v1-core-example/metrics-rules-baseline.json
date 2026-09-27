@@ -1,8 +1,8 @@
 {
   "evaluator_name": "rules-baseline",
   "total_cases": 297,
-  "correct_cases": 241,
-  "decision_accuracy": 0.8114478114478114,
+  "correct_cases": 252,
+  "decision_accuracy": 0.8484848484848485,
   "false_reassurance_rate": 0.09387755102040816,
   "false_reassurance_count": 23,
   "over_rejection_rate": 0.0,
@@ -10,8 +10,8 @@
   "mutation_detection_rate": 0.8020833333333334,
   "mutation_detection_total": 96,
   "robustness_delta": 0.0070921985815602835,
-  "presentation_susceptibility": -0.018853695324283576,
-  "calibration_error": 0.2977744107744108,
+  "presentation_susceptibility": 0.0,
+  "calibration_error": 0.33851515151515155,
   "dimension_mae": {
     "claim_evidence_consistency": 0.3678,
     "evidence_completeness": 0.2801,
@@ -21,9 +21,58 @@
   },
   "per_class_accuracy": {
     "invalid": 0.71875,
-    "review": 0.8117647058823529,
+    "review": 0.9411764705882353,
     "valid": 0.8513513513513513,
-    "canonical_overall": 0.8
+    "canonical_overall": 0.8333333333333334
   },
-  "robustness_score": 0.8393
+  "robustness_score": 0.8385,
+  "metric_coverage": {
+    "decision_accuracy": {
+      "presented": 297,
+      "scored": 297,
+      "unscored_no_expectation": 0,
+      "undefined_reason": null
+    },
+    "false_reassurance": {
+      "eligible": 245,
+      "undefined_reason": null
+    },
+    "over_rejection": {
+      "eligible": 52,
+      "undefined_reason": null
+    },
+    "mutation_detection": {
+      "eligible": 96,
+      "undefined_reason": null
+    },
+    "robustness_delta": {
+      "pairs": 141,
+      "pairs_missing_parent": 0,
+      "considered": 141,
+      "undefined_reason": null
+    },
+    "presentation_susceptibility": {
+      "pairs": 39,
+      "pairs_unresolved": 0,
+      "children_considered": 39,
+      "undefined_reason": null
+    },
+    "calibration_error": {
+      "observations": 297,
+      "binned": 297,
+      "out_of_range_excluded": 0,
+      "undefined_reason": null
+    },
+    "dimension_mae": {
+      "observations": 297,
+      "undefined_reason": null
+    },
+    "per_class_accuracy": {
+      "groups": 4,
+      "undefined_reason": null
+    },
+    "robustness_score": {
+      "undefined_reason": null
+    }
+  }
 }

@@ -24,7 +24,6 @@ SampleStack 3.1.0 (demo builds only).
 ## Reproduction Steps
 
 1. Start the demo and note the ACS path from the bundled metadata file.
-   set to another demo user, omitting the signature element entirely.
 3. Inspect the resulting session page.
 ## Observed Result
 

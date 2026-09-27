@@ -25,5 +25,54 @@
     "valid": 1.0,
     "canonical_overall": 1.0
   },
-  "robustness_score": 1.0
+  "robustness_score": 1.0,
+  "metric_coverage": {
+    "decision_accuracy": {
+      "presented": 297,
+      "scored": 297,
+      "unscored_no_expectation": 0,
+      "undefined_reason": null
+    },
+    "false_reassurance": {
+      "eligible": 245,
+      "undefined_reason": null
+    },
+    "over_rejection": {
+      "eligible": 52,
+      "undefined_reason": null
+    },
+    "mutation_detection": {
+      "eligible": 96,
+      "undefined_reason": null
+    },
+    "robustness_delta": {
+      "pairs": 141,
+      "pairs_missing_parent": 0,
+      "considered": 141,
+      "undefined_reason": null
+    },
+    "presentation_susceptibility": {
+      "pairs": 39,
+      "pairs_unresolved": 0,
+      "children_considered": 39,
+      "undefined_reason": null
+    },
+    "calibration_error": {
+      "observations": 297,
+      "binned": 297,
+      "out_of_range_excluded": 0,
+      "undefined_reason": null
+    },
+    "dimension_mae": {
+      "observations": 297,
+      "undefined_reason": null
+    },
+    "per_class_accuracy": {
+      "groups": 4,
+      "undefined_reason": null
+    },
+    "robustness_score": {
+      "undefined_reason": null
+    }
+  }
 }

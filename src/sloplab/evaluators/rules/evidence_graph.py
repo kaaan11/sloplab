@@ -157,20 +157,29 @@ class EvidenceGraphBaselineEvaluator:
             ("GRAPH_MISSING_IMPACT_CLAIM", impact_claims),
             ("GRAPH_MISSING_COMPONENT_SUPPORT", e1),
             ("GRAPH_MISSING_REPRO_SUPPORT", e2),
-            ("GRAPH_MISSING_OBSERVED_SUPPORT", e3),
-            ("GRAPH_BOUNDARY_CONTRADICTS_CLAIM", e4),
         ):
             if not present:
                 findings.append(Finding(code=code, severity=Severity.MEDIUM))
 
-        if boundary_negated or observed_undermines:
-            # negated boundary OR self-undermining observation: the report's own
-            # content defeats its claim -> reject.
+        if not observed_node:
+            findings.append(
+                Finding(code="GRAPH_MISSING_OBSERVED_SUPPORT", severity=Severity.MEDIUM)
+            )
+        if not boundary_node:
+            findings.append(
+                Finding(code="GRAPH_MISSING_BOUNDARY_SUPPORT", severity=Severity.MEDIUM)
+            )
+        elif boundary_negated and impact_claims:
+            findings.append(
+                Finding(code="GRAPH_BOUNDARY_CONTRADICTS_CLAIM", severity=Severity.HIGH)
+            )
+
+        if boundary_negated:
             findings.append(
                 Finding(
                     code="BOUNDARY_NEGATED_BY_AUTHOR",
                     severity=Severity.HIGH,
-                    evidence=(boundary_text[:80]),
+                    evidence=boundary_text[:80],
                 )
             )
         if observed_undermines:
@@ -211,8 +220,9 @@ class EvidenceGraphBaselineEvaluator:
         overall = sum(dims[d] for d in DIMENSIONS) / len(DIMENSIONS)
 
         # ---- decision policy ------------------------------------------------
-        # Precedence: hard-reject on negated boundary; never accept a report that
-        # declares itself unresolved; a complete, strong graph may accept.
+        # Precedence: hard-reject on explicit boundary negation or an observation
+        # that directly undermines the claim; never accept a report that declares
+        # itself unresolved; a complete, strong graph may accept.
         if boundary_negated or observed_undermines:
             decision = Decision.REJECT
         elif hedged:

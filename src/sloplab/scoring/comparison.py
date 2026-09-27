@@ -45,19 +45,59 @@ class PairedComparison:
         }
 
 
+def _repeat_index(record: CaseRecord) -> object:
+    """Repeat identity from the existing ``evaluation_metadata`` field.
+
+    ``seed`` is the corpus sampling seed (identical across repeats) and must
+    NOT be used as a repeat tag. The established repeat tag is
+    ``evaluation_metadata["repeat_index"]`` (written by the pilot, read by
+    the metrics singularity keys), defaulting to 0 for single-repeat
+    deterministic records. No new schema field is required.
+    """
+    meta = record.evaluation_metadata or {}
+    tag = meta.get("repeat_index", 0)
+    return 0 if tag is None else tag
+
+
+def _paired_correctness(records: list[CaseRecord]) -> dict[tuple[str, object], bool]:
+    """Map (case_id, repeat) -> correctness, failing loudly on ambiguity.
+
+    A repeated ``case_id`` without a distinguishing repeat identity (or the
+    same ``(case_id, repeat)`` twice) raises ``ValueError`` naming the case
+    instead of letting input order silently pick the survivor.
+    """
+    keyed: dict[tuple[str, object], bool] = {}
+    for r in records:
+        key = (r.case_id, _repeat_index(r))
+        if key in keyed:
+            raise ValueError(
+                f"paired_win_loss: duplicate records for case_id={r.case_id!r} "
+                f"repeat={key[1]!r}; tag repeats via "
+                "evaluation_metadata['repeat_index']"
+            )
+        keyed[key] = r.correct
+    return keyed
+
+
 def paired_win_loss(records_a: list[CaseRecord], records_b: list[CaseRecord]) -> PairedComparison:
-    """Case-level correctness pairing between two evaluators on shared cases."""
-    by_case_a = {r.case_id: r.correct for r in records_a}
-    by_case_b = {r.case_id: r.correct for r in records_b}
-    shared = sorted(set(by_case_a) & set(by_case_b))
+    """Case-level correctness pairing between two evaluators on shared cases.
+
+    Pairing is over ``(case_id, repeat)`` when repeat identity is present,
+    otherwise over ``case_id`` (single-repeat records all read as repeat 0,
+    matching the metrics singularity keys). Shared keys are compared in
+    sorted order, so reversed inputs give identical results.
+    """
+    by_case_a = _paired_correctness(records_a)
+    by_case_b = _paired_correctness(records_b)
+    shared = sorted(set(by_case_a) & set(by_case_b), key=repr)
 
     comparison = PairedComparison(
         evaluator_a=records_a[0].evaluator_name if records_a else "A",
         evaluator_b=records_b[0].evaluator_name if records_b else "B",
         shared_cases=len(shared),
     )
-    for case_id in shared:
-        a_ok, b_ok = by_case_a[case_id], by_case_b[case_id]
+    for key in shared:
+        a_ok, b_ok = by_case_a[key], by_case_b[key]
         if a_ok and not b_ok:
             comparison.a_wins += 1
         elif b_ok and not a_ok:
@@ -191,6 +231,8 @@ class RepeatStability:
     unanimous_cases: int = 0
     flipped_cases: int = 0
     mean_confidence_spread: float = 0.0
+    incomplete_cases: int = 0
+    incomplete_case_ids: list[str] = field(default_factory=list)
 
     @property
     def unanimity_rate(self) -> float:
@@ -208,25 +250,41 @@ class RepeatStability:
 
 
 def repeat_stability(repeat_sets: list[list[CaseRecord]]) -> RepeatStability:
-    """Agreement across >=2 repeat runs of a stochastic evaluator."""
+    """Agreement across >=2 repeat runs of a stochastic evaluator.
+
+    A case counts as unanimous/flipped only when it is present in EVERY
+    repeat run. Cases missing from any repeat are reported separately via
+    ``incomplete_cases`` / ``incomplete_case_ids`` and never as unanimous.
+    Operational failures never reach this boundary as records: they live in
+    the pilot outcome ledger, which withholds stability on incomplete
+    coverage. The serialized ``as_dict()`` keys are unchanged, so
+    full-coverage single-observation output is byte-identical to before.
+    """
     if len(repeat_sets) < 2:
         raise ValueError("repeat_stability requires at least two repeat runs")
-    by_case: dict[str, list[CaseRecord]] = defaultdict(list)
-    for records in repeat_sets:
+    by_case: dict[str, list[tuple[int, CaseRecord]]] = defaultdict(list)
+    for repeat_index, records in enumerate(repeat_sets):
         for r in records:
-            by_case[r.case_id].append(r)
+            by_case[r.case_id].append((repeat_index, r))
 
-    stability = RepeatStability(repeats=len(repeat_sets), cases_compared=len(by_case))
+    total_repeats = len(repeat_sets)
+    stability = RepeatStability(repeats=total_repeats, cases_compared=len(by_case))
     spreads: list[float] = []
-    for _case_id in sorted(by_case):
-        entries = by_case[_case_id]
-        decisions = {e.decision for e in entries}
-        confs = [e.confidence for e in entries]
+    incomplete: list[str] = []
+    for case_id in sorted(by_case):
+        entries = by_case[case_id]
+        if len({repeat_index for repeat_index, _ in entries}) < total_repeats:
+            incomplete.append(case_id)
+            continue
+        decisions = {e.decision for _, e in entries}
+        confs = [e.confidence for _, e in entries]
         if len(decisions) == 1:
             stability.unanimous_cases += 1
         else:
             stability.flipped_cases += 1
         if len(confs) > 1:
             spreads.append(max(confs) - min(confs))
+    stability.incomplete_cases = len(incomplete)
+    stability.incomplete_case_ids = incomplete
     stability.mean_confidence_spread = sum(spreads) / len(spreads) if spreads else 0.0
     return stability

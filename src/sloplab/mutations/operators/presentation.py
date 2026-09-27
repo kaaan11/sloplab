@@ -53,6 +53,15 @@ _POLITE_PREAMBLE: str = (
 
 _SENTENCE_END_RE = re.compile(r"([.!?])\s+(?=[a-z])")
 
+# Hyphen policy (issue #26, binding contract 2026-09-27): hyphenated compound
+# words are preserved, so the lookarounds reject [\w-] neighbors exactly. The
+# pattern is assembled from ``NOT = "!"`` because a literal ``(?<!`` written
+# inline was mangled by the publishing pipeline (the '!' after '?' or '<' was
+# stripped); building it programmatically keeps the compiled pattern correct.
+# Exported as ``HEDGE`` so the contract test can pin it.
+NOT = "!"  # ASCII 33
+HEDGE = re.compile(r"(?<" + NOT + r"[\w-])likely(?" + NOT + r"[\w-])", re.IGNORECASE)
+
 
 def split_code_fences(text: str) -> list[tuple[bool, str]]:
     """Split ``text`` into ``(is_fenced, chunk)`` segments preserving order.
@@ -140,7 +149,7 @@ class ProfessionalizeLanguage:
                     chunk = pattern.sub(partial(_match_case, replacement=new), chunk)
                     if f"register:{old}" not in applied:
                         applied.append(f"register:{old}")
-            return chunk.replace("!", ".").replace("!!", ".")
+            return re.sub(r"!+", ".", chunk)
 
         text = _rewrite_unfenced(text, _apply_contractions_and_register)
 
@@ -202,6 +211,13 @@ class ConfidenceOverstatement:
         ("unclear whether", "confirmed that"),
     )
 
+    @staticmethod
+    def _compile_hedge(phrase: str) -> re.Pattern[str]:
+        """Hedge matcher with the contract's hyphen-aware lookarounds."""
+        return re.compile(
+            r"(?<" + NOT + r"[\w-])" + re.escape(phrase) + r"(?" + NOT + r"[\w-])", re.IGNORECASE
+        )
+
     def apply(
         self,
         document: ReportDocument,
@@ -214,7 +230,7 @@ class ConfidenceOverstatement:
         # Each hedge pattern replaces at most its first occurrence, scanning
         # unfenced prose in reading order; fenced code is never rewritten.
         for old, new in self._HEDGES:
-            pattern = re.compile(re.escape(old), re.IGNORECASE)
+            pattern = self._compile_hedge(old)
             chunks = split_code_fences(text)
             replaced = False
             rebuilt: list[str] = []

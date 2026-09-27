@@ -1,4 +1,6 @@
 {
+  "metric_definition_version": 2,
+  "python_version": "3.13.15",
   "bundles": {
     "evidence-graph-baseline": {
       "evaluator_name": "evidence-graph-baseline",
@@ -12,7 +14,7 @@
       "mutation_detection_rate": 0.125,
       "mutation_detection_total": 96,
       "robustness_delta": 0.0,
-      "presentation_susceptibility": 0.006787330316742085,
+      "presentation_susceptibility": 0.0,
       "calibration_error": 0.27011784511784503,
       "dimension_mae": {
         "claim_evidence_consistency": 0.1675,
@@ -27,13 +29,62 @@
         "valid": 0.43243243243243246,
         "canonical_overall": 0.75
       },
-      "robustness_score": 0.4465
+      "robustness_score": 0.4783,
+      "metric_coverage": {
+        "decision_accuracy": {
+          "presented": 297,
+          "scored": 297,
+          "unscored_no_expectation": 0,
+          "undefined_reason": null
+        },
+        "false_reassurance": {
+          "eligible": 245,
+          "undefined_reason": null
+        },
+        "over_rejection": {
+          "eligible": 52,
+          "undefined_reason": null
+        },
+        "mutation_detection": {
+          "eligible": 96,
+          "undefined_reason": null
+        },
+        "robustness_delta": {
+          "pairs": 141,
+          "pairs_missing_parent": 0,
+          "considered": 141,
+          "undefined_reason": null
+        },
+        "presentation_susceptibility": {
+          "pairs": 39,
+          "pairs_unresolved": 0,
+          "children_considered": 39,
+          "undefined_reason": null
+        },
+        "calibration_error": {
+          "observations": 297,
+          "binned": 297,
+          "out_of_range_excluded": 0,
+          "undefined_reason": null
+        },
+        "dimension_mae": {
+          "observations": 297,
+          "undefined_reason": null
+        },
+        "per_class_accuracy": {
+          "groups": 4,
+          "undefined_reason": null
+        },
+        "robustness_score": {
+          "undefined_reason": null
+        }
+      }
     },
     "rules-baseline": {
       "evaluator_name": "rules-baseline",
       "total_cases": 297,
-      "correct_cases": 241,
-      "decision_accuracy": 0.8114478114478114,
+      "correct_cases": 252,
+      "decision_accuracy": 0.8484848484848485,
       "false_reassurance_rate": 0.09387755102040816,
       "false_reassurance_count": 23,
       "over_rejection_rate": 0.0,
@@ -41,8 +92,8 @@
       "mutation_detection_rate": 0.8020833333333334,
       "mutation_detection_total": 96,
       "robustness_delta": 0.0070921985815602835,
-      "presentation_susceptibility": -0.018853695324283576,
-      "calibration_error": 0.2977744107744108,
+      "presentation_susceptibility": 0.0,
+      "calibration_error": 0.33851515151515155,
       "dimension_mae": {
         "claim_evidence_consistency": 0.3678,
         "evidence_completeness": 0.2801,
@@ -52,11 +103,60 @@
       },
       "per_class_accuracy": {
         "invalid": 0.71875,
-        "review": 0.8117647058823529,
+        "review": 0.9411764705882353,
         "valid": 0.8513513513513513,
-        "canonical_overall": 0.8
+        "canonical_overall": 0.8333333333333334
       },
-      "robustness_score": 0.8393
+      "robustness_score": 0.8385,
+      "metric_coverage": {
+        "decision_accuracy": {
+          "presented": 297,
+          "scored": 297,
+          "unscored_no_expectation": 0,
+          "undefined_reason": null
+        },
+        "false_reassurance": {
+          "eligible": 245,
+          "undefined_reason": null
+        },
+        "over_rejection": {
+          "eligible": 52,
+          "undefined_reason": null
+        },
+        "mutation_detection": {
+          "eligible": 96,
+          "undefined_reason": null
+        },
+        "robustness_delta": {
+          "pairs": 141,
+          "pairs_missing_parent": 0,
+          "considered": 141,
+          "undefined_reason": null
+        },
+        "presentation_susceptibility": {
+          "pairs": 39,
+          "pairs_unresolved": 0,
+          "children_considered": 39,
+          "undefined_reason": null
+        },
+        "calibration_error": {
+          "observations": 297,
+          "binned": 297,
+          "out_of_range_excluded": 0,
+          "undefined_reason": null
+        },
+        "dimension_mae": {
+          "observations": 297,
+          "undefined_reason": null
+        },
+        "per_class_accuracy": {
+          "groups": 4,
+          "undefined_reason": null
+        },
+        "robustness_score": {
+          "undefined_reason": null
+        }
+      }
     }
   },
   "paired_comparisons": [
@@ -65,9 +165,9 @@
       "evaluator_b": "rules-baseline",
       "shared_cases": 297,
       "a_wins": 8,
-      "b_wins": 88,
-      "ties": 201,
-      "a_win_rate": 0.0833
+      "b_wins": 99,
+      "ties": 190,
+      "a_win_rate": 0.0748
     }
   ],
   "error_taxonomy": {
@@ -83,11 +183,11 @@
     },
     "rules-baseline": {
       "evaluator_name": "rules-baseline",
-      "total_errors": 56,
+      "total_errors": 45,
       "counts": {
         "deferred_invalid": 8,
         "false_reassurance": 22,
-        "over_strict_reject": 22,
+        "over_strict_reject": 11,
         "premature_accept": 1,
         "premature_deferral": 3
       }
@@ -121,7 +221,56 @@
           "review": 0.75,
           "valid": 1.0
         },
-        "robustness_score": 0.822
+        "robustness_score": 0.841,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 36,
+            "scored": 36,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 26,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 36,
+            "considered": 36,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 36,
+            "binned": 36,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 36,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 3,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "confidence_overstatement": {
         "evaluator_name": "evidence-graph-baseline:confidence_overstatement",
@@ -147,7 +296,56 @@
         "per_class_accuracy": {
           "review": 0.6
         },
-        "robustness_score": 0.6584
+        "robustness_score": 0.6834,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 5,
+            "scored": 5,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 5,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 5,
+            "considered": 5,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 5,
+            "children_considered": 5,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 5,
+            "binned": 5,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 5,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "contradict_observed_result": {
         "evaluator_name": "evidence-graph-baseline:contradict_observed_result",
@@ -173,7 +371,56 @@
         "per_class_accuracy": {
           "valid": 1.0
         },
-        "robustness_score": 0.9833
+        "robustness_score": 0.98,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 11,
+            "scored": 11,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 11,
+            "binned": 11,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 11,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "fabricate_reference": {
         "evaluator_name": "evidence-graph-baseline:fabricate_reference",
@@ -199,7 +446,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0348
+        "robustness_score": 0.0418,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 14,
+            "scored": 14,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 14,
+            "binned": 14,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 14,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "impact_inflation": {
         "evaluator_name": "evidence-graph-baseline:impact_inflation",
@@ -225,7 +521,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0344
+        "robustness_score": 0.0413,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 11,
+            "scored": 11,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 11,
+            "binned": 11,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 11,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "impossible_precondition": {
         "evaluator_name": "evidence-graph-baseline:impossible_precondition",
@@ -251,7 +596,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0349
+        "robustness_score": 0.0419,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 12,
+            "scored": 12,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 12,
+            "binned": 12,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 12,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "invent_api_identifier": {
         "evaluator_name": "evidence-graph-baseline:invent_api_identifier",
@@ -277,7 +671,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0344
+        "robustness_score": 0.0413,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 13,
+            "scored": 13,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 13,
+            "binned": 13,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 13,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "misattribute_cve": {
         "evaluator_name": "evidence-graph-baseline:misattribute_cve",
@@ -303,7 +746,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0348
+        "robustness_score": 0.0418,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 13,
+            "scored": 13,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 13,
+            "binned": 13,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 13,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "professionalize_language": {
         "evaluator_name": "evidence-graph-baseline:professionalize_language",
@@ -331,7 +823,56 @@
           "review": 0.75,
           "valid": 1.0
         },
-        "robustness_score": 0.8178
+        "robustness_score": 0.8736,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 48,
+            "scored": 48,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 34,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 48,
+            "considered": 48,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 34,
+            "children_considered": 34,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 48,
+            "binned": 48,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 48,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 3,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "remove_affected_version": {
         "evaluator_name": "evidence-graph-baseline:remove_affected_version",
@@ -358,7 +899,56 @@
           "review": 0.75,
           "valid": 1.0
         },
-        "robustness_score": 0.8189
+        "robustness_score": 0.8072,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 26,
+            "scored": 26,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 16,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 26,
+            "considered": 26,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 26,
+            "binned": 26,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 26,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "remove_reproduction_step": {
         "evaluator_name": "evidence-graph-baseline:remove_reproduction_step",
@@ -385,7 +975,56 @@
           "review": 0.75,
           "valid": 0.1
         },
-        "robustness_score": 0.3335
+        "robustness_score": 0.3002,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 26,
+            "scored": 26,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 26,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 16,
+            "considered": 16,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 26,
+            "binned": 26,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 26,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "scope_expansion": {
         "evaluator_name": "evidence-graph-baseline:scope_expansion",
@@ -412,15 +1051,64 @@
           "invalid": 0.6,
           "valid": 0.0
         },
-        "robustness_score": 0.1992
+        "robustness_score": 0.1845,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 22,
+            "scored": 22,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 22,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 10,
+            "considered": 10,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 22,
+            "binned": 22,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 22,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       }
     },
     "rules-baseline": {
       "add_irrelevant_detail": {
         "evaluator_name": "rules-baseline:add_irrelevant_detail",
         "total_cases": 36,
-        "correct_cases": 31,
-        "decision_accuracy": 0.8611111111111112,
+        "correct_cases": 33,
+        "decision_accuracy": 0.9166666666666666,
         "false_reassurance_rate": 0.038461538461538464,
         "false_reassurance_count": 1,
         "over_rejection_rate": 0.0,
@@ -429,7 +1117,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.2501388888888889,
+        "calibration_error": 0.31125,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3611,
           "evidence_completeness": 0.3708,
@@ -439,16 +1127,65 @@
         },
         "per_class_accuracy": {
           "invalid": 0.9,
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9
         },
-        "robustness_score": 0.8891
+        "robustness_score": 0.8836,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 36,
+            "scored": 36,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 26,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 36,
+            "considered": 36,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 36,
+            "binned": 36,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 36,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 3,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "confidence_overstatement": {
         "evaluator_name": "rules-baseline:confidence_overstatement",
         "total_cases": 5,
-        "correct_cases": 4,
-        "decision_accuracy": 0.8,
+        "correct_cases": 5,
+        "decision_accuracy": 1.0,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
@@ -457,7 +1194,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.52,
+        "calibration_error": 0.5,
         "dimension_mae": {
           "claim_evidence_consistency": 0.62,
           "evidence_completeness": 0.308,
@@ -466,9 +1203,58 @@
           "scope_consistency": 0.388
         },
         "per_class_accuracy": {
-          "review": 0.8
+          "review": 1.0
         },
-        "robustness_score": 0.836
+        "robustness_score": 0.8571,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 5,
+            "scored": 5,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 5,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 5,
+            "considered": 5,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 5,
+            "children_considered": 5,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 5,
+            "binned": 5,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 5,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "contradict_observed_result": {
         "evaluator_name": "rules-baseline:contradict_observed_result",
@@ -494,7 +1280,56 @@
         "per_class_accuracy": {
           "valid": 1.0
         },
-        "robustness_score": 0.9609
+        "robustness_score": 0.953,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 11,
+            "scored": 11,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 11,
+            "binned": 11,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 11,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "fabricate_reference": {
         "evaluator_name": "rules-baseline:fabricate_reference",
@@ -520,7 +1355,56 @@
         "per_class_accuracy": {
           "valid": 1.0
         },
-        "robustness_score": 0.9389
+        "robustness_score": 0.9267,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 14,
+            "scored": 14,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 14,
+            "binned": 14,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 14,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "impact_inflation": {
         "evaluator_name": "rules-baseline:impact_inflation",
@@ -546,7 +1430,56 @@
         "per_class_accuracy": {
           "valid": 1.0
         },
-        "robustness_score": 0.9389
+        "robustness_score": 0.9267,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 11,
+            "scored": 11,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 11,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 11,
+            "binned": 11,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 11,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "impossible_precondition": {
         "evaluator_name": "rules-baseline:impossible_precondition",
@@ -572,7 +1505,56 @@
         "per_class_accuracy": {
           "valid": 0.0
         },
-        "robustness_score": 0.0433
+        "robustness_score": 0.052,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 12,
+            "scored": 12,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 12,
+            "binned": 12,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 12,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "invent_api_identifier": {
         "evaluator_name": "rules-baseline:invent_api_identifier",
@@ -598,7 +1580,56 @@
         "per_class_accuracy": {
           "valid": 0.6923076923076923
         },
-        "robustness_score": 0.7432
+        "robustness_score": 0.7533,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 13,
+            "scored": 13,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 13,
+            "binned": 13,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 13,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "misattribute_cve": {
         "evaluator_name": "rules-baseline:misattribute_cve",
@@ -624,13 +1655,62 @@
         "per_class_accuracy": {
           "valid": 0.8461538461538461
         },
-        "robustness_score": 0.8436
+        "robustness_score": 0.8431,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 13,
+            "scored": 13,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 13,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 0,
+            "considered": 0,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 13,
+            "binned": 13,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 13,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 1,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "professionalize_language": {
         "evaluator_name": "rules-baseline:professionalize_language",
         "total_cases": 48,
-        "correct_cases": 36,
-        "decision_accuracy": 0.75,
+        "correct_cases": 38,
+        "decision_accuracy": 0.7916666666666666,
         "false_reassurance_rate": 0.14705882352941177,
         "false_reassurance_count": 5,
         "over_rejection_rate": 0.0,
@@ -639,7 +1719,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.25543750000000004,
+        "calibration_error": 0.3012708333333334,
         "dimension_mae": {
           "claim_evidence_consistency": 0.396,
           "evidence_completeness": 0.2675,
@@ -649,16 +1729,65 @@
         },
         "per_class_accuracy": {
           "invalid": 0.5555555555555556,
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9285714285714286
         },
-        "robustness_score": 0.8004
+        "robustness_score": 0.8089,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 48,
+            "scored": 48,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 34,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 14,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 48,
+            "considered": 48,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 34,
+            "children_considered": 34,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 48,
+            "binned": 48,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 48,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 3,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "remove_affected_version": {
         "evaluator_name": "rules-baseline:remove_affected_version",
         "total_cases": 26,
-        "correct_cases": 23,
-        "decision_accuracy": 0.8846153846153846,
+        "correct_cases": 25,
+        "decision_accuracy": 0.9615384615384616,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": 0.0,
@@ -667,7 +1796,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.42538461538461536,
+        "calibration_error": 0.4176923076923077,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3538,
           "evidence_completeness": 0.2892,
@@ -676,16 +1805,65 @@
           "scope_consistency": 0.38
         },
         "per_class_accuracy": {
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 1.0
         },
-        "robustness_score": 0.8803
+        "robustness_score": 0.8807,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 26,
+            "scored": 26,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 16,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 26,
+            "considered": 26,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 26,
+            "binned": 26,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 26,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "remove_reproduction_step": {
         "evaluator_name": "rules-baseline:remove_reproduction_step",
         "total_cases": 26,
-        "correct_cases": 22,
-        "decision_accuracy": 0.8461538461538461,
+        "correct_cases": 24,
+        "decision_accuracy": 0.9230769230769231,
         "false_reassurance_rate": 0.038461538461538464,
         "false_reassurance_count": 1,
         "over_rejection_rate": null,
@@ -694,7 +1872,7 @@
         "mutation_detection_total": 10,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.5423846153846154,
+        "calibration_error": 0.5346923076923077,
         "dimension_mae": {
           "claim_evidence_consistency": 0.2558,
           "evidence_completeness": 0.4912,
@@ -703,10 +1881,59 @@
           "scope_consistency": 0.28
         },
         "per_class_accuracy": {
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9
         },
-        "robustness_score": 0.859
+        "robustness_score": 0.8626,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 26,
+            "scored": 26,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 26,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 10,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 16,
+            "considered": 16,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 26,
+            "binned": 26,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 26,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "scope_expansion": {
         "evaluator_name": "rules-baseline:scope_expansion",
@@ -733,7 +1960,56 @@
           "invalid": 0.9,
           "valid": 1.0
         },
-        "robustness_score": 0.9443
+        "robustness_score": 0.9423,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 22,
+            "scored": 22,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 22,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 12,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 0,
+            "pairs_missing_parent": 10,
+            "considered": 10,
+            "undefined_reason": "no neutral mutated cases with resolvable parents"
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 22,
+            "binned": 22,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 22,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       }
     }
   },
@@ -764,7 +2040,56 @@
           "invalid": 0.53125,
           "canonical_overall": 0.5769230769230769
         },
-        "robustness_score": 0.7604
+        "robustness_score": 0.7718,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 64,
+            "scored": 64,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 64,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 38,
+            "pairs_missing_parent": 0,
+            "considered": 38,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 18,
+            "pairs_unresolved": 0,
+            "children_considered": 18,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 64,
+            "binned": 64,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 64,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "review": {
         "evaluator_name": "evidence-graph-baseline:review",
@@ -778,7 +2103,7 @@
         "mutation_detection_rate": null,
         "mutation_detection_total": 0,
         "robustness_delta": 0.0,
-        "presentation_susceptibility": 0.01785714285714285,
+        "presentation_susceptibility": 0.0,
         "calibration_error": 0.5693294117647059,
         "dimension_mae": {
           "claim_evidence_consistency": 0.1108,
@@ -791,7 +2116,56 @@
           "review": 0.7411764705882353,
           "canonical_overall": 0.75
         },
-        "robustness_score": 0.7835
+        "robustness_score": 0.7887,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 85,
+            "scored": 85,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 85,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 69,
+            "pairs_missing_parent": 0,
+            "considered": 69,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 21,
+            "pairs_unresolved": 0,
+            "children_considered": 21,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 85,
+            "binned": 85,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 85,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "valid": {
         "evaluator_name": "evidence-graph-baseline:valid",
@@ -818,7 +2192,56 @@
           "valid": 0.43243243243243246,
           "canonical_overall": 1.0
         },
-        "robustness_score": 0.2409
+        "robustness_score": 0.3355,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 148,
+            "scored": 148,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 52,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 34,
+            "pairs_missing_parent": 0,
+            "considered": 34,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 148,
+            "binned": 148,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 148,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       }
     },
     "rules-baseline": {
@@ -847,13 +2270,62 @@
           "invalid": 0.71875,
           "canonical_overall": 0.6923076923076923
         },
-        "robustness_score": 0.7835
+        "robustness_score": 0.7769,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 64,
+            "scored": 64,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 64,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 38,
+            "pairs_missing_parent": 0,
+            "considered": 38,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 18,
+            "pairs_unresolved": 0,
+            "children_considered": 18,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 64,
+            "binned": 64,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 64,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "review": {
         "evaluator_name": "rules-baseline:review",
         "total_cases": 85,
-        "correct_cases": 69,
-        "decision_accuracy": 0.8117647058823529,
+        "correct_cases": 80,
+        "decision_accuracy": 0.9411764705882353,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
@@ -862,7 +2334,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": 0.0,
         "presentation_susceptibility": 0.0,
-        "calibration_error": 0.5188235294117647,
+        "calibration_error": 0.5058823529411764,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3982,
           "evidence_completeness": 0.3946,
@@ -871,10 +2343,59 @@
           "scope_consistency": 0.4022
         },
         "per_class_accuracy": {
-          "review": 0.8117647058823529,
-          "canonical_overall": 0.8125
+          "review": 0.9411764705882353,
+          "canonical_overall": 0.9375
         },
-        "robustness_score": 0.8665
+        "robustness_score": 0.9001,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 85,
+            "scored": 85,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 85,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 0,
+            "undefined_reason": "no accept-expected records"
+          },
+          "mutation_detection": {
+            "eligible": 0,
+            "undefined_reason": "no degrading mutated records"
+          },
+          "robustness_delta": {
+            "pairs": 69,
+            "pairs_missing_parent": 0,
+            "considered": 69,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 21,
+            "pairs_unresolved": 0,
+            "children_considered": 21,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 85,
+            "binned": 85,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 85,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       },
       "valid": {
         "evaluator_name": "rules-baseline:valid",
@@ -901,7 +2422,56 @@
           "valid": 0.8513513513513513,
           "canonical_overall": 0.9444444444444444
         },
-        "robustness_score": 0.8216
+        "robustness_score": 0.8371,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 148,
+            "scored": 148,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 52,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 34,
+            "pairs_missing_parent": 0,
+            "considered": 34,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 0,
+            "pairs_unresolved": 0,
+            "children_considered": 0,
+            "undefined_reason": "no presentation-mutated cases with resolvable non-accept parents"
+          },
+          "calibration_error": {
+            "observations": 148,
+            "binned": 148,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 148,
+            "undefined_reason": null
+          },
+          "per_class_accuracy": {
+            "groups": 2,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
       }
     }
   },
@@ -912,9 +2482,9 @@
       "high": 0.5959595959595959
     },
     "rules-baseline": {
-      "low": 0.7676767676767676,
-      "point": 0.8114478114478114,
-      "high": 0.8552188552188552
+      "low": 0.8047138047138047,
+      "point": 0.8484848484848485,
+      "high": 0.8888888888888888
     }
   }
 }
