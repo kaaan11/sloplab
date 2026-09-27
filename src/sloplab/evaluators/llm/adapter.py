@@ -367,14 +367,16 @@ class LlmEvaluator:
             if not isinstance(raw, dict):
                 continue
             code = raw.get("code")
-            severity = raw.get("severity", "medium")
+            severity_raw = raw.get("severity", "medium")
             if isinstance(code, str) and re.fullmatch(r"[A-Z][A-Z0-9_]*", code):
+                try:
+                    severity = Severity(severity_raw)
+                except (TypeError, ValueError):
+                    severity = Severity.MEDIUM
                 findings.append(
                     Finding(
                         code=code,
-                        severity=Severity(severity)
-                        if severity in Severity.__members__
-                        else Severity.MEDIUM,
+                        severity=severity,
                         evidence=str(raw.get("evidence", ""))[:200],
                     )
                 )
