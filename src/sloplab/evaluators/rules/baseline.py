@@ -20,7 +20,6 @@ from collections.abc import Iterator
 from sloplab.corpus.conventions import EVIDENCE_SECTION_PATTERNS
 from sloplab.models.enums import (
     CLAIM_EVIDENCE_CONSISTENCY,
-    DIMENSIONS,
     EVIDENCE_COMPLETENESS,
     IMPACT_CALIBRATION,
     REPRODUCIBILITY,
@@ -28,7 +27,13 @@ from sloplab.models.enums import (
     Decision,
     Severity,
 )
-from sloplab.models.evaluation import DimensionScores, EvaluationContext, EvaluationResult, Finding
+from sloplab.models.evaluation import (
+    DimensionScores,
+    EvaluationContext,
+    EvaluationResult,
+    Finding,
+    mean_dimension_score,
+)
 from sloplab.models.report import ReportDocument
 from sloplab.mutations.textops import numbered_steps
 
@@ -641,7 +646,7 @@ class RulesBaselineEvaluator:
             SCOPE_CONSISTENCY: round(scope, 3),
         }
 
-        overall = sum(dims[d] for d in DIMENSIONS) / len(DIMENSIONS)
+        overall = mean_dimension_score(dims)
 
         # --- decision policy (documented thresholds) ---
         # Hard-reject signals: explicit no-boundary statements, claim/evidence

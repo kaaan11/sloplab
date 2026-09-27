@@ -93,7 +93,9 @@ A step-by-step walkthrough with real output lives in
 [examples/walkthrough.md](examples/walkthrough.md). Reference results regenerated at
 v0.2.2 live in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-example/)
 (oracle + rules-baseline; the documented reproduction command in
-[docs/reproducibility.md](docs/reproducibility.md) reproduces them exactly).
+[docs/reproducibility.md](docs/reproducibility.md) reproduces their
+decision/correct fields exactly on all supported Python versions — see the
+reproducibility guide).
 
 Example v1-core numbers (rules-baseline, regenerated for PR #33 fixing issue
 #20; see methodology.md for definitions). **What these numbers are:** agreement
