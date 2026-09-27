@@ -7,7 +7,7 @@
 - False reassurance rate: **0.42857142857142855**
 - Over-rejection rate: 0.0
 - Robustness delta (drift): 0.0
-- Presentation susceptibility: 0.006787330316742085
+- Presentation susceptibility: 0.0
 - Calibration error (ECE): 0.27011784511784503
 - Accuracy by report class:
     - invalid: 0.531
@@ -27,7 +27,7 @@
 - False reassurance rate: **0.09387755102040816**
 - Over-rejection rate: 0.0
 - Robustness delta (drift): 0.0070921985815602835
-- Presentation susceptibility: -0.018853695324283576
+- Presentation susceptibility: 0.0
 - Calibration error (ECE): 0.2977744107744108
 - Accuracy by report class:
     - invalid: 0.719

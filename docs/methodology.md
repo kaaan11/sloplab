@@ -86,12 +86,14 @@ correctness as the outcome.
 A weighted summary for convenience ranking only:
 
 ```
-40% mutation detection + 25% (1 - false reassurance) + 15% decision accuracy
+40% mutation detection + 25% (1 - false reassurance) + 15% canonical decision accuracy
 + 10% (1 - calibration error) + 10% (1 - presentation susceptibility)
 ```
 
-Missing components are reweighted by their available mass. Primary results are
-always the per-metric values above; never cite the auxiliary score alone.
+Canonical decision accuracy is computed over scored canonical cases only; derived
+case accuracy does not enter that 15% component. Missing components are reweighted
+by their available mass. Primary results are always the per-metric values above;
+never cite the auxiliary score alone.
 
 ## Protocol
 

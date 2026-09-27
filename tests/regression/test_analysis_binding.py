@@ -15,7 +15,7 @@ from sloplab.cli.main import cli
 from sloplab.evaluators.base import _EVALUATOR_REGISTRY
 from sloplab.evaluators.llm.failures import EvaluationFailure
 from sloplab.experiments.bundle import verify_bundle, write_completion
-from sloplab.reporting.analysis import AnalysisError, read_versioned_analysis
+from sloplab.reporting.analysis import AnalysisError, analysis_filename, read_versioned_analysis
 from tests._helpers import write_canonical_fixture
 
 
@@ -103,12 +103,12 @@ def _recomplete(out_dir: Path) -> None:
 
 def _analysis_doc(out_dir: Path) -> dict[str, Any]:
     return cast(
-        dict[str, Any], json.loads((out_dir / "analysis-v1.json").read_text(encoding="utf-8"))
+        dict[str, Any], json.loads((out_dir / analysis_filename()).read_text(encoding="utf-8"))
     )
 
 
 def _rewrite_analysis(out_dir: Path, document: dict[str, Any]) -> None:
-    (out_dir / "analysis-v1.json").write_text(json.dumps(document), encoding="utf-8")
+    (out_dir / analysis_filename()).write_text(json.dumps(document), encoding="utf-8")
 
 
 def test_failed_count_tamper_rejected(tmp_path: Path) -> None:
@@ -119,13 +119,13 @@ def test_failed_count_tamper_rejected(tmp_path: Path) -> None:
     _rewrite_analysis(out_dir, document)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="coverage mismatch"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_all_failed_evaluator_preserved(tmp_path: Path, failing_evaluator: Any) -> None:
     """R1 counterexample 2: zero-success evaluator stays visible, not dropped."""
     out_dir = _published_run(tmp_path, "b-allfail", evaluators=[_AlwaysFail.name])
-    document = read_versioned_analysis(out_dir / "analysis-v1.json")
+    document = read_versioned_analysis(out_dir / analysis_filename())
     assert document["evaluators"] == [_AlwaysFail.name]
     entry = document["coverage"][_AlwaysFail.name]
     assert entry["scored"] == 0
@@ -147,13 +147,13 @@ def test_embedded_metric_tamper_rejected(tmp_path: Path) -> None:
     _rewrite_analysis(out_dir, document)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="do not match"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_mixed_partial_study_equations(tmp_path: Path, failing_evaluator: Any) -> None:
     """Partial failure: exact per-evaluator equations; CLI handles both."""
     out_dir = _published_run(tmp_path, "b-mixed", evaluators=["rules-baseline", _AlwaysFail.name])
-    document = read_versioned_analysis(out_dir / "analysis-v1.json")
+    document = read_versioned_analysis(out_dir / analysis_filename())
     assert sorted(document["evaluators"]) == sorted(["rules-baseline", _AlwaysFail.name])
     planned = document["coverage"]["rules-baseline"]["planned"]
     assert planned > 0
@@ -171,7 +171,7 @@ def test_mixed_partial_study_equations(tmp_path: Path, failing_evaluator: Any) -
             "report",
             str(out_dir / "records.jsonl"),
             "--analysis",
-            str(out_dir / "analysis-v1.json"),
+            str(out_dir / analysis_filename()),
             "--out",
             str(out),
         ],
@@ -189,7 +189,7 @@ def test_outcomes_line_dropped_rejected(tmp_path: Path, failing_evaluator: Any) 
     outcomes.write_text("\n".join(lines[:-1]) + "\n", encoding="utf-8")
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="mismatch|sorted, unique"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_outcomes_file_deleted_rejected(tmp_path: Path, failing_evaluator: Any) -> None:
@@ -198,7 +198,7 @@ def test_outcomes_file_deleted_rejected(tmp_path: Path, failing_evaluator: Any) 
     (out_dir / "outcomes.jsonl").unlink()
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="outcomes"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_planted_outcomes_rejected(tmp_path: Path, failing_evaluator: Any) -> None:
@@ -208,7 +208,7 @@ def test_planted_outcomes_rejected(tmp_path: Path, failing_evaluator: Any) -> No
     (clean / "outcomes.jsonl").write_bytes((donor / "outcomes.jsonl").read_bytes())
     _recomplete(clean)
     with pytest.raises(AnalysisError, match="Unbound|unbound|outcomes"):
-        read_versioned_analysis(clean / "analysis-v1.json")
+        read_versioned_analysis(clean / analysis_filename())
 
 
 def test_foreign_outcomes_rejected(tmp_path: Path, failing_evaluator: Any) -> None:
@@ -224,7 +224,7 @@ def test_foreign_outcomes_rejected(tmp_path: Path, failing_evaluator: Any) -> No
     )
     _recomplete(out_a)
     with pytest.raises(AnalysisError, match="hash mismatch"):
-        read_versioned_analysis(out_a / "analysis-v1.json")
+        read_versioned_analysis(out_a / analysis_filename())
 
 
 def _fix_outcomes_binding(out_dir: Path) -> None:
@@ -253,7 +253,7 @@ def test_duplicate_failed_row_rejected(tmp_path: Path, failing_evaluator: Any) -
     _fix_outcomes_binding(out_dir)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="duplicate"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_scored_failed_collision_rejected(tmp_path: Path) -> None:
@@ -273,7 +273,7 @@ def test_scored_failed_collision_rejected(tmp_path: Path) -> None:
         + "\n",
         encoding="utf-8",
     )
-    analysis_path = out_dir / "analysis-v1.json"
+    analysis_path = out_dir / analysis_filename()
     analysis_path.write_text("{}", encoding="utf-8")
     document = {"coverage": {"ev": {"planned": 3, "scored": 2, "failed": 1, "not_run": 0}}}
     records = [
@@ -303,7 +303,7 @@ def test_not_run_row_rejected(tmp_path: Path, failing_evaluator: Any) -> None:
     _fix_outcomes_binding(out_dir)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="must be failed"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_evaluator_list_tamper_rejected(tmp_path: Path) -> None:
@@ -314,7 +314,7 @@ def test_evaluator_list_tamper_rejected(tmp_path: Path) -> None:
     _rewrite_analysis(out_dir, document)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="mismatch|sorted, unique"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_evaluator_list_must_remain_a_sorted_unique_list(tmp_path: Path) -> None:
@@ -325,7 +325,7 @@ def test_evaluator_list_must_remain_a_sorted_unique_list(tmp_path: Path) -> None
     _rewrite_analysis(out_dir, document)
     _recomplete(out_dir)
     with pytest.raises(AnalysisError, match="sorted, unique"):
-        read_versioned_analysis(out_dir / "analysis-v1.json")
+        read_versioned_analysis(out_dir / analysis_filename())
 
 
 def test_planned_union_mismatch_rejected(tmp_path: Path) -> None:
@@ -336,4 +336,4 @@ def test_planned_union_mismatch_rejected(tmp_path: Path) -> None:
     (out_a / "records.jsonl").write_bytes((out_b / "records.jsonl").read_bytes())
     _recomplete(out_a)
     with pytest.raises(AnalysisError, match="hash mismatch|union"):
-        read_versioned_analysis(out_a / "analysis-v1.json")
+        read_versioned_analysis(out_a / analysis_filename())
