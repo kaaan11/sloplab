@@ -79,11 +79,16 @@ def _header_corpus_root(corpus_root: Path, out_root: Path) -> str:
 
     Written relative to the materialization output root (the suite directory)
     so the same suite yields byte-identical headers on any machine. Reading
-    stages relocate the value via ``_resolve_suite_index`` (cwd, then the index
-    location), matching the writer's anchor. Absolute paths pass through as a
-    last resort (Windows drive-change edge, where ``os.path.relpath`` fails).
+    stages relocate the value via ``_resolve_suite_index`` (the index location
+    and its ancestors first, the cwd as a last resort), matching the writer's
+    anchor. A relative ``corpus_root`` is resolved against the cwd first (#60
+    revision: direct-API callers pass the configured string), so the header is
+    computed from the same root discovery used. Absolute paths pass through as
+    a last resort (Windows drive-change edge, where ``os.path.relpath`` fails).
     """
     path = Path(corpus_root)
+    if not path.is_absolute():
+        path = Path.cwd() / path
     try:
         return str(path.relative_to(out_root))
     except ValueError:

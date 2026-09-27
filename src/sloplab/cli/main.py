@@ -11,7 +11,11 @@ import click
 from sloplab import __version__
 from sloplab.evaluators.base import Evaluator
 from sloplab.experiments.bundle import BundleError, open_result_dir
+from sloplab.portable_paths import portable_path_str
 from sloplab.scoring.metrics import MetricBundle
+
+# Internal alias kept for the #60 provenance helpers below.
+_portable_path_str = portable_path_str
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -186,16 +190,18 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
         return index_path, candidate, materialized_root
     # Relative corpus roots (#60) resolve from the bundle's own location and its
     # ancestor chain, in the inverse direction of how the writer computed them;
-    # the CWD is deliberately excluded so evaluation stays cwd-independent and a
-    # same-named stray directory under the CWD cannot shadow the bundle's corpus.
-    anchors = index_path.absolute().parents
+    # the CWD is only a last resort so a same-named stray directory under the
+    # CWD cannot shadow the bundle's corpus, while legacy relative-to-cwd
+    # bundles keep evaluating.
+    anchors = [*index_path.absolute().parents, Path.cwd()]
     for anchor in anchors:
         resolved = anchor / candidate
         if resolved.is_dir():
             return index_path, resolved, materialized_root
     raise click.ClickException(
         f"corpus_root '{corpus_root_str}' from suite index does not exist relative to "
-        f"the index location ({', '.join(str(anchor) for anchor in anchors)})"
+        "the index location or the current directory "
+        f"({', '.join(str(anchor) for anchor in anchors)})"
     )
 
 
@@ -267,9 +273,9 @@ def _run_evaluators_over_suite(
         base_seed=base_seed,
         evaluators=infos,
         suite_config={
-            # #60: record provenance locations cwd-relative where possible so
-            # committed bundles stay machine-portable.
-            "index": _portable_path_str(index_path),
+            # #60: record provenance locations portably so committed bundles
+            # stay machine-independent.
+            "index": _index_provenance_str(index_path, out_dir),
             "corpus_root": _portable_path_str(corpus_root),
             OUTCOMES_HASH_KEY: outcomes_hash,
         },
@@ -318,19 +324,18 @@ def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
     )
 
 
-def _portable_path_str(path: Path) -> str:
-    """Render a provenance path cwd-relative when the path lies under the cwd.
+def _index_provenance_str(index_path: Path, out_dir: Path) -> str:
+    """Record the suite index relative to the output bundle when it lives there.
 
-    #60: committed result bundles must not carry machine-specific absolute
-    paths; paths outside the current directory keep their absolute form.
+    #60: ``benchmark`` materializes the index into its own output directory, so
+    the header records ``suite-index.jsonl`` instead of the scratch location the
+    run happened in. An index outside the output bundle (``evaluate`` input)
+    falls back to the portable cwd-relative rendering.
     """
-    import os
-
-    absolute = Path(path).absolute()
-    relative = os.path.relpath(absolute, Path.cwd())
-    if relative.startswith(os.pardir):
-        return str(absolute)
-    return relative
+    try:
+        return str(index_path.relative_to(out_dir))
+    except ValueError:
+        return _portable_path_str(index_path)
 
 
 def _hash_file(path: Path) -> str:

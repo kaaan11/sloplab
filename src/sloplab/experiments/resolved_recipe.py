@@ -20,6 +20,7 @@ from sloplab.evaluators.base import Evaluator, get_evaluator
 from sloplab.experiments.config import DeterministicStudyConfig
 from sloplab.experiments.input_identity import canonical_json_bytes, tagged_digest
 from sloplab.models.suite import SuiteConfig
+from sloplab.portable_paths import portable_path_str
 
 RECIPE_SCHEMA_VERSION = 1
 RECIPE_FILE_NAME = "execution-recipe.json"
@@ -160,8 +161,8 @@ def resolve_recipe(
 
     Reads the loaded ``suite_config`` object (the same object the materializer
     receives; the file is not re-read) and resolves each evaluator name exactly
-    once. Paths enter ``locations`` only, never the hashed sections; the corpus
-    root is recorded as configured (repo-relative, #60).
+    once. Paths enter ``locations`` only, never the hashed sections; locations
+    are recorded portably (cwd-relative where possible, #60).
     """
     instances: list[Evaluator] = [get_evaluator(spec.name) for spec in config.evaluators]
     evaluators = tuple(
@@ -203,9 +204,10 @@ def resolve_recipe(
         ),
         repeat_index=config.repeat_index,
         locations=ResolvedLocations(
-            suite_config_path=str(suite_config_path),
-            # #60: record the corpus root as configured (repo-relative) so the
-            # frozen recipe stays machine-portable; open provenance, never hashed.
+            # #60: record provenance locations portably (cwd-relative when the
+            # path lies under the cwd) so the frozen recipe stays
+            # machine-independent; open provenance, never hashed.
+            suite_config_path=portable_path_str(suite_config_path),
             corpus_root=str(config.suite.corpus_root),
         ),
         code_env=ResolvedCodeEnv(

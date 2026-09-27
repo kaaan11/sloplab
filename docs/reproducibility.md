@@ -36,9 +36,14 @@ integration test). Changing any of `base_seed`, the corpus manifests, or operato
 implementations changes outputs - that is intended and visible via the suite hash.
 The `suite-index.jsonl` header records the corpus root relative to the suite
 directory (#60), so the same suite produces byte-identical bytes on any machine;
-evaluation re-locates the corpus from the index's own ancestor chain. Bundles
-written before #60 carry an absolute `corpus_root` in the header and keep
-evaluating unchanged.
+evaluation re-locates the corpus from the index's own ancestor chain first and
+falls back to the current directory as a last resort (legacy relative-to-cwd
+bundles keep evaluating). Bundles written before #60 carry an absolute
+`corpus_root` in the header and keep evaluating unchanged. All provenance
+locations in committed bundles are portable: `execution-recipe.json`
+`locations` and the `run.jsonl` header's `suite_config` record paths
+cwd-relative (or bundle-relative, e.g. `suite-index.jsonl`) and never contain
+machine-specific absolute paths.
 
 ## Environment
 
