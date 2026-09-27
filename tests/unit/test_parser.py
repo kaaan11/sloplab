@@ -104,6 +104,14 @@ body
     assert "Real Section" in headings
 
 
+def test_tilde_fence_is_not_closed_by_backtick_marker() -> None:
+    raw = "# Title\n\n~~~\n# inside fence\n```\n## Fake Heading\n~~~\n\n## Real Section\n\nbody\n"
+    doc = parse_report(raw, fixture_id="canonical-fence-002", path="x.md")
+    headings = [section.heading for section in doc.sections if section.heading is not None]
+    assert "Fake Heading" not in headings
+    assert "Real Section" in headings
+
+
 def test_atx_closing_hashes_do_not_strip_csharp_title() -> None:
     raw = "# C#\n\n## Details ###\n\nbody\n"
     doc = parse_report(raw, fixture_id="canonical-heading-001", path="x.md")
