@@ -1,0 +1,281 @@
+{"base_seed": 20260825, "canonical_included": 60, "duplicate": 0, "error": 0, "generator_version": "0.2.2", "no_op": 43, "planned": 280, "record_type": "materialization_header", "safety_blocked": 0, "selected_total": 297, "span_model": "full-item-v1", "suite_name": "v1-core", "written": 237}
+{"case_id": "mut-authz-001-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-impact-inflation-03", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-scope-expansion-04", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-invent-api-identifier-05", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-professionalize-language-06", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz-001-confidence-overstatement-07", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-authz-001-fabricate-reference-08", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-remove-affected-version-01", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-impact-inflation-02", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-scope-expansion-03", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-invent-api-identifier-04", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-professionalize-language-05", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-confidence-overstatement-06", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-authz2-014-fabricate-reference-07", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-authz2-014-misattribute-cve-08", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachehdr-024-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachehdr-024-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachehdr-024-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-cachehdr-024-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachehdr-024-add-irrelevant-detail-05", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachepois-027-remove-affected-version-01", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachepois-027-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-cachepois-027-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachepois-027-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cachepois-027-remove-reproduction-step-05", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-corswild-025-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-corswild-025-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-corswild-025-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-corswild-025-scope-expansion-04", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-crypto-011-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-crypto-011-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-crypto-011-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-crypto-011-remove-reproduction-step-04", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-crypto-011-remove-affected-version-05", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cspnonc-021-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cspnonc-021-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cspnonc-021-remove-reproduction-step-03", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cspnonc-021-remove-affected-version-04", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-cspnonc-021-confidence-overstatement-05", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-csvinj-017-impact-inflation-01", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-scope-expansion-02", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-invent-api-identifier-03", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-confidence-overstatement-05", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-csvinj-017-fabricate-reference-06", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-misattribute-cve-07", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-csvinj-017-impossible-precondition-08", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-deserial-030-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-deserial-030-remove-reproduction-step-02", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-deserial-030-remove-affected-version-03", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-deserial-030-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-deserial-030-professionalize-language-05", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-dup-007-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-dup-007-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-dup-007-scope-expansion-03", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-dup-007-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-filetype-023-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-filetype-023-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-filetype-023-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-filetype-023-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-filetype-023-add-irrelevant-detail-05", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-scope-expansion-01", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-invent-api-identifier-02", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-ghauthz-015-fabricate-reference-05", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-misattribute-cve-06", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-impossible-precondition-07", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ghauthz-015-contradict-observed-result-08", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-graphql-028-remove-affected-version-01", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-graphql-028-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-graphql-028-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-graphql-028-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-graphql-028-remove-reproduction-step-05", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-headermiss-020-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-headermiss-020-scope-expansion-02", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-headermiss-020-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-headermiss-020-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-idor-004-invent-api-identifier-01", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-idor-004-fabricate-reference-04", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-misattribute-cve-05", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-impossible-precondition-06", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-contradict-observed-result-07", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-idor-004-add-irrelevant-detail-08", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-info-006-scope-expansion-01", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-info-006-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-info-006-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-info-006-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-infodisc-016-fabricate-reference-03", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-misattribute-cve-04", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-impossible-precondition-05", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-contradict-observed-result-06", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-add-irrelevant-detail-07", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-infodisc-016-remove-reproduction-step-08", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-jwtalg-026-confidence-overstatement-01", "detail": "", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-jwtalg-026-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-jwtalg-026-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-jwtalg-026-remove-reproduction-step-04", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-jwtalg-026-remove-affected-version-05", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-loginject-031-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-loginject-031-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-loginject-031-remove-reproduction-step-03", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-loginject-031-remove-affected-version-04", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-loginject-031-confidence-overstatement-05", "detail": "", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-massign-014-fabricate-reference-02", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-misattribute-cve-03", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-impossible-precondition-04", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-contradict-observed-result-05", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-add-irrelevant-detail-06", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-remove-reproduction-step-07", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-massign-014-remove-affected-version-08", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-norepro-009-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-norepro-009-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-norepro-009-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-norepro-009-scope-expansion-04", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oauthstate-029-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oauthstate-029-remove-reproduction-step-02", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oauthstate-029-remove-affected-version-03", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oauthstate-029-confidence-overstatement-04", "detail": "", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oauthstate-029-professionalize-language-05", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oob-008-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-oob-008-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oob-008-scope-expansion-03", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-oob-008-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-fabricate-reference-01", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-misattribute-cve-02", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-impossible-precondition-03", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-contradict-observed-result-04", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-add-irrelevant-detail-05", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-remove-reproduction-step-06", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-remove-affected-version-07", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-openred-015-impact-inflation-08", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair1a-cookie-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair1b-cookie-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair2a-dirlist-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair2b-dirlist-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair3a-comment-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair3b-comment-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair4a-passpol-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair4b-passpol-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair5a-health-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair5b-health-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair6a-logout-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair6b-logout-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair7a-404-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair7b-404-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pair8a-session-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pair8b-session-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-pathtrav-017-misattribute-cve-01", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-impossible-precondition-02", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-contradict-observed-result-03", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-remove-reproduction-step-05", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-remove-affected-version-06", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-impact-inflation-07", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-pathtrav-017-scope-expansion-08", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-perm-012-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-perm-012-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-perm-012-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-perm-012-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-perm-012-add-irrelevant-detail-05", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-permdiff-020-remove-affected-version-01", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-permdiff-020-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-permdiff-020-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-permdiff-020-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-permdiff-020-remove-reproduction-step-05", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-impossible-precondition-01", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-contradict-observed-result-02", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-remove-reproduction-step-04", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-remove-affected-version-05", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-impact-inflation-06", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-scope-expansion-07", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-racecond-018-invent-api-identifier-08", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit-010-confidence-overstatement-01", "detail": "", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit-010-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit-010-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit-010-remove-reproduction-step-04", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit-010-remove-affected-version-05", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit2-032-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit2-032-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit2-032-remove-reproduction-step-03", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit2-032-remove-affected-version-04", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ratelimit2-032-confidence-overstatement-05", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-robots-022-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-robots-022-scope-expansion-02", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-robots-022-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-robots-022-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-saml-019-contradict-observed-result-01", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-remove-reproduction-step-03", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-remove-affected-version-04", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-impact-inflation-05", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-scope-expansion-06", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-invent-api-identifier-07", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-saml-019-professionalize-language-08", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-selfreg-023-scope-expansion-01", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-selfreg-023-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-selfreg-023-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-selfreg-023-add-irrelevant-detail-04", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-remove-reproduction-step-02", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-remove-affected-version-03", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-impact-inflation-04", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-scope-expansion-05", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-invent-api-identifier-06", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-professionalize-language-07", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-sqlx-002-confidence-overstatement-08", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-ssrf-005-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-impact-inflation-03", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-scope-expansion-04", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-invent-api-identifier-05", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-professionalize-language-06", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-ssrf-005-confidence-overstatement-07", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-ssrf-005-fabricate-reference-08", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-remove-affected-version-01", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-impact-inflation-02", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-scope-expansion-03", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-invent-api-identifier-04", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-professionalize-language-05", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-confidence-overstatement-06", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-tokenurl-013-fabricate-reference-07", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-tokenurl-013-misattribute-cve-08", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-totiming-019-add-irrelevant-detail-01", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-totiming-019-remove-reproduction-step-02", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-totiming-019-remove-affected-version-03", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-totiming-019-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-totiming-019-professionalize-language-05", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-verb-021-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-verb-021-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-verb-021-add-irrelevant-detail-03", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-verb-021-scope-expansion-04", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-versiondisc-024-confidence-overstatement-01", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-versiondisc-024-add-irrelevant-detail-02", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-versiondisc-024-scope-expansion-03", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-versiondisc-024-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-impact-inflation-01", "detail": "", "operator": "impact_inflation", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-scope-expansion-02", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-invent-api-identifier-03", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-confidence-overstatement-05", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-websig-018-fabricate-reference-06", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-misattribute-cve-07", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-websig-018-impossible-precondition-08", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-wstoken-022-remove-reproduction-step-01", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-wstoken-022-remove-affected-version-02", "detail": "", "operator": "remove_affected_version", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-wstoken-022-confidence-overstatement-03", "detail": "", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-wstoken-022-professionalize-language-04", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-wstoken-022-add-irrelevant-detail-05", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-scope-expansion-01", "detail": "", "operator": "scope_expansion", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-invent-api-identifier-02", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-professionalize-language-03", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-confidence-overstatement-04", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-xsrf-003-fabricate-reference-05", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-misattribute-cve-06", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-impossible-precondition-07", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsrf-003-contradict-observed-result-08", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-invent-api-identifier-01", "detail": "", "operator": "invent_api_identifier", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-professionalize-language-02", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-confidence-overstatement-03", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-xssref-016-fabricate-reference-04", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-misattribute-cve-05", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-impossible-precondition-06", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-contradict-observed-result-07", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xssref-016-add-irrelevant-detail-08", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-professionalize-language-01", "detail": "", "operator": "professionalize_language", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-confidence-overstatement-02", "detail": "no hedged language found outside code fences", "operator": "confidence_overstatement", "record_type": "materialization_outcome", "status": "no_op"}
+{"case_id": "mut-xsssto-013-fabricate-reference-03", "detail": "", "operator": "fabricate_reference", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-misattribute-cve-04", "detail": "", "operator": "misattribute_cve", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-impossible-precondition-05", "detail": "", "operator": "impossible_precondition", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-contradict-observed-result-06", "detail": "", "operator": "contradict_observed_result", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-add-irrelevant-detail-07", "detail": "", "operator": "add_irrelevant_detail", "record_type": "materialization_outcome", "status": "written"}
+{"case_id": "mut-xsssto-013-remove-reproduction-step-08", "detail": "", "operator": "remove_reproduction_step", "record_type": "materialization_outcome", "status": "written"}

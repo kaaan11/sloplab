@@ -84,7 +84,7 @@ installation and cleanup-warning semantics.
 
 | Evaluator | Role | Notes |
 |---|---|---|
-| `rules-baseline` | **competitive baseline** | deterministic lexical heuristics; the floor to beat |
+| `rules-baseline` | **in-domain reference** | deterministic lexical heuristics tuned on this corpus; the floor to beat in-domain, not a general triage claim |
 | `evidence-graph-baseline` | **negative control** | structure-only claim-evidence graph; intentionally blind to content-quality mutations - it exists to prove the benchmark detects such blindness, not to win |
 | `oracle` | test-only | echoes ground truth; validates scoring plumbing |
 | `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
@@ -95,23 +95,26 @@ v0.2.2 live in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-
 (oracle + rules-baseline; the documented reproduction command in
 [docs/reproducibility.md](docs/reproducibility.md) reproduces them exactly).
 
-Example v1-core numbers (rules-baseline, generated at v0.2.2, see
-methodology.md for definitions). **What these numbers are:** agreement with the
-authored target decisions of this synthetic, single-author collection (60 fixtures
-representing 52 logical reports, 297 realized cases). They are *not* validated
-triage accuracy, bug-bounty performance, or general evaluator robustness; no
-independent human validation of the targets has been completed. An ablation study
+Example v1-core numbers (rules-baseline, regenerated for PR #33 fixing issue
+#20; see methodology.md for definitions). **What these numbers are:** agreement
+with the authored target decisions of this synthetic, single-author collection
+(60 fixtures representing 52 logical reports, 297 realized cases). They are
+*not* validated triage accuracy, bug-bounty performance, or general evaluator
+robustness; no independent human validation of the targets has been completed.
+The rules baseline was developed against this very corpus: the PR #33 accuracy
+gain (0.811 -> 0.848 from 11 conditional-boundary corrections) is in-domain
+target agreement, not generalization evidence. An ablation study
 (post-hoc, exploratory) found that most of the baseline's mutation detections depend
 on regex patterns that share literal text with the mutation operators' templates;
 see [Threat model](docs/threat-model.md).
 
 | metric | value |
 |---|---|
-| decision accuracy | 0.811 |
+| decision accuracy | 0.848 |
 | mutation detection rate | 0.802 |
 | false reassurance rate | 0.094 |
 | over-rejection rate | 0.000 |
-| calibration error | 0.298 |
+| calibration error | 0.339 |
 
 ## Architecture
 
