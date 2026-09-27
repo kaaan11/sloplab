@@ -527,8 +527,10 @@ def study(config: str, out: str) -> None:
         bootstrap_ci=analysis_cfg.bootstrap_ci,
         bootstrap_seed=analysis_cfg.bootstrap_seed,
     )
+    from sloplab.reporting.analysis import write_text_atomic
+
     analysis_path = out_dir / "analysis.json"
-    analysis_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+    write_text_atomic(analysis_path, json.dumps(analysis, indent=2))
 
     write_records_csv(out_dir / "results.csv", records)
     _write_comparison_markdown(

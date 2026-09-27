@@ -303,3 +303,61 @@ def test_successful_publish_leaves_only_current_version(tmp_path: Path) -> None:
     assert sorted(p.name for p in out_dir.glob("analysis-v*.json")) == [analysis_filename()]
     document = json.loads(published.read_text(encoding="utf-8"))
     assert document["analysis_version"] == ANALYSIS_DEFINITION_VERSION
+
+
+def test_study_analysis_write_failure_keeps_previous_analysis(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F1: forced failure during the legacy analysis.json write keeps the previous file."""
+    import sloplab.reporting.analysis as analysis_module
+
+    study_path, out_dir = _study_dir(tmp_path, "w-study-atomic")
+    first = CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert first.exit_code == 0, first.output
+    legacy = out_dir / "analysis.json"
+    old_text = legacy.read_text(encoding="utf-8")
+
+    def _boom(target: Path, payload: str) -> None:
+        raise RuntimeError("forced study analysis write failure")
+
+    monkeypatch.setattr(analysis_module, "write_text_atomic", _boom)
+    second = CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert second.exit_code != 0
+    assert legacy.read_text(encoding="utf-8") == old_text
+    assert list(out_dir.glob("*.tmp")) == []
+
+
+def test_atomic_write_keeps_normal_permissions(tmp_path: Path) -> None:
+    """F2: atomically published files honor umask (0644-style), not mkstemp 0600."""
+    import os as os_module
+    import stat as stat_module
+
+    from sloplab.reporting.analysis import write_text_atomic
+
+    target = tmp_path / "analysis.json"
+    write_text_atomic(target, "{}\n")
+    umask = os_module.umask(0)
+    os_module.umask(umask)
+    assert stat_module.S_IMODE(target.stat().st_mode) == (0o666 & ~umask)
+
+
+def test_replace_failure_removes_temp_and_keeps_old_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F5: failure injected after the temp file exists removes it; the old file stays."""
+    import os as os_module
+
+    from sloplab.reporting.analysis import write_text_atomic
+
+    target = tmp_path / "analysis.json"
+    old_text = '{"published": "previous"}\n'
+    target.write_text(old_text, encoding="utf-8")
+
+    def _boom_replace(src: Any, dst: Any) -> None:
+        raise OSError("forced replace failure")
+
+    monkeypatch.setattr(os_module, "replace", _boom_replace)
+    with pytest.raises(OSError, match="forced replace failure"):
+        write_text_atomic(target, '{"published": "new"}\n')
+    assert target.read_text(encoding="utf-8") == old_text
+    assert list(tmp_path.glob("*.tmp")) == []

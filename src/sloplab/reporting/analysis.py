@@ -99,6 +99,35 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def write_text_atomic(target: Path, payload: str) -> None:
+    """Write ``payload`` to ``target`` atomically within its directory.
+
+    The payload goes to a temp file in the same directory (so ``os.replace``
+    stays on one filesystem) and is moved onto the target atomically. The
+    temp file gets normal ``0666 & ~umask`` permissions (``mkstemp`` alone
+    would leave 0600). Any failure removes the temp file and re-raises, so
+    the previous target — if any — stays byte-identical and no debris
+    remains. Shared by the versioned publisher and the legacy study
+    ``analysis.json`` writer.
+    """
+    tmp_path: Path | None = None
+    try:
+        handle, tmp_name = tempfile.mkstemp(
+            dir=target.parent, prefix=target.stem + ".", suffix=".tmp"
+        )
+        tmp_path = Path(tmp_name)
+        umask = os.umask(0)
+        os.umask(umask)
+        os.chmod(tmp_path, 0o666 & ~umask)
+        with os.fdopen(handle, "w", encoding="utf-8") as tmp_file:
+            tmp_file.write(payload)
+        os.replace(tmp_path, target)
+    except BaseException:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
+
+
 def write_versioned_analysis(
     out_dir: Path,
     *,
@@ -173,22 +202,12 @@ def write_versioned_analysis(
     }
     # All validations (coverage, records file, outcomes binding) and the full
     # document build happen before any directory mutation. The new document is
-    # then written to a temp file in the same directory and moved onto the
-    # target atomically; only afterwards are older definition files retired
-    # (never the target itself). A failed publish therefore leaves every
-    # pre-existing analysis file byte-identical and no temp file behind.
+    # published through the shared atomic writer; only afterwards are older
+    # definition files retired (never the target itself). A failed publish
+    # therefore leaves every pre-existing analysis file byte-identical and
+    # no temp file behind.
     payload = json.dumps(document, indent=2, sort_keys=True) + "\n"
-    tmp_path: Path | None = None
-    try:
-        handle, tmp_name = tempfile.mkstemp(dir=out_dir, prefix=target.stem + ".", suffix=".tmp")
-        tmp_path = Path(tmp_name)
-        with os.fdopen(handle, "w", encoding="utf-8") as tmp_file:
-            tmp_file.write(payload)
-        os.replace(tmp_path, target)
-    except BaseException:
-        if tmp_path is not None:
-            tmp_path.unlink(missing_ok=True)
-        raise
+    write_text_atomic(target, payload)
     # This publisher owns the versioned-analysis namespace. Retire older
     # definition files after publishing the current one so a supported rerun
     # cannot leave compare/report with multiple apparently current candidates.
