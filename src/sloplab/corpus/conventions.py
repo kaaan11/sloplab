@@ -12,7 +12,7 @@ EVIDENCE_SECTION_PATTERNS: dict[str, str] = {
     "preconditions": r"preconditions?",
     "reproduction_steps": r"reproduction\s+steps?|steps\s+to\s+reproduce",
     "observed_result": r"observed\s+results?",
-    "expected_security_boundary": r"expected\s+security\s+boundary",
+    "expected_security_boundary": r"expected\s+security\s+boundar(?:y|ies)",
 }
 
 #: Keys that canonical valid fixtures are expected to cover by default.
