@@ -161,6 +161,15 @@ _CLAUSE_START_RE = re.compile(
 _MARKDOWN_CLAUSE_PREFIX_RE = re.compile(rf"^{_SENTENCE_MARKDOWN_PREFIX}\s*")
 
 
+def _trailing_marker_introduces_condition(segment: str) -> bool:
+    """Whether text between the denial and marker is only condition syntax."""
+    prefix = segment.strip()
+    prefix = re.sub(r"^(?:,|--|—)\s*", "", prefix).strip().casefold()
+    if prefix in {"", "only", "even", "especially"}:
+        return True
+    return _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix) is not None
+
+
 def _has_trailing_condition_barrier(segment: str) -> bool:
     """Whether text before a postfix condition contains a real clause barrier.
 
@@ -308,7 +317,11 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         # barrier or a coordinated follow-up (", and/or ...") intervenes.
         between = paragraph[match_end_rel : marker.end()]
         before_marker = paragraph[match_end_rel : marker.start()]
-        if _has_trailing_condition_barrier(before_marker) or _POSTFIX_FOLLOWUP_RE.search(between):
+        if (
+            _has_trailing_condition_barrier(before_marker)
+            or _POSTFIX_FOLLOWUP_RE.search(between)
+            or not _trailing_marker_introduces_condition(before_marker)
+        ):
             continue
         return True
     return False
