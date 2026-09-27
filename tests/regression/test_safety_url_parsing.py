@@ -87,9 +87,9 @@ def test_bare_safe_url_before_markdown_paragraph_break_is_not_merged() -> None:
     assert find_unsafe_urls(text) == []
 
 
-def test_bare_safe_url_before_plain_prose_line_is_not_merged() -> None:
+def test_bare_url_before_plain_prose_line_fails_closed() -> None:
     text = "Endpoint: https://example.org\nNext paragraph starts here."
-    assert find_unsafe_urls(text) == []
+    assert find_unsafe_urls(text) == ["https://example.org\nNext"]
 
 
 @pytest.mark.parametrize(
@@ -108,6 +108,19 @@ def test_linebreak_run_with_authority_like_continuation_is_rejected(url: str) ->
 def test_long_tab_run_before_authority_continuation_is_rejected() -> None:
     url = "http://localhost" + ("\t" * 8_000) + ".attacker.com/x"
     assert find_unsafe_urls(url) == [url]
+
+
+def test_plain_hostname_continuation_after_newline_is_rejected() -> None:
+    url = "http://localhost\nattacker"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+@pytest.mark.parametrize("delimiter", ["'", '"', "`", "(", ")", "<", ">"])
+def test_delimiter_joined_hostname_without_userinfo_is_rejected(delimiter: str) -> None:
+    url = f"http://localhost{delimiter}attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
 
 
 @pytest.mark.parametrize("delimiter", ['"', "'", "`", "(", ")", "<", ">"])
