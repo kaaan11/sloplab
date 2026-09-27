@@ -1,4 +1,12 @@
-# Deterministic Evaluator Study - v0.2 results (regenerated at v0.2.2)
+# Deterministic Evaluator Study - v0.2 results (regenerated for PR #33, issue #20)
+
+> **PR #33 regeneration:** the artifacts in
+> `experiments/results/deterministic/study-v02/` were regenerated with the
+> issue-#20 rules fix (conditionality per boundary-negation match across its
+> whole sentence, conditional/unconditional negations tracked independently).
+> rules-baseline decisions changed on exactly 11 cases (graphql-028 and
+> wstoken-022 families), all `reject` -> `needs_manual_review`, all
+> wrong -> right; accuracy 0.811 -> 0.848. Evidence-graph decisions unchanged.
 
 > **Live LLM scope statement (V0.2 closure):** the live LLM experiment was NOT
 > executed in V0.2. The strict-JSON adapter, its mock-based failure tests, and the
@@ -23,21 +31,21 @@
 
 | Metric | rules-baseline | evidence-graph-baseline (negative control) |
 |---|---|---|
-| Decision accuracy | **0.811** | 0.542 |
+| Decision accuracy | **0.848** | 0.542 |
 | Mutation detection rate | **0.802** (77/96) | 0.125 (12/96) |
 | False reassurance rate | **0.094** (23 cases) | 0.429 (105 cases) |
 | Over-rejection rate | 0.000 | 0.000 |
 | Robustness delta (drift) | 1/141 = 0.007 | 0/141 = 0.000 |
-| Calibration error | 0.298 | 0.270 |
+| Calibration error | 0.339 | 0.270 |
 
 Accuracy by class (rules / graph): valid 0.85/0.43 · invalid 0.72/0.53 ·
-review 0.81/0.74; canonical-only accuracy 0.80 / 0.75.
+review 0.94/0.74; canonical-only accuracy 0.83 / 0.75.
 
-95% seeded-bootstrap accuracy CIs: rules-baseline 0.768-0.855,
+95% seeded-bootstrap accuracy CIs: rules-baseline 0.805-0.889,
 evidence-graph-baseline 0.485-0.596.
 
-Paired comparison (297 shared cases): rules-baseline 88 wins vs evidence-graph 8,
-201 ties.
+Paired comparison (297 shared cases): rules-baseline 99 wins vs evidence-graph 8,
+190 ties.
 
 The graph's nonzero-but-tiny MDR (12/96 = 0.125) comes from the
 contradict-observed-result family (11/11) plus one borderline
@@ -54,8 +62,9 @@ discrimination V0.2 set out to demonstrate:
 
 - **rules-baseline** is suspicion-driven: lexical flags route degraded content to
   review or reject. It detects 80% of degrading mutations and rarely reassures
-  falsely, but it over-rejects borderline-invalid prose (22 `over_strict_reject`)
-  and defers some genuinely invalid reports (`deferred_invalid`: 8).
+  falsely, but it over-rejects borderline-invalid prose (11 `over_strict_reject`
+  after PR #33, down from 22) and defers some genuinely invalid reports
+  (`deferred_invalid`: 8).
 - **evidence-graph-baseline** is structure-driven: when the claim-evidence graph is
   complete it trusts the report regardless of claim quality. It detects none of the
   content-quality families that leave graph structure intact and shows high false
@@ -76,6 +85,13 @@ from their documented designs.
 2. **Conditional boundary statements caused hard rejects** - a negation inside an
    "If ..." clause tripped the reject path (e.g. graphql-028). Fix: conditionals now
    downgrade to a `CONDITIONAL_BOUNDARY_STATEMENT` finding routing to manual review.
+   PR #33 generalized this beyond the old 80-character prefix window (whole-sentence
+   scope, markers before or after the negation, conditional/unconditional matches
+   tracked independently); review accuracy for rules-baseline rose 0.81 -> 0.94 on
+   this corpus. *Disclosure:* this fix was developed against the very corpus it is
+   measured on, so the gain is in-domain target agreement, not generalization
+   evidence; out-of-corpus regression tests
+   (`tests/unit/test_issue20_out_of_corpus.py`) use sentences written from scratch.
 3. **Evidence-graph consequence vocabulary missed word forms** ("persisted" vs
    `persists?`). Fixed with word-stem matching during V23 development, before the
    frozen study run above; noted here for provenance.
