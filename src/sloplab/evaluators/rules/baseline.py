@@ -198,8 +198,7 @@ def _starts_sentence_after_initialism(text: str) -> bool:
     if not stripped:
         return True
     return bool(
-        _INITIALISM_CLEAR_OPENER_RE.match(stripped)
-        or _INITIALISM_SUBJECT_VERB_RE.match(stripped)
+        _INITIALISM_CLEAR_OPENER_RE.match(stripped) or _INITIALISM_SUBJECT_VERB_RE.match(stripped)
     )
 
 
