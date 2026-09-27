@@ -186,6 +186,51 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
 
+    @pytest.mark.parametrize(
+        "intro",
+        [
+            "Depending on whether",
+            "Depending entirely on whether",
+            "It depends on whether",
+            "Based on whether",
+            "Contingent on whether",
+        ],
+    )
+    def test_condition_introducer_phrase_before_marker_is_conditional(self, intro: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"{intro} the plugin is disabled, no security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    @pytest.mark.parametrize("dash", ["—", "--"])
+    def test_dash_introduced_leading_condition_qualifies_denial(self, dash: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"If legacy mode is enabled {dash} no security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    @pytest.mark.parametrize("dash", ["—", "--"])
+    def test_leading_condition_dash_with_separate_prose_stays_barrier(self, dash: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"If legacy mode is enabled {dash} contact support. No security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     @pytest.mark.parametrize("prefix", ["- ", "> ", "1. ", "> - "])
     def test_markdown_prefix_before_if_starts_conditional_clause(self, prefix: str) -> None:
         text = VALID_BODY.replace(
