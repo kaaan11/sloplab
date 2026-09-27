@@ -93,6 +93,18 @@ def test_control_whitespace_after_path_remains_a_text_boundary() -> None:
 
 
 @pytest.mark.parametrize(
+    "url",
+    [
+        "https://example.org/a(b)c",
+        "https://example.org/a'b",
+        "https://example.org/path?q=(demo)",
+    ],
+)
+def test_authority_delimiters_in_path_do_not_reject_reserved_host(url: str) -> None:
+    assert find_unsafe_urls(url) == []
+
+
+@pytest.mark.parametrize(
     "text",
     [
         "https://tracker.example.org/billing/invoices/<id>/download",
@@ -138,6 +150,17 @@ def test_blank_line_is_a_markdown_url_boundary(text: str) -> None:
 
 def test_long_tab_run_before_authority_continuation_is_rejected() -> None:
     url = "http://localhost" + ("\t" * 8_000) + ".attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+
+
+def test_control_run_before_delimiter_authority_continuation_is_rejected() -> None:
+    url = "http://localhost\t'attacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
+def test_long_delimiter_run_before_hostname_continuation_is_rejected() -> None:
+    url = "http://localhost" + ("'" * 12_000) + "attacker.com/x"
     assert find_unsafe_urls(url) == [url]
 
 
