@@ -221,6 +221,9 @@ Low impact on demo data.
         mutated, _ = ConfidenceOverstatement().apply(doc, random.Random(7))
 
         assert "unlikely" in mutated.lower()
+        # Guard only, NOT RED evidence: "likelihood" contains no "likely"
+        # substring (no 'y'), so even the pre-fix unbounded pattern never
+        # matched it; the RED-on-base signal in this test is "unlikely".
         assert "likelihood" in mutated.lower()
         assert "certainly exploitable" in mutated.lower()
 
@@ -260,17 +263,41 @@ class TestHedgePatternContract:
         assert export.pattern == HEDGE_PATTERN_EXPECTED
 
     def test_hyphen_boundary_behavior_table(self) -> None:
-        NOT = "!"
-        pattern = re.compile(r"(?<" + NOT + r"[\w-])likely(?" + NOT + r"[\w-])", re.IGNORECASE)
+        """Binding behavior table through the real HEDGE export and the operator.
+
+        Deliberately does NOT rebuild the regex locally: a locally constructed
+        pattern passes even when ``src/sloplab/mutations`` regresses (review F1,
+        MED). Everything here goes through ``presentation_module.HEDGE``,
+        ``ConfidenceOverstatement._compile_hedge`` and ``apply``.
+        """
+        hedge = getattr(presentation_module, "HEDGE", None)
+        assert hedge is not None, "HEDGE must be exposed for the contract test"
+        assert hedge.pattern.count(chr(33)) == 2
+        assert hedge.pattern == HEDGE_PATTERN_EXPECTED
+        compiled = ConfidenceOverstatement._compile_hedge("likely")
+        assert compiled.pattern == hedge.pattern
+
         yes_no = {
-            "is likely.": True,  # matches; standalone 'likely' is transformed
-            "unlikely": False,
-            "likelihood": False,
-            "likely-ish": False,
-            "most-likely": False,
+            "This is likely exploitable.": True,  # 'likely' transforms
+            "An unlikely outcome.": False,
+            "Low likelihood of loss.": False,
+            "It was likely-ish today.": False,
+            "The most-likely path.": False,
         }
         for text, expected in yes_no.items():
-            assert bool(pattern.search(text)) is expected, text
+            assert bool(hedge.search(text)) is expected, text
+            assert bool(compiled.search(text)) is expected, text
+            doc = parse_report(
+                f"# T\n\n## Summary\n\n{text}\n",
+                fixture_id="canonical-hedge-table-001",
+                path="x",
+            )
+            mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+            if expected:
+                assert "certainly" in mutated.lower(), text
+            else:
+                assert mutated == doc.raw_text, text
+                assert params == {"note": "no hedged language found outside code fences"}
 
 
 class TestSafetyOfOutputs:
