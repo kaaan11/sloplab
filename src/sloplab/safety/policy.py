@@ -69,8 +69,6 @@ def _userinfo_separator_index(text: str, start: int) -> int | None:
     cursor = start
     while cursor < len(text):
         char = text[cursor]
-        if char.isspace() and char not in _URL_CONTROL_WHITESPACE:
-            break
         if char in "/?#":
             break
         if char == "@":
@@ -119,18 +117,21 @@ def _authority_control_run(text: str, start: int) -> tuple[bool, int]:
 def _stop_char_is_prose_boundary(text: str, index: int) -> bool:
     """Whether a quote/bracket-like stop char actually ends surrounding prose.
 
-    A delimiter followed by authority-like text, including an at-sign, can be
-    part of a browser-parsed host/userinfo token and must stay in the candidate
-    so validation fails closed. At end-of-text, before whitespace, or before
-    ordinary trailing punctuation it is treated as a prose wrapper boundary.
+    Delimiters may be legal userinfo/host bytes for browser URL parsers. Treat
+    them as prose closers only when every following wrapper/punctuation byte
+    reaches whitespace or end-of-text. If authority-like text resumes after
+    that punctuation run, keep the delimiter inside the candidate and fail
+    closed instead of approving a safe prefix.
     """
-    next_index = index + 1
-    if next_index >= len(text):
+    cursor = index + 1
+    if cursor >= len(text):
         return True
-    next_char = text[next_index]
-    if next_char.isspace():
+    if text[cursor].isspace():
         return True
-    return next_char in ".,;!?*_~"
+    trailing = set(_TRAILING_URL_PUNCTUATION) | set(_URL_STOP_CHARS) | {"]"}
+    while cursor < len(text) and text[cursor] in trailing:
+        cursor += 1
+    return cursor >= len(text) or text[cursor].isspace()
 
 
 def is_reserved_host(host: str) -> bool:
@@ -167,10 +168,21 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
         while scan < len(text):
             char = text[scan]
             if char.isspace():
-                if char not in _URL_CONTROL_WHITESPACE or authority_done:
+                in_userinfo_space = (
+                    userinfo_separator is not None
+                    and scan < userinfo_separator
+                    and not authority_done
+                )
+                if char not in _URL_CONTROL_WHITESPACE:
+                    if not in_userinfo_space:
+                        break
+                    scan += 1
+                    end = scan
+                    continue
+                if authority_done:
                     break
                 continues, control_end = _authority_control_run(text, scan)
-                if not continues:
+                if not continues and not in_userinfo_space:
                     break
                 scan = control_end
                 end = scan
