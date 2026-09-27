@@ -142,7 +142,26 @@ _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
     rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_OPENERS}[A-Z]|$))"
 )
-_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?")
+_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(
+    r"^(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?[\"'“‘(]*\s*"
+)
+
+
+def _has_trailing_condition_barrier(segment: str) -> bool:
+    """Whether text before a postfix condition contains a real clause barrier.
+
+    A dash directly introducing the condition ("— if ..." / "-- only if ...")
+    is punctuation, not a separate clause. A dash followed by substantive prose
+    remains a barrier.
+    """
+    for barrier in _TRAILING_CONDITION_BARRIER_RE.finditer(segment):
+        token = barrier.group(0)
+        if token in {"--", "—"}:
+            trailing = segment[barrier.end() :]
+            if _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(trailing):
+                continue
+        return True
+    return False
 
 
 def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
@@ -216,7 +235,7 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
                 if (
                     open_paren >= match_end_rel
                     and _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(parenthetical_prefix)
-                    and not _TRAILING_CONDITION_BARRIER_RE.search(denial_to_paren)
+                    and not _has_trailing_condition_barrier(denial_to_paren)
                 ):
                     return True
             continue
@@ -233,7 +252,8 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         # "... is crossed if ..."). It is unrelated once a sentence/clause
         # barrier or a coordinated follow-up (", and/or ...") intervenes.
         between = paragraph[match_end_rel : marker.end()]
-        if _TRAILING_CONDITION_BARRIER_RE.search(between) or _POSTFIX_FOLLOWUP_RE.search(between):
+        before_marker = paragraph[match_end_rel : marker.start()]
+        if _has_trailing_condition_barrier(before_marker) or _POSTFIX_FOLLOWUP_RE.search(between):
             continue
         return True
     return False
