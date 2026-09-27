@@ -15,6 +15,7 @@ Documented limitations (by design - this is a baseline to beat, not a strong sys
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 
 from sloplab.corpus.conventions import EVIDENCE_SECTION_PATTERNS
 from sloplab.models.enums import (
@@ -73,7 +74,16 @@ _INFLATION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 
-_NO_BOUNDARY_CLAUSE = r"(?:(?!\n[ \t]*\n)(?![.?!][\"'”’)]*(?:\s|$))[\s\S])*"
+#: Max characters the tempered clause between "no boundary" and "crossed" may
+#: span. The clause must stay within one sentence (no blank line, no sentence
+#: terminator), and the longest such gap in the corpus is under 50 characters.
+#: The bound only caps pathological backtracking: unbounded tempered repetition
+#: is quadratic on adversarial repetitive near-miss input. Gaps beyond the
+#: bound do not match.
+_MAX_NO_BOUNDARY_GAP = 2000
+_NO_BOUNDARY_CLAUSE = (
+    rf"(?:(?!\n[ \t]*\n)(?![.?!][\"'”’)]*(?:\s|$))[\s\S]){{0,{_MAX_NO_BOUNDARY_GAP}}}"
+)
 _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
@@ -89,6 +99,62 @@ _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
         r"usability tradeoff rather than a remediation",
     )
 )
+
+
+#: The tempered patterns above (tuple indices 2 and 4) scan, from every
+#: "no boundary" occurrence, a terminator-free window for the "crossed" /
+#: "is crossed" anchor. On adversarial repetitive near-miss input that scan is
+#: quadratic, so these two patterns are matched through a cheap prefilter
+#: instead of a bare finditer: the anchor must occur within the reachable
+#: window (a necessary condition for any match), otherwise the regex is never
+#: attempted. An attempted anchored match is identical to finditer's attempt at
+#: that position, and iteration advances exactly like finditer, so the yielded
+#: matches are the same objects finditer would yield.
+_TEMPERED_NO_BOUNDARY: tuple[tuple[int, str, str], ...] = (
+    (2, "no boundary", "crossed"),
+    (4, "no boundary between", "is crossed"),
+)
+
+
+def _iter_gated_tempered_matches(
+    rx: re.Pattern[str], text: str, literal: str, anchor: str
+) -> Iterator[re.Match[str]]:
+    """Yield ``rx`` matches as ``rx.finditer(text)`` would, but in linear time.
+
+    Positions that cannot start a match (no anchor within the reachable
+    window) are skipped with a C-speed substring search instead of a
+    backtracking window scan.
+    """
+    literal_re = re.compile(literal, re.IGNORECASE)
+    lowered = text.lower()
+    anchor_lc = anchor.lower()
+    window = _MAX_NO_BOUNDARY_GAP + len(anchor)
+    next_pos = 0
+    for lit in literal_re.finditer(text):
+        start = lit.start()
+        if start < next_pos:
+            continue
+        end = lit.end()
+        if lowered.find(anchor_lc, end, end + window) < 0:
+            next_pos = start + 1
+            continue
+        match = rx.match(text, start)
+        if match is None:
+            next_pos = start + 1
+        else:
+            yield match
+            next_pos = match.end()
+
+
+def _iter_no_boundary_matches(text: str) -> Iterator[re.Match[str]]:
+    """Yield all ``_NO_BOUNDARY_PATTERNS`` matches in finditer order."""
+    for index, rx in enumerate(_NO_BOUNDARY_PATTERNS):
+        gate = next((g for g in _TEMPERED_NO_BOUNDARY if g[0] == index), None)
+        if gate is None:
+            yield from rx.finditer(text)
+        else:
+            yield from _iter_gated_tempered_matches(rx, text, gate[1], gate[2])
+
 
 # Self-declared uncertainty. Reports that openly say their findings are unresolved
 # should route to manual review rather than accept/reject. NOTE (v0.1.0): these
@@ -465,7 +531,7 @@ class RulesBaselineEvaluator:
         # Boundary negations stated conditionally ("if profile B were exposed...")
         # do not assert the report's own subject is safe; they describe a
         # hypothetical and should route to review, not reject.
-        no_boundary_matches = [m for rx in _NO_BOUNDARY_PATTERNS for m in rx.finditer(full)]
+        no_boundary_matches = list(_iter_no_boundary_matches(full))
         conditional_matches = [
             m for m in no_boundary_matches if _is_conditional_boundary_match(full, m)
         ]
