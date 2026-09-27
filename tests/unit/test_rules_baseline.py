@@ -152,6 +152,18 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
 
+    def test_generic_subject_after_sentence_final_initialism_breaks_condition(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If this is unexpected, contact the U.S. "
+            "Customers have no security boundary between them.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     def test_sentence_final_initialism_still_ends_condition(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -237,6 +249,28 @@ class TestCanonicalHandling:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             'If this is unexpected, contact support. "No security boundary applies."',
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    @pytest.mark.parametrize(
+        "wrapped",
+        [
+            "**No security boundary applies.**",
+            "__No security boundary applies.__",
+            "- No security boundary applies.",
+            "> No security boundary applies.",
+        ],
+    )
+    def test_markdown_wrapped_new_sentence_does_not_inherit_condition(
+        self, wrapped: str
+    ) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"If this is unexpected, contact support. {wrapped}",
         )
         result = evaluate(text)
         assert result.decision == Decision.REJECT
