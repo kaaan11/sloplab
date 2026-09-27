@@ -78,4 +78,7 @@ logical-report cluster bootstrap (issue #48): cluster keys resolve
 and `random.Random(seed)` draws `len(clusters)` clusters per resample with
 `rng.choice` — so the interval depends on the record order as well as the seed,
 and both are frozen by the committed artifacts. The paired difference uses the
-same draws for both evaluators.
+same draws for both evaluators. The cluster block also carries
+`pair_merge` = `applied` | `skipped`: `skipped` means pair ids could not be
+resolved (fallback to per-fixture clusters) and the `sloplab study` command
+warns on stderr.

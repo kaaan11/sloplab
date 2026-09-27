@@ -560,6 +560,15 @@ def study(config: str, out: str) -> None:
     pair_ids: dict[str, str] = {}
     if result.recipe.locations is not None:
         pair_ids = _pair_ids_from_root(Path(result.recipe.locations.corpus_root))
+    if not pair_ids:
+        # Making the silent per-fixture fallback visible (issue #48 review):
+        # the merge was skipped because manifests/locations were unavailable.
+        click.echo(
+            "WARNING: canonical pair ids unavailable (missing recipe locations or "
+            "corpus manifests without pair ids); cluster bootstrap falls back to "
+            "per-fixture clusters (pair_merge=skipped)",
+            err=True,
+        )
 
     analysis = build_study_analysis(
         records,

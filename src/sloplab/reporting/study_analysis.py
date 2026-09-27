@@ -49,10 +49,15 @@ def build_study_analysis(
     is kept for backward compatibility. ``pair_ids`` maps canonical case_id
     to the presentation ``pair_id`` of the canonical manifests; when given,
     clusters merge pair members into one logical report (60 fixtures -> 52).
+    The cluster block records ``pair_merge`` = ``applied`` | ``skipped`` so a
+    silent per-fixture fallback is visible in the committed artifact. A fully
+    failed run yields an empty records list; the degenerate zero-cluster block
+    is kept publishable (analysis binding tests) instead of raising.
     """
     from dataclasses import asdict
 
     from sloplab.scoring.comparison import (
+        ClusterBootstrap,
         bootstrap_accuracy_ci,
         cluster_bootstrap_accuracy_ci,
         error_taxonomy,
@@ -90,13 +95,25 @@ def build_study_analysis(
         )
         for n, rs in sorted(by_evaluator.items())
     }
-    cluster = cluster_bootstrap_accuracy_ci(
-        records,
-        resamples=bootstrap_resamples,
-        ci=bootstrap_ci,
-        seed=bootstrap_seed,
-        pair_ids=pair_ids,
-    )
+    if records:
+        cluster = cluster_bootstrap_accuracy_ci(
+            records,
+            resamples=bootstrap_resamples,
+            ci=bootstrap_ci,
+            seed=bootstrap_seed,
+            pair_ids=pair_ids,
+        )
+    else:
+        # Degenerate all-failed run: an empty records list cannot be cluster
+        # bootstrapped, but the bundle must stay publishable/consumable.
+        cluster = ClusterBootstrap(
+            clusters=0,
+            resamples=bootstrap_resamples,
+            seed=bootstrap_seed,
+            accuracy={},
+            paired_difference=None,
+            pair_merge="skipped",
+        )
     cluster_document: dict[str, Any] = {
         "estimand": CLUSTER_BOOTSTRAP_ESTIMAND,
         "cluster_key": (
@@ -104,6 +121,7 @@ def build_study_analysis(
             "presentation pair: pair_id (resolved through the parent for "
             "derived rows)"
         ),
+        "pair_merge": cluster.pair_merge,
         "clusters": cluster.clusters,
         "resamples": cluster.resamples,
         "seed": cluster.seed,

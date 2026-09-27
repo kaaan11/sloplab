@@ -148,7 +148,10 @@ score must not be used to rank evaluators. Reproduce all values with
    is not an effective sample size, and the interval is a sensitivity analysis,
    not external validity. Row-level case bootstrap values may be reported for
    comparison only. Paired evaluator differences are computed on the SAME
-   cluster resample. MDR/FAR/ECE intervals are not part of this contract.
+   cluster resample. The cluster block records `pair_merge` = `applied` |
+   `skipped`: when pair ids are unavailable (missing corpus manifests) the run
+   falls back to per-fixture clusters and warns on stderr. MDR/FAR/ECE
+   intervals are not part of this contract.
 5. For stochastic evaluators (e.g., LLM adapters), run at least three repetitions
    and report mean and spread; deterministic evaluators are byte-reproducible by
    construction.

@@ -2478,6 +2478,7 @@
   "cluster_bootstrap": {
     "estimand": "within this fixed synthetic collection, treating logical-report clusters as exchangeable resampling units; the cluster count is not an effective sample size and the interval is not external validity for real reports",
     "cluster_key": "derived case: parent_id; canonical case: case_id; canonical presentation pair: pair_id (resolved through the parent for derived rows)",
+    "pair_merge": "applied",
     "clusters": 52,
     "resamples": 2000,
     "seed": 20260825,

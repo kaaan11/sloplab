@@ -239,6 +239,10 @@ class ClusterBootstrap:
     seed: int
     accuracy: dict[str, tuple[float, float]]
     paired_difference: dict[str, tuple[float, float, float]] | None = None
+    #: ``applied`` when presentation-pair ids actually merged fixtures into
+    #: shared clusters; ``skipped`` when the run fell back to per-fixture
+    #: clusters (no pair ids resolved). Recorded verbatim in analysis.json.
+    pair_merge: str = "skipped"
 
     def as_dict(self) -> dict[str, object]:
         return {
@@ -251,6 +255,7 @@ class ClusterBootstrap:
                 if self.paired_difference is not None
                 else None
             ),
+            "pair_merge": self.pair_merge,
         }
 
 
@@ -300,25 +305,39 @@ def cluster_bootstrap_accuracy_ci(
     between the first two evaluators (sorted by name) is computed on the SAME
     resample draws; with fewer than two evaluators it is ``None``. The
     diff dictionary key reads ``<minuend> minus <subtrahend>`` so the value
-    acc(minuend) - acc(subtrahend) is unambiguous.
+    acc(minuend) - acc(subtrahend) is unambiguous. ``pair_merge`` reads
+    ``applied`` when pair ids actually merged fixtures, else ``skipped``
+    (per-fixture fallback). Raises ``ValueError`` for ``resamples < 1``,
+    empty records, or if zero clusters resolve.
     """
+    if resamples < 1:
+        raise ValueError(f"resamples must be >= 1, got {resamples}")
     if not records:
-        return ClusterBootstrap(
-            clusters=0, resamples=resamples, seed=seed, accuracy={}, paired_difference=None
-        )
+        raise ValueError("cluster bootstrap needs non-empty records")
     pairs = pair_ids or {}
-    keys = [
-        pairs.get(r.case_id, r.case_id)
-        if r.case_kind == "canonical"
-        else pairs.get(r.parent_id or "", r.parent_id or r.case_id)
-        for r in records
-    ]
+    keys: list[str] = []
+    merged_any = False
+    for r in records:
+        if r.case_kind == "canonical":
+            fallback = r.case_id
+            mapped = pairs.get(fallback, fallback)
+        else:
+            fallback = r.parent_id or r.case_id
+            mapped = pairs.get(fallback, fallback)
+        if mapped != fallback:
+            merged_any = True
+        keys.append(mapped)
+    # ``applied``/``skipped`` is recorded in analysis.json: the cluster count
+    # alone does not say whether pair ids were resolved or the run fell back.
+    pair_merge = "skipped" if not merged_any else "applied"
     seen: dict[str, int] = {}
     order: list[str] = []
     for key in keys:
         if key not in seen:
             seen[key] = 1
             order.append(key)
+    if not order:
+        raise ValueError("cluster bootstrap resolved zero clusters from the records")
     # Per evaluator: cluster -> [correct, cases] tallies.
     tables: dict[str, dict[str, list[int]]] = {}
     for record, key in zip(records, keys, strict=True):
@@ -365,6 +384,7 @@ def cluster_bootstrap_accuracy_ci(
         seed=seed,
         accuracy=accuracy,
         paired_difference=paired,
+        pair_merge=pair_merge,
     )
 
 
