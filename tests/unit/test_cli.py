@@ -95,7 +95,9 @@ def test_compare_preserves_distinct_long_evaluator_labels(tmp_path) -> None:  # 
     root = tmp_path / "results"
     root.mkdir()
     (root / "run.jsonl").write_text("", encoding="utf-8")
-    names = ("abcdefghijklmnopqrs-A", "abcdefghijklmnopqrs-B")
+    # Names share a 28-char prefix so base's `n[:28]` header truncation
+    # renders them identically; the fix must preserve the full labels.
+    names = ("a" * 28 + "-A", "a" * 28 + "-B")
     for name, accuracy in zip(names, (0.1, 0.9), strict=True):
         (root / f"metrics-{name}.json").write_text(
             json.dumps({"evaluator_name": name, "decision_accuracy": accuracy}),
