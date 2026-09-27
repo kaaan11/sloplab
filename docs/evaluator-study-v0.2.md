@@ -32,10 +32,10 @@
 | Metric | rules-baseline | evidence-graph-baseline (negative control) |
 |---|---|---|
 | Decision accuracy | **0.848** | 0.542 |
-| Mutation detection rate | **0.802** (77/96) | 0.125 (12/96) |
+| Decision-changing target accuracy (formerly "mutation detection rate") | **0.802** (77/96) | 0.125 (12/96) |
 | False reassurance rate | **0.094** (23 cases) | 0.429 (105 cases) |
 | Over-rejection rate | 0.000 | 0.000 |
-| Robustness delta (drift) | 1/141 = 0.007 | 0/141 = 0.000 |
+| Decision-preserving drift (formerly "Robustness delta") | 1/141 = 0.007 | 0/141 = 0.000 |
 | Calibration error | 0.339 | 0.270 |
 
 Accuracy by class (rules / graph): valid 0.85/0.43 · invalid 0.72/0.53 ·
@@ -55,15 +55,24 @@ zero by design (fabricate-reference 0/14, impact-inflation 0/11,
 impossible-precondition 0/12, invent-api-identifier 0/13, misattribute-cve 0/13,
 scope-expansion 0/12).
 
+Blind-policy caveat (#45): the former "mutation detection" metric is now read as
+*decision-changing target accuracy*. It does not require the parent decision to
+be correct or measure real decision changes: a policy that always answers
+`needs_manual_review` scores 0.760 on it over the v1-core run
+(rules-baseline 0.802), with zero false reassurance and auxiliary Robustness
+Score 0.739 (rules 0.839). Reproduce with
+`uv run python scripts/blind_policy_compare.py`; the score must not be used for
+ranking.
+
 ## Interpretation (scoped to this benchmark)
 
 The two baselines have genuinely different robustness personalities, which is the
 discrimination V0.2 set out to demonstrate:
 
 - **rules-baseline** is suspicion-driven: lexical flags route degraded content to
-  review or reject. It detects 80% of degrading mutations and rarely reassures
-  falsely, but it over-rejects borderline-invalid prose (11 `over_strict_reject`
-  after PR #33, down from 22) and defers some genuinely invalid reports
+  review or reject. It matches the changed expected decision on 80% of
+  decision-changing derived cases and rarely reassures falsely, but it
+  over-rejects borderline-invalid prose (11 `over_strict_reject` after PR #33, down from 22) and defers some genuinely invalid reports
   (`deferred_invalid`: 8).
 - **evidence-graph-baseline** is structure-driven: when the claim-evidence graph is
   complete it trusts the report regardless of claim quality. It detects none of the
