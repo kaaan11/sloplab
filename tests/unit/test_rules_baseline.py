@@ -164,6 +164,18 @@ class TestCanonicalHandling:
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
         assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
 
+    def test_ordinary_verb_after_sentence_final_initialism_breaks_condition(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "If this is unexpected, contact the U.S. "
+            "Customers encounter no security boundary between them.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     def test_sentence_final_initialism_still_ends_condition(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -498,6 +510,17 @@ class TestCanonicalHandling:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             phrase,
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_condition_word_inside_boundary_match_is_not_a_qualifier(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No boundary between the `if` and `else` branches is crossed.",
         )
         result = evaluate(text)
         assert result.decision == Decision.REJECT
