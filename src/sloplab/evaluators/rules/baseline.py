@@ -184,9 +184,7 @@ def _trailing_marker_introduces_condition(segment: str) -> bool:
         complement = prefix[3:].strip()
         if not complement:
             return False
-        if re.search(r"(?:^|\s)(?:the|a|an|word|label)\s*[\`'\"]*$", complement):
-            return False
-        return True
+        return re.search(r"(?:^|\s)(?:the|a|an|word|label)\s*[\`'\"]*$", complement) is None
     return False
 
 
