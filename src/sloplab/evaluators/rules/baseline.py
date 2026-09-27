@@ -73,7 +73,7 @@ _INFLATION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 
-_NO_BOUNDARY_CLAUSE = r"(?:(?!\n[ \t]*\n)(?![.?!][\"'”’)]*(?:\s|$)).)*"
+_NO_BOUNDARY_CLAUSE = r"(?:(?!\n[ \t]*\n)(?![.?!][\"'”’)]*(?:\s|$))[\s\S])*"
 _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
