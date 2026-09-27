@@ -42,6 +42,9 @@ def test_reference_golden_and_determinism(tmp_path: Path, monkeypatch: pytest.Mo
     relocated = tmp_path / "relocated"
     relocated.mkdir()
     shutil.copyfile(REFERENCE, relocated / "run.jsonl")
+    # New normal runs bind outcomes.jsonl by hash; a faithful relocation
+    # carries the bound sidecar (regenerated example bundle, PR #33).
+    shutil.copyfile(REFERENCE.parent / "outcomes.jsonl", relocated / "outcomes.jsonl")
     monkeypatch.chdir(relocated)
     second = write_html_report(relocated / "run.jsonl", tmp_path / "second.html").read_bytes()
     assert first == second
@@ -67,7 +70,7 @@ def test_content_accessibility_and_no_active_resources() -> None:
         "overflow-x: auto",
         ":focus-visible",
         "system-ui",
-        "Operational failure ledger not available for this legacy run.",
+        "SHA-256 bound to run metadata",
     ):
         assert text in page
     for forbidden in ("<script", "<link", "@import", "url(http"):

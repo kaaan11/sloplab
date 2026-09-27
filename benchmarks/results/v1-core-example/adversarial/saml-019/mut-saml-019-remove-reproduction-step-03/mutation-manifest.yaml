@@ -9,6 +9,8 @@ parameters:
     removed_step_text: 2. Post a form-encoded SAMLResponse built from the sample template
       with the NameID
     mode: single_step
+    span_model: full-item-v1
+    removed_extra_lines: 1
 seed: 15411442312663487416
 variant_index: 2
 base_seed: 20260825

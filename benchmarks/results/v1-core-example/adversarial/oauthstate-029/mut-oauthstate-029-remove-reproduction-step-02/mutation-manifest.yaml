@@ -9,6 +9,8 @@ parameters:
     removed_step_text: 2. In session B, invoke the callback URL using session A's
       state with a forged
     mode: single_step
+    span_model: full-item-v1
+    removed_extra_lines: 1
 seed: 12803751486994389627
 variant_index: 1
 base_seed: 20260825
