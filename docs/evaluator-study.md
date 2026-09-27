@@ -16,7 +16,7 @@ Outputs in the target directory:
 |---|---|
 | `records.jsonl` | one normalized evaluation record per case per evaluator |
 | `manifest.json` | provenance: commit SHA, suite hash, config hash, seed, times |
-| `analysis.json` | bundles, paired comparisons, error taxonomy, bootstrap CIs |
+| `analysis.json` | bundles, paired comparisons, error taxonomy, cluster bootstrap accuracy CIs + paired difference (primary), row-level bootstrap CIs (compat) |
 | `report.md` | human-readable summary |
 | `results.csv` | flat per-case table |
 

@@ -107,7 +107,15 @@ never cite the auxiliary score alone.
 3. Record one JSONL line per case evaluation plus a run-metadata header (version,
    git commit when available, suite hash, seed, timestamp).
 4. Group derived cases under their parents; never count variants as independent
-   real-world reports.
+   real-world reports. The PRIMARY accuracy interval reflects this grouping: a
+   seeded cluster bootstrap over logical-report clusters (parent_id for derived
+   cases, case_id for canonical cases, pair_id merging presentation pairs;
+   issue #48). Estimand: *within this fixed synthetic collection, treating
+   logical-report clusters as exchangeable resampling units*. The cluster count
+   is not an effective sample size, and the interval is a sensitivity analysis,
+   not external validity. Row-level case bootstrap values may be reported for
+   comparison only. Paired evaluator differences are computed on the SAME
+   cluster resample. MDR/FAR/ECE intervals are not part of this contract.
 5. For stochastic evaluators (e.g., LLM adapters), run at least three repetitions
    and report mean and spread; deterministic evaluators are byte-reproducible by
    construction.
