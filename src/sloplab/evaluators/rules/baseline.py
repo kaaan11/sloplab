@@ -125,9 +125,11 @@ _SENTENCE_MARKDOWN_PREFIX = (
     r"(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?"
     r"(?:[*_~]{1,2})?[\"'“‘(]*"
 )
+_MARKDOWN_ITEM_BREAK = r"\n(?=[ \t]*(?:(?:>\s*)+|(?:[-+*]|\d+[.)])\s+))"
 _SENTENCE_BREAK_RE = re.compile(
     rf";|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|\n\s*\n"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"\n\s*\n|{_MARKDOWN_ITEM_BREAK}"
 )
 _INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
 _INITIALISM_CLEAR_OPENER_RE = re.compile(
@@ -136,11 +138,13 @@ _INITIALISM_CLEAR_OPENER_RE = re.compile(
 _INITIALISM_CONTINUATION_RE = re.compile(
     r"^[A-Z][A-Za-z0-9_'-]*(?:\s+[A-Za-z0-9_'-]+){0,5}\s+"
     r"(?:is|are|was|were|has|have|had|does|do|did|can|could|may|might|must|"
-    r"should|will|would)\b[^.?!]*,\s*"
+    r"should|will|would)\b(?:(?![.?!]).)*"
+    r"(?:,\s*|\bthen\b\s*|:\s*|--\s*|—\s*)"
 )
 _TRAILING_CONDITION_BARRIER_RE = re.compile(
     rf";|--|—|\b(?i:but|however|yet)\b|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|\n\s*\n"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"\n\s*\n|{_MARKDOWN_ITEM_BREAK}"
 )
 _POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
 _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
@@ -159,7 +163,8 @@ _DENIAL_PREDICATE_PREFIX_RE = re.compile(
 )
 _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
-    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"{_MARKDOWN_ITEM_BREAK}"
 )
 _MARKDOWN_CLAUSE_PREFIX_RE = re.compile(rf"^{_SENTENCE_MARKDOWN_PREFIX}\s*")
 
@@ -173,7 +178,16 @@ def _trailing_marker_introduces_condition(segment: str) -> bool:
     prefix = re.sub(r"^(?:,|--|—)\s*", "", prefix).strip()
     if prefix in {"", "only", "even", "especially"}:
         return True
-    return _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix) is not None
+    if _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix):
+        return True
+    if prefix.startswith("to "):
+        complement = prefix[3:].strip()
+        if not complement:
+            return False
+        if re.search(r"(?:^|\s)(?:the|a|an|word|label)\s*[\`'\"]*$", complement):
+            return False
+        return True
+    return False
 
 
 def _has_trailing_condition_barrier(segment: str) -> bool:
