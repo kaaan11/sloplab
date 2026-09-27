@@ -188,7 +188,7 @@ class TestCanonicalHandling:
 
     @pytest.mark.parametrize("wrapper", ['"', "“", "("])
     def test_quoted_or_parenthesized_leading_if_is_conditional(self, wrapper: str) -> None:
-        closing = ")" if wrapper == "(" else ('”' if wrapper == "“" else '"')
+        closing = ")" if wrapper == "(" else ("”" if wrapper == "“" else '"')
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             f"{wrapper}If legacy mode is enabled, no security boundary applies.{closing}",
