@@ -371,6 +371,15 @@ class TestR06FenceAwarenessAndProvenance:
         assert "The endpoint allows cross-tenant reads." in mutated
         assert params["certainty_upgrades"] == ["may allow->allows"]
 
+    def test_confidence_overstatement_skips_likely_inside_fences(self) -> None:
+        text = (
+            '# T\n\n## Observed Result\n\n```\nscore = "likely"\n```\n\nNothing hedged in prose.\n'
+        )
+        doc = parse_report(text, fixture_id="canonical-fence-004", path="x")
+        mutated, params = ConfidenceOverstatement().apply(doc, random.Random(3))
+        assert mutated == text
+        assert "note" in params
+
     def test_add_irrelevant_detail_records_actual_heading(self) -> None:
         text = "# T\n\n## Summary\n\nBody.\n"
         headings_seen: set[str] = set()
