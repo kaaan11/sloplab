@@ -80,4 +80,5 @@ def test_every_difference_has_a_recorded_reason() -> None:
     assert reasons["rules-baseline"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["oracle"]["calibration_error"] == REASON_UNCHANGED
     assert reasons["rules-baseline"]["decision_accuracy"] == REASON_UNCHANGED
+    assert reasons["rules-baseline"]["robustness_score"] == REASON_UNCHANGED
     assert set(reasons) == {"oracle", "rules-baseline"}

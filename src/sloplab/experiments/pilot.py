@@ -116,6 +116,7 @@ class PilotRunResult:
     evaluations_attempted: int = 0
     failed_evaluations: int = 0
     skipped_by_budget: int = 0
+    skipped_by_deadline: int = 0
     planned: int = 0
     successful: int = 0
     failed: int = 0
@@ -539,7 +540,8 @@ def run_llm_pilot(
     failed = 0
     not_run = 0
     skipped_by_budget = 0
-    budget_spent = False
+    skipped_by_deadline = 0
+    stop_remaining = False
     evaluator_name = active.name
 
     for repeat in range(config.repeats):
@@ -560,7 +562,7 @@ def run_llm_pilot(
                     )
                     not_run += 1
                     skipped_by_budget += 1
-                budget_spent = True
+                stop_remaining = True
                 break
             if run_deadline is not None and time.monotonic() >= run_deadline:
                 for pending_repeat, pending_case in _remaining_plans(repeat, index):
@@ -573,7 +575,8 @@ def run_llm_pilot(
                         )
                     )
                     not_run += 1
-                budget_spent = True
+                    skipped_by_deadline += 1
+                stop_remaining = True
                 break
             document = _document_for(case, repo_root)
             # Data minimization, not a sandbox: the LLM sees no ground truth.
@@ -602,7 +605,7 @@ def run_llm_pilot(
             outcomes.append(_success_outcome(case.case_id, evaluator_name, repeat))
             successful += 1
         success_by_repeat.append(repeat_success)
-        if budget_spent:
+        if stop_remaining:
             break
 
     # Stability only on full success coverage: a case missing from any repeat
@@ -670,6 +673,8 @@ def run_llm_pilot(
         "successful": successful,
         "failed": failed,
         "not_run": not_run,
+        "skipped_by_budget": skipped_by_budget,
+        "skipped_by_deadline": skipped_by_deadline,
         "scored": scored,
         "stability": stability,
         "stability_omitted_reason": stability_omitted_reason,
@@ -704,7 +709,8 @@ def run_llm_pilot(
         completion_path=completion_path,
         evaluations_attempted=successful + failed,
         failed_evaluations=failed,
-        skipped_by_budget=not_run,
+        skipped_by_budget=skipped_by_budget,
+        skipped_by_deadline=skipped_by_deadline,
         planned=planned,
         successful=successful,
         failed=failed,

@@ -119,6 +119,11 @@ def run_deterministic_study(
     from sloplab.experiments.bundle import begin_publish
 
     begin_publish(out_dir, kind="study")
+    # A successful rerun owns the current failure ledger. Remove any previous
+    # run's optional outcomes before materialization so a no-failure rerun
+    # cannot accidentally republish stale failure rows.
+    (out_dir / "outcomes.jsonl").unlink(missing_ok=True)
+    started_at = utc_now_iso()
     anchors = [Path.cwd(), *study_config_path.absolute().parents]
     suite_yaml_path = resolve_against_anchors(config.suite.config_path, anchors)
 
@@ -193,6 +198,7 @@ def run_deterministic_study(
     records_jsonl = "".join(line + "\n" for line in record_lines)
 
     # 3. provenance manifest.
+    finished_at = utc_now_iso()
     provenance = ExperimentProvenance(
         experiment_name=config.name,
         config_hash=sha256_text(json.dumps(config.model_dump(), sort_keys=True)),
@@ -203,8 +209,9 @@ def run_deterministic_study(
         repeat_index=config.repeat_index,
         evaluators=evaluator_infos,
         evaluator_config_hashes=evaluator_hashes,
-        started_at=utc_now_iso(),
-        finished_at=utc_now_iso(),
+        started_at=started_at,
+        finished_at=finished_at,
+        error_count=len(failed_outcomes),
     )
     manifest_path, records_path = write_run_bundle(out_dir, provenance, records_jsonl)
 

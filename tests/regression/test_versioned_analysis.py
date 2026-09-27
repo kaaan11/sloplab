@@ -17,6 +17,7 @@ from sloplab.reporting.analysis import (
     AnalysisError,
     analysis_filename,
     read_versioned_analysis,
+    write_versioned_analysis,
 )
 from tests._helpers import write_canonical_fixture
 
@@ -148,21 +149,41 @@ def test_report_renders_from_verified_analysis(tmp_path: Path) -> None:
             "report",
             str(out_dir / "records.jsonl"),
             "--analysis",
-            str(out_dir / "analysis-v1.json"),
+            str(out_dir / analysis_filename()),
             "--out",
             str(out),
         ],
     )
     assert result.exit_code == 0, result.output
     text = out.read_text(encoding="utf-8")
-    assert "analysis v1" in text
+    assert f"analysis v{ANALYSIS_DEFINITION_VERSION}" in text
     assert "rules-baseline" in text
+
+
+def test_republish_retires_obsolete_analysis_versions(tmp_path: Path) -> None:
+    study_path, out_dir = _study_dir(tmp_path, "v-republish")
+    runner = CliRunner()
+    first = runner.invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert first.exit_code == 0, first.output
+
+    stale = out_dir / "analysis-v1.json"
+    assert stale != out_dir / analysis_filename()
+    stale.write_text('{"obsolete": true}\n', encoding="utf-8")
+
+    second = runner.invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert second.exit_code == 0, second.output
+    assert sorted(p.name for p in out_dir.glob("analysis-v*.json")) == [analysis_filename()]
+    assert read_versioned_analysis(out_dir / analysis_filename())["analysis_version"] == (
+        ANALYSIS_DEFINITION_VERSION
+    )
 
 
 def test_compare_refuses_ambiguous_versions(tmp_path: Path) -> None:
     """E4b: two versioned analyses in one dir is an explicit error."""
     out_dir = _published_run(tmp_path, "v-amb")
-    (out_dir / "analysis-v2.json").write_bytes((out_dir / analysis_filename()).read_bytes())
+    (out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json").write_bytes(
+        (out_dir / analysis_filename()).read_bytes()
+    )
     result = CliRunner().invoke(cli, ["compare", str(out_dir)])
     assert result.exit_code != 0
     assert "ambiguous" in result.output
@@ -189,9 +210,154 @@ def test_consumers_call_the_verified_reader(
                 "report",
                 str(out_dir / "records.jsonl"),
                 "--analysis",
-                str(out_dir / "analysis-v1.json"),
+                str(out_dir / analysis_filename()),
             ],
         )
         .exit_code
         != 0
     )
+
+
+def _direct_writer_inputs(records_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Minimal valid bundles/coverage for direct writer calls (no CLI run)."""
+    _ = records_path
+    bundles: dict[str, Any] = {"rules-baseline": {"evaluator_name": "rules-baseline"}}
+    coverage: dict[str, Any] = {
+        "rules-baseline": {"planned": 1, "scored": 1, "failed": 0, "not_run": 0}
+    }
+    return bundles, coverage
+
+
+def _seeded_versioned_dir(tmp_path: Path, name: str) -> tuple[Path, Path, str, str]:
+    """Out dir with a current-version file and one non-current version file."""
+    out_dir = tmp_path / name
+    out_dir.mkdir()
+    target = out_dir / analysis_filename()
+    old_target_text = '{"published": "previous"}\n'
+    target.write_text(old_target_text, encoding="utf-8")
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    old_stale_text = '{"published": "obsolete"}\n'
+    stale.write_text(old_stale_text, encoding="utf-8")
+    assert stale != target
+    return out_dir, target, old_target_text, old_stale_text
+
+
+def test_missing_records_keeps_existing_versioned_files(tmp_path: Path) -> None:
+    """Sözleşme eki (1): missing records_path errors; existing files untouched."""
+    out_dir, target, old_target_text, old_stale_text = _seeded_versioned_dir(
+        tmp_path, "w-missing-records"
+    )
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+    with pytest.raises(AnalysisError, match="records file missing"):
+        write_versioned_analysis(
+            out_dir,
+            records_path=out_dir / "no-such-records.jsonl",
+            bundles=bundles,
+            coverage=coverage,
+        )
+    assert target.read_text(encoding="utf-8") == old_target_text
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    assert stale.read_text(encoding="utf-8") == old_stale_text
+
+
+def test_write_failure_keeps_old_file_and_leaves_no_temp(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Sözleşme eki (2): forced document-write failure; old file kept, no debris."""
+    import json as json_module
+
+    out_dir, target, old_target_text, old_stale_text = _seeded_versioned_dir(
+        tmp_path, "w-write-failure"
+    )
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+
+    def _boom(*args: Any, **kwargs: Any) -> str:
+        _ = (args, kwargs)
+        raise RuntimeError("forced serialization failure")
+
+    monkeypatch.setattr(json_module, "dumps", _boom)
+    with pytest.raises(RuntimeError, match="forced serialization failure"):
+        write_versioned_analysis(
+            out_dir, records_path=records_path, bundles=bundles, coverage=coverage
+        )
+    assert target.read_text(encoding="utf-8") == old_target_text
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    assert stale.read_text(encoding="utf-8") == old_stale_text
+    assert sorted(p.name for p in out_dir.iterdir()) == sorted([target.name, stale.name])
+
+
+def test_successful_publish_leaves_only_current_version(tmp_path: Path) -> None:
+    """Sözleşme eki (3): success path retires obsolete files, keeps the current one."""
+    out_dir, _, _, _ = _seeded_versioned_dir(tmp_path, "w-success")
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+    published = write_versioned_analysis(
+        out_dir, records_path=records_path, bundles=bundles, coverage=coverage
+    )
+    assert published == out_dir / analysis_filename()
+    assert sorted(p.name for p in out_dir.glob("analysis-v*.json")) == [analysis_filename()]
+    document = json.loads(published.read_text(encoding="utf-8"))
+    assert document["analysis_version"] == ANALYSIS_DEFINITION_VERSION
+
+
+def test_study_analysis_write_failure_keeps_previous_analysis(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F1: forced failure during the legacy analysis.json write keeps the previous file."""
+    import sloplab.reporting.analysis as analysis_module
+
+    study_path, out_dir = _study_dir(tmp_path, "w-study-atomic")
+    first = CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert first.exit_code == 0, first.output
+    legacy = out_dir / "analysis.json"
+    old_text = legacy.read_text(encoding="utf-8")
+
+    def _boom(target: Path, payload: str) -> None:
+        raise RuntimeError("forced study analysis write failure")
+
+    monkeypatch.setattr(analysis_module, "write_text_atomic", _boom)
+    second = CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out_dir)])
+    assert second.exit_code != 0
+    assert legacy.read_text(encoding="utf-8") == old_text
+    assert list(out_dir.glob("*.tmp")) == []
+
+
+def test_atomic_write_keeps_normal_permissions(tmp_path: Path) -> None:
+    """F2: atomically published files honor umask (0644-style), not mkstemp 0600."""
+    import os as os_module
+    import stat as stat_module
+
+    from sloplab.reporting.analysis import write_text_atomic
+
+    target = tmp_path / "analysis.json"
+    write_text_atomic(target, "{}\n")
+    umask = os_module.umask(0)
+    os_module.umask(umask)
+    assert stat_module.S_IMODE(target.stat().st_mode) == (0o666 & ~umask)
+
+
+def test_replace_failure_removes_temp_and_keeps_old_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """F5: failure injected after the temp file exists removes it; the old file stays."""
+    import os as os_module
+
+    from sloplab.reporting.analysis import write_text_atomic
+
+    target = tmp_path / "analysis.json"
+    old_text = '{"published": "previous"}\n'
+    target.write_text(old_text, encoding="utf-8")
+
+    def _boom_replace(src: Any, dst: Any) -> None:
+        raise OSError("forced replace failure")
+
+    monkeypatch.setattr(os_module, "replace", _boom_replace)
+    with pytest.raises(OSError, match="forced replace failure"):
+        write_text_atomic(target, '{"published": "new"}\n')
+    assert target.read_text(encoding="utf-8") == old_text
+    assert list(tmp_path.glob("*.tmp")) == []

@@ -1,8 +1,8 @@
 {
   "base_seed": 20260825,
-  "commit_sha": "14547a00b306d0fcbbc8ada0326bd39787b03e5b",
+  "commit_sha": "ecf57380cc026f2d8a57c8437fb359fe1f5dbb82",
   "config_hash": "c37bf841c300ecd05e7854a53128b596715260520740bc8d2b72d80d42a605b9",
-  "corpus_root": "/home/kaan/ai-workspaces/sloplab/corpus",
+  "corpus_root": "/tmp/claude-1000/-home-kaan-sloplab/18c0e372-3c12-4d54-8873-d2b9bb8c04fa/scratchpad/wB/pr37/corpus",
   "endpoint_host": null,
   "error_count": 0,
   "evaluator_config_hashes": {
@@ -20,12 +20,12 @@
     }
   ],
   "experiment_name": "deterministic-study-v0.2",
-  "finished_at": "2026-08-26T10:38:01+00:00",
+  "finished_at": "2026-09-27T13:59:36+00:00",
   "model": null,
   "prompt_hash": null,
   "repeat_index": 0,
   "request_count": 0,
-  "started_at": "2026-08-26T10:38:01+00:00",
-  "suite_hash": "e64565c0df63103899c4251b3c73ab8be2e911c2d3040754f0f0a905e138b17d",
+  "started_at": "2026-09-27T13:59:33+00:00",
+  "suite_hash": "828d6f770802da08df3c5983180f256df477379781de6224cae8b15a10008f2b",
   "timeout_count": 0
 }

@@ -176,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
             state = f"NOT-RUN ({outcome.get('reason', 'unknown')})"
         print(f"  {outcome['case_id']} (repeat {outcome['repeat_index']}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
+    print(f"not run: budget {result.skipped_by_budget}, deadline {result.skipped_by_deadline}")
     print(
         "requests used: "
         f"{result.counters.get('physical_dispatches', 0)} "
@@ -183,7 +184,7 @@ def main(argv: list[str] | None = None) -> int:
         f"{result.counters.get('timeouts', 0)}) | manifest: "
         f"{result.manifest_path}"
     )
-    return 0
+    return 1 if result.failed_evaluations or result.not_run else 0
 
 
 if __name__ == "__main__":

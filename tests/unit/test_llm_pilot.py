@@ -87,10 +87,13 @@ class TestBudgetEnforcement:
         result = run_llm_pilot(config, evaluator, canonical_cases(2), REPO_ROOT, tmp_path / "out")
         assert client.physical_dispatches == 4
         assert result.skipped_by_budget > 0
+        assert result.skipped_by_deadline == 0
         assert result.counters["physical_dispatches"] == 4
         manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
         assert manifest["budget"]["max_requests"] == 180
         assert manifest["effective_max_requests"] == 4
+        assert manifest["skipped_by_budget"] == result.skipped_by_budget
+        assert manifest["skipped_by_deadline"] == 0
         # 2 cases in repeat 1 (budget 4 -> 2 requests each? no: 1 request per case)
         assert len(json.loads("[]")) == 0  # sanity no-op
 
@@ -103,6 +106,11 @@ class TestBudgetEnforcement:
         evaluator, client = make_evaluator(StaticResponder(VALID_PAYLOAD))
         result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
         assert result.evaluations_attempted == repeats
+        assert result.skipped_by_budget == 0
+        assert result.skipped_by_deadline == 0
+        manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+        assert manifest["skipped_by_budget"] == 0
+        assert manifest["skipped_by_deadline"] == 0
         assert result.failed_evaluations == 0
         assert client.physical_dispatches == repeats
         manifest = json.loads(result.manifest_path.read_text())

@@ -117,6 +117,126 @@ def test_full_benchmark_pipeline(tmp_path: Path, make_fixture: Any) -> None:
     assert "`rules-baseline`" in report_text
 
 
+def test_benchmark_stops_on_materialization_safety_block(
+    tmp_path: Path, make_fixture: Any, monkeypatch: Any
+) -> None:
+    import sloplab.mutations.materialize as materialize_module
+
+    workspace = build_workspace(tmp_path, make_fixture)
+    out_dir = workspace / "blocked-results"
+    monkeypatch.setattr(
+        materialize_module,
+        "validate_content_safety",
+        lambda text: ["synthetic safety violation"],
+    )
+
+    result = CliRunner().invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "safety-blocked" in result.output
+    assert not (out_dir / "run.jsonl").exists()
+
+
+def test_safety_blocked_rerun_invalidates_previous_evaluation_artifacts(
+    tmp_path: Path, make_fixture: Any, monkeypatch: Any
+) -> None:
+    import sloplab.mutations.materialize as materialize_module
+
+    workspace = build_workspace(tmp_path, make_fixture)
+    out_dir = workspace / "rerun-results"
+    runner = CliRunner()
+
+    first = runner.invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(out_dir),
+        ],
+    )
+    assert first.exit_code == 0, first.output
+    assert (out_dir / "run.jsonl").is_file()
+    assert (out_dir / "results.csv").is_file()
+    assert (out_dir / "report.md").is_file()
+    assert list(out_dir.glob("metrics-*.json"))
+
+    monkeypatch.setattr(
+        materialize_module,
+        "validate_content_safety",
+        lambda text: ["synthetic safety violation"],
+    )
+    second = runner.invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(out_dir),
+        ],
+    )
+
+    assert second.exit_code != 0
+    assert "safety-blocked" in second.output
+    assert not (out_dir / "run.jsonl").exists()
+    assert not (out_dir / "outcomes.jsonl").exists()
+    assert not (out_dir / "results.csv").exists()
+    assert not (out_dir / "report.md").exists()
+    assert list(out_dir.glob("metrics-*.json")) == []
+
+
+def test_benchmark_reuse_rejects_safety_blocked_ledger(
+    tmp_path: Path, make_fixture: Any, monkeypatch: Any
+) -> None:
+    import sloplab.mutations.materialize as materialize_module
+
+    workspace = build_workspace(tmp_path, make_fixture)
+    materialized = workspace / "blocked-materialized"
+    monkeypatch.setattr(
+        materialize_module,
+        "validate_content_safety",
+        lambda text: ["synthetic safety violation"],
+    )
+    runner = CliRunner()
+    materialize_result = runner.invoke(
+        cli,
+        ["materialize", str(workspace / "suite.yaml"), "--out", str(materialized)],
+    )
+    assert materialize_result.exit_code != 0
+    assert (materialized / "materialization-ledger.jsonl").is_file()
+
+    result = runner.invoke(
+        cli,
+        [
+            "benchmark",
+            str(workspace / "suite.yaml"),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(materialized),
+            "--no-materialize",
+        ],
+    )
+
+    assert result.exit_code != 0
+    assert "safety-blocked" in result.output
+    assert not (materialized / "run.jsonl").exists()
+
+
 def test_rerun_is_byte_identical(tmp_path: Path, make_fixture: Any) -> None:
     workspace = build_workspace(tmp_path, make_fixture)
     out_a, out_b = workspace / "a", workspace / "b"

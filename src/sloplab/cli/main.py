@@ -380,7 +380,13 @@ def benchmark(
     from pathlib import Path as _Path
 
     from sloplab.corpus.loader import FixtureError, discover_fixtures
-    from sloplab.mutations.materialize import SUITE_INDEX_NAME, load_suite_config, materialize_suite
+    from sloplab.mutations.materialize import (
+        LEDGER_FILE_NAME,
+        SUITE_INDEX_NAME,
+        load_suite_config,
+        materialize_suite,
+        read_materialization_ledger,
+    )
     from sloplab.reporting.writers import write_markdown_report, write_records_csv
 
     selected = _select_evaluators(evaluators, evaluator_modules)
@@ -388,6 +394,14 @@ def benchmark(
     config = load_suite_config(suite_path)
     out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    # A rerun owns the evaluation artifacts in its output directory. Invalidate
+    # them before materialization/ledger checks so any later failure cannot leave
+    # stale scores that look current for a newly written suite index.
+    for stale_name in ("run.jsonl", "outcomes.jsonl", "results.csv", "report.md"):
+        (out_dir / stale_name).unlink(missing_ok=True)
+    for stale_metrics in out_dir.glob("metrics-*.json"):
+        stale_metrics.unlink()
 
     if do_materialize:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
@@ -404,6 +418,18 @@ def benchmark(
         click.echo(result.summary())
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
+
+    ledger_path = out_dir / LEDGER_FILE_NAME
+    if ledger_path.is_file():
+        try:
+            ledger_header, _ledger_rows = read_materialization_ledger(out_dir)
+        except (OSError, ValueError) as exc:
+            raise click.ClickException(f"invalid materialization ledger: {exc}") from exc
+        if int(ledger_header.get("safety_blocked", 0)) > 0:
+            raise click.ClickException(
+                "materialization contains safety-blocked cases; "
+                "refusing to evaluate a partial unsafe suite"
+            )
 
     index_path = out_dir / SUITE_INDEX_NAME
     bundles = _run_evaluators_over_suite(
@@ -433,7 +459,6 @@ def benchmark(
 def study(config: str, out: str) -> None:
     """Run a deterministic evaluator study with comparative analysis (V0.2)."""
     import json
-    from dataclasses import asdict
     from pathlib import Path as _Path
 
     from sloplab.experiments.runner import load_study_config
@@ -443,8 +468,6 @@ def study(config: str, out: str) -> None:
         bootstrap_accuracy_ci,
         error_taxonomy,
         paired_win_loss,
-        per_class_metrics,
-        per_operator_metrics,
     )
     from sloplab.scoring.metrics import compute_metrics
 
@@ -486,15 +509,6 @@ def study(config: str, out: str) -> None:
         for b in names[i + 1 :]
     ]
     taxonomy_counts = {n: error_taxonomy(rs).counts for n, rs in sorted(by_evaluator.items())}
-    taxonomies_full = {n: error_taxonomy(rs).as_dict() for n, rs in sorted(by_evaluator.items())}
-    per_op = {
-        n: {op: asdict(bundle) for op, bundle in per_operator_metrics(rs).items()}
-        for n, rs in sorted(by_evaluator.items())
-    }
-    per_cls = {
-        n: {cls: asdict(bundle) for cls, bundle in per_class_metrics(rs).items()}
-        for n, rs in sorted(by_evaluator.items())
-    }
     cis = {
         n: bootstrap_accuracy_ci(
             rs,
@@ -505,18 +519,18 @@ def study(config: str, out: str) -> None:
         for n, rs in sorted(by_evaluator.items())
     }
 
-    analysis = {
-        "bundles": {n: asdict(b) for n, b in bundles.items()},
-        "paired_comparisons": [c.as_dict() for c in comparisons],
-        "error_taxonomy": taxonomies_full,
-        "per_operator": per_op,
-        "per_class": per_cls,
-        "bootstrap_accuracy_ci": {
-            n: {"low": lo, "point": pt, "high": hi} for n, (lo, pt, hi) in cis.items()
-        },
-    }
+    from sloplab.reporting.study_analysis import build_study_analysis
+
+    analysis = build_study_analysis(
+        records,
+        bootstrap_resamples=analysis_cfg.bootstrap_resamples,
+        bootstrap_ci=analysis_cfg.bootstrap_ci,
+        bootstrap_seed=analysis_cfg.bootstrap_seed,
+    )
+    from sloplab.reporting.analysis import write_text_atomic
+
     analysis_path = out_dir / "analysis.json"
-    analysis_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
+    write_text_atomic(analysis_path, json.dumps(analysis, indent=2))
 
     write_records_csv(out_dir / "results.csv", records)
     _write_comparison_markdown(
@@ -617,13 +631,16 @@ def _write_comparison_markdown(
 @click.argument("results", nargs=-1, required=True, type=click.Path(exists=True, path_type=str))
 def compare(results: tuple[str, ...]) -> None:
     """Compare metric summaries from two or more result files."""
+    import hashlib
     import json
+    import os
     from pathlib import Path as _Path
 
     if len(results) < 1:
         raise click.ClickException("compare needs at least one result file or directory")
 
-    summaries: dict[str, dict[str, Any]] = {}
+    summaries: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+    seen_sources: set[Path] = set()
     for result_path in results:
         path = _Path(result_path)
         try:
@@ -636,6 +653,13 @@ def compare(results: tuple[str, ...]) -> None:
                 err=True,
             )
         metrics_dir = path.parent if path.name == "run.jsonl" else path
+        source_id = metrics_dir.resolve()
+        if source_id in seen_sources:
+            raise click.ClickException(f"duplicate compare input: {metrics_dir}")
+        seen_sources.add(source_id)
+        source_token = hashlib.sha256(os.fsencode(source_id)).hexdigest()[:8]
+        source_key = str(source_id)
+        source_label = os.fsencode(metrics_dir.name).decode("utf-8", errors="backslashreplace")
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
             raise click.ClickException(
@@ -651,13 +675,19 @@ def compare(results: tuple[str, ...]) -> None:
             except AnalysisError as exc:
                 raise click.ClickException(str(exc)) from exc
             for name in document.get("evaluators", []):
-                summaries[f"{name} ({metrics_dir.name})"] = document["bundles"][name]
+                summaries[(source_key, name)] = (
+                    f"{source_token}:{name} ({source_label})",
+                    document["bundles"][name],
+                )
             continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
             data = json.loads(mfile.read_text())
             name = data.get("evaluator_name", mfile.stem)
-            summaries[f"{name} ({mfile.parent.name})"] = data
+            summaries[(source_key, name)] = (
+                f"{source_token}:{name} ({source_label})",
+                data,
+            )
 
     if not summaries:
         raise click.ClickException(f"no metrics-*.json files found for {results}")
@@ -672,14 +702,16 @@ def compare(results: tuple[str, ...]) -> None:
         ("calibration_error", "calibration error (lower=better)"),
         ("robustness_score", "aux robustness score"),
     ]
-    header = f"{'metric':<38}" + "".join(f"{n[:28]:>30}" for n in summaries)
+    labels = [display for display, _data in summaries.values()]
+    column_width = max(30, *(len(label) + 2 for label in labels))
+    header = f"{'metric':<38}" + "".join(f"{label:>{column_width}}" for label in labels)
     click.echo(header)
     click.echo("-" * len(header))
     for key, label in keys:
         row = f"{label:<38}"
-        for name in summaries:
-            value = summaries[name].get(key)
-            row += f"{('n/a' if value is None else format(value, '.3f')):>30}"
+        for _identity, (_display, data) in summaries.items():
+            value = data.get(key)
+            row += f"{('n/a' if value is None else format(value, '.3f')):>{column_width}}"
         click.echo(row)
 
 

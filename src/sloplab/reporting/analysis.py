@@ -17,8 +17,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
+
+from sloplab.path_boundary import PathBoundaryError, resolve_within_root
 
 #: Envelope version of the versioned analysis document itself. Version 2
 #: adds the outcomes binding and the planned/not_run selection coverage;
@@ -28,7 +32,7 @@ ANALYSIS_SCHEMA_VERSION = 2
 #: Definition version: metrics set, formulas, and eligibility rules covered.
 #: Bump when any of those change; readers accept only the current version
 #: and direct anything else to recomputation (no silent cross-version reads).
-ANALYSIS_DEFINITION_VERSION = 1
+ANALYSIS_DEFINITION_VERSION = 2
 
 
 def operator_metric_eligibility() -> dict[str, dict[str, object]]:
@@ -93,6 +97,35 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(65536), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def write_text_atomic(target: Path, payload: str) -> None:
+    """Write ``payload`` to ``target`` atomically within its directory.
+
+    The payload goes to a temp file in the same directory (so ``os.replace``
+    stays on one filesystem) and is moved onto the target atomically. The
+    temp file gets normal ``0666 & ~umask`` permissions (``mkstemp`` alone
+    would leave 0600). Any failure removes the temp file and re-raises, so
+    the previous target — if any — stays byte-identical and no debris
+    remains. Shared by the versioned publisher and the legacy study
+    ``analysis.json`` writer.
+    """
+    tmp_path: Path | None = None
+    try:
+        handle, tmp_name = tempfile.mkstemp(
+            dir=target.parent, prefix=target.stem + ".", suffix=".tmp"
+        )
+        tmp_path = Path(tmp_name)
+        umask = os.umask(0)
+        os.umask(umask)
+        os.chmod(tmp_path, 0o666 & ~umask)
+        with os.fdopen(handle, "w", encoding="utf-8") as tmp_file:
+            tmp_file.write(payload)
+        os.replace(tmp_path, target)
+    except BaseException:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
 
 
 def write_versioned_analysis(
@@ -167,7 +200,20 @@ def write_versioned_analysis(
             "interval claim beyond docs/metric-contracts.md"
         ),
     }
-    target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # All validations (coverage, records file, outcomes binding) and the full
+    # document build happen before any directory mutation. The new document is
+    # published through the shared atomic writer; only afterwards are older
+    # definition files retired (never the target itself). A failed publish
+    # therefore leaves every pre-existing analysis file byte-identical and
+    # no temp file behind.
+    payload = json.dumps(document, indent=2, sort_keys=True) + "\n"
+    write_text_atomic(target, payload)
+    # This publisher owns the versioned-analysis namespace. Retire older
+    # definition files after publishing the current one so a supported rerun
+    # cannot leave compare/report with multiple apparently current candidates.
+    for stale in out_dir.glob("analysis-v*.json"):
+        if stale != target:
+            stale.unlink()
     return target
 
 
@@ -236,8 +282,13 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
         raise AnalysisError(f"{bundle_dir}: versioned analysis requires a complete bundle")
 
     records_name = document.get("records_path")
-    records_path = bundle_dir / records_name if isinstance(records_name, str) else None
-    if records_path is None or not records_path.is_file():
+    if not isinstance(records_name, str) or not records_name:
+        raise AnalysisError(f"{analysis_path}: bound records path is malformed")
+    try:
+        records_path = resolve_within_root(bundle_dir, records_name, label="analysis records_path")
+    except PathBoundaryError as exc:
+        raise AnalysisError(f"{analysis_path}: {exc}") from exc
+    if not records_path.is_file():
         raise AnalysisError(f"{analysis_path}: bound records file {records_name!r} missing")
     if _sha256_file(records_path) != document.get("records_sha256"):
         raise AnalysisError(
@@ -250,9 +301,18 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
     outcomes_binding = document.get("outcomes")
     if not isinstance(outcomes_binding, dict) or "present" not in outcomes_binding:
         raise AnalysisError(f"{analysis_path}: outcomes binding malformed")
-    outcomes_path = bundle_dir / outcomes_binding["path"] if outcomes_binding.get("path") else None
+    outcomes_path: Path | None = None
     if outcomes_binding["present"]:
-        if outcomes_path is None or not outcomes_path.is_file():
+        outcomes_name = outcomes_binding.get("path")
+        if not isinstance(outcomes_name, str) or not outcomes_name:
+            raise AnalysisError(f"{analysis_path}: bound outcomes path is malformed")
+        try:
+            outcomes_path = resolve_within_root(
+                bundle_dir, outcomes_name, label="analysis outcomes path"
+            )
+        except PathBoundaryError as exc:
+            raise AnalysisError(f"{analysis_path}: {exc}") from exc
+        if not outcomes_path.is_file():
             raise AnalysisError(f"{analysis_path}: bound outcomes file missing")
         if _sha256_file(outcomes_path) != outcomes_binding.get("sha256"):
             raise AnalysisError(f"{analysis_path}: outcomes hash mismatch (stale cache)")

@@ -23,7 +23,6 @@ ToyTracker 0.9.4 (demo builds only).
 ## Reproduction Steps
 
 1. Begin an OAuth flow in session A and capture the issued state value.
-   code parameter.
 3. Repeat the callback invocation after letting the demo's state cache expire.
 ## Observed Result
 
