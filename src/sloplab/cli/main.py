@@ -459,7 +459,6 @@ def benchmark(
 def study(config: str, out: str) -> None:
     """Run a deterministic evaluator study with comparative analysis (V0.2)."""
     import json
-    from dataclasses import asdict
     from pathlib import Path as _Path
 
     from sloplab.experiments.runner import load_study_config
@@ -469,8 +468,6 @@ def study(config: str, out: str) -> None:
         bootstrap_accuracy_ci,
         error_taxonomy,
         paired_win_loss,
-        per_class_metrics,
-        per_operator_metrics,
     )
     from sloplab.scoring.metrics import compute_metrics
 
@@ -512,15 +509,6 @@ def study(config: str, out: str) -> None:
         for b in names[i + 1 :]
     ]
     taxonomy_counts = {n: error_taxonomy(rs).counts for n, rs in sorted(by_evaluator.items())}
-    taxonomies_full = {n: error_taxonomy(rs).as_dict() for n, rs in sorted(by_evaluator.items())}
-    per_op = {
-        n: {op: asdict(bundle) for op, bundle in per_operator_metrics(rs).items()}
-        for n, rs in sorted(by_evaluator.items())
-    }
-    per_cls = {
-        n: {cls: asdict(bundle) for cls, bundle in per_class_metrics(rs).items()}
-        for n, rs in sorted(by_evaluator.items())
-    }
     cis = {
         n: bootstrap_accuracy_ci(
             rs,
@@ -531,16 +519,14 @@ def study(config: str, out: str) -> None:
         for n, rs in sorted(by_evaluator.items())
     }
 
-    analysis = {
-        "bundles": {n: asdict(b) for n, b in bundles.items()},
-        "paired_comparisons": [c.as_dict() for c in comparisons],
-        "error_taxonomy": taxonomies_full,
-        "per_operator": per_op,
-        "per_class": per_cls,
-        "bootstrap_accuracy_ci": {
-            n: {"low": lo, "point": pt, "high": hi} for n, (lo, pt, hi) in cis.items()
-        },
-    }
+    from sloplab.reporting.study_analysis import build_study_analysis
+
+    analysis = build_study_analysis(
+        records,
+        bootstrap_resamples=analysis_cfg.bootstrap_resamples,
+        bootstrap_ci=analysis_cfg.bootstrap_ci,
+        bootstrap_seed=analysis_cfg.bootstrap_seed,
+    )
     analysis_path = out_dir / "analysis.json"
     analysis_path.write_text(json.dumps(analysis, indent=2), encoding="utf-8")
 

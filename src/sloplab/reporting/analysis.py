@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -138,12 +140,6 @@ def write_versioned_analysis(
     if set(coverage) != set(bundles):
         raise AnalysisError("coverage evaluator set differs from bundles set")
     target = out_dir / analysis_filename()
-    # This publisher owns the versioned-analysis namespace. Retire older
-    # definition files before publishing the current one so a supported rerun
-    # cannot leave compare/report with multiple apparently current candidates.
-    for stale in out_dir.glob("analysis-v*.json"):
-        if stale != target:
-            stale.unlink()
     if not records_path.is_file():
         raise AnalysisError(f"records file missing: {records_path}")
     if outcomes_path is not None and outcomes_path.is_file():
@@ -175,7 +171,30 @@ def write_versioned_analysis(
             "interval claim beyond docs/metric-contracts.md"
         ),
     }
-    target.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    # All validations (coverage, records file, outcomes binding) and the full
+    # document build happen before any directory mutation. The new document is
+    # then written to a temp file in the same directory and moved onto the
+    # target atomically; only afterwards are older definition files retired
+    # (never the target itself). A failed publish therefore leaves every
+    # pre-existing analysis file byte-identical and no temp file behind.
+    payload = json.dumps(document, indent=2, sort_keys=True) + "\n"
+    tmp_path: Path | None = None
+    try:
+        handle, tmp_name = tempfile.mkstemp(dir=out_dir, prefix=target.stem + ".", suffix=".tmp")
+        tmp_path = Path(tmp_name)
+        with os.fdopen(handle, "w", encoding="utf-8") as tmp_file:
+            tmp_file.write(payload)
+        os.replace(tmp_path, target)
+    except BaseException:
+        if tmp_path is not None:
+            tmp_path.unlink(missing_ok=True)
+        raise
+    # This publisher owns the versioned-analysis namespace. Retire older
+    # definition files after publishing the current one so a supported rerun
+    # cannot leave compare/report with multiple apparently current candidates.
+    for stale in out_dir.glob("analysis-v*.json"):
+        if stale != target:
+            stale.unlink()
     return target
 
 

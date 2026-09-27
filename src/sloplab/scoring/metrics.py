@@ -316,7 +316,10 @@ def compute_dimension_mae(records: list[CaseRecord]) -> dict[str, float]:
         for dim in DIMENSIONS:
             if dim in expected and dim in r.dimensions:
                 sums[dim].append(abs(r.dimensions[dim] - expected[dim]))
-    return {dim: round(sum(v) / len(v), 4) for dim, v in sorted(sums.items())}
+    # math.fsum is correctly rounded on every Python version; builtin sum()
+    # switched to compensated summation in 3.12 and differs in the last bits,
+    # which can flip the 4dp rounding across versions (same fix as calibration).
+    return {dim: round(math.fsum(v) / len(v), 4) for dim, v in sorted(sums.items())}
 
 
 def compute_robustness_score(bundle: MetricBundle) -> float | None:

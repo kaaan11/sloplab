@@ -17,6 +17,7 @@ from sloplab.reporting.analysis import (
     AnalysisError,
     analysis_filename,
     read_versioned_analysis,
+    write_versioned_analysis,
 )
 from tests._helpers import write_canonical_fixture
 
@@ -215,3 +216,90 @@ def test_consumers_call_the_verified_reader(
         .exit_code
         != 0
     )
+
+
+def _direct_writer_inputs(records_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Minimal valid bundles/coverage for direct writer calls (no CLI run)."""
+    _ = records_path
+    bundles: dict[str, Any] = {"rules-baseline": {"evaluator_name": "rules-baseline"}}
+    coverage: dict[str, Any] = {
+        "rules-baseline": {"planned": 1, "scored": 1, "failed": 0, "not_run": 0}
+    }
+    return bundles, coverage
+
+
+def _seeded_versioned_dir(tmp_path: Path, name: str) -> tuple[Path, Path, str, str]:
+    """Out dir with a current-version file and one non-current version file."""
+    out_dir = tmp_path / name
+    out_dir.mkdir()
+    target = out_dir / analysis_filename()
+    old_target_text = '{"published": "previous"}\n'
+    target.write_text(old_target_text, encoding="utf-8")
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    old_stale_text = '{"published": "obsolete"}\n'
+    stale.write_text(old_stale_text, encoding="utf-8")
+    assert stale != target
+    return out_dir, target, old_target_text, old_stale_text
+
+
+def test_missing_records_keeps_existing_versioned_files(tmp_path: Path) -> None:
+    """Sözleşme eki (1): missing records_path errors; existing files untouched."""
+    out_dir, target, old_target_text, old_stale_text = _seeded_versioned_dir(
+        tmp_path, "w-missing-records"
+    )
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+    with pytest.raises(AnalysisError, match="records file missing"):
+        write_versioned_analysis(
+            out_dir,
+            records_path=out_dir / "no-such-records.jsonl",
+            bundles=bundles,
+            coverage=coverage,
+        )
+    assert target.read_text(encoding="utf-8") == old_target_text
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    assert stale.read_text(encoding="utf-8") == old_stale_text
+
+
+def test_write_failure_keeps_old_file_and_leaves_no_temp(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Sözleşme eki (2): forced document-write failure; old file kept, no debris."""
+    import json as json_module
+
+    out_dir, target, old_target_text, old_stale_text = _seeded_versioned_dir(
+        tmp_path, "w-write-failure"
+    )
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+
+    def _boom(*args: Any, **kwargs: Any) -> str:
+        _ = (args, kwargs)
+        raise RuntimeError("forced serialization failure")
+
+    monkeypatch.setattr(json_module, "dumps", _boom)
+    with pytest.raises(RuntimeError, match="forced serialization failure"):
+        write_versioned_analysis(
+            out_dir, records_path=records_path, bundles=bundles, coverage=coverage
+        )
+    assert target.read_text(encoding="utf-8") == old_target_text
+    stale = out_dir / f"analysis-v{ANALYSIS_DEFINITION_VERSION + 1}.json"
+    assert stale.read_text(encoding="utf-8") == old_stale_text
+    assert sorted(p.name for p in out_dir.iterdir()) == sorted([target.name, stale.name])
+
+
+def test_successful_publish_leaves_only_current_version(tmp_path: Path) -> None:
+    """Sözleşme eki (3): success path retires obsolete files, keeps the current one."""
+    out_dir, _, _, _ = _seeded_versioned_dir(tmp_path, "w-success")
+    records_path = tmp_path / "records.jsonl"
+    records_path.write_text('{"case": 1}\n', encoding="utf-8")
+    bundles, coverage = _direct_writer_inputs(records_path)
+    published = write_versioned_analysis(
+        out_dir, records_path=records_path, bundles=bundles, coverage=coverage
+    )
+    assert published == out_dir / analysis_filename()
+    assert sorted(p.name for p in out_dir.glob("analysis-v*.json")) == [analysis_filename()]
+    document = json.loads(published.read_text(encoding="utf-8"))
+    assert document["analysis_version"] == ANALYSIS_DEFINITION_VERSION
