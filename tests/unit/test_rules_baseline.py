@@ -485,6 +485,36 @@ class TestCanonicalHandling:
         codes = {f.code for f in result.findings}
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+    @pytest.mark.parametrize(
+        "phrase",
+        [
+            "No security boundary applies to the `if` branch.",
+            "No security boundary applies to the word whether in this note.",
+            "No security boundary applies because the when label is present.",
+        ],
+    )
+    def test_trailing_marker_mentioned_as_noun_is_not_a_condition(self, phrase: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            phrase,
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
+    def test_postfix_condition_introducer_phrase_is_conditional(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary applies depending on whether the plugin is disabled.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
 
     @pytest.mark.parametrize("dash", ["—", "--"])
     def test_dash_introduced_postfix_condition_qualifies_denial(self, dash: str) -> None:
