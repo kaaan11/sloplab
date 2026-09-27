@@ -1,10 +1,12 @@
 """Tests for the six V1 mutation operators: behavior, determinism, safety."""
 
 import random
+import re
 from typing import Any
 
 import pytest
 
+import sloplab.mutations.operators.presentation as presentation_module
 from sloplab.corpus.loader import load_canonical_fixture
 from sloplab.corpus.parser import parse_report
 from sloplab.models.enums import Decision, ReportClass
@@ -221,6 +223,54 @@ Low impact on demo data.
         assert "unlikely" in mutated.lower()
         assert "likelihood" in mutated.lower()
         assert "certainly exploitable" in mutated.lower()
+
+    def test_confidence_overstatement_hyphen_safe_boundaries(self) -> None:
+        """Every hedge phrase is compiled with hyphen-aware lookarounds."""
+        for phrase, replacement in ConfidenceOverstatement._HEDGES:
+            pattern = ConfidenceOverstatement._compile_hedge(phrase)
+            assert pattern.search(phrase) is not None
+            assert pattern.pattern == r"(?<![\w-])" + re.escape(phrase) + r"(?![\w-])"
+            # 'likely' inside 'unlikely'/'likelihood' must not match.
+            if phrase == "likely":
+                assert not pattern.search("unlikely")
+                assert not pattern.search("likelihood")
+                assert replacement == "certainly"
+
+    def test_hedge_globally_respects_hyphen_boundaries(self) -> None:
+        doc = parse_report(
+            "# T\n\n## Summary\n\nIt was likely-ish and most-likely here.\n",
+            fixture_id="canonical-hyphen-001",
+            path="x",
+        )
+        mutated, params = ConfidenceOverstatement().apply(doc, random.Random(3))
+        assert mutated == doc.raw_text
+        assert params == {"note": "no hedged language found outside code fences"}
+
+
+HEDGE_PATTERN_EXPECTED = r"(?<" + "!" + r"[\w-])likely(?" + "!" + r"[\w-])"
+
+
+class TestHedgePatternContract:
+    """Binding contract ('Uygulama sözleşmesi' 2026-09-27 + 'Sözleşme düzeltmesi')."""
+
+    def test_compiled_hedge_pattern_has_two_ascii_33_chars(self) -> None:
+        export = getattr(presentation_module, "HEDGE", None)
+        assert export is not None, "HEDGE must be exposed for the contract test"
+        assert export.pattern.count(chr(33)) == 2
+        assert export.pattern == HEDGE_PATTERN_EXPECTED
+
+    def test_hyphen_boundary_behavior_table(self) -> None:
+        NOT = "!"
+        pattern = re.compile(r"(?<" + NOT + r"[\w-])likely(?" + NOT + r"[\w-])", re.IGNORECASE)
+        yes_no = {
+            "is likely.": True,  # matches; standalone 'likely' is transformed
+            "unlikely": False,
+            "likelihood": False,
+            "likely-ish": False,
+            "most-likely": False,
+        }
+        for text, expected in yes_no.items():
+            assert bool(pattern.search(text)) is expected, text
 
 
 class TestSafetyOfOutputs:
