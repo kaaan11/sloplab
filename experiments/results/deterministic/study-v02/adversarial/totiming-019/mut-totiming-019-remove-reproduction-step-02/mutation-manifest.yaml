@@ -9,6 +9,8 @@ parameters:
     removed_step_text: 1. Send 40 failed sign-ins for an existing username and 40
       for a fabricated one,
     mode: single_step
+    span_model: full-item-v1
+    removed_extra_lines: 1
 seed: 3132658305008344845
 variant_index: 1
 base_seed: 20260825

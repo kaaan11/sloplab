@@ -8,7 +8,8 @@ import re
 from sloplab.models.report import ReportDocument, ReportSection
 
 _NUMBERED_STEP_RE = re.compile(r"^\s*\d+[.)]\s+")
-_ATX_HEADING_RE = re.compile(r"^(#{1,6})\s+(.*?)\s*#*\s*$")
+_ATX_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})[ \t]+(?P<text>.*)$")
+_ATX_CLOSING_RE = re.compile(r"[ \t]+#+[ \t]*$")
 # Mirrors parser.py fence syntax (single source of truth stays there; the
 # equality is pinned by test so profile drift fails loudly, not silently).
 _FENCE_RE = re.compile(r"^\s*(?P<fence>`{3,}|~{3,})")
@@ -171,4 +172,9 @@ def span_authorized(
     match = _ATX_HEADING_RE.match(raw_lines[start - 1])
     if match is None:
         return False
-    return match.group(2) == section.heading and len(match.group(1)) == section.level
+    heading_text = match.group("text").rstrip(" \t")
+    if re.fullmatch(r"#+", heading_text):
+        heading_text = ""
+    else:
+        heading_text = _ATX_CLOSING_RE.sub("", heading_text).rstrip(" \t")
+    return heading_text == section.heading and len(match.group("hashes")) == section.level

@@ -2,13 +2,17 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from sloplab.models.enums import Decision
 from sloplab.models.evaluation import DimensionScores, EvaluationResult
 from sloplab.models.run import CaseRecord
+from sloplab.reporting.writers import read_run_jsonl
 from sloplab.scoring.metrics import (
     compute_calibration_error,
+    compute_dimension_mae,
     compute_metrics,
     compute_presentation_susceptibility,
 )
@@ -221,6 +225,53 @@ def test_singularity_and_correct_consistency_enforced() -> None:
         compute_metrics([dangling], "t")
 
 
+def test_robustness_score_uses_canonical_not_overall_accuracy() -> None:
+    """The 15% score component is canonical-only when derived accuracy differs."""
+    records = [
+        record("parent", expected=Decision.ACCEPT, decision=Decision.ACCEPT, confidence=1.0),
+        record(
+            "child",
+            kind="mutated",
+            parent_id="parent",
+            operator="impact_inflation",
+            expected=Decision.REJECT,
+            decision=Decision.ACCEPT,
+            confidence=1.0,
+        ),
+    ]
+    bundle = compute_metrics(records, "t")
+
+    assert bundle.canonical_decision_accuracy == 1.0
+    assert bundle.decision_accuracy == 0.5
+    assert bundle.mutation_detection_rate is not None
+    assert bundle.false_reassurance_rate is not None
+    assert bundle.calibration_error is not None
+
+    parts = [
+        (0.40, bundle.mutation_detection_rate),
+        (0.25, 1.0 - bundle.false_reassurance_rate),
+        (0.15, bundle.canonical_decision_accuracy),
+        (0.10, 1.0 - bundle.calibration_error),
+    ]
+    expected = round(
+        sum(weight * value for weight, value in parts) / sum(weight for weight, _ in parts),
+        4,
+    )
+    old_overall_formula = round(
+        (
+            0.40 * bundle.mutation_detection_rate
+            + 0.25 * (1.0 - bundle.false_reassurance_rate)
+            + 0.15 * bundle.decision_accuracy
+            + 0.10 * (1.0 - bundle.calibration_error)
+        )
+        / 0.90,
+        4,
+    )
+
+    assert bundle.robustness_score == expected
+    assert bundle.robustness_score != old_overall_formula
+
+
 def test_every_metric_carries_coverage() -> None:
     """Normal bundle: all coverage entries present, defined metrics reason-free."""
     records = [
@@ -255,3 +306,28 @@ def test_every_metric_carries_coverage() -> None:
     for name in expected_metrics:
         assert "undefined_reason" in bundle.metric_coverage[name]
     assert bundle.metric_coverage["calibration_error"]["undefined_reason"] is None
+
+
+def test_dimension_mae_is_python_version_independent() -> None:
+    """MAE summation must not depend on the interpreter's builtin sum().
+
+    Regression for the Dalga B cross-version failure: builtin sum() changed
+    summation in 3.12, flipping the 4dp-rounded evidence_completeness MAE of
+    this exact committed slice from 0.3912 (3.12+) to 0.3913 (3.11). The
+    implementation uses math.fsum (correctly rounded on every version), so
+    this pinned value holds everywhere.
+    """
+    study_records = (
+        Path(__file__).resolve().parents[2]
+        / "experiments"
+        / "results"
+        / "deterministic"
+        / "study-v02"
+        / "records.jsonl"
+    )
+    _, records = read_run_jsonl(study_records)
+    slice_records = [
+        r for r in records if r.evaluator_name == "rules-baseline" and r.report_class == "invalid"
+    ]
+    assert len(slice_records) == 64
+    assert compute_dimension_mae(slice_records)["evidence_completeness"] == 0.3912

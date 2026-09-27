@@ -5,7 +5,7 @@
   "decision_accuracy": 0.8114478114478114,
   "false_reassurance_rate": 0.09387755102040816,
   "false_reassurance_count": 23,
-  "over_rejection_rate": 0.0,
+  "over_rejection_rate": 0,
   "over_rejection_count": 0,
   "mutation_detection_rate": 0.8020833333333334,
   "mutation_detection_total": 96,
@@ -25,5 +25,5 @@
     "valid": 0.8513513513513513,
     "canonical_overall": 0.8
   },
-  "robustness_score": 0.8393
+  "robustness_score": 0.8376
 }
