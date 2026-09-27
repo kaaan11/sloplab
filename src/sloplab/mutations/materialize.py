@@ -10,6 +10,7 @@ population loss stays visible instead of silent. Use
 from __future__ import annotations
 
 import json
+import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -71,6 +72,30 @@ def _tally_outcomes(outcomes: list[MaterializationOutcome]) -> dict[str, int]:
     for outcome in outcomes:
         tallies[outcome.status] += 1
     return tallies
+
+
+def _header_corpus_root(corpus_root: Path, out_root: Path) -> str:
+    """Corpus location for the suite-index header (#60).
+
+    Written relative to the materialization output root (the suite directory)
+    so the same suite yields byte-identical headers on any machine. Reading
+    stages relocate the value via ``_resolve_suite_index`` (the index location
+    and its ancestors first, the cwd as a last resort), matching the writer's
+    anchor. A relative ``corpus_root`` is resolved against the cwd first (#60
+    revision: direct-API callers pass the configured string), so the header is
+    computed from the same root discovery used. Absolute paths pass through as
+    a last resort (Windows drive-change edge, where ``os.path.relpath`` fails).
+    """
+    path = Path(corpus_root)
+    if not path.is_absolute():
+        path = Path.cwd() / path
+    try:
+        return str(path.relative_to(out_root))
+    except ValueError:
+        try:
+            return str(os.path.relpath(path, out_root))
+        except ValueError:  # pragma: no cover - platform-specific drive roots
+            return str(path)
 
 
 def _write_derived_case(
@@ -136,13 +161,18 @@ def materialize_suite(
 ) -> MaterializationResult:
     """Apply every planned mutation and write derived cases under ``out_root``.
 
-    ``corpus_root_resolved`` overrides the corpus-root string recorded in the
-    suite-index header (pass the absolute path used during discovery so later
-    evaluation stages can relocate fixtures regardless of working directory).
+    ``corpus_root_resolved`` supplies the corpus location recorded in the
+    suite-index header (#60). It is written relative to ``out_root`` (the suite
+    directory) when possible; ``read``/evaluation stages relocate it again via
+    the index anchors, so pass the resolved path from the same resolution the
+    fixtures were discovered with.
     """
     result = MaterializationResult(out_root=out_root)
     plans, _group_counts = plan_suite(config, fixtures)
-    header_corpus_root = str(corpus_root_resolved or config.corpus_root)
+    header_corpus_root = _header_corpus_root(
+        corpus_root_resolved if corpus_root_resolved is not None else Path(config.corpus_root),
+        out_root,
+    )
 
     # R01 (v0.2.2): every plan may now be skipped (no-op/clone guard), so the
     # output root can no longer rely on case writes to create directories.
