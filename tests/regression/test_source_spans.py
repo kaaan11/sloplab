@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import random
 from pathlib import Path
 from typing import Any
@@ -335,12 +336,15 @@ def test_single_step_parent_bound() -> None:
 
 
 def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> None:
-    """Impact reconciliation: only B1-fixed derivatives differ, and how.
+    """Impact reconciliation: committed bundle matches fresh materialization.
 
-    The E5a byte-identity premise is superseded by the fix: exactly the
-    derivatives whose picked step had continuations change (report residue
-    lines gone, manifest params gain span_model), everything else stays
-    byte-identical, and counts reconcile with the E5a inventory.
+    The E5a byte-identity premise was superseded first by the B1 fix (exactly
+    the derivatives whose picked step had continuations changed) and then by
+    the PR #33 full regeneration, which absorbed that divergence into the
+    committed bundle. Fresh materialization is now byte-identical; the
+    B1-fixed shape (span identity keys, residue lines gone) stays pinned on
+    the three E5a inventory members, and counts reconcile with the E5a
+    inventory.
     """
     config = load_suite_config(REPO_ROOT / "benchmarks/suites/v1-core.yaml")
     canonical, _ = discover_fixtures(REPO_ROOT / "corpus")
@@ -360,38 +364,31 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     }
     assert set(fresh) == set(stored)
     differing = sorted(k for k in fresh if fresh[k] != stored[k])
-    reports = sorted(k for k in differing if k.endswith("report.md"))
-    manifests = sorted(k for k in differing if k.endswith("mutation-manifest.yaml"))
-    assert len(differing) == len(reports) + len(manifests) == 6
-    # The three changed derivatives are exactly E5a inventory members.
-    assert {Path(k).parts[0] for k in reports} == {"oauthstate-029", "saml-019", "totiming-019"}
-    import difflib
-    import json
-
-    for report in reports:
-        old_lines = stored[report].decode().splitlines()
-        new_lines = fresh[report].decode().splitlines()
-        delta = [
-            line
-            for line in difflib.unified_diff(old_lines, new_lines, lineterm="")
-            if line.startswith(("+", "-")) and not line.startswith(("+++", "---"))
-        ]
-        # Residue lines removed, nothing added, neighbors intact.
-        assert delta and all(line.startswith("-") for line in delta), report
-        manifest = str(Path(report).parent / "mutation-manifest.yaml")
-        assert manifest in manifests
-    # Manifests differ only by the added span identity keys.
+    # PR #33 regenerated the committed bundle with current code, absorbing the
+    # B1 divergence documented below: fresh materialization is now byte-identical
+    # to the committed bundle. The B1-fixed shape stays pinned instead.
+    assert differing == []
+    # The three E5a-inventory derivatives whose picked step had continuations
+    # carry span identity in the committed bundle (report residue lines gone,
+    # manifest params gained span_model), and only they do.
     import yaml
 
-    for manifest in manifests:
-        old_doc = yaml.safe_load(stored[manifest].decode())
-        new_doc = yaml.safe_load(fresh[manifest].decode())
-        assert set(new_doc) == set(old_doc)
-        old_params = old_doc["parameters"]["choices"]
-        new_params = new_doc["parameters"]["choices"]
-        assert set(new_params) - set(old_params) == {"span_model", "removed_extra_lines"}
-        assert new_params["span_model"] == "full-item-v1"
-        assert all(old_doc[k] == new_doc[k] for k in old_doc if k != "parameters")
+    b1_manifests = sorted(
+        str(p.relative_to(committed))
+        for p in sorted(committed.rglob("mutation-manifest.yaml"))
+        if b"span_model" in p.read_bytes()
+    )
+    assert {Path(k).parts[0] for k in b1_manifests} == {
+        "oauthstate-029",
+        "saml-019",
+        "totiming-019",
+    }
+    assert len(b1_manifests) == 3
+    for manifest in b1_manifests:
+        doc = yaml.safe_load((committed / manifest).read_bytes().decode())
+        params = doc["parameters"]["choices"]
+        assert params["span_model"] == "full-item-v1"
+        assert params["removed_extra_lines"] == 1
     # Suite index body identical; header differs only by machine corpus_root.
     old = (
         (REPO_ROOT / "benchmarks/results/v1-core-example/suite-index.jsonl")

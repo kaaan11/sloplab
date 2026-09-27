@@ -83,8 +83,8 @@
     "rules-baseline": {
       "evaluator_name": "rules-baseline",
       "total_cases": 297,
-      "correct_cases": 241,
-      "decision_accuracy": 0.8114478114478114,
+      "correct_cases": 252,
+      "decision_accuracy": 0.8484848484848485,
       "false_reassurance_rate": 0.09387755102040816,
       "false_reassurance_count": 23,
       "over_rejection_rate": 0.0,
@@ -93,7 +93,7 @@
       "mutation_detection_total": 96,
       "robustness_delta": 0.0070921985815602835,
       "presentation_susceptibility": 0.0,
-      "calibration_error": 0.2977744107744108,
+      "calibration_error": 0.33851515151515155,
       "dimension_mae": {
         "claim_evidence_consistency": 0.3678,
         "evidence_completeness": 0.2801,
@@ -103,11 +103,11 @@
       },
       "per_class_accuracy": {
         "invalid": 0.71875,
-        "review": 0.8117647058823529,
+        "review": 0.9411764705882353,
         "valid": 0.8513513513513513,
-        "canonical_overall": 0.8
+        "canonical_overall": 0.8333333333333334
       },
-      "robustness_score": 0.8376,
+      "robustness_score": 0.8385,
       "metric_coverage": {
         "decision_accuracy": {
           "presented": 297,
@@ -165,9 +165,9 @@
       "evaluator_b": "rules-baseline",
       "shared_cases": 297,
       "a_wins": 8,
-      "b_wins": 88,
-      "ties": 201,
-      "a_win_rate": 0.0833
+      "b_wins": 99,
+      "ties": 190,
+      "a_win_rate": 0.0748
     }
   ],
   "error_taxonomy": {
@@ -183,11 +183,11 @@
     },
     "rules-baseline": {
       "evaluator_name": "rules-baseline",
-      "total_errors": 56,
+      "total_errors": 45,
       "counts": {
         "deferred_invalid": 8,
         "false_reassurance": 22,
-        "over_strict_reject": 22,
+        "over_strict_reject": 11,
         "premature_accept": 1,
         "premature_deferral": 3
       }
@@ -1107,8 +1107,8 @@
       "add_irrelevant_detail": {
         "evaluator_name": "rules-baseline:add_irrelevant_detail",
         "total_cases": 36,
-        "correct_cases": 31,
-        "decision_accuracy": 0.8611111111111112,
+        "correct_cases": 33,
+        "decision_accuracy": 0.9166666666666666,
         "false_reassurance_rate": 0.038461538461538464,
         "false_reassurance_count": 1,
         "over_rejection_rate": 0.0,
@@ -1117,7 +1117,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.2501388888888889,
+        "calibration_error": 0.31125,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3611,
           "evidence_completeness": 0.3708,
@@ -1127,10 +1127,10 @@
         },
         "per_class_accuracy": {
           "invalid": 0.9,
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9
         },
-        "robustness_score": 0.9011,
+        "robustness_score": 0.8836,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 36,
@@ -1184,8 +1184,8 @@
       "confidence_overstatement": {
         "evaluator_name": "rules-baseline:confidence_overstatement",
         "total_cases": 5,
-        "correct_cases": 4,
-        "decision_accuracy": 0.8,
+        "correct_cases": 5,
+        "decision_accuracy": 1.0,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
@@ -1194,7 +1194,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.52,
+        "calibration_error": 0.5,
         "dimension_mae": {
           "claim_evidence_consistency": 0.62,
           "evidence_completeness": 0.308,
@@ -1203,9 +1203,9 @@
           "scope_consistency": 0.388
         },
         "per_class_accuracy": {
-          "review": 0.8
+          "review": 1.0
         },
-        "robustness_score": 0.8514,
+        "robustness_score": 0.8571,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 5,
@@ -1709,8 +1709,8 @@
       "professionalize_language": {
         "evaluator_name": "rules-baseline:professionalize_language",
         "total_cases": 48,
-        "correct_cases": 36,
-        "decision_accuracy": 0.75,
+        "correct_cases": 38,
+        "decision_accuracy": 0.7916666666666666,
         "false_reassurance_rate": 0.14705882352941177,
         "false_reassurance_count": 5,
         "over_rejection_rate": 0.0,
@@ -1719,7 +1719,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.25543750000000004,
+        "calibration_error": 0.3012708333333334,
         "dimension_mae": {
           "claim_evidence_consistency": 0.396,
           "evidence_completeness": 0.2675,
@@ -1729,10 +1729,10 @@
         },
         "per_class_accuracy": {
           "invalid": 0.5555555555555556,
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9285714285714286
         },
-        "robustness_score": 0.822,
+        "robustness_score": 0.8089,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 48,
@@ -1786,8 +1786,8 @@
       "remove_affected_version": {
         "evaluator_name": "rules-baseline:remove_affected_version",
         "total_cases": 26,
-        "correct_cases": 23,
-        "decision_accuracy": 0.8846153846153846,
+        "correct_cases": 25,
+        "decision_accuracy": 0.9615384615384616,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": 0.0,
@@ -1796,7 +1796,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.42538461538461536,
+        "calibration_error": 0.4176923076923077,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3538,
           "evidence_completeness": 0.2892,
@@ -1805,10 +1805,10 @@
           "scope_consistency": 0.38
         },
         "per_class_accuracy": {
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 1.0
         },
-        "robustness_score": 0.8785,
+        "robustness_score": 0.8807,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 26,
@@ -1862,8 +1862,8 @@
       "remove_reproduction_step": {
         "evaluator_name": "rules-baseline:remove_reproduction_step",
         "total_cases": 26,
-        "correct_cases": 22,
-        "decision_accuracy": 0.8461538461538461,
+        "correct_cases": 24,
+        "decision_accuracy": 0.9230769230769231,
         "false_reassurance_rate": 0.038461538461538464,
         "false_reassurance_count": 1,
         "over_rejection_rate": null,
@@ -1872,7 +1872,7 @@
         "mutation_detection_total": 10,
         "robustness_delta": null,
         "presentation_susceptibility": null,
-        "calibration_error": 0.5423846153846154,
+        "calibration_error": 0.5346923076923077,
         "dimension_mae": {
           "claim_evidence_consistency": 0.2558,
           "evidence_completeness": 0.4912,
@@ -1881,10 +1881,10 @@
           "scope_consistency": 0.28
         },
         "per_class_accuracy": {
-          "review": 0.8125,
+          "review": 0.9375,
           "valid": 0.9
         },
-        "robustness_score": 0.8615,
+        "robustness_score": 0.8626,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 26,
@@ -2324,8 +2324,8 @@
       "review": {
         "evaluator_name": "rules-baseline:review",
         "total_cases": 85,
-        "correct_cases": 69,
-        "decision_accuracy": 0.8117647058823529,
+        "correct_cases": 80,
+        "decision_accuracy": 0.9411764705882353,
         "false_reassurance_rate": 0.0,
         "false_reassurance_count": 0,
         "over_rejection_rate": null,
@@ -2334,7 +2334,7 @@
         "mutation_detection_total": 0,
         "robustness_delta": 0.0,
         "presentation_susceptibility": 0.0,
-        "calibration_error": 0.5188235294117647,
+        "calibration_error": 0.5058823529411764,
         "dimension_mae": {
           "claim_evidence_consistency": 0.3982,
           "evidence_completeness": 0.3946,
@@ -2343,10 +2343,10 @@
           "scope_consistency": 0.4022
         },
         "per_class_accuracy": {
-          "review": 0.8117647058823529,
-          "canonical_overall": 0.8125
+          "review": 0.9411764705882353,
+          "canonical_overall": 0.9375
         },
-        "robustness_score": 0.8667,
+        "robustness_score": 0.9001,
         "metric_coverage": {
           "decision_accuracy": {
             "presented": 85,
@@ -2482,9 +2482,9 @@
       "high": 0.5959595959595959
     },
     "rules-baseline": {
-      "low": 0.7676767676767676,
-      "point": 0.8114478114478114,
-      "high": 0.8552188552188552
+      "low": 0.8047138047138047,
+      "point": 0.8484848484848485,
+      "high": 0.8888888888888888
     }
   }
 }

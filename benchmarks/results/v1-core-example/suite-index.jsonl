@@ -1,4 +1,4 @@
-{"base_seed": 20260825, "corpus_root": "/home/kaan/ai-workspaces/sloplab/corpus", "generator_version": "0.2.2", "record_type": "suite_header", "suite_name": "v1-core"}
+{"base_seed": 20260825, "corpus_root": "/tmp/claude-1000/-home-kaan-sloplab/18c0e372-3c12-4d54-8873-d2b9bb8c04fa/scratchpad/wC/pr33/corpus", "generator_version": "0.2.2", "record_type": "suite_header", "suite_name": "v1-core"}
 {"case_id": "canonical-authz-001", "expected_decision": "accept", "kind": "canonical", "manifest_path": null, "operator": null, "parent_id": null, "record_type": "suite_case", "report_class": "valid"}
 {"case_id": "canonical-authz2-014", "expected_decision": "accept", "kind": "canonical", "manifest_path": null, "operator": null, "parent_id": null, "record_type": "suite_case", "report_class": "valid"}
 {"case_id": "canonical-cachehdr-024", "expected_decision": "needs_manual_review", "kind": "canonical", "manifest_path": null, "operator": null, "parent_id": null, "record_type": "suite_case", "report_class": "review"}

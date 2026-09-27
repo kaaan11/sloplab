@@ -81,9 +81,9 @@
       "total_cases": 297
     },
     "rules-baseline": {
-      "calibration_error": 0.2977744107744108,
-      "correct_cases": 241,
-      "decision_accuracy": 0.8114478114478114,
+      "calibration_error": 0.33851515151515155,
+      "correct_cases": 252,
+      "decision_accuracy": 0.8484848484848485,
       "dimension_mae": {
         "claim_evidence_consistency": 0.3678,
         "evidence_completeness": 0.2801,
@@ -148,14 +148,14 @@
       "over_rejection_count": 0,
       "over_rejection_rate": 0.0,
       "per_class_accuracy": {
-        "canonical_overall": 0.8,
+        "canonical_overall": 0.8333333333333334,
         "invalid": 0.71875,
-        "review": 0.8117647058823529,
+        "review": 0.9411764705882353,
         "valid": 0.8513513513513513
       },
       "presentation_susceptibility": 0.0,
       "robustness_delta": 0.0070921985815602835,
-      "robustness_score": 0.8376,
+      "robustness_score": 0.8385,
       "total_cases": 297
     }
   },
@@ -187,5 +187,5 @@
   },
   "records_count": 594,
   "records_path": "records.jsonl",
-  "records_sha256": "25dcc0c806da40fe0adca51decdebac569686fc0c9730c971353f8b9f2cb9071"
+  "records_sha256": "b8c9112dd0ce8dd1f9af56fa8848709556a90c919831932a52053fc470e5f015"
 }
