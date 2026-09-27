@@ -105,47 +105,44 @@ def _authority_control_run(text: str, start: int) -> tuple[bool, int]:
         return False, cursor
     if cursor >= len(text):
         return False, cursor
-    next_char = text[cursor]
-    if next_char in ".@:":
-        return True, cursor
-    if next_char.isspace() or next_char in _URL_STOP_CHARS or next_char in "/?#":
-        return False, cursor
-
-    end = cursor
-    while end < len(text):
-        char = text[end]
-        if char.isspace() or char in _URL_STOP_CHARS or char in "/?#":
-            break
-        end += 1
-    segment = text[cursor:end]
-    if not segment:
-        return False, cursor
-    # Any contiguous non-delimiter text can extend the authority after a
-    # browser-normalized TAB/CR/LF run (for example localhost\nattacker).
-    # Keep it in the candidate and fail closed rather than approving a safe
-    # prefix. Markdown headings/path/query/fragment delimiters were rejected
-    # above and remain prose/URL boundaries.
-    return True, cursor
+    # Any non-whitespace continuation after one control-whitespace run can be
+    # joined back into a browser-parsed special URL. Keep it in the candidate
+    # (including quote/paren-like delimiters) and fail closed. A blank line was
+    # handled above as a Markdown paragraph boundary.
+    return (not text[cursor].isspace()), cursor
 
 
-def _stop_char_is_prose_boundary(text: str, index: int) -> bool:
-    """Whether a quote/bracket-like stop char actually ends surrounding prose.
+def _stop_char_run(text: str, index: int) -> tuple[bool, int]:
+    """Return (is_prose_boundary, first_non_wrapper_index) for one delimiter run.
 
-    Delimiters may be legal userinfo/host bytes for browser URL parsers. Treat
-    them as prose closers only when every following wrapper/punctuation byte
-    reaches whitespace or end-of-text. If authority-like text resumes after
-    that punctuation run, keep the delimiter inside the candidate and fail
-    closed instead of approving a safe prefix.
+    Consume the whole quote/Markdown punctuation run exactly once. If ordinary
+    text resumes before whitespace/end, the delimiters stay inside the URL
+    candidate so authority validation fails closed.
     """
-    cursor = index + 1
-    if cursor >= len(text):
-        return True
-    if text[cursor].isspace():
-        return True
     trailing = set(_TRAILING_URL_PUNCTUATION) | set(_URL_STOP_CHARS) | {"]"}
+    cursor = index
     while cursor < len(text) and text[cursor] in trailing:
         cursor += 1
-    return cursor >= len(text) or text[cursor].isspace()
+    return (cursor >= len(text) or text[cursor].isspace()), cursor
+
+
+def _raw_authority(url: str) -> str:
+    """Return the raw authority bytes from one scanner-produced URL token."""
+    match = _URL_START_RE.match(url)
+    if match is None:
+        return ""
+    bracket_depth = 0
+    cursor = match.end()
+    while cursor < len(url):
+        char = url[cursor]
+        if char == "[":
+            bracket_depth += 1
+        elif char == "]" and bracket_depth:
+            bracket_depth -= 1
+        elif bracket_depth == 0 and char in "/?#":
+            break
+        cursor += 1
+    return url[match.end() : cursor]
 
 
 def is_reserved_host(host: str) -> bool:
@@ -205,8 +202,13 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
             if char in _URL_STOP_CHARS:
                 if authority_done:
                     break
-                if not in_userinfo and _stop_char_is_prose_boundary(text, scan):
-                    break
+                if not in_userinfo:
+                    is_boundary, run_end = _stop_char_run(text, scan)
+                    if is_boundary:
+                        break
+                    scan = run_end
+                    end = scan
+                    continue
             if char == "[":
                 if not in_userinfo:
                     bracket_depth += 1
@@ -231,10 +233,11 @@ def find_unsafe_urls(text: str) -> list[str]:
     """URLs whose parsed hostname is outside approved local/reserved namespaces."""
     unsafe: set[str] = set()
     for url in _iter_url_tokens(text):
+        authority = _raw_authority(url)
         if (
-            "\\" in url
-            or any(control in url for control in _URL_CONTROL_WHITESPACE)
-            or any(delimiter in url for delimiter in _URL_STOP_CHARS)
+            "\\" in authority
+            or any(control in authority for control in _URL_CONTROL_WHITESPACE)
+            or any(delimiter in authority for delimiter in _URL_STOP_CHARS)
         ):
             unsafe.add(url)
             continue
