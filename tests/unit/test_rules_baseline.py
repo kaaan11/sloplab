@@ -433,6 +433,17 @@ class TestCanonicalHandling:
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
         assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
 
+    def test_line_wrapped_boundary_denial_is_rejected(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No boundary between tenants\nis crossed.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     def test_no_boundary_report_rejected(self) -> None:
         result = evaluate(INVALID_BODY)
         assert result.decision == Decision.REJECT
