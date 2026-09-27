@@ -123,7 +123,12 @@ def _stop_char_run(text: str, index: int) -> tuple[bool, int]:
     cursor = index
     while cursor < len(text) and text[cursor] in trailing:
         cursor += 1
-    return (cursor >= len(text) or text[cursor].isspace()), cursor
+    if cursor >= len(text):
+        return True, cursor
+    if text[cursor] in _URL_CONTROL_WHITESPACE:
+        continues, _control_end = _authority_control_run(text, cursor)
+        return (not continues), cursor
+    return text[cursor].isspace(), cursor
 
 
 def _raw_authority(url: str) -> str:
