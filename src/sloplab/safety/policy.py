@@ -176,9 +176,12 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 end = scan
                 continue
             in_userinfo = userinfo_separator is not None and scan < userinfo_separator
-            if char in _URL_STOP_CHARS and (authority_done or not in_userinfo):
-                if _stop_char_is_prose_boundary(text, scan):
-                    break
+            if (
+                char in _URL_STOP_CHARS
+                and (authority_done or not in_userinfo)
+                and _stop_char_is_prose_boundary(text, scan)
+            ):
+                break
             if char == "[":
                 if not in_userinfo:
                     bracket_depth += 1
