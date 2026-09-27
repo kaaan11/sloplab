@@ -265,9 +265,7 @@ class TestCanonicalHandling:
             "> No security boundary applies.",
         ],
     )
-    def test_markdown_wrapped_new_sentence_does_not_inherit_condition(
-        self, wrapped: str
-    ) -> None:
+    def test_markdown_wrapped_new_sentence_does_not_inherit_condition(self, wrapped: str) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             f"If this is unexpected, contact support. {wrapped}",
