@@ -34,6 +34,11 @@ diff <(tail -n +2 /tmp/v1-core-repro/run.jsonl) \
 Running `sloplab materialize` twice yields byte-identical trees (covered by an
 integration test). Changing any of `base_seed`, the corpus manifests, or operator
 implementations changes outputs - that is intended and visible via the suite hash.
+The `suite-index.jsonl` header records the corpus root relative to the suite
+directory (#60), so the same suite produces byte-identical bytes on any machine;
+evaluation re-locates the corpus from the index's own ancestor chain. Bundles
+written before #60 carry an absolute `corpus_root` in the header and keep
+evaluating unchanged.
 
 ## Environment
 

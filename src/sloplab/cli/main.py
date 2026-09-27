@@ -184,13 +184,18 @@ def _resolve_suite_index(cases: str) -> tuple[Path, Path, Path]:
     candidate = Path(corpus_root_str)
     if candidate.is_absolute() and candidate.is_dir():
         return index_path, candidate, materialized_root
-    for anchor in [Path.cwd(), *index_path.absolute().parents]:
+    # Relative corpus roots (#60) resolve from the bundle's own location and its
+    # ancestor chain, in the inverse direction of how the writer computed them;
+    # the CWD is deliberately excluded so evaluation stays cwd-independent and a
+    # same-named stray directory under the CWD cannot shadow the bundle's corpus.
+    anchors = index_path.absolute().parents
+    for anchor in anchors:
         resolved = anchor / candidate
         if resolved.is_dir():
             return index_path, resolved, materialized_root
     raise click.ClickException(
         f"corpus_root '{corpus_root_str}' from suite index does not exist relative to "
-        f"the current directory or the index location"
+        f"the index location ({', '.join(str(anchor) for anchor in anchors)})"
     )
 
 
@@ -262,8 +267,10 @@ def _run_evaluators_over_suite(
         base_seed=base_seed,
         evaluators=infos,
         suite_config={
-            "index": str(index_path),
-            "corpus_root": str(corpus_root),
+            # #60: record provenance locations cwd-relative where possible so
+            # committed bundles stay machine-portable.
+            "index": _portable_path_str(index_path),
+            "corpus_root": _portable_path_str(corpus_root),
             OUTCOMES_HASH_KEY: outcomes_hash,
         },
         suite_hash=_hash_file(index_path),
@@ -309,6 +316,21 @@ def _resolve_corpus_root(corpus_root: str, suite_path: Path) -> Path:
     raise click.ClickException(
         f"corpus_root '{corpus_root}' does not exist relative to any of {[str(a) for a in anchors]}"
     )
+
+
+def _portable_path_str(path: Path) -> str:
+    """Render a provenance path cwd-relative when the path lies under the cwd.
+
+    #60: committed result bundles must not carry machine-specific absolute
+    paths; paths outside the current directory keep their absolute form.
+    """
+    import os
+
+    absolute = Path(path).absolute()
+    relative = os.path.relpath(absolute, Path.cwd())
+    if relative.startswith(os.pardir):
+        return str(absolute)
+    return relative
 
 
 def _hash_file(path: Path) -> str:

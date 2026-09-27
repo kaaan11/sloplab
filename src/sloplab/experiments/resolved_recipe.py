@@ -160,7 +160,8 @@ def resolve_recipe(
 
     Reads the loaded ``suite_config`` object (the same object the materializer
     receives; the file is not re-read) and resolves each evaluator name exactly
-    once. Absolute paths enter ``locations`` only, never the hashed sections.
+    once. Paths enter ``locations`` only, never the hashed sections; the corpus
+    root is recorded as configured (repo-relative, #60).
     """
     instances: list[Evaluator] = [get_evaluator(spec.name) for spec in config.evaluators]
     evaluators = tuple(
@@ -203,7 +204,9 @@ def resolve_recipe(
         repeat_index=config.repeat_index,
         locations=ResolvedLocations(
             suite_config_path=str(suite_config_path),
-            corpus_root=str(corpus_root),
+            # #60: record the corpus root as configured (repo-relative) so the
+            # frozen recipe stays machine-portable; open provenance, never hashed.
+            corpus_root=str(config.suite.corpus_root),
         ),
         code_env=ResolvedCodeEnv(
             head=head,

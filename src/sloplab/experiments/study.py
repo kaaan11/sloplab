@@ -204,7 +204,9 @@ def run_deterministic_study(
         config_hash=sha256_text(json.dumps(config.model_dump(), sort_keys=True)),
         commit_sha=current_commit_sha(study_config_path.absolute().parent),
         suite_hash=sha256_file(index_path),
-        corpus_root=str(corpus_root),
+        # #60: record the corpus root as configured (repo-relative) so committed
+        # bundles stay machine-portable; open provenance, never hashed.
+        corpus_root=str(config.suite.corpus_root),
         base_seed=config.base_seed,
         repeat_index=config.repeat_index,
         evaluators=evaluator_infos,
