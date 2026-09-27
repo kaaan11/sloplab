@@ -221,22 +221,25 @@ def _has_sentence_break(text: str) -> bool:
     return False
 
 
-def _has_leading_condition_barrier(text: str) -> bool:
+def _has_leading_condition_barrier(segment: str, denial_offset: int) -> bool:
     """Sentence barrier between a leading condition marker and its denial.
 
-    A final em dash / double dash directly introducing the denial is punctuation
-    inside the conditional construction, not a separate clause. Earlier dashes
-    or any other sentence break remain barriers.
+    The segment includes the denial text so sentence-boundary lookaheads can
+    inspect wrappers and the first denial word. Only boundaries strictly before
+    denial_offset count. A final em dash / double dash directly introducing the
+    denial is punctuation inside the conditional construction, not a separate
+    clause.
     """
-    boundaries = list(_SENTENCE_BREAK_RE.finditer(text))
-    for boundary in boundaries:
+    for boundary in _SENTENCE_BREAK_RE.finditer(segment):
+        if boundary.start() >= denial_offset:
+            break
         token = boundary.group(0)
         if token in {"--", "—"}:
-            trailing = text[boundary.end() :]
+            trailing = segment[boundary.end() : denial_offset]
             if re.fullmatch(rf"\s*{_SENTENCE_MARKDOWN_PREFIX}\s*", trailing):
                 continue
-        if token == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
-            following = text[boundary.end() :]
+        if token == "." and _INITIALISM_SUFFIX_RE.search(segment[: boundary.end()]):
+            following = segment[boundary.end() :]
             if not _starts_sentence_after_initialism(following):
                 continue
         return True
@@ -293,8 +296,9 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         if marker.start() < match_rel:
             if not _marker_starts_clause(paragraph, marker.start()):
                 continue
-            before_denial = paragraph[marker.end() : match_rel]
-            if not _has_leading_condition_barrier(before_denial):
+            segment = paragraph[marker.end() : match_end_rel]
+            denial_offset = match_rel - marker.end()
+            if not _has_leading_condition_barrier(segment, denial_offset):
                 return True
             continue
 
