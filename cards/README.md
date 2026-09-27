@@ -13,9 +13,18 @@ panel) only opens if there is external interest.
 - `schema/case-card-v0.1.schema.json` — full card schema (identity, input,
   review, provenance; `additionalProperties: false`).
 - `schema/owner-judgment-v0.1.schema.json` — the owner's blind judgment file.
-- `v0.1/<id>/input.json` — the **generated** annotator-visible view (only
-  schema_version, opaque_id, context, report, artifacts, claims + a note).
-  Regenerate with `scripts/export_card_inputs.py`; never edit by hand.
+- `v0.1/<id>/input.json` — the **generated** machine view: the annotator-visible
+  view (only schema_version, opaque_id, context, report, artifacts, claims + a
+  note). Regenerate with `scripts/export_card_inputs.py`; never edit by hand.
+- `v0.1/<id>/input.md` — the **generated** human-readable view of the same data,
+  rendered ONLY from input.json (never from the card): title `Case <opaque_id>`,
+  sections Context (each P item with its id and kind in plain words), Report
+  (fenced block, line ids `R01…`), Artifacts (E ids with origin), Claims (C ids,
+  statement, report refs), and a short footer on how to fill
+  `owner-judgment.yaml` listing the allowed values neutrally in fixed order.
+  Regenerate with `scripts/export_card_inputs.py` (covered by `--check`);
+  never edit by hand. Never contains the card title, scenario id, review,
+  provenance or answer material.
 - `v0.1/<id>/card.yaml` — the full card (answer key). NOT in stage 1's tree
   yet; see workflow below. Sealed answer keys live outside tracked paths.
 - `v0.1/<id>/owner-judgment.template.yaml` — the **generated** per-card blind
@@ -33,15 +42,20 @@ panel) only opens if there is external interest.
 
 Every card exists in two views generated from one source card.yaml:
 
-1. `input.json` — the annotator/owner-visible view: neutral claim inventory
-   (no target status, no failure-mode name, no quality hints), report lines
-   (`R01…`), evidence artifacts (`E1…`), context items (`P1…` with kind in
-   `setting` / `stipulated_fact` / `program_policy` / `assistant_role`).
-2. the full card — adds `review` (failure modes, claim–evidence map, next
+1. `input.json` — the machine view: the neutral claim inventory (no target
+   status, no failure-mode name, no quality hints), report lines (`R01…`),
+   evidence artifacts (`E1…`), context items (`P1…` with kind in `setting` /
+   `stipulated_fact` / `program_policy` / `assistant_role`).
+2. `input.md` — the human-readable view, rendered only from `input.json`:
+   title `Case <opaque_id>`, the same content in readable form plus a short
+   footer explaining how to fill `owner-judgment.yaml`.
+3. the full card — adds `review` (failure modes, claim–evidence map, next
    action, counterconditions, confidence) and `provenance`.
 
 A leak test (`tests/unit/test_case_cards.py`) enforces that committed
-`input.json` files contain no answer-bearing keys or identifiers.
+`input.json` and `input.md` files contain no answer-bearing keys or
+identifiers, and that `input.md` never contains the sealed card title or
+scenario id.
 
 ## K1 action vocabulary
 
@@ -63,7 +77,9 @@ A card does not return accept/reject. It recommends the next **human** step:
 
 ## Owner-judgment workflow (blind)
 
-1. The owner sees **only** `input.json` (plus this README and the template).
+1. The owner sees **only** `input.md` — the human-readable view generated from
+   `input.json`, which remains the machine view (plus this README and the
+   template).
 2. The owner fills `cards/v0.1/<id>/owner-judgment.yaml`: one action (same
    enum) for the card as a whole, the claim ids that action is about
    (`action_claim_ids`, optional), an ordinal confidence, and a one-line

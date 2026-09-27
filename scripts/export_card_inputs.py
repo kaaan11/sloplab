@@ -13,9 +13,19 @@ and one-line rationale, per-claim status entries for exactly that card's claim
 ids, empty answer values and a neutral comment header. The owner copies it to
 ``owner-judgment.yaml`` and fills it in.
 
+For each card the script also writes ``<out>/<card_id>/input.md`` -- a
+human-readable rendering of the SAME annotator-visible data, generated only
+from the exported view mapping (never from the card): the title is always
+``Case <opaque_id>``; sections Context / Report / Artifacts / Claims list each
+input item with its id and neutral descriptor, and a short footer explains how
+to fill owner-judgment.yaml listing the allowed values neutrally in fixed
+order. No identity, review, provenance or answer-bearing material ever appears.
+
 Output is deterministic: fixed key order, 2-space indent, ensure_ascii=False,
-UTF-8 bytes, trailing newline. With ``--check``, existing input.json files are
-regenerated in memory and byte-compared; any mismatch fails with exit code 1.
+UTF-8 bytes, trailing newline (markdown likewise ends with exactly one
+newline). With ``--check``, existing input.json, input.md and template files
+are regenerated in memory and byte-compared; any mismatch fails with exit
+code 1.
 
 A malformed card is reported as a single clean line on stderr (no traceback)
 and makes the run exit with code 2.
@@ -42,7 +52,21 @@ VISIBLE_VIEW_NOTE = (
 
 TEMPLATE_NAME = "owner-judgment.template.yaml"
 
+INPUT_MD_NAME = "input.md"
+
 CLAIM_ID_RE = re.compile(r"^C[0-9]{1,2}$")
+
+KIND_WORDS: dict[str, str] = {
+    "setting": "setting",
+    "stipulated_fact": "stipulated fact",
+    "program_policy": "program policy",
+    "assistant_role": "assistant role",
+}
+
+CONTEXT_HEADING = "## Context"
+REPORT_HEADING = "## Report"
+ARTIFACTS_HEADING = "## Artifacts"
+CLAIMS_HEADING = "## Claims"
 
 # Neutral, identical for every card: enum values only, in schema order, no
 # defaults, no per-card hints.
@@ -73,6 +97,55 @@ def _claim_ids(card: dict) -> list[str]:
             raise ValueError(f"claim {index} has a missing or malformed id: {claim_id!r}")
         ids.append(claim_id)
     return ids
+
+
+def _escape_backticks(text: str) -> str:
+    """Neutralize markdown fences/backticks so rendered blocks stay well-formed."""
+    return text.replace("```", "▁▁▁").replace("`", "▁")
+
+
+def build_input_markdown(view: dict) -> bytes:
+    """Render the human-readable input view (deterministic, view-only)."""
+    lines: list[str] = [
+        f"# Case {view['opaque_id']}",
+        "",
+        CONTEXT_HEADING,
+        "",
+    ]
+    for item in view["context"]:
+        lines.append(f"- {item['id']} ({KIND_WORDS[item['kind']]}): {item['text']}")
+    lines.extend(["", REPORT_HEADING, "", "```text"])
+    for line in view["report"]:
+        lines.append(f"{line['id']}: {_escape_backticks(line['text'])}")
+    lines.extend(["```", "", ARTIFACTS_HEADING, ""])
+    for artifact in view["artifacts"]:
+        lines.append(
+            f"{artifact['id']}: ({artifact['origin']}) {_escape_backticks(artifact['text'])}"
+        )
+    lines.extend(["", CLAIMS_HEADING, ""])
+    for claim in view["claims"]:
+        refs = ", ".join(f"`{ref}`" for ref in claim["report_refs"])
+        lines.append(f"{claim['id']}: {_escape_backticks(claim['statement'])}")
+        lines.append(f"  report refs: {refs}")
+    lines.extend(
+        [
+            "",
+            (
+                "## How to record your judgment\n\n"
+                "Before looking at any answer key, copy "
+                "`owner-judgment.template.yaml` in this directory to "
+                "`owner-judgment.yaml` and fill it in for this card:\n"
+                "- one `action` for the card as a whole (verify / "
+                "request_specific_information / likely_out_of_scope)\n"
+                "- optionally the `action_claim_ids` the action is about\n"
+                "- one `confidence` (low / medium / high)\n"
+                "- one short single-line `rationale`\n"
+                "- for every claim listed above one `status`: supported / "
+                "missing / contradictory\n"
+            ),
+        ]
+    )
+    return ("\n".join(lines) + "\n").encode("utf-8")
 
 
 def build_template(card_id: str, claim_ids: list[str]) -> bytes:
@@ -133,7 +206,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--check",
         action="store_true",
-        help="verify existing input.json files match regeneration instead of writing",
+        help=(
+            "verify existing input.json, input.md and template files match "
+            "regeneration instead of writing"
+        ),
     )
     args = parser.parse_args(argv)
 
@@ -145,6 +221,7 @@ def main(argv: list[str] | None = None) -> int:
             card_id = card["card_id"]
             view = export_view(card)
             data = serialize_view(view)
+            markdown_data = build_input_markdown(view)
             template_data = build_template(card_id, _claim_ids(card))
         except Exception as exc:  # noqa: BLE001 - CLI boundary, report cleanly
             message = " ".join(str(exc).split())
@@ -152,10 +229,12 @@ def main(argv: list[str] | None = None) -> int:
             malformed = True
             continue
         out_path = args.out / card_id / "input.json"
+        markdown_path = args.out / card_id / INPUT_MD_NAME
         template_path = args.out / card_id / TEMPLATE_NAME
         if args.check:
             for path, data_bytes in (
                 (out_path, data),
+                (markdown_path, markdown_data),
                 (template_path, template_data),
             ):
                 if not path.exists():
@@ -171,6 +250,8 @@ def main(argv: list[str] | None = None) -> int:
             out_path.parent.mkdir(parents=True, exist_ok=True)
             out_path.write_bytes(data)
             print(f"WROTE {out_path} sha256={hashlib.sha256(data).hexdigest()}")
+            markdown_path.write_bytes(markdown_data)
+            print(f"WROTE {markdown_path} sha256={hashlib.sha256(markdown_data).hexdigest()}")
             template_path.write_bytes(template_data)
             print(f"WROTE {template_path} sha256={hashlib.sha256(template_data).hexdigest()}")
     if malformed:

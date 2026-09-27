@@ -23,6 +23,7 @@ SEALED_DIR = REPO_ROOT / ".scratch" / "sealed"
 SCHEMA_PATH = CARDS_DIR / "schema" / "case-card-v0.1.schema.json"
 
 COMMITTED_INPUTS = sorted((CARDS_DIR / "v0.1").glob("c*/input.json"))
+COMMITTED_INPUT_MDS = sorted((CARDS_DIR / "v0.1").glob("c*/input.md"))
 SEALED_CARD_PATHS = sorted(SEALED_DIR.glob("*/card.yaml")) if SEALED_DIR.is_dir() else []
 
 ANSWER_BEARING_KEYS = frozenset(
@@ -302,6 +303,124 @@ def test_committed_inputs_have_no_leaks() -> None:
         assert leak_violations(data) == [], f"{path}: {leak_violations(data)}"
 
 
+def _split_markdown_footer(text: str) -> tuple[str, str]:
+    """Split an input.md into (input view, judgment footer) at the footer heading."""
+    marker = "## How to record your judgment"
+    assert marker in text, "footer heading missing"
+    head, _, footer = text.partition(marker)
+    return head, footer
+
+
+def _markdown_leak_violations(text: str) -> list[str]:
+    """Return every leak found in an exported input.md (empty = clean).
+
+    The fixed judgment footer legitimately names the neutral action/status
+    enums (in schema order, identical on every card); the *input view* above
+    the footer must never contain them. The footer is checked separately for
+    neutrality (enum order, no per-card hints).
+    """
+    head, footer = _split_markdown_footer(text)
+    violations: list[str] = []
+    for pattern in TOKEN_PATTERNS:
+        if pattern.search(head):
+            violations.append(f"leak token in input view: {pattern.pattern}")
+    for operator_name in list_operators():
+        if operator_name in head:
+            violations.append(f"leak operator name in input view: {operator_name}")
+    for key in sorted(ANSWER_BEARING_KEYS):
+        if re.search(rf"(?m)^#+ {re.escape(key)}\b", head) or re.search(
+            rf"(?m)^#+ {re.escape(key)}\b", footer
+        ):
+            violations.append(f"answer-bearing heading: {key}")
+    return violations
+
+
+def test_committed_input_md_have_no_leaks() -> None:
+    """input.md is derived only from input.json; it must carry no answer material."""
+    assert COMMITTED_INPUT_MDS, "expected committed input.md views"
+    for path in COMMITTED_INPUT_MDS:
+        text = path.read_text(encoding="utf-8")
+        assert _markdown_leak_violations(text) == [], f"{path}: {_markdown_leak_violations(text)}"
+
+
+def test_committed_input_md_title_is_opaque_id_only() -> None:
+    """The heading is 'Case <opaque_id>'; never the sealed card title or scenario id."""
+    for path in COMMITTED_INPUT_MDS:
+        text = path.read_text(encoding="utf-8")
+        opaque_id = json.loads((path.parent / "input.json").read_text(encoding="utf-8"))[
+            "opaque_id"
+        ]
+        assert f"# Case {opaque_id}" in text, path
+        if SEALED_CARD_PATHS:
+            sealed = {
+                line.split(": ", 1)[1]
+                for card_path in SEALED_CARD_PATHS
+                for line in card_path.read_text(encoding="utf-8").splitlines()
+                if line.startswith(("title: ", "scenario_id: "))
+            }
+            for forbidden in sealed:
+                assert forbidden not in text, f"{path}: sealed identity leaked: {forbidden!r}"
+
+
+@pytest.mark.parametrize(
+    "injected_snippet",
+    [
+        pytest.param("Action: likely_out_of_scope", id="action-identifier-injected"),
+        pytest.param("finding ref R1-001", id="finding-ref-injected"),
+        pytest.param("failure mode FM07", id="failure-mode-id-injected"),
+        pytest.param("mutation: impact_inflation", id="operator-name-injected"),
+        pytest.param("## review", id="review-heading-injected"),
+        pytest.param("## provenance", id="provenance-heading-injected"),
+        pytest.param("## next_action", id="next-action-heading-injected"),
+        pytest.param("## counterconditions", id="counterconditions-heading-injected"),
+        pytest.param("## claim_evidence_map", id="claim-evidence-map-heading-injected"),
+        pytest.param(
+            "R2-100: synthetic attack line with finding_refs to R2",
+            id="r2-ref-injected",
+        ),
+        pytest.param("verify the FM07 finding via R1-001", id="verify-token-injected"),
+        pytest.param(
+            "Escalate to request_specific_information with FM03",
+            id="footer-token-in-view-injected",
+        ),
+        pytest.param("## title", id="title-heading-injected"),
+        pytest.param("## scenario_id", id="scenario-id-heading-injected"),
+        pytest.param("## card_id", id="card-id-heading-injected"),
+    ],
+)
+def test_injected_input_md_is_red(injected_snippet: str, tmp_path: Path) -> None:
+    """The markdown leak check must catch every injected answer token or heading."""
+    assert COMMITTED_INPUT_MDS, "expected committed input.md views"
+    committed_text = COMMITTED_INPUT_MDS[0].read_text(encoding="utf-8")
+    marker = "## How to record your judgment"
+    head, _, footer = committed_text.partition(marker)
+    tampered_head = head + f"\n{injected_snippet}\n"
+    tampered_text = tampered_head + marker + footer
+    violations = _markdown_leak_violations(tampered_text)
+    assert violations, f"injection was not detected: {injected_snippet!r}"
+
+
+def test_input_md_judgment_footer_is_neutral_and_identical() -> None:
+    """Every card's footer lists the allowed values neutrally, in fixed order."""
+    footers: list[str] = []
+    for path in COMMITTED_INPUT_MDS:
+        text = path.read_text(encoding="utf-8")
+        _, footer = _split_markdown_footer(text)
+        footers.append(footer)
+    assert len(set(footers)) == 1, "judgment footers differ between cards"
+    footer = footers[0]
+    order = [
+        footer.index("verify"),
+        footer.index("request_specific_information"),
+        footer.index("likely_out_of_scope"),
+        footer.index("low / medium / high"),
+        footer.index("supported / missing / contradictory"),
+    ]
+    assert order == sorted(order), f"footer enum order not fixed: {footer}"
+    for operator_name in list_operators():
+        assert operator_name not in footer, operator_name
+
+
 class TestExportDeterminism:
     def test_export_check_mode_matches_committed_bytes(self) -> None:
         card_paths: list[Path] = []
@@ -329,8 +448,137 @@ class TestExportDeterminism:
         )
         assert proc.returncode == 0, proc.stdout + proc.stderr
         assert "CHECK FAIL" not in proc.stdout + proc.stderr
-        assert proc.stdout.count("CHECK OK") == 2 * len(card_paths)
+        assert proc.stdout.count("CHECK OK") == 3 * len(card_paths)
         assert proc.stdout.count("owner-judgment.template.yaml") == len(card_paths)
+        assert proc.stdout.count("input.md") == len(card_paths)
+
+    def test_check_mode_detects_tampered_input_md(self, tmp_path: Path) -> None:
+        """--check must also fail when a committed input.md was edited."""
+        card = SEALED_DIR / "c01" / "card.yaml"
+        if not card.exists():
+            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        out = tmp_path / "out"
+        first = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(card),
+                "--out",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert first.returncode == 0, first.stdout + first.stderr
+        tampered = out / "c01" / "input.md"
+        assert tampered.exists(), tampered
+        tampered.write_text(tampered.read_text(encoding="utf-8") + "\n<!-- stray -->\n", "utf-8")
+        second = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(card),
+                "--out",
+                str(out),
+                "--check",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert second.returncode == 1, second.stdout + second.stderr
+        assert "input.md" in second.stderr
+        assert "CHECK FAIL" in second.stderr
+
+    def test_input_md_content_is_derived_only_from_input_json(self, tmp_path: Path) -> None:
+        """input.md regenerates byte-identically; the export never rewrites input.json."""
+        card = SEALED_DIR / "c01" / "card.yaml"
+        if not card.exists():
+            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        out = tmp_path / "out"
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                str(card),
+                "--out",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        generated = (out / "c01" / "input.md").read_bytes()
+        committed = (CARDS_DIR / "v0.1" / "c01" / "input.md").read_bytes()
+        assert generated == committed, "committed input.md does not match regeneration"
+
+    def test_input_md_structure_matches_spec(self) -> None:
+        """input.md renders exactly the sections the blind-review contract requires."""
+        assert COMMITTED_INPUT_MDS, "expected committed input.md views"
+        for path in COMMITTED_INPUT_MDS:
+            text = path.read_text(encoding="utf-8")
+            view = json.loads((path.parent / "input.json").read_text(encoding="utf-8"))
+            assert text.startswith(f"# Case {view['opaque_id']}\n\n"), path
+            for heading in ("## Context", "## Report", "## Artifacts", "## Claims"):
+                assert f"\n{heading}\n" in text, (path, heading)
+            for item in view["context"]:
+                assert f"- {item['id']} (" in text, (path, item["id"])
+            for line in view["report"]:
+                assert f"{line['id']}: " in text, (path, line["id"])
+            for artifact in view["artifacts"]:
+                assert f"{artifact['id']}: ({artifact['origin']}) " in text, (
+                    path,
+                    artifact["id"],
+                )
+            for claim in view["claims"]:
+                assert f"{claim['id']}:" in text, (path, claim["id"])
+                for ref in claim["report_refs"]:
+                    assert f"`{ref}`" in text, (path, ref)
+            assert "owner-judgment.yaml" in text, path
+            assert text.endswith("\n"), path
+
+    def test_input_md_kind_words_are_fixed(self) -> None:
+        """Context kinds render as fixed plain words, identically for every card."""
+        word_for_kind = {
+            "setting": "setting",
+            "stipulated_fact": "stipulated fact",
+            "program_policy": "program policy",
+            "assistant_role": "assistant role",
+        }
+        for path in COMMITTED_INPUT_MDS:
+            view = json.loads((path.parent / "input.json").read_text(encoding="utf-8"))
+            text = path.read_text(encoding="utf-8")
+            for item in view["context"]:
+                assert f"- {item['id']} ({word_for_kind[item['kind']]}): " in text, (
+                    path,
+                    item["id"],
+                )
+
+    def test_input_md_is_deterministic(self, tmp_path: Path) -> None:
+        """Two export runs produce byte-identical input.md files."""
+        card = SEALED_DIR / "c01" / "card.yaml"
+        if not card.exists():
+            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        out_a, out_b = tmp_path / "a", tmp_path / "b"
+        for out in (out_a, out_b):
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    str(REPO_ROOT / "scripts" / "export_card_inputs.py"),
+                    str(card),
+                    "--out",
+                    str(out),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            assert proc.returncode == 0, proc.stdout + proc.stderr
+        assert (out_a / "c01" / "input.md").read_bytes() == (
+            out_b / "c01" / "input.md"
+        ).read_bytes()
 
     def test_check_mode_detects_tampered_template(self, tmp_path: Path) -> None:
         """--check must also fail when a committed template was edited."""
@@ -403,12 +651,18 @@ class TestExportErrorHandling:
             "card_id: first-card\n"
             "input:\n"
             "  opaque_id: case-test-001\n"
-            "  context: []\n"
-            "  report: []\n"
+            "  context:\n"
+            "  - id: P1\n"
+            "    kind: setting\n"
+            "    text: Setting.\n"
+            "  report:\n"
+            "  - id: R01\n"
+            "    text: Line one.\n"
             "  artifacts: []\n"
             "  claims:\n"
             "  - id: C1\n"
-            "    statement: A claim.\n",
+            "    statement: A claim.\n"
+            "    report_refs: [R01]\n",
             encoding="utf-8",
         )
         second = tmp_path / "second-card.yaml"
