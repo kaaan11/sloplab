@@ -121,9 +121,11 @@ Canonical decision accuracy is computed over scored canonical cases only; derive
 case accuracy does not enter that 15% component. Missing components are reweighted
 by their available mass. Primary results are always the per-metric values above;
 never cite the auxiliary score alone. Caveat (#45): the auxiliary score is
-*not blind-policy safe*. On the v0.2 study population a policy that always
-answers `needs_manual_review` scores 0.831 (rules-baseline 0.839), so this
-score must not be used to rank evaluators; reproduce with
+*not blind-policy safe*. On the committed v1-core corpus a policy that always
+answers `needs_manual_review` reaches 0.739 (rules-baseline 0.839): the gap
+between a genuinely discriminating evaluator and a blind one is only ten
+points, so this
+score must not be used to rank evaluators. Reproduce all values with
 `uv run python scripts/blind_policy_compare.py`.
 
 ## Protocol
