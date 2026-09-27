@@ -186,6 +186,19 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
 
+    @pytest.mark.parametrize("wrapper", ['"', "“", "("])
+    def test_quoted_or_parenthesized_leading_if_is_conditional(self, wrapper: str) -> None:
+        closing = ")" if wrapper == "(" else ('”' if wrapper == "“" else '"')
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"{wrapper}If legacy mode is enabled, no security boundary applies.{closing}",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     def test_conditional_negation_does_not_mask_unconditional_negation(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -395,6 +408,30 @@ class TestCanonicalHandling:
         codes = {f.code for f in result.findings}
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    @pytest.mark.parametrize("dash", ["—", "--"])
+    def test_dash_introduced_postfix_condition_qualifies_denial(self, dash: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"No security boundary applies {dash} if the plugin is disabled.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    @pytest.mark.parametrize("dash", ["—", "--"])
+    def test_dash_with_unrelated_prose_stays_a_barrier(self, dash: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"No security boundary applies {dash} contact support if this is unexpected.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
 
     def test_no_boundary_report_rejected(self) -> None:
         result = evaluate(INVALID_BODY)
