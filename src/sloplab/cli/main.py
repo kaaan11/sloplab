@@ -617,13 +617,16 @@ def _write_comparison_markdown(
 @click.argument("results", nargs=-1, required=True, type=click.Path(exists=True, path_type=str))
 def compare(results: tuple[str, ...]) -> None:
     """Compare metric summaries from two or more result files."""
+    import hashlib
     import json
+    import os
     from pathlib import Path as _Path
 
     if len(results) < 1:
         raise click.ClickException("compare needs at least one result file or directory")
 
-    summaries: dict[str, dict[str, Any]] = {}
+    summaries: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+    seen_sources: set[Path] = set()
     for result_path in results:
         path = _Path(result_path)
         try:
@@ -636,6 +639,13 @@ def compare(results: tuple[str, ...]) -> None:
                 err=True,
             )
         metrics_dir = path.parent if path.name == "run.jsonl" else path
+        source_id = metrics_dir.resolve()
+        if source_id in seen_sources:
+            raise click.ClickException(f"duplicate compare input: {metrics_dir}")
+        seen_sources.add(source_id)
+        source_token = hashlib.sha256(os.fsencode(source_id)).hexdigest()[:8]
+        source_key = str(source_id)
+        source_label = os.fsencode(metrics_dir.name).decode("utf-8", errors="backslashreplace")
         versioned = sorted(metrics_dir.glob("analysis-v*.json"))
         if len(versioned) > 1:
             raise click.ClickException(
@@ -651,13 +661,19 @@ def compare(results: tuple[str, ...]) -> None:
             except AnalysisError as exc:
                 raise click.ClickException(str(exc)) from exc
             for name in document.get("evaluators", []):
-                summaries[f"{name} ({metrics_dir.name})"] = document["bundles"][name]
+                summaries[(source_key, name)] = (
+                    f"{source_token}:{name} ({source_label})",
+                    document["bundles"][name],
+                )
             continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
             data = json.loads(mfile.read_text())
             name = data.get("evaluator_name", mfile.stem)
-            summaries[f"{name} ({mfile.parent.name})"] = data
+            summaries[(source_key, name)] = (
+                f"{source_token}:{name} ({source_label})",
+                data,
+            )
 
     if not summaries:
         raise click.ClickException(f"no metrics-*.json files found for {results}")
@@ -672,14 +688,16 @@ def compare(results: tuple[str, ...]) -> None:
         ("calibration_error", "calibration error (lower=better)"),
         ("robustness_score", "aux robustness score"),
     ]
-    header = f"{'metric':<38}" + "".join(f"{n[:28]:>30}" for n in summaries)
+    labels = [display for display, _data in summaries.values()]
+    column_width = max(30, *(len(label) + 2 for label in labels))
+    header = f"{'metric':<38}" + "".join(f"{label:>{column_width}}" for label in labels)
     click.echo(header)
     click.echo("-" * len(header))
     for key, label in keys:
         row = f"{label:<38}"
-        for name in summaries:
-            value = summaries[name].get(key)
-            row += f"{('n/a' if value is None else format(value, '.3f')):>30}"
+        for _identity, (_display, data) in summaries.items():
+            value = data.get(key)
+            row += f"{('n/a' if value is None else format(value, '.3f')):>{column_width}}"
         click.echo(row)
 
 
