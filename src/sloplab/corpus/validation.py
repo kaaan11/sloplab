@@ -113,6 +113,12 @@ def validate_identity_links(
     # derived fixture/subtree has no canonical namespace in the validation
     # scope, so it cannot prove or disprove parent existence here.
     if not canonical:
+        if derived:
+            result.warn(
+                "corpus",
+                f"parent links not checked: no canonical fixtures in validation "
+                f"scope ({len(derived)} derived fixtures)",
+            )
         return
 
     canonical_ids = set(seen_canonical)

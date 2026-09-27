@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
+import yaml
+from click.testing import CliRunner
+
+from sloplab.cli.main import cli
 from sloplab.corpus.loader import CanonicalFixture, DerivedFixture, discover_fixtures
 from sloplab.corpus.validation import validate_corpus
 from sloplab.models.enums import Decision, MutationCategory
@@ -120,3 +125,63 @@ def test_derived_only_scope_does_not_claim_parent_is_orphan(tmp_path: Path) -> N
     result = validate_corpus([], [standalone], corpus_root=standalone.directory)
 
     assert not any("does not reference" in issue.message for issue in result.errors)
+    assert result.errors == []
+    assert len(result.warnings) == 1
+    assert "parent links not checked" in result.warnings[0].message
+    assert "1 derived fixtures" in result.warnings[0].message
+
+
+def _write_derived_on_disk(
+    root: Path,
+    source: CanonicalFixture,
+    *,
+    parent_id: str,
+    case_id: str = "mut-identity-standalone-000",
+) -> Path:
+    """Write one derived case directory under ``root/adversarial/<case_id>``."""
+    case_dir = root / "adversarial" / case_id
+    case_dir.mkdir(parents=True, exist_ok=True)
+    manifest = MutationManifest(
+        id=case_id,
+        parent_id=parent_id,
+        operator="identity-test",
+        category=MutationCategory.NOISE,
+        seed=1,
+        variant_index=0,
+        base_seed=1,
+        expected_decision=Decision.ACCEPT,
+        generator_version="test",
+        report=ReportRef(path=f"adversarial/{case_id}/report.md"),
+    )
+    (case_dir / "report.md").write_text(source.report.raw_text, encoding="utf-8")
+    (case_dir / "mutation-manifest.yaml").write_text(
+        yaml.safe_dump(manifest.model_dump(mode="json"), sort_keys=False),
+        encoding="utf-8",
+    )
+    return case_dir
+
+
+def test_validate_cli_derived_only_scope_warns_but_exits_zero(tmp_path: Path) -> None:
+    corpus, canonical = _canonical_pair(tmp_path)
+    _write_derived_on_disk(
+        corpus,
+        canonical[0],
+        parent_id=canonical[0].manifest.id,
+    )
+    shutil.rmtree(corpus / "canonical")
+
+    result = CliRunner().invoke(cli, ["validate", str(corpus)])
+
+    assert result.exit_code == 0, result.output
+    assert "parent links not checked" in result.output
+    assert "1 derived fixtures" in result.output
+
+
+def test_validate_full_committed_corpus_has_no_errors_or_warnings() -> None:
+    root = Path(__file__).resolve().parents[2] / "corpus"
+    canonical, derived = discover_fixtures(root)
+
+    result = validate_corpus(canonical, derived, corpus_root=root)
+
+    assert result.errors == []
+    assert result.warnings == []
