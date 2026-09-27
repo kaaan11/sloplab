@@ -148,6 +148,12 @@ _PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
     r"^\s*(?:(?:only|even|especially)\s+)?$",
     re.IGNORECASE,
 )
+_CONDITION_INTRO_PREFIX_RE = re.compile(
+    r"^(?:depending(?:\s+directly|\s+entirely)?\s+(?:on|upon)|"
+    r"(?:it\s+)?depend(?:s)?\s+(?:on|upon)|based\s+(?:on|upon)|"
+    r"contingent\s+(?:on|upon)|subject\s+to)$",
+    re.IGNORECASE,
+)
 _CLAUSE_START_RE = re.compile(
     rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
     rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))"
@@ -181,6 +187,8 @@ def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
     prefix = _MARKDOWN_CLAUSE_PREFIX_RE.sub("", prefix_raw).strip().casefold()
     if prefix in {"", "and", "but", "or", "only", "even", "especially"}:
         return True
+    if _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix):
+        return True
     parts = prefix.split()
     return (
         len(parts) == 2
@@ -206,6 +214,28 @@ def _has_sentence_break(text: str) -> bool:
     """True when text contains a real sentence or clause boundary."""
     for boundary in _SENTENCE_BREAK_RE.finditer(text):
         if boundary.group(0) == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
+            following = text[boundary.end() :]
+            if not _starts_sentence_after_initialism(following):
+                continue
+        return True
+    return False
+
+
+def _has_leading_condition_barrier(text: str) -> bool:
+    """Sentence barrier between a leading condition marker and its denial.
+
+    A final em dash / double dash directly introducing the denial is punctuation
+    inside the conditional construction, not a separate clause. Earlier dashes
+    or any other sentence break remain barriers.
+    """
+    boundaries = list(_SENTENCE_BREAK_RE.finditer(text))
+    for boundary in boundaries:
+        token = boundary.group(0)
+        if token in {"--", "—"}:
+            trailing = text[boundary.end() :]
+            if re.fullmatch(rf"\s*{_SENTENCE_MARKDOWN_PREFIX}\s*", trailing):
+                continue
+        if token == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
             following = text[boundary.end() :]
             if not _starts_sentence_after_initialism(following):
                 continue
@@ -263,8 +293,8 @@ def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
         if marker.start() < match_rel:
             if not _marker_starts_clause(paragraph, marker.start()):
                 continue
-            between = paragraph[marker.end() : min(len(paragraph), match_end_rel)]
-            if not _has_sentence_break(between):
+            before_denial = paragraph[marker.end() : match_rel]
+            if not _has_leading_condition_barrier(before_denial):
                 return True
             continue
 
