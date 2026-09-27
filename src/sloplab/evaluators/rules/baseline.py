@@ -73,14 +73,15 @@ _INFLATION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 
+_NO_BOUNDARY_CLAUSE = r"(?:(?!\n[ \t]*\n)[^.?!])*"
 _NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     re.compile(p, re.IGNORECASE)
     for p in (
         r"no security boundary",
         r"does not identify one",
-        r"no boundary [^.?!\n]*crossed",
+        rf"no boundary {_NO_BOUNDARY_CLAUSE}crossed",
         r"identifies none",
-        r"no boundary between [^.?!\n]+ is crossed",
+        rf"no boundary between {_NO_BOUNDARY_CLAUSE}is crossed",
         r"intended behavior",
         r"product preference",
         r"hardening (opportunity|suggestion)",
