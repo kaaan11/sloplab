@@ -152,6 +152,18 @@ class TestCanonicalHandling:
         assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
         assert "NO_SECURITY_BOUNDARY_STATED" not in codes
 
+    @pytest.mark.parametrize("joiner", [" then ", ": ", " — ", " -- "])
+    def test_initialism_noncomma_continuation_stays_conditional(self, joiner: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"If the U.S. Government profile is enabled{joiner}no security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
     def test_generic_subject_after_sentence_final_initialism_breaks_condition(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -333,6 +345,18 @@ class TestCanonicalHandling:
         assert "NO_SECURITY_BOUNDARY_STATED" in codes
         assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
 
+    @pytest.mark.parametrize("prefix", ["- ", "> ", "1. "])
+    def test_markdown_item_transition_breaks_leading_condition(self, prefix: str) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            f"- If legacy mode is enabled, contact support\n{prefix}No security boundary applies.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.REJECT
+        codes = {f.code for f in result.findings}
+        assert "NO_SECURITY_BOUNDARY_STATED" in codes
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" not in codes
+
     def test_sentence_break_before_closing_quote_is_preserved(self) -> None:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
@@ -491,6 +515,17 @@ class TestCanonicalHandling:
         text = VALID_BODY.replace(
             "Cross-tenant object reads must require tenant-scoped authorization.",
             "No security boundary applies if the feature is disabled.",
+        )
+        result = evaluate(text)
+        assert result.decision == Decision.NEEDS_MANUAL_REVIEW
+        codes = {f.code for f in result.findings}
+        assert "CONDITIONAL_BOUNDARY_STATEMENT" in codes
+        assert "NO_SECURITY_BOUNDARY_STATED" not in codes
+
+    def test_applies_to_scope_if_is_a_postfix_conditional_denial(self) -> None:
+        text = VALID_BODY.replace(
+            "Cross-tenant object reads must require tenant-scoped authorization.",
+            "No security boundary applies to guest users if guest mode is enabled.",
         )
         result = evaluate(text)
         assert result.decision == Decision.NEEDS_MANUAL_REVIEW
