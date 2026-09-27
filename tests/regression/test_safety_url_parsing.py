@@ -159,6 +159,12 @@ def test_control_run_before_delimiter_authority_continuation_is_rejected() -> No
     assert validate_content_safety(url)
 
 
+def test_delimiter_before_control_authority_continuation_is_rejected() -> None:
+    url = "http://localhost'\tattacker.com/x"
+    assert find_unsafe_urls(url) == [url]
+    assert validate_content_safety(url)
+
+
 def test_long_delimiter_run_before_hostname_continuation_is_rejected() -> None:
     url = "http://localhost" + ("'" * 12_000) + "attacker.com/x"
     assert find_unsafe_urls(url) == [url]
