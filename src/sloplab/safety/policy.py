@@ -108,9 +108,29 @@ def _authority_control_run(text: str, start: int) -> tuple[bool, int]:
     segment = text[cursor:end]
     if not segment:
         return False, cursor
-    if end < len(text) and text[end] in "/?#":
-        return True, cursor
-    return ("." in segment or "@" in segment or ":" in segment), cursor
+    # Any contiguous non-delimiter text can extend the authority after a
+    # browser-normalized TAB/CR/LF run (for example localhost\nattacker).
+    # Keep it in the candidate and fail closed rather than approving a safe
+    # prefix. Markdown headings/path/query/fragment delimiters were rejected
+    # above and remain prose/URL boundaries.
+    return True, cursor
+
+
+def _stop_char_is_prose_boundary(text: str, index: int) -> bool:
+    """Whether a quote/bracket-like stop char actually ends surrounding prose.
+
+    A delimiter followed by authority-like text, including an at-sign, can be
+    part of a browser-parsed host/userinfo token and must stay in the candidate
+    so validation fails closed. At end-of-text, before whitespace, or before
+    ordinary trailing punctuation it is treated as a prose wrapper boundary.
+    """
+    next_index = index + 1
+    if next_index >= len(text):
+        return True
+    next_char = text[next_index]
+    if next_char.isspace():
+        return True
+    return next_char in ".,;!?*_~"
 
 
 def is_reserved_host(host: str) -> bool:
@@ -157,7 +177,8 @@ def _iter_url_tokens(text: str) -> Iterator[str]:
                 continue
             in_userinfo = userinfo_separator is not None and scan < userinfo_separator
             if char in _URL_STOP_CHARS and (authority_done or not in_userinfo):
-                break
+                if _stop_char_is_prose_boundary(text, scan):
+                    break
             if char == "[":
                 if not in_userinfo:
                     bracket_depth += 1
