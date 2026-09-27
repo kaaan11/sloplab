@@ -20,6 +20,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from sloplab.path_boundary import PathBoundaryError, resolve_within_root
+
 #: Envelope version of the versioned analysis document itself. Version 2
 #: adds the outcomes binding and the planned/not_run selection coverage;
 #: schema-1 documents are refused (recompute, do not reuse).
@@ -236,8 +238,13 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
         raise AnalysisError(f"{bundle_dir}: versioned analysis requires a complete bundle")
 
     records_name = document.get("records_path")
-    records_path = bundle_dir / records_name if isinstance(records_name, str) else None
-    if records_path is None or not records_path.is_file():
+    if not isinstance(records_name, str) or not records_name:
+        raise AnalysisError(f"{analysis_path}: bound records path is malformed")
+    try:
+        records_path = resolve_within_root(bundle_dir, records_name, label="analysis records_path")
+    except PathBoundaryError as exc:
+        raise AnalysisError(f"{analysis_path}: {exc}") from exc
+    if not records_path.is_file():
         raise AnalysisError(f"{analysis_path}: bound records file {records_name!r} missing")
     if _sha256_file(records_path) != document.get("records_sha256"):
         raise AnalysisError(
@@ -250,9 +257,18 @@ def read_versioned_analysis(analysis_path: Path) -> dict[str, Any]:
     outcomes_binding = document.get("outcomes")
     if not isinstance(outcomes_binding, dict) or "present" not in outcomes_binding:
         raise AnalysisError(f"{analysis_path}: outcomes binding malformed")
-    outcomes_path = bundle_dir / outcomes_binding["path"] if outcomes_binding.get("path") else None
+    outcomes_path: Path | None = None
     if outcomes_binding["present"]:
-        if outcomes_path is None or not outcomes_path.is_file():
+        outcomes_name = outcomes_binding.get("path")
+        if not isinstance(outcomes_name, str) or not outcomes_name:
+            raise AnalysisError(f"{analysis_path}: bound outcomes path is malformed")
+        try:
+            outcomes_path = resolve_within_root(
+                bundle_dir, outcomes_name, label="analysis outcomes path"
+            )
+        except PathBoundaryError as exc:
+            raise AnalysisError(f"{analysis_path}: {exc}") from exc
+        if not outcomes_path.is_file():
             raise AnalysisError(f"{analysis_path}: bound outcomes file missing")
         if _sha256_file(outcomes_path) != outcomes_binding.get("sha256"):
             raise AnalysisError(f"{analysis_path}: outcomes hash mismatch (stale cache)")
