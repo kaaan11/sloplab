@@ -485,6 +485,10 @@ def test_oversized_wait_is_terminal_without_hanging(
     assert all(o["status"] == "not_run" and o["reason"] == "deadline_exceeded" for o in outcomes2)
     manifest2 = json.loads(result2.manifest_path.read_text(encoding="utf-8"))
     assert manifest2["not_run"] == 2
+    assert result2.skipped_by_budget == 0
+    assert result2.skipped_by_deadline == 2
+    assert manifest2["skipped_by_budget"] == 0
+    assert manifest2["skipped_by_deadline"] == 2
 
 
 def test_ledger_counters_reconcile(tmp_path: Path) -> None:
@@ -504,6 +508,10 @@ def test_ledger_counters_reconcile(tmp_path: Path) -> None:
     dispatched = manifest["successful"] + manifest["failed"]
     assert result.evaluations_attempted == dispatched == 3
     assert manifest["counters"]["physical_dispatches"] == 3
+    assert result.skipped_by_budget == 1
+    assert result.skipped_by_deadline == 0
+    assert manifest["skipped_by_budget"] == 1
+    assert manifest["skipped_by_deadline"] == 0
     assert _read_records(result) == []
     outcomes = _read_outcomes(result)
     assert sum(o["adapter_attempts"] for o in outcomes if o["status"] == "failed") == 3

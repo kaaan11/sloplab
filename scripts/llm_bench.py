@@ -176,6 +176,7 @@ def main(argv: list[str] | None = None) -> int:
             state = f"NOT-RUN ({outcome.get('reason', 'unknown')})"
         print(f"  {outcome['case_id']} (repeat {outcome['repeat_index']}): {state}")
     print(f"failed evaluations: {result.failed_evaluations}/{result.evaluations_attempted}")
+    print(f"not run: budget {result.skipped_by_budget}, deadline {result.skipped_by_deadline}")
     print(
         "requests used: "
         f"{result.counters.get('physical_dispatches', 0)} "
