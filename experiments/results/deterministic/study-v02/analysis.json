@@ -2492,7 +2492,9 @@
       }
     },
     "paired_difference_ci": {
-      "evidence-graph-baseline - rules-baseline": {
+      "rules-baseline minus evidence-graph-baseline": {
+        "minuend": "rules-baseline",
+        "subtrahend": "evidence-graph-baseline",
         "low": 0.20274914089347085,
         "point": 0.3050327972480065,
         "high": 0.39999999999999997

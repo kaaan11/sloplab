@@ -1,6 +1,6 @@
 {
   "base_seed": 20260825,
-  "commit_sha": "b87b237be783b48ff6ff9e9c14422c277df2b5fe",
+  "commit_sha": "7cecb0b2bb49c2e6d99751ff21770be13fa11b4d",
   "config_hash": "c37bf841c300ecd05e7854a53128b596715260520740bc8d2b72d80d42a605b9",
   "corpus_root": "corpus",
   "endpoint_host": null,
@@ -20,12 +20,12 @@
     }
   ],
   "experiment_name": "deterministic-study-v0.2",
-  "finished_at": "2026-09-27T19:50:30+00:00",
+  "finished_at": "2026-09-27T21:24:28+00:00",
   "model": null,
   "prompt_hash": null,
   "repeat_index": 0,
   "request_count": 0,
-  "started_at": "2026-09-27T19:50:28+00:00",
+  "started_at": "2026-09-27T21:24:25+00:00",
   "suite_hash": "efdab305a9df0bf44ef5764de2b206fc0b18f31b13301f103b2b2b274cf22421",
   "timeout_count": 0
 }

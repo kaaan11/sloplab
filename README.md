@@ -127,7 +127,7 @@ derived cases).
 |---|---|---|
 | rules-baseline | [0.805, 0.889] | **[0.7857, 0.9020]** |
 | evidence-graph-baseline (negative control) | [0.485, 0.596] | **[0.4581, 0.6300]** |
-| paired difference, same resample (rules − graph) | — | **[0.2027, 0.4000]**, point 0.3050 |
+| paired difference, same resample (rules-baseline minus evidence-graph-baseline) | — | **[0.2027, 0.4000]**, point 0.3050 |
 
 > Caveat: **52 clusters is a cluster count, not an effective sample size.**
 > Shared authorship and report templates also create dependence *between*

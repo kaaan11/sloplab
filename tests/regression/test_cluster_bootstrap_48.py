@@ -56,9 +56,9 @@ def test_frozen_records_give_52_clusters_and_pinned_intervals() -> None:
     assert round(graph[0], 4) == 0.4581, f"graph low {graph[0]!r}"
     assert round(graph[1], 4) == 0.6300, f"graph high {graph[1]!r}"
 
-    assert list(result.paired_difference or {}) == ["evidence-graph-baseline - rules-baseline"]
+    assert list(result.paired_difference or {}) == ["rules-baseline minus evidence-graph-baseline"]
     assert result.paired_difference is not None
-    diff = result.paired_difference["evidence-graph-baseline - rules-baseline"]
+    diff = result.paired_difference["rules-baseline minus evidence-graph-baseline"]
     assert round(diff[0], 4) == 0.1679, f"diff low {diff[0]!r}"
     assert round(diff[1], 4) == 0.3547, f"diff high {diff[1]!r}"
 

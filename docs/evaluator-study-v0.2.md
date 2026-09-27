@@ -52,7 +52,7 @@ resample draws for both evaluators:
 |---|---|---|---|
 | rules-baseline | [0.805, 0.889] | **[0.7857, 0.9020]** | 1.38x |
 | evidence-graph-baseline | [0.485, 0.596] | **[0.4581, 0.6300]** | 1.55x |
-| paired difference (rules − graph) | — | **[0.2027, 0.4000]**, point 0.3050 | — |
+| paired difference (rules-baseline minus evidence-graph-baseline; artifact key states minuend minus subtrahend) | — | **[0.2027, 0.4000]**, point 0.3050 | — |
 
 (Reference values on the pre-PR-#33 records frozen at audit commit `0382566`:
 rules [0.7297, 0.8771], graph [0.4581, 0.6300], diff [0.1679, 0.3547] —

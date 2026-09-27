@@ -111,9 +111,9 @@ def build_study_analysis(
     }
     if cluster.paired_difference is not None:
         cluster_document["paired_difference_ci"] = {
-            f"{a} - {b}": {"low": lo, "point": pt, "high": hi}
+            key: {"minuend": a, "subtrahend": b, "low": lo, "point": pt, "high": hi}
             for key, (lo, hi, pt) in cluster.paired_difference.items()
-            for a, b in [key.split(" - ")]
+            for a, b in [key.split(" minus ")]
         }
     return {
         "metric_definition_version": ANALYSIS_DEFINITION_VERSION,

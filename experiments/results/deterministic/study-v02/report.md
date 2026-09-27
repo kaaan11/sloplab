@@ -49,4 +49,4 @@
 ## Paired comparison
 
 - `evidence-graph-baseline` vs `rules-baseline`: 8 wins / 99 losses / 190 ties (win rate 0.075)
-- Paired difference, same resample (`evidence-graph-baseline - rules-baseline`): **0.3050** (95% CI 0.2027-0.4000)
+- Paired difference, same resample (`rules-baseline minus evidence-graph-baseline`): **0.3050** (95% CI 0.2027-0.4000)

@@ -298,7 +298,9 @@ def cluster_bootstrap_accuracy_ci(
     indices are ``int(0.025 * n)`` and ``int(0.975 * n)`` on the sorted list
     (for 2000 resamples at 95%: values 50 and 1950). The paired difference
     between the first two evaluators (sorted by name) is computed on the SAME
-    resample draws; with fewer than two evaluators it is ``None``.
+    resample draws; with fewer than two evaluators it is ``None``. The
+    diff dictionary key reads ``<minuend> minus <subtrahend>`` so the value
+    acc(minuend) - acc(subtrahend) is unambiguous.
     """
     if not records:
         return ClusterBootstrap(
@@ -354,7 +356,9 @@ def cluster_bootstrap_accuracy_ci(
     paired: dict[str, tuple[float, float, float]] | None = None
     if len(names) >= 2:
         point = sum(diff_values) / len(diff_values) if diff_values else 0.0
-        paired = {f"{names[0]} - {names[1]}": percentile(diff_values) + (point,)}
+        # Key states the direction explicitly: the value holds
+        # acc(names[1]) - acc(names[0]), i.e. <key> = minuend minus subtrahend.
+        paired = {f"{names[1]} minus {names[0]}": percentile(diff_values) + (point,)}
     return ClusterBootstrap(
         clusters=len(order),
         resamples=resamples,
