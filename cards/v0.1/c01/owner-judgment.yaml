@@ -1,0 +1,16 @@
+# Owner-judgment for this card.
+schema_version: owner-judgment-v0.1
+card_id: c01
+judge: "Kaan Gökçek"
+judged_date: "2026-09-28"
+action: "verify"
+action_claim_ids:
+- C1
+- C2
+confidence: "high"
+rationale: "The required build, account, ordered steps and observed result are provided, and the supplied records support behavior that conflicts with the documented reset-link policy."
+claims:
+- claim_id: C1
+  status: "supported"
+- claim_id: C2
+  status: "supported"
