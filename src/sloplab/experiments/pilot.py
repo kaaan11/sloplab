@@ -508,7 +508,15 @@ def run_llm_pilot(
     # Bind the validated (possibly normalized) chain to the pilot-local copy;
     # the caller's evaluator object keeps its original client.
     active._client = outer_client  # noqa: SLF001 - harness wiring by design
-    selected = cases[: config.max_cases] if config.max_cases else list(cases)
+    selection_end = (
+        config.case_offset + config.max_cases if config.max_cases is not None else len(cases)
+    )
+    if config.case_offset >= len(cases) or selection_end > len(cases):
+        raise ValueError(
+            f"canonical case slice [{config.case_offset}:{selection_end}] "
+            f"exceeds {len(cases)} available cases"
+        )
+    selected = cases[config.case_offset : selection_end]
     # Case provenance is derived per case and validated before any dispatch.
     case_kinds = {case.case_id: _record_case_kind(case) for case in selected}
 
@@ -668,6 +676,8 @@ def run_llm_pilot(
         "base_seed": config.base_seed,
         "repeats": config.repeats,
         "selected_cases": len(selected),
+        "case_offset": config.case_offset,
+        "selected_case_ids": [case.case_id for case in selected],
         "budget": config.budget.model_dump(),
         "effective_max_requests": effective_cap,
         "counters": {

@@ -18,8 +18,10 @@ Without these, dispatching the workflow fails fast with a red configuration chec
 ## Running the pilot
 
 1. Actions -> **llm-benchmark** -> Run workflow.
-2. Set `max_cases` (default 3 for smoke; pilot protocol uses up to 60) and
-   `repeats` (default 1; use 3 for a repeat-stability run).
+2. Set `case_offset` (default 0; number of canonical cases to skip in suite
+   order), `max_cases` (default 3) and `repeats` (default 1; use 3 for a
+   repeat-stability run). For the next ten cases after the verified three-case
+   pilot, use `case_offset=3`, `max_cases=10`, `repeats=3`.
 3. Dispatch. The job runs only on manual dispatch - never on push/PR/schedule.
 
 ## Budget enforcement (scripts/llm_bench.py)
@@ -28,6 +30,8 @@ The metered step is wired to `experiments/configs/llm-pilot-v0.2.yaml` and every
 limit below is enforced in code. The dispatch inputs `--max-cases` and
 `--repeats` override the config's plan fields (defaults **3 x 1**); the budget
 block itself always comes from the config file.
+An out-of-range slice is rejected before client construction; the manifest
+records the offset and exact selected case IDs.
 
 The committed pilot config requests strict JSON Schema output, requires a
 provider that supports that parameter, and sets temperature to zero. The local
@@ -51,9 +55,10 @@ cannot honor the schema, the request fails and its failure is recorded.
   before the evaluator's retry loop fires again. Any single wait - including a
   Retry-After - is capped at `request_timeout_s`, so a hostile header can never
   stall the run indefinitely; non-finite values (e.g. `inf`) are ignored.
-- **Job timeout:** the workflow job runs with `timeout-minutes: 35`, allowing
-  the 3-case x 3-repeat pilot and its worst-case retries. Larger plans may
-  require multiple dispatches. The pre-flight request cap also rejects the
+- **Run deadline and job timeout:** the runner has a 30-minute deadline and
+  publishes a partial outcome ledger if it is reached. The workflow has a
+  35-minute cap, leaving time to upload that bundle. Larger plans may require
+  multiple dispatches. The pre-flight request cap also rejects the
   nominal 60-case x 3-repeat plan because its retry allowance needs 540
   requests, above the 180-request cap.
 

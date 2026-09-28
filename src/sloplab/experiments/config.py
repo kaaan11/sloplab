@@ -83,7 +83,8 @@ class LLMPilotConfig(StrictModel):
     prompt_file: str = Field(min_length=1)
     budget: LLMBudget
     case_selection: Literal["canonical_first"] = "canonical_first"
-    max_cases: int | None = None
+    case_offset: int = Field(default=0, ge=0)
+    max_cases: int | None = Field(default=None, ge=1)
 
     @field_validator("case_selection")
     @classmethod
