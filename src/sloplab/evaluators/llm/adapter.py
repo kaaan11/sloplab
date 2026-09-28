@@ -107,6 +107,44 @@ REFUSAL_MAX_CHARS = 500
 #: keeps its historical ``str.format`` behavior byte-for-byte.
 PROMPT_RENDERER_VERSION = "file-template-v1"
 
+# Provider-side shape constraint for the live pilot. Local parsing remains the
+# authority for numeric ranges and normalized finding content.
+LLM_OUTPUT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "additionalProperties": False,
+    "required": ["decision", "confidence", "dimensions", "findings", "rationale"],
+    "properties": {
+        "decision": {"type": "string", "enum": ["accept", "reject", "needs_manual_review"]},
+        "confidence": {"type": "number"},
+        "dimensions": {
+            "type": "object",
+            "additionalProperties": False,
+            "required": list(DIMENSIONS),
+            "properties": {name: {"type": "number"} for name in DIMENSIONS},
+        },
+        "findings": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["code", "severity", "evidence"],
+                "properties": {
+                    "code": {"type": "string"},
+                    "severity": {
+                        "type": "string",
+                        "enum": ["info", "low", "medium", "high", "critical"],
+                    },
+                    "evidence": {"type": "string"},
+                },
+            },
+        },
+        "rationale": {"type": "string"},
+    },
+}
+LLM_OUTPUT_SCHEMA_SHA256 = hashlib.sha256(
+    json.dumps(LLM_OUTPUT_SCHEMA, sort_keys=True, separators=(",", ":")).encode("utf-8")
+).hexdigest()
+
 REPORT_TEXT_PLACEHOLDER = "{report_text}"
 
 PROMPT_TEMPLATE = """\
@@ -499,14 +537,24 @@ class HttpLLMClient:
         api_key_env: str,
         endpoint: str,
         timeout_s: float = 60.0,
+        output_mode: str = "prompt_only",
+        provider_require_parameters: bool = False,
+        temperature: float | None = None,
     ) -> None:
         import urllib.request
 
         if timeout_s <= 0:
             raise AdapterError("timeout_s must be positive")
+        if output_mode not in ("prompt_only", "json_schema"):
+            raise AdapterError("output_mode must be prompt_only or json_schema")
+        if temperature is not None and not 0 <= temperature <= 2:
+            raise AdapterError("temperature must be in [0, 2]")
         self._model = model
         self._endpoint = endpoint
         self._timeout_s = timeout_s
+        self._output_mode = output_mode
+        self._provider_require_parameters = provider_require_parameters
+        self._temperature = temperature
         self._deadline_monotonic: float | None = None
         self._api_key = os.environ.get(api_key_env, "")
         if not self._api_key:
@@ -522,9 +570,24 @@ class HttpLLMClient:
         import urllib.error
         import urllib.request
 
-        body = _json.dumps(
-            {"model": self._model, "messages": [{"role": "user", "content": prompt}]}
-        ).encode()
+        payload: dict[str, Any] = {
+            "model": self._model,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        if self._output_mode == "json_schema":
+            payload["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "sloplab_triage_v1",
+                    "strict": True,
+                    "schema": LLM_OUTPUT_SCHEMA,
+                },
+            }
+        if self._provider_require_parameters:
+            payload["provider"] = {"require_parameters": True}
+        if self._temperature is not None:
+            payload["temperature"] = self._temperature
+        body = _json.dumps(payload).encode()
         request = urllib.request.Request(
             self._endpoint,
             data=body,

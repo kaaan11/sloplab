@@ -110,6 +110,9 @@ def main(argv: list[str] | None = None) -> int:
             api_key_env=config.api_key_env,
             endpoint=endpoint,
             timeout_s=config.budget.request_timeout_s,
+            output_mode=config.output_mode,
+            provider_require_parameters=config.provider_require_parameters,
+            temperature=config.temperature,
         )
     except AdapterError as exc:
         print(f"configuration error: {exc}", file=sys.stderr)
@@ -139,7 +142,9 @@ def main(argv: list[str] | None = None) -> int:
 
     bundle_dir = args.out.parent / f"{args.out.stem}.bundle"
     try:
-        result = run_llm_pilot(config, evaluator, canonical, REPO_ROOT, bundle_dir)
+        result = run_llm_pilot(
+            config, evaluator, canonical, REPO_ROOT, bundle_dir, model_id=model_env
+        )
     except PromptTemplateError as exc:
         print(f"configuration error: {exc}", file=sys.stderr)
         return 2

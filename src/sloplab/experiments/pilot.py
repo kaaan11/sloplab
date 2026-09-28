@@ -9,12 +9,13 @@ schema-validated records.
 from __future__ import annotations
 
 import json
+import os
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
-from sloplab.evaluators.llm.adapter import LLMResponse
+from sloplab.evaluators.llm.adapter import LLM_OUTPUT_SCHEMA_SHA256, LLMResponse
 from sloplab.evaluators.llm.failures import (
     BudgetExhausted,
     DeadlineExceeded,
@@ -464,6 +465,8 @@ def run_llm_pilot(
     cases: list[SuiteCase],
     repo_root: Path,
     out_dir: Path,
+    *,
+    model_id: str | None = None,
 ) -> PilotRunResult:
     """Evaluate selected cases across ``config.repeats`` repeats under hard budgets.
 
@@ -690,6 +693,13 @@ def run_llm_pilot(
         "prompt_hash": loaded_prompt.sha256,
         "prompt_renderer_version": PROMPT_RENDERER_VERSION,
         "model_env": config.model_env,
+        "model_id": model_id if model_id is not None else os.environ.get(config.model_env),
+        "output_mode": config.output_mode,
+        "provider_require_parameters": config.provider_require_parameters,
+        "temperature": config.temperature,
+        "response_schema_sha256": (
+            LLM_OUTPUT_SCHEMA_SHA256 if config.output_mode == "json_schema" else None
+        ),
         "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "note": "raw model responses are not stored; only normalized records",
     }

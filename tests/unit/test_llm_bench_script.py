@@ -59,11 +59,17 @@ class FakeHttp:
         api_key_env: str,
         endpoint: str,
         timeout_s: float = 60.0,
+        output_mode: str = "prompt_only",
+        provider_require_parameters: bool = False,
+        temperature: float | None = None,
     ) -> None:
         self.model = model
         self.api_key_env = api_key_env
         self.endpoint = endpoint
         self.timeout_s = timeout_s
+        self.output_mode = output_mode
+        self.provider_require_parameters = provider_require_parameters
+        self.temperature = temperature
         self.calls = 0
         type(self).instances.append(self)
         type(self).last = self
@@ -159,9 +165,15 @@ class TestOutputsAndProvenance:
         assert manifest["budget"]["max_requests"] == 180
         assert manifest["counters"]["physical_dispatches"] == 4
         assert manifest["prompt_hash"]
+        assert manifest["model_id"] == "openai/gpt-oss-20b:free"
+        assert manifest["output_mode"] == "json_schema"
+        assert manifest["response_schema_sha256"]
         # P2-2: budget.request_timeout_s is the single source for HTTP timeouts.
         assert fake_http.last is not None
         assert fake_http.last.timeout_s == manifest["budget"]["request_timeout_s"] == 60
+        assert fake_http.last.output_mode == "json_schema"
+        assert fake_http.last.provider_require_parameters is True
+        assert fake_http.last.temperature == 0
         records = [json.loads(line) for line in out.read_text().splitlines()]
         assert len(records) == 4
         repeats = sorted(r["evaluation_metadata"]["repeat_index"] for r in records)
@@ -359,4 +371,4 @@ class TestWorkflowContract:
 
     def test_job_has_hard_timeout(self) -> None:
         doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
-        assert doc["jobs"]["run"]["timeout-minutes"] == 15
+        assert doc["jobs"]["run"]["timeout-minutes"] == 35
