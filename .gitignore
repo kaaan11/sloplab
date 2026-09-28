@@ -22,6 +22,7 @@ htmlcov/
 # Large generated artifacts (small committed examples live under benchmarks/results/)
 benchmarks/runs/
 gptpro-bundles/
+heldout-private/
 
 # Local review/worker process notes (kept on disk, not part of the published repo)
 docs/reviews/

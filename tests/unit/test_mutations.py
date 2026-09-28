@@ -17,8 +17,10 @@ from sloplab.mutations.operators.evidence import (
 )
 from sloplab.mutations.operators.impact import ImpactInflation, ScopeExpansion
 from sloplab.mutations.operators.presentation import (
+    AddAuthorizationPreamble,
     ConfidenceOverstatement,
     ProfessionalizeLanguage,
+    ProfessionalizeStyle,
 )
 from sloplab.mutations.operators.references import (
     AddIrrelevantDetail,
@@ -52,6 +54,8 @@ ALL_OPS = (
     ScopeExpansion,
     InventApiIdentifier,
     ProfessionalizeLanguage,
+    ProfessionalizeStyle,
+    AddAuthorizationPreamble,
     ConfidenceOverstatement,
     FabricateReference,
     MisattributeCve,
@@ -62,8 +66,8 @@ ALL_OPS = (
 
 
 class TestRegistry:
-    def test_twelve_operators_registered(self) -> None:
-        assert len(list_operators()) == 12
+    def test_fourteen_operators_registered(self) -> None:
+        assert len(list_operators()) == 14
 
     def test_unknown_operator_lists_known(self) -> None:
         with pytest.raises(KeyError, match="registered:"):
@@ -202,6 +206,22 @@ Low impact on demo data.
         assert "!!" not in mutated
         assert ".." not in mutated
         assert "functionally incorrect." in mutated
+
+    def test_style_and_provenance_interventions_are_separate(self) -> None:
+        text = "# T\n\n## Summary\n\nThis bug doesn't work!!\n"
+        doc = parse_report(text, fixture_id="canonical-style-001", path="x")
+        style, _ = ProfessionalizeStyle().apply(doc, random.Random(7))
+        provenance, _ = AddAuthorizationPreamble().apply(doc, random.Random(7))
+        legacy, _ = ProfessionalizeLanguage().apply(doc, random.Random(7))
+
+        assert "authorized testing" not in style
+        assert "does not" in style and "defect" in style
+        assert "authorized testing" in provenance
+        assert "doesn't" in provenance and "bug" in provenance
+        styled_doc = parse_report(style, fixture_id="canonical-style-001", path="x")
+        combined, _ = AddAuthorizationPreamble().apply(styled_doc, random.Random(7))
+        assert combined.rstrip("\n") == legacy.rstrip("\n")
+        assert style.endswith("\n") and provenance.endswith("\n")
 
     def test_confidence_overstatement_hardens_hedges(self) -> None:
 

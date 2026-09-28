@@ -681,7 +681,7 @@ def _write_comparison_markdown(
             f"## `{name}`",
             "",
             accuracy_line,
-            f"- Mutation detection rate: {b.mutation_detection_rate}",
+            f"- Decision-changing target accuracy: {b.mutation_detection_rate}",
             f"- False reassurance rate: **{b.false_reassurance_rate}**",
             f"- Over-rejection rate: {b.over_rejection_rate}",
             f"- Robustness delta (drift): {b.robustness_delta}",
@@ -786,13 +786,12 @@ def compare(results: tuple[str, ...]) -> None:
 
     keys = [
         ("decision_accuracy", "accuracy"),
-        ("mutation_detection_rate", "mutation detection"),
+        ("mutation_detection_rate", "decision-changing target accuracy"),
         ("false_reassurance_rate", "false reassurance (lower=better)"),
         ("over_rejection_rate", "over-rejection (lower=better)"),
         ("robustness_delta", "robustness delta"),
         ("presentation_susceptibility", "presentation susceptibility (lower=better)"),
         ("calibration_error", "calibration error (lower=better)"),
-        ("robustness_score", "aux robustness score"),
     ]
     labels = [display for display, _data in summaries.values()]
     column_width = max(30, *(len(label) + 2 for label in labels))

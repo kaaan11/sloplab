@@ -49,9 +49,10 @@ Primary metrics are dimensional; read them as a profile rather than a ranking:
   accuracy but different taxonomies fail differently; that difference matters more
   than the accuracy gap for deployment decisions.
 
-The auxiliary Robustness Score is a convenience summary only; never quote it alone
-or use it for ranking: a blind always-`needs_manual_review` policy scores 0.740
-on it (rules-baseline 0.839) on this corpus (#45); reproduce with
+The legacy auxiliary Robustness Score is omitted from current human-facing
+comparisons. Do not use it for ranking: a constant `needs_manual_review`
+policy with confidence `0.5` scores 0.791 on it (rules-baseline 0.839) on
+this corpus (#45); reproduce with
 `uv run python scripts/blind_policy_compare.py`.
 
 ## v0.2 study snapshot (numbers regenerated at PR #33 / #20)

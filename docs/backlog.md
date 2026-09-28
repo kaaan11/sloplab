@@ -19,3 +19,7 @@ to a future release's acceptance criteria.
   [the coverage report](llm-pilot-canonical-coverage-2026-09-28.md). Resolve
   the provider failure before claiming complete canonical coverage; mutation
   cases and a fresh, access-controlled held-out set remain future work.
+- Reopened methodological issues #45, #46, #47, #50 and #52: deterministic
+  controls and operator/pair audits are recorded in
+  [the follow-up](methodology-followup-2026-09-28.md). Nine fresh private
+  inputs await the owner's blind judgment before a three-family panel.

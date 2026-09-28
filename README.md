@@ -174,11 +174,12 @@ Primary metrics are reported per dimension:
 | Dimension error | Per-quality-dimension score error where expected values exist. |
 | Calibration error | Do confidence values track actual correctness? |
 
-A weighted **Robustness Score** exists only as an auxiliary summary and is
-documented in [docs/methodology.md](docs/methodology.md). It must not be used
-for ranking: a blind always-`needs_manual_review` policy scores 0.740 on it
-(rules-baseline 0.839); the same blind policy reaches 0.760 decision-changing
-target accuracy with zero false reassurance. Reproduce with:
+A legacy weighted **Robustness Score** remains in machine-readable metrics for
+historical compatibility but is omitted from current human-facing comparisons.
+It must not be used for ranking: a constant `needs_manual_review` decision with
+constant confidence `0.5` scores 0.791 on it (rules-baseline 0.839), while it
+reaches 0.760 decision-changing target accuracy with zero false reassurance.
+Reproduce the fixed-action and paired diagnostics with
 `uv run python scripts/blind_policy_compare.py` (#45).
 
 Old metric names ("mutation detection rate", "quality-neutral mutations",
@@ -199,6 +200,10 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   disjoint canonical batch and repeat results
 - [Canonical coverage study](docs/llm-pilot-canonical-coverage-2026-09-28.md) —
   60 cases dispatched, 59 with valid responses, one persistent HTTP 400
+- [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
+  fixed-action controls, transition and presentation audits, and owner-review status
+- [Exposure register](docs/exposure-register.md) — public ancestry and private
+  held-out protocol
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not
 - [Safety policy](docs/safety.md) — content rules for fixtures and mutations
 - [Evaluator contract](docs/evaluator-contract.md) — writing your own evaluator

@@ -136,7 +136,7 @@ provenance:
   source_finding_ids:
   - R1-001
   public_source_ancestry: false
-  first_publication_date: null
+  first_publication_date: '2026-09-27'
   prior_exposure_note: Newly written scenario for case-card-v0.1. Not derived from an existing SlopLab fixture
     or any real report. The research-03 draft example was used only as a format reference.
   panel_excluded_families:

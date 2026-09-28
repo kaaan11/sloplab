@@ -6,6 +6,8 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
+
 from sloplab.models.enums import Decision
 from sloplab.models.evaluation import DimensionScores, EvaluationResult
 from sloplab.models.run import CaseRecord
@@ -16,6 +18,7 @@ from sloplab.reporting.writers import (
     write_records_csv,
     write_run_jsonl,
 )
+from sloplab.scoring.audits import audit_authored_pairs, audit_decision_changing_mutations
 from sloplab.scoring.metrics import compute_metrics
 
 
@@ -69,6 +72,88 @@ def _result(
 
 
 class TestMetrics:
+    def test_authored_pairs_report_direction_and_both_correct(self) -> None:
+        records = [
+            record(
+                "plain-1",
+                report_class="invalid",
+                expected=Decision.REJECT,
+                decision=Decision.ACCEPT,
+            ),
+            record(
+                "polished-1",
+                report_class="invalid",
+                expected=Decision.REJECT,
+                decision=Decision.REJECT,
+            ),
+            record(
+                "plain-2",
+                report_class="invalid",
+                expected=Decision.REJECT,
+                decision=Decision.REJECT,
+            ),
+            record(
+                "polished-2",
+                report_class="invalid",
+                expected=Decision.REJECT,
+                decision=Decision.REJECT,
+            ),
+        ]
+        roles = {
+            "plain-1": ("pair-1", "plain"),
+            "polished-1": ("pair-1", "polished"),
+            "plain-2": ("pair-2", "plain"),
+            "polished-2": ("pair-2", "polished"),
+        }
+        audit = audit_authored_pairs(records, roles)["test-eval"]
+        assert audit.paired == 2
+        assert audit.changed == 1
+        assert audit.both_correct == 1
+        assert audit.accept_gain == 0 and audit.accept_loss == 1
+        assert audit.transitions == {"accept -> reject": 1, "reject -> reject": 1}
+        with pytest.raises(ValueError, match="incomplete pair"):
+            audit_authored_pairs(records[:-1], roles)
+
+    def test_decision_change_audit_keeps_parent_and_missing_pair_counts(self) -> None:
+        records = [
+            record("p1"),
+            record("p2", decision=Decision.REJECT),
+            record(
+                "m1",
+                kind="mutated",
+                parent_id="p1",
+                operator="remove_reproduction_step",
+                expected=Decision.NEEDS_MANUAL_REVIEW,
+                decision=Decision.NEEDS_MANUAL_REVIEW,
+            ),
+            record(
+                "m2",
+                kind="mutated",
+                parent_id="p2",
+                operator="remove_reproduction_step",
+                expected=Decision.NEEDS_MANUAL_REVIEW,
+                decision=Decision.NEEDS_MANUAL_REVIEW,
+            ),
+            record(
+                "m3",
+                kind="mutated",
+                parent_id="missing",
+                operator="remove_reproduction_step",
+                expected=Decision.NEEDS_MANUAL_REVIEW,
+                decision=Decision.REJECT,
+            ),
+        ]
+        audit = audit_decision_changing_mutations(records)
+        assert audit.eligible_children == 3
+        assert audit.paired == 2
+        assert audit.missing_parent == 1
+        assert audit.child_correct == 2
+        assert audit.both_correct == 1
+        assert audit.parent_correct == 1
+        assert audit.actual_decision_change == 2
+        assert audit.child_deferrals == 2
+        assert audit.as_dict()["child_correct_given_parent_correct"] == 1.0
+
     def test_accuracy_far_orr(self) -> None:
         records = [
             record("a", decision=Decision.ACCEPT),  # correct accept
