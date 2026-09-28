@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+from collections.abc import Mapping
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -46,6 +48,17 @@ class DimensionScores(BaseModel):
         if missing:
             raise ValueError(f"missing dimension score(s): {missing}")
         return cls(**{d: values[d] for d in DIMENSIONS})
+
+
+def mean_dimension_score(dims: Mapping[str, float]) -> float:
+    """Mean of the five dimension scores, bit-identical on every Python version.
+
+    math.fsum is correctly rounded on every version; builtin sum() adds
+    naively on 3.11 but with compensation on 3.12+, which differs in the last
+    bits and can flip the rationale ``overall=`` rounding at a halfway
+    boundary (issue #53: 0.7949999999999999 -> "0.79" vs 0.795 -> "0.80").
+    """
+    return math.fsum(dims[d] for d in DIMENSIONS) / len(DIMENSIONS)
 
 
 class EvaluationContext(BaseModel):
