@@ -553,12 +553,29 @@ def study(config: str, out: str) -> None:
     }
 
     from sloplab.reporting.study_analysis import build_study_analysis
+    from sloplab.scoring.comparison import _pair_ids_from_root
+
+    # Presentation-pair merge keys for the cluster bootstrap (issue #48):
+    # read from the same corpus the run materialized from.
+    pair_ids: dict[str, str] = {}
+    if result.recipe.locations is not None:
+        pair_ids = _pair_ids_from_root(Path(result.recipe.locations.corpus_root))
+    if not pair_ids:
+        # Making the silent per-fixture fallback visible (issue #48 review):
+        # the merge was skipped because manifests/locations were unavailable.
+        click.echo(
+            "WARNING: canonical pair ids unavailable (missing recipe locations or "
+            "corpus manifests without pair ids); cluster bootstrap falls back to "
+            "per-fixture clusters (pair_merge=skipped)",
+            err=True,
+        )
 
     analysis = build_study_analysis(
         records,
         bootstrap_resamples=analysis_cfg.bootstrap_resamples,
         bootstrap_ci=analysis_cfg.bootstrap_ci,
         bootstrap_seed=analysis_cfg.bootstrap_seed,
+        pair_ids=pair_ids,
     )
     from sloplab.reporting.analysis import write_text_atomic
 
@@ -566,8 +583,21 @@ def study(config: str, out: str) -> None:
     write_text_atomic(analysis_path, json.dumps(analysis, indent=2))
 
     write_records_csv(out_dir / "results.csv", records)
+    cluster_cis = {
+        name: (entry["low"], entry["high"])
+        for name, entry in analysis["cluster_bootstrap"]["accuracy_ci"].items()
+    }
+    cluster_diff = analysis["cluster_bootstrap"].get("paired_difference_ci") or {}
     _write_comparison_markdown(
-        out_dir / "report.md", bundles, comparisons, cis, taxonomy_counts, result.experiment_name
+        out_dir / "report.md",
+        bundles,
+        comparisons,
+        cis,
+        taxonomy_counts,
+        result.experiment_name,
+        cluster_cis=cluster_cis,
+        cluster_diff=cluster_diff,
+        cluster_count=analysis["cluster_bootstrap"]["clusters"],
     )
     # Versioned analysis under a separate name: bound to the exact records
     # bytes, outcomes source, selection coverage, and definition version;
@@ -621,14 +651,36 @@ def _write_comparison_markdown(
     cis: dict[str, tuple[float, float, float]],
     taxonomies: dict[str, dict[str, int]],
     title: str,
+    *,
+    cluster_cis: dict[str, tuple[float, float]] | None = None,
+    cluster_diff: dict[str, dict[str, float]] | None = None,
+    cluster_count: int | None = None,
 ) -> None:
     lines: list[str] = [f"# Evaluator study: {title}", ""]
+    if cluster_cis:
+        cluster_label = (
+            f"{cluster_count} logical-report clusters"
+            if cluster_count
+            else "logical-report clusters"
+        )
+        lines += [
+            "> Primary accuracy interval: 95% cluster bootstrap over logical-report",
+            f"> clusters ({cluster_label}); estimand: within this fixed synthetic collection,",
+            "> treating logical-report clusters as exchangeable. The cluster count",
+            "> is not an effective sample size. Row-level CI shown second.",
+            "",
+        ]
     for name, b in sorted(bundles.items()):
         lo, point, hi = cis.get(name, (0.0, 0.0, 0.0))
+        accuracy_line = f"- Decision accuracy: **{point:.3f}**"
+        if cluster_cis and name in cluster_cis:
+            c_lo, c_hi = cluster_cis[name]
+            accuracy_line += f" (95% cluster bootstrap CI {c_lo:.4f}-{c_hi:.4f})"
+        accuracy_line += f" (row-level bootstrap CI {lo:.3f}-{hi:.3f})"
         lines += [
             f"## `{name}`",
             "",
-            f"- Decision accuracy: **{point:.3f}** (95% bootstrap CI {lo:.3f}-{hi:.3f})",
+            accuracy_line,
             f"- Mutation detection rate: {b.mutation_detection_rate}",
             f"- False reassurance rate: **{b.false_reassurance_rate}**",
             f"- Over-rejection rate: {b.over_rejection_rate}",
@@ -656,6 +708,13 @@ def _write_comparison_markdown(
                 f"{d['a_wins']} wins / {d['b_wins']} losses / {d['ties']} ties "
                 f"(win rate {d['a_win_rate']:.3f})"
             )
+        if cluster_diff:
+            for key, entry in sorted(cluster_diff.items()):
+                lines.append(
+                    f"- Paired difference, same resample (`{key}`): "
+                    f"**{entry['point']:.4f}** "
+                    f"(95% CI {entry['low']:.4f}-{entry['high']:.4f})"
+                )
         lines.append("")
     path.write_text("\n".join(lines), encoding="utf-8")
 

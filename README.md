@@ -93,7 +93,9 @@ A step-by-step walkthrough with real output lives in
 [examples/walkthrough.md](examples/walkthrough.md). Reference results regenerated at
 v0.2.2 live in [benchmarks/results/v1-core-example/](benchmarks/results/v1-core-example/)
 (oracle + rules-baseline; the documented reproduction command in
-[docs/reproducibility.md](docs/reproducibility.md) reproduces them exactly).
+[docs/reproducibility.md](docs/reproducibility.md) reproduces their
+decision/correct fields exactly on all supported Python versions — see the
+reproducibility guide).
 
 Example v1-core numbers (rules-baseline, regenerated for PR #33 fixing issue
 #20; see methodology.md for definitions). **What these numbers are:** agreement
@@ -115,6 +117,24 @@ with the mutation operators' templates; see [Threat model](docs/threat-model.md)
 | false reassurance rate | 0.094 |
 | over-rejection rate | 0.000 |
 | calibration error | 0.339 |
+
+**Uncertainty (95% accuracy intervals, primary = logical-report cluster bootstrap).**
+Estimand: *within this fixed synthetic collection, treating logical-report clusters
+as exchangeable resampling units*. The interval is a sensitivity analysis inside
+this corpus; it is not external validity for real-world reports. Row-level
+case resampling is shown only for comparison (it understates dependence between
+derived cases).
+
+| | row-level case bootstrap (old) | cluster bootstrap, 52 logical reports (primary) |
+|---|---|---|
+| rules-baseline | [0.805, 0.889] | **[0.7857, 0.9020]** |
+| evidence-graph-baseline (negative control) | [0.485, 0.596] | **[0.4581, 0.6300]** |
+| paired difference, same resample (rules-baseline minus evidence-graph-baseline) | — | **[0.2027, 0.4000]**, point 0.3050 |
+
+> Caveat: **52 clusters is a cluster count, not an effective sample size.**
+> Shared authorship and report templates also create dependence *between*
+> clusters, so the wider cluster intervals are a lower bound on real-world
+> uncertainty, not a full accounting.
 
 ## Architecture
 

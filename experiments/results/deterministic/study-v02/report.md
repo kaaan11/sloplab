@@ -1,8 +1,13 @@
 # Evaluator study: deterministic-study-v0.2
 
+> Primary accuracy interval: 95% cluster bootstrap over logical-report
+> clusters (52 logical-report clusters); estimand: within this fixed synthetic collection,
+> treating logical-report clusters as exchangeable. The cluster count
+> is not an effective sample size. Row-level CI shown second.
+
 ## `evidence-graph-baseline`
 
-- Decision accuracy: **0.542** (95% bootstrap CI 0.485-0.596)
+- Decision accuracy: **0.542** (95% cluster bootstrap CI 0.4581-0.6300) (row-level bootstrap CI 0.485-0.596)
 - Mutation detection rate: 0.125
 - False reassurance rate: **0.42857142857142855**
 - Over-rejection rate: 0.0
@@ -22,7 +27,7 @@
 
 ## `rules-baseline`
 
-- Decision accuracy: **0.848** (95% bootstrap CI 0.805-0.889)
+- Decision accuracy: **0.848** (95% cluster bootstrap CI 0.7857-0.9020) (row-level bootstrap CI 0.805-0.889)
 - Mutation detection rate: 0.8020833333333334
 - False reassurance rate: **0.09387755102040816**
 - Over-rejection rate: 0.0
@@ -44,3 +49,4 @@
 ## Paired comparison
 
 - `evidence-graph-baseline` vs `rules-baseline`: 8 wins / 99 losses / 190 ties (win rate 0.075)
+- Paired difference, same resample (`rules-baseline minus evidence-graph-baseline`): **0.3050** (95% CI 0.2027-0.4000)

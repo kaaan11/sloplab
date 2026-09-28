@@ -9,6 +9,7 @@ from __future__ import annotations
 import random
 from collections import defaultdict
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from sloplab.models.run import CaseRecord
@@ -217,6 +218,174 @@ def bootstrap_accuracy_ci(
     hi_idx = min(int((1 - alpha) * resamples), resamples - 1)
     point = sum(1 for r in records if r.correct) / n
     return values[lo_idx], point, values[hi_idx]
+
+
+# ---------------------------------------------------------------------------
+# Cluster bootstrap (issue #48, binding implementation contract)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class ClusterBootstrap:
+    """Cluster-resampled accuracy intervals plus the paired evaluator diff.
+
+    Attributes mirror the document layout in ``analysis.json``: per-evaluator
+    LOW/HIGH percentile pairs, the paired difference (percentile pair plus
+    point) computed on the SAME resamples, and provenance counts.
+    """
+
+    clusters: int
+    resamples: int
+    seed: int
+    accuracy: dict[str, tuple[float, float]]
+    paired_difference: dict[str, tuple[float, float, float]] | None = None
+    #: ``applied`` when presentation-pair ids actually merged fixtures into
+    #: shared clusters; ``skipped`` when the run fell back to per-fixture
+    #: clusters (no pair ids resolved). Recorded verbatim in analysis.json.
+    pair_merge: str = "skipped"
+
+    def as_dict(self) -> dict[str, object]:
+        return {
+            "clusters": self.clusters,
+            "resamples": self.resamples,
+            "seed": self.seed,
+            "accuracy": {name: list(value) for name, value in self.accuracy.items()},
+            "paired_difference": (
+                {name: list(value) for name, value in self.paired_difference.items()}
+                if self.paired_difference is not None
+                else None
+            ),
+            "pair_merge": self.pair_merge,
+        }
+
+
+def _pair_ids_from_root(corpus_root: Path | None) -> dict[str, str]:
+    """Build canonical case_id -> pair_id map from manifests under corpus_root.
+
+    Uses the corpus loader only; a missing or unreadable corpus degrades to an
+    empty map (clusters then keep their case_id keys, visible via the cluster
+    count). Imports stay function-local so call-time patching of the corpus
+    loader (as regression tests do) keeps working.
+    """
+    from sloplab.corpus.loader import FixtureError, discover_fixtures
+
+    pairs: dict[str, str] = {}
+    if corpus_root is None:
+        return pairs
+    try:
+        canonical, _derived = discover_fixtures(corpus_root)
+    except (FixtureError, OSError):
+        return pairs
+    for fixture in canonical:
+        if fixture.manifest.pair_id is not None:
+            pairs[fixture.manifest.id] = fixture.manifest.pair_id
+    return pairs
+
+
+def cluster_bootstrap_accuracy_ci(
+    records: list[CaseRecord],
+    *,
+    resamples: int = 2000,
+    ci: float = 0.95,
+    seed: int = 0,
+    pair_ids: dict[str, str] | None = None,
+) -> ClusterBootstrap:
+    """Logical-report-cluster bootstrap CI (issue #48 binding contract).
+
+    Cluster key: ``parent_id`` for derived cases, ``case_id`` for canonical
+    cases; when the canonical manifest of that id carries a ``pair_id``, the
+    cluster is keyed by ``pair_id`` instead (the presentation pair is one
+    logical report; the pair mapping is resolved through the parent for
+    derived rows too, merging 60 canonical fixtures into 52 clusters). Cluster
+    order is first appearance in ``records``. ``random.Random(seed)`` draws
+    ``len(order)`` clusters per resample with ``rng.choice``;
+    accuracy = correct cases / cases in the drawn clusters; percentile
+    indices are ``int(0.025 * n)`` and ``int(0.975 * n)`` on the sorted list
+    (for 2000 resamples at 95%: values 50 and 1950). The paired difference
+    between the first two evaluators (sorted by name) is computed on the SAME
+    resample draws; with fewer than two evaluators it is ``None``. The
+    diff dictionary key reads ``<minuend> minus <subtrahend>`` so the value
+    acc(minuend) - acc(subtrahend) is unambiguous. ``pair_merge`` reads
+    ``applied`` when pair ids actually merged fixtures, else ``skipped``
+    (per-fixture fallback). Raises ``ValueError`` for ``resamples < 1``,
+    empty records, or if zero clusters resolve.
+    """
+    if resamples < 1:
+        raise ValueError(f"resamples must be >= 1, got {resamples}")
+    if not records:
+        raise ValueError("cluster bootstrap needs non-empty records")
+    pairs = pair_ids or {}
+    keys: list[str] = []
+    merged_any = False
+    for r in records:
+        if r.case_kind == "canonical":
+            fallback = r.case_id
+            mapped = pairs.get(fallback, fallback)
+        else:
+            fallback = r.parent_id or r.case_id
+            mapped = pairs.get(fallback, fallback)
+        if mapped != fallback:
+            merged_any = True
+        keys.append(mapped)
+    # ``applied``/``skipped`` is recorded in analysis.json: the cluster count
+    # alone does not say whether pair ids were resolved or the run fell back.
+    pair_merge = "skipped" if not merged_any else "applied"
+    seen: dict[str, int] = {}
+    order: list[str] = []
+    for key in keys:
+        if key not in seen:
+            seen[key] = 1
+            order.append(key)
+    if not order:
+        raise ValueError("cluster bootstrap resolved zero clusters from the records")
+    # Per evaluator: cluster -> [correct, cases] tallies.
+    tables: dict[str, dict[str, list[int]]] = {}
+    for record, key in zip(records, keys, strict=True):
+        table = tables.setdefault(record.evaluator_name, {})
+        tally: list[int] = table.setdefault(key, [0, 0])
+        tally[0] += 1 if record.correct else 0
+        tally[1] += 1
+
+    rng = random.Random(seed)
+    acc_values: dict[str, list[float]] = {name: [] for name in tables}
+    diff_values: list[float] = []
+    names = sorted(tables)
+    for _ in range(resamples):
+        draws = [rng.choice(order) for _ in range(len(order))]
+        accs: dict[str, float] = {}
+        for name in names:
+            table = tables[name]
+            correct = cases = 0
+            for key in draws:
+                drawn: list[int] | None = table.get(key)
+                if drawn is not None:
+                    correct += drawn[0]
+                    cases += drawn[1]
+            accs[name] = correct / cases if cases else 0.0
+            acc_values[name].append(accs[name])
+        if len(names) >= 2:
+            diff_values.append(accs[names[1]] - accs[names[0]])
+
+    def percentile(values: list[float]) -> tuple[float, float]:
+        ordered = sorted(values)
+        size = len(ordered)
+        return ordered[int((1.0 - ci) / 2 * size)], ordered[int((1.0 - (1.0 - ci) / 2) * size)]
+
+    accuracy = {name: percentile(acc_values[name]) for name in names}
+    paired: dict[str, tuple[float, float, float]] | None = None
+    if len(names) >= 2:
+        point = sum(diff_values) / len(diff_values) if diff_values else 0.0
+        # Key states the direction explicitly: the value holds
+        # acc(names[1]) - acc(names[0]), i.e. <key> = minuend minus subtrahend.
+        paired = {f"{names[1]} minus {names[0]}": percentile(diff_values) + (point,)}
+    return ClusterBootstrap(
+        clusters=len(order),
+        resamples=resamples,
+        seed=seed,
+        accuracy=accuracy,
+        paired_difference=paired,
+        pair_merge=pair_merge,
+    )
 
 
 # ---------------------------------------------------------------------------

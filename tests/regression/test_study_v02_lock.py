@@ -44,11 +44,17 @@ PROVENANCE_KEYS = ("metric_definition_version", "python_version")
 def _recomputed_analysis() -> dict[str, Any]:
     _, records = read_run_jsonl(STUDY_DIR / "records.jsonl")
     assert len(records) == EXPECTED_CASE_ROWS, f"expected {EXPECTED_CASE_ROWS} rows"
+    # Cluster bootstrap (issue #48) reads presentation pair_id from the
+    # committed corpus manifests — the same source the study publisher uses.
+    from sloplab.scoring.comparison import _pair_ids_from_root
+
+    pair_ids = _pair_ids_from_root(REPO_ROOT / "corpus")
     return build_study_analysis(
         records,
         bootstrap_resamples=BOOTSTRAP_RESAMPLES,
         bootstrap_ci=BOOTSTRAP_CI,
         bootstrap_seed=BOOTSTRAP_SEED,
+        pair_ids=pair_ids,
     )
 
 
