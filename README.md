@@ -197,6 +197,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   schema-constrained repeat run and verified results
 - [Ten-case follow-up pilot](docs/llm-pilot-batch-10-2026-09-28.md) —
   disjoint canonical batch and repeat results
+- [Canonical coverage study](docs/llm-pilot-canonical-coverage-2026-09-28.md) —
+  60 cases dispatched, 59 with valid responses, one persistent HTTP 400
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not
 - [Safety policy](docs/safety.md) — content rules for fixtures and mutations
 - [Evaluator contract](docs/evaluator-contract.md) — writing your own evaluator
@@ -214,9 +216,10 @@ The v0.2.2 release did not include a live LLM study; see
 [docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md) and
 [docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md). A post-release,
 three-case live pilot ran on 2026-09-28. Its first model had incomplete valid
-response coverage; the later structured-output runs covered 13 distinct
-canonical cases with three repeats each. See the [ten-case follow-up
-record](docs/llm-pilot-batch-10-2026-09-28.md).
+response coverage. Later structured-output runs dispatched all 60 canonical
+cases: 59 have at least three valid responses, while one case consistently
+returned HTTP 400. One case also changed decisions across repeats. See the
+[canonical coverage study](docs/llm-pilot-canonical-coverage-2026-09-28.md).
 
 ## License
 

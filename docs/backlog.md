@@ -12,7 +12,10 @@ to a future release's acceptance criteria.
 - Plugin discovery of third-party evaluators via entry points.
 - Localization of fixture prose beyond English.
 - Corpus contribution workflow with automated safety review gate.
-- Broader live LLM study: structured-output runs covered 13 distinct canonical
-  cases with three repeats each (docs/llm-pilot-structured-2026-09-28.md and
-  docs/llm-pilot-batch-10-2026-09-28.md). The remaining 47 canonical cases and
-  mutation cases need separately budgeted dispatches before broader claims.
+- Live LLM follow-up: all 60 canonical cases were dispatched, but
+  `canonical-sqlx-002` returned HTTP 400 on all six attempts, leaving 59 cases
+  with at least three valid responses. `canonical-saml-019` showed a decision
+  flip across repeated runs. See
+  [the coverage report](llm-pilot-canonical-coverage-2026-09-28.md). Resolve
+  the provider failure before claiming complete canonical coverage; mutation
+  cases and a fresh, access-controlled held-out set remain future work.
