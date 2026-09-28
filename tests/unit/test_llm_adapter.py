@@ -307,6 +307,40 @@ class TestHttpLLMClientTimeout:
         assert isinstance(response, LLMResponse)
         assert captured["timeout"] == 7
 
+    def test_structured_request_shape(self, monkeypatch: Any) -> None:
+        import urllib.request
+
+        from sloplab.evaluators.llm.adapter import LLM_OUTPUT_SCHEMA, HttpLLMClient
+
+        captured: dict[str, Any] = {}
+
+        def fake_urlopen(request: Any, timeout: float | None = None) -> Any:
+            captured.update(json.loads(request.data))
+            body = json.dumps({"choices": [{"message": {"content": "{}"}}]}).encode()
+            return type(self)._FakeResponse(body)
+
+        monkeypatch.setenv("SLOPLAB_LLM_API_KEY", "test-key")
+        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        client = HttpLLMClient(
+            model="m",
+            api_key_env="SLOPLAB_LLM_API_KEY",
+            endpoint="https://example.invalid/v1/chat/completions",
+            output_mode="json_schema",
+            provider_require_parameters=True,
+            temperature=0,
+        )
+        assert client.complete("hello").text == "{}"
+        assert captured["response_format"] == {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "sloplab_triage_v1",
+                "strict": True,
+                "schema": LLM_OUTPUT_SCHEMA,
+            },
+        }
+        assert captured["provider"] == {"require_parameters": True}
+        assert captured["temperature"] == 0
+
     def test_non_positive_timeout_rejected(self, monkeypatch: Any) -> None:
         from sloplab.evaluators.llm.adapter import HttpLLMClient
 

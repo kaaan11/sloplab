@@ -37,9 +37,9 @@ jobs:
   run:
     runs-on: ubuntu-latest
     environment: llm-bench
-    # Smoke plan (<=9 requests, 3 s spacing) finishes in minutes; the full
-    # 180-request protocol needs multiple dispatches or a raised timeout.
-    timeout-minutes: 15
+    # Allows the 3-case x 3-repeat pilot to use all retries and request timeouts.
+    # Larger plans may require separate dispatches.
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
 

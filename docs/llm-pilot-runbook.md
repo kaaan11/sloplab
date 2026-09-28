@@ -9,7 +9,8 @@ network. Everything else in this repository runs offline.
    (exact name; the workflow gates on it).
 2. Add an **environment secret**: `LLM_API_KEY` = your API key.
 3. Add **environment variables**:
-   - `LLM_MODEL` = model identifier your endpoint accepts
+   - `LLM_MODEL` = a model identifier that supports strict `json_schema`
+     response format (current OpenRouter pilot: `nvidia/nemotron-3-super-120b-a12b:free`)
    - `LLM_ENDPOINT` = full chat-completions URL (OpenAI-compatible schema)
 
 Without these, dispatching the workflow fails fast with a red configuration check.
@@ -28,6 +29,11 @@ limit below is enforced in code. The dispatch inputs `--max-cases` and
 `--repeats` override the config's plan fields (defaults **3 x 1**); the budget
 block itself always comes from the config file.
 
+The committed pilot config requests strict JSON Schema output, requires a
+provider that supports that parameter, and sets temperature to zero. The local
+parser still validates every returned object. If the configured model/provider
+cannot honor the schema, the request fails and its failure is recorded.
+
 - **Pre-flight plan check:** before any network activity the runner computes
   `max_cases x repeats x (1 + max_retries_per_case)` - the worst-case request
   count including retries - and rejects the run (exit code 2) when it exceeds
@@ -45,9 +51,11 @@ block itself always comes from the config file.
   before the evaluator's retry loop fires again. Any single wait - including a
   Retry-After - is capped at `request_timeout_s`, so a hostile header can never
   stall the run indefinitely; non-finite values (e.g. `inf`) are ignored.
-- **Job timeout:** the workflow job runs with `timeout-minutes: 15`. The smoke
-  plan finishes well inside it; the full 180-request protocol (>=9 min of pure
-  pacing plus latency) must be split across multiple dispatches.
+- **Job timeout:** the workflow job runs with `timeout-minutes: 35`, allowing
+  the 3-case x 3-repeat pilot and its worst-case retries. Larger plans may
+  require multiple dispatches. The pre-flight request cap also rejects the
+  nominal 60-case x 3-repeat plan because its retry allowance needs 540
+  requests, above the 180-request cap.
 
 ### Free-tier safety (e.g. 50 requests/day)
 
@@ -63,9 +71,9 @@ are visible immediately.
 - `llm-bench-results.jsonl`: normalized evaluation records with repeat indices
   and failure markers. Raw model responses are intentionally NOT stored.
 - `llm-bench-results.bundle/manifest.json`: provenance - budget as configured,
-  request/error/timeout counters, selected/repeat counts, prompt hash, commit
-  SHA. Both files ship in the `llm-bench-results` artifact; nothing sensitive is
-  logged.
+  request/error/timeout counters, selected/repeat counts, prompt and response
+  schema hashes, resolved model ID, output mode, temperature, and commit SHA.
+  Both files ship in the `llm-bench-results` artifact; nothing sensitive is logged.
 - Manifest counters also include repeat-stability metrics when two or more
   repeats completed (unanimity rate, decision flips, mean confidence spread).
 - Failed rows in `outcomes.jsonl` carry `error_kind` + `detail`. The output

@@ -77,6 +77,9 @@ class LLMPilotConfig(StrictModel):
     model_env: str = Field(min_length=1)
     endpoint_env: str = Field(min_length=1)
     api_key_env: str = Field(min_length=1)
+    output_mode: Literal["prompt_only", "json_schema"] = "prompt_only"
+    provider_require_parameters: bool = False
+    temperature: float | None = Field(default=None, ge=0, le=2)
     prompt_file: str = Field(min_length=1)
     budget: LLMBudget
     case_selection: Literal["canonical_first"] = "canonical_first"
