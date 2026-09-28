@@ -1,7 +1,14 @@
 # Reproducibility Guide
 
-SlopLab's deterministic pipeline produces byte-identical outputs across runs and
-machines given identical inputs.
+SlopLab's deterministic pipeline produces identical decisions across runs and
+machines given identical inputs: the `decision`, `correct`, and finding-code
+fields are identical on all supported Python versions (3.11/3.12/3.13; pinned
+by `tests/regression/test_committed_results_match_evaluators.py`, added by
+#61). Record files are byte-identical for a fixed Python version; the
+committed study-v02 records additionally regenerate byte-identically on
+3.11/3.12/3.13 (verified by full regen + `cmp`; issue #53: builtin `sum()`
+changed float summation in 3.12 and flipped `overall=` at the 0.795 boundary
+— fixed by averaging dimensions with `math.fsum`).
 
 ## What makes it reproducible
 
@@ -67,8 +74,10 @@ uv run sloplab study experiments/configs/deterministic-study-v0.2.yaml \
     --out experiments/results/deterministic/study-v02
 ```
 
-For a fixed commit + corpus + seed, `records.jsonl` inside the study output is
-byte-identical across runs; `manifest.json` additionally records the commit SHA,
+For a fixed commit + corpus + seed + Python version, `records.jsonl` inside
+the study output is byte-identical across runs; the committed study-v02
+records additionally regenerate byte-identically on CPython 3.11, 3.12, and
+3.13 (issue #53). `manifest.json` additionally records the commit SHA,
 suite hash, evaluator config hashes, and wall-clock times (excluded from identity
 comparison by design). Bootstrap confidence intervals are seeded from the study's
 base seed and therefore reproduce exactly. The PRIMARY accuracy interval is the
