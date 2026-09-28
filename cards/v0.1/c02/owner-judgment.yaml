@@ -1,0 +1,16 @@
+# Owner-judgment for this card.
+schema_version: owner-judgment-v0.1
+card_id: c02
+judge: "Kaan Gökçek"
+judged_date: "2026-09-28"
+action: "likely_out_of_scope"
+action_claim_ids: []
+confidence: "high"
+rationale: "The reported behavior is confined to an explicitly excluded third-party status host, with no demonstrated security impact on an in-scope application or API asset."
+claims:
+- claim_id: C1
+  status: "supported"
+- claim_id: C2
+  status: "supported"
+- claim_id: C3
+  status: "missing"
