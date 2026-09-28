@@ -1,0 +1,19 @@
+{
+  "_provenance": "canonical case_id -> pair_id, read from corpus/canonical/*/manifest.yaml at commit 0382566 (frozen for the issue-#48 cluster-bootstrap reference test; identical to the committed corpus manifests)",
+  "canonical-pair1a-cookie": "pair-001",
+  "canonical-pair1b-cookie": "pair-001",
+  "canonical-pair2a-dirlist": "pair-002",
+  "canonical-pair2b-dirlist": "pair-002",
+  "canonical-pair3a-comment": "pair-003",
+  "canonical-pair3b-comment": "pair-003",
+  "canonical-pair4a-passpol": "pair-004",
+  "canonical-pair4b-passpol": "pair-004",
+  "canonical-pair5a-health": "pair-005",
+  "canonical-pair5b-health": "pair-005",
+  "canonical-pair6a-logout": "pair-006",
+  "canonical-pair6b-logout": "pair-006",
+  "canonical-pair7a-404": "pair-007",
+  "canonical-pair7b-404": "pair-007",
+  "canonical-pair8a-session": "pair-008",
+  "canonical-pair8b-session": "pair-008"
+}

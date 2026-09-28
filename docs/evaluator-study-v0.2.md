@@ -41,8 +41,28 @@
 Accuracy by class (rules / graph): valid 0.85/0.43 · invalid 0.72/0.53 ·
 review 0.94/0.74; canonical-only accuracy 0.83 / 0.75.
 
-95% seeded-bootstrap accuracy CIs: rules-baseline 0.805-0.889,
-evidence-graph-baseline 0.485-0.596.
+95% accuracy intervals — primary is the **logical-report cluster bootstrap**
+(issue #48; estimand: *within this fixed synthetic collection, treating
+logical-report clusters as exchangeable resampling units*), with the legacy
+row-level case bootstrap shown for comparison. Seed `20260825`, 2000
+resamples, percentile indices 50/1950; the paired difference uses the SAME
+resample draws for both evaluators:
+
+| | row-level case bootstrap (old) | cluster bootstrap, 52 clusters (primary) | width ratio |
+|---|---|---|---|
+| rules-baseline | [0.805, 0.889] | **[0.7857, 0.9020]** | 1.38x |
+| evidence-graph-baseline | [0.485, 0.596] | **[0.4581, 0.6300]** | 1.55x |
+| paired difference (rules-baseline minus evidence-graph-baseline; artifact key states minuend minus subtrahend) | — | **[0.2027, 0.4000]**, point 0.3050 | — |
+
+(Reference values on the pre-PR-#33 records frozen at audit commit `0382566`:
+rules [0.7297, 0.8771], graph [0.4581, 0.6300], diff [0.1679, 0.3547] —
+pinned by `tests/regression/test_cluster_bootstrap_48.py`.)
+
+> Caveat: **52 clusters is a cluster count, not an effective sample size.**
+> Shared authorship and templates also create dependence between clusters;
+> the cluster bootstrap is valid only as a resampling sensitivity analysis
+> that treats logical reports as exchangeable units, and provides no
+> external validity for real-world reports.
 
 Paired comparison (297 shared cases): rules-baseline 99 wins vs evidence-graph 8,
 190 ties.

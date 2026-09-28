@@ -2475,6 +2475,33 @@
       }
     }
   },
+  "cluster_bootstrap": {
+    "estimand": "within this fixed synthetic collection, treating logical-report clusters as exchangeable resampling units; the cluster count is not an effective sample size and the interval is not external validity for real reports",
+    "cluster_key": "derived case: parent_id; canonical case: case_id; canonical presentation pair: pair_id (resolved through the parent for derived rows)",
+    "pair_merge": "applied",
+    "clusters": 52,
+    "resamples": 2000,
+    "seed": 20260825,
+    "accuracy_ci": {
+      "evidence-graph-baseline": {
+        "low": 0.45806451612903226,
+        "high": 0.63003663003663
+      },
+      "rules-baseline": {
+        "low": 0.7857142857142857,
+        "high": 0.9019607843137255
+      }
+    },
+    "paired_difference_ci": {
+      "rules-baseline minus evidence-graph-baseline": {
+        "minuend": "rules-baseline",
+        "subtrahend": "evidence-graph-baseline",
+        "low": 0.20274914089347085,
+        "point": 0.3050327972480065,
+        "high": 0.39999999999999997
+      }
+    }
+  },
   "bootstrap_accuracy_ci": {
     "evidence-graph-baseline": {
       "low": 0.48484848484848486,

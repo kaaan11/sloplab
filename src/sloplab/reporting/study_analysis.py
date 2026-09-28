@@ -15,6 +15,18 @@ from typing import Any
 from sloplab.models.run import CaseRecord
 from sloplab.reporting.analysis import ANALYSIS_DEFINITION_VERSION
 
+#: Estimand sentence required by the issue #48 binding contract. The cluster
+#: bootstrap interval is a sensitivity analysis WITHIN this fixed synthetic
+#: collection: logical-report clusters are treated as exchangeable resampling
+#: units. It is not external validity for real-world reports, and the cluster
+#: count (52) is not an effective sample size (shared authorship and templates
+#: also create cross-cluster dependence).
+CLUSTER_BOOTSTRAP_ESTIMAND = (
+    "within this fixed synthetic collection, treating logical-report clusters "
+    "as exchangeable resampling units; the cluster count is not an effective "
+    "sample size and the interval is not external validity for real reports"
+)
+
 
 def build_study_analysis(
     records: list[CaseRecord],
@@ -22,6 +34,7 @@ def build_study_analysis(
     bootstrap_resamples: int,
     bootstrap_ci: float,
     bootstrap_seed: int,
+    pair_ids: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """Build the study ``analysis.json`` document from scored case records.
 
@@ -30,11 +43,23 @@ def build_study_analysis(
     the current metric definitions. Imports stay function-local so
     call-time patching of the scoring modules (as regression tests do)
     keeps working.
+
+    The PRIMARY accuracy interval is the logical-report cluster bootstrap
+    (issue #48 contract); the legacy row-level ``bootstrap_accuracy_ci`` block
+    is kept for backward compatibility. ``pair_ids`` maps canonical case_id
+    to the presentation ``pair_id`` of the canonical manifests; when given,
+    clusters merge pair members into one logical report (60 fixtures -> 52).
+    The cluster block records ``pair_merge`` = ``applied`` | ``skipped`` so a
+    silent per-fixture fallback is visible in the committed artifact. A fully
+    failed run yields an empty records list; the degenerate zero-cluster block
+    is kept publishable (analysis binding tests) instead of raising.
     """
     from dataclasses import asdict
 
     from sloplab.scoring.comparison import (
+        ClusterBootstrap,
         bootstrap_accuracy_ci,
+        cluster_bootstrap_accuracy_ci,
         error_taxonomy,
         paired_win_loss,
         per_class_metrics,
@@ -70,6 +95,44 @@ def build_study_analysis(
         )
         for n, rs in sorted(by_evaluator.items())
     }
+    if records:
+        cluster = cluster_bootstrap_accuracy_ci(
+            records,
+            resamples=bootstrap_resamples,
+            ci=bootstrap_ci,
+            seed=bootstrap_seed,
+            pair_ids=pair_ids,
+        )
+    else:
+        # Degenerate all-failed run: an empty records list cannot be cluster
+        # bootstrapped, but the bundle must stay publishable/consumable.
+        cluster = ClusterBootstrap(
+            clusters=0,
+            resamples=bootstrap_resamples,
+            seed=bootstrap_seed,
+            accuracy={},
+            paired_difference=None,
+            pair_merge="skipped",
+        )
+    cluster_document: dict[str, Any] = {
+        "estimand": CLUSTER_BOOTSTRAP_ESTIMAND,
+        "cluster_key": (
+            "derived case: parent_id; canonical case: case_id; canonical "
+            "presentation pair: pair_id (resolved through the parent for "
+            "derived rows)"
+        ),
+        "pair_merge": cluster.pair_merge,
+        "clusters": cluster.clusters,
+        "resamples": cluster.resamples,
+        "seed": cluster.seed,
+        "accuracy_ci": {n: {"low": lo, "high": hi} for n, (lo, hi) in cluster.accuracy.items()},
+    }
+    if cluster.paired_difference is not None:
+        cluster_document["paired_difference_ci"] = {
+            key: {"minuend": a, "subtrahend": b, "low": lo, "point": pt, "high": hi}
+            for key, (lo, hi, pt) in cluster.paired_difference.items()
+            for a, b in [key.split(" minus ")]
+        }
     return {
         "metric_definition_version": ANALYSIS_DEFINITION_VERSION,
         "python_version": platform.python_version(),
@@ -78,6 +141,9 @@ def build_study_analysis(
         "error_taxonomy": taxonomies_full,
         "per_operator": per_op,
         "per_class": per_cls,
+        # PRIMARY interval (issue #48): logical-report cluster bootstrap.
+        "cluster_bootstrap": cluster_document,
+        # Backward compatibility: legacy row-level percentile bootstrap.
         "bootstrap_accuracy_ci": {
             n: {"low": lo, "point": pt, "high": hi} for n, (lo, pt, hi) in cis.items()
         },

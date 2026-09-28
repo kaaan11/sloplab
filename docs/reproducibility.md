@@ -80,4 +80,14 @@ records additionally regenerate byte-identically on CPython 3.11, 3.12, and
 3.13 (issue #53). `manifest.json` additionally records the commit SHA,
 suite hash, evaluator config hashes, and wall-clock times (excluded from identity
 comparison by design). Bootstrap confidence intervals are seeded from the study's
-base seed and therefore reproduce exactly.
+base seed and therefore reproduce exactly. The PRIMARY accuracy interval is the
+logical-report cluster bootstrap (issue #48): cluster keys resolve
+`parent_id` (derived) / `case_id` (canonical) through the canonical manifests'
+`pair_id` when present, cluster order is first appearance in `records.jsonl`,
+and `random.Random(seed)` draws `len(clusters)` clusters per resample with
+`rng.choice` — so the interval depends on the record order as well as the seed,
+and both are frozen by the committed artifacts. The paired difference uses the
+same draws for both evaluators. The cluster block also carries
+`pair_merge` = `applied` | `skipped`: `skipped` means pair ids could not be
+resolved (fallback to per-fixture clusters) and the `sloplab study` command
+warns on stderr.
