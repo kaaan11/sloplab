@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+import sloplab.experiments.pilot as pilot_module
 from sloplab.evaluators.llm.adapter import LlmEvaluator, LLMResponse
 from sloplab.experiments.config import LLMPilotConfig
 from sloplab.experiments.pilot import CountingClient, ThrottledClient, run_llm_pilot
@@ -76,6 +77,26 @@ def make_evaluator(inner: Any, max_requests: int = 1000) -> tuple[LlmEvaluator, 
 
 
 class TestBudgetEnforcement:
+    def test_commit_is_frozen_before_dispatch(
+        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        config: LLMPilotConfig = load_pilot_config(PILOT_CONFIG)
+        config.max_cases = 1
+        config.repeats = 1
+        config.budget.min_interval_ms = 0
+        state = {"commit": "before"}
+
+        class ChangingResponder(StaticResponder):
+            def complete(self, prompt: str) -> Any:
+                state["commit"] = "after"
+                return super().complete(prompt)
+
+        monkeypatch.setattr(pilot_module, "current_commit_sha", lambda _: state["commit"])
+        evaluator, _ = make_evaluator(ChangingResponder(VALID_PAYLOAD))
+        result = run_llm_pilot(config, evaluator, canonical_cases(1), REPO_ROOT, tmp_path / "o")
+        manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+        assert manifest["commit_sha"] == "before"
+
     def test_budget_stops_dispatch_and_counts_skips(self, tmp_path: Path) -> None:
         config: LLMPilotConfig = load_pilot_config(PILOT_CONFIG)
         config.max_cases = 2
