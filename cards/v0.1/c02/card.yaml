@@ -1,0 +1,146 @@
+schema_version: case-card-v0.1
+card_id: c02
+scenario_id: sandboxsuite-status-page-versions-01
+revision: 1
+title: Accurate observation about a host the program excludes
+language: en
+license: CC0-1.0
+fully_synthetic: true
+input:
+  opaque_id: case-a83d51f6e0c9
+  context:
+  - id: P1
+    kind: setting
+    text: This is a fully fictional exercise about SandboxSuite 5.0. There is no running target and no tests
+      were executed to produce these materials.
+  - id: P2
+    kind: program_policy
+    text: 'The fictional program scope. In scope: the SandboxSuite web application and API at https://app.example.org.
+      Out of scope: https://status.example.org, which is operated by a third-party status provider outside this
+      program; and disclosure of software names or version strings without a demonstrated security impact on
+      an in-scope asset.'
+  - id: P3
+    kind: program_policy
+    text: To begin human verification the program requires the exact asset, the observed result and, for in-scope
+      assets, the affected build.
+  - id: P4
+    kind: assistant_role
+    text: Only a human can confirm whether a vulnerability exists. The assistant recommends a verification
+      step, requests specific missing information, or identifies likely policy exclusions. It does not assign
+      rewards, close submissions, or advise how a report could pass triage.
+  - id: P5
+    kind: stipulated_fact
+    text: Artifact E1 is a stipulated fictional record of what the reporter says they observed; it is not independent
+      reproduction.
+  report:
+  - id: R01
+    text: '# Internal component versions visible on public status page'
+  - id: R02
+    text: Asset https://status.example.org/components, observed on the public status page for SandboxSuite.
+  - id: R03
+    text: Without logging in, the page lists internal component names with exact version strings (E1).
+  - id: R04
+    text: 'Examples from the page: queue-worker 2.8.4, report-renderer 1.19.0, auth-gateway 4.2.1.'
+  - id: R05
+    text: An attacker could use these versions to look for known weaknesses in those components.
+  - id: R06
+    text: I did not test any SandboxSuite application or API endpoint.
+  artifacts:
+  - id: E1
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: host=status.example.org; path=/components; authenticated=false; result=200;
+      listed=queue-worker 2.8.4, report-renderer 1.19.0, auth-gateway 4.2.1.'
+  claims:
+  - id: C1
+    statement: The status page lists internal component names with exact version strings.
+    report_refs:
+    - R02
+    - R03
+    - R04
+  - id: C2
+    statement: The list is visible without authentication.
+    report_refs:
+    - R03
+  - id: C3
+    statement: The listed versions could help someone look for known weaknesses in those components.
+    report_refs:
+    - R05
+review:
+  failure_mode_ids:
+  - FM05
+  why_it_matters: The observations are accurate within the supplied evidence, but the program explicitly excludes
+    both the host and version disclosure without demonstrated impact. A correct response keeps the observations
+    marked as supported and routes the report on scope grounds; calling the report false or badly written
+    would conflate scope with validity.
+  finding_refs:
+  - R1-002
+  claim_evidence_map:
+  - claim_id: C1
+    status: supported
+    evidence_refs:
+    - E1
+    - R02
+    - R03
+    - R04
+    explanation: E1 records the same host, path and component list as the report.
+    blocks_core_verification: false
+  - claim_id: C2
+    status: supported
+    evidence_refs:
+    - E1
+    - R03
+    explanation: E1 records an unauthenticated request with result 200.
+    blocks_core_verification: false
+  - claim_id: C3
+    status: missing
+    evidence_refs:
+    - R05
+    - R06
+    explanation: The report states a possibility but supplies no weakness in any listed component and no effect
+      on an in-scope asset; R06 confirms no in-scope testing. This does not change the scope routing.
+    blocks_core_verification: false
+  next_action:
+    primary: likely_out_of_scope
+    verification_claim_ids: []
+    verification_question: A human confirms that status.example.org is the third-party-operated host excluded
+      by P2 and that no demonstrated impact on an in-scope asset is claimed, then routes the report accordingly.
+    blocking_requests: []
+    non_blocking_requests: []
+    policy_refs:
+    - P2
+    - P4
+  confidence: high
+  confidence_scope: Confidence in the next-action recommendation conditional on the stipulated fictional context;
+    not a probability that a real vulnerability exists.
+  counterconditions:
+  - condition: The status host is actually operated by the program owner and the applicable policy covers it,
+      or the policy grants an exception for this asset.
+    alternative_action: verify
+  - condition: The reporter supplies evidence that the disclosed versions lead to a demonstrated security impact
+      on an in-scope asset.
+    alternative_action: verify
+  - condition: It is unclear which host the observation came from, for example if E1 and R02 named different
+      hosts.
+    alternative_action: request_specific_information
+  status: draft_unreviewed
+provenance:
+  authoring_model_family: Anthropic Claude
+  authoring_model_product: Claude Opus 5.5 (Claude Code orchestrator session)
+  authored_date: '2026-09-27'
+  source_commit: ed8542b
+  source_fixture_paths: []
+  source_finding_ids:
+  - R1-002
+  public_source_ancestry: false
+  first_publication_date: null
+  prior_exposure_note: Newly written scenario for case-card-v0.1. Not derived from an existing SlopLab fixture
+    or any real report. The research-03 draft example was used only as a format reference.
+  panel_excluded_families:
+  - OpenAI
+  - Meta
+  - Anthropic
+  licensing_status: Proposed CC0-1.0, subject to the owner's publication decision.
+  input_sha256: 77c6aa1ddaca8b666987e28b3d64f70e8bd400a494414ee9cad1063c93503358
+  model_annotation_status: not_run
+  owner_review_status: pre_vote_recorded
+  external_review_status: none

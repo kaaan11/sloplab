@@ -13,6 +13,8 @@ panel) only opens if there is external interest.
 - `schema/case-card-v0.1.schema.json` — full card schema (identity, input,
   review, provenance; `additionalProperties: false`).
 - `schema/owner-judgment-v0.1.schema.json` — the owner's blind judgment file.
+- `v0.1/<id>/card.yaml` provenance: `provenance.input_sha256` is the sha256 of
+  the committed `input.json` bytes (checked by tests).
 - `v0.1/<id>/input.json` — the **generated** machine view: the annotator-visible
   view (only schema_version, opaque_id, context, report, artifacts, claims + a
   note). Regenerate with `scripts/export_card_inputs.py`; never edit by hand.
@@ -25,8 +27,11 @@ panel) only opens if there is external interest.
   Regenerate with `scripts/export_card_inputs.py` (covered by `--check`);
   never edit by hand. Never contains the card title, scenario id, review,
   provenance or answer material.
-- `v0.1/<id>/card.yaml` — the full card (answer key). NOT in stage 1's tree
-  yet; see workflow below. Sealed answer keys live outside tracked paths.
+- `v0.1/<id>/card.yaml` — the full card (answer key). Added after the owner's
+  blind judgments were committed (d4b7e65, 7bb0360, 6b9cc2e); until then the
+  sealed answer keys lived outside tracked paths. Judgment-vs-key differences
+  are recorded in `adjudication.md`; the resolutions are still pending the
+  owner's decision. See workflow below.
 - `v0.1/<id>/owner-judgment.template.yaml` — the **generated** per-card blind
   review template: one card-level action, confidence and one-line rationale;
   per-claim status entries for exactly that card's claim ids — all answer
@@ -54,7 +59,7 @@ Every card exists in two views generated from one source card.yaml:
 
 A leak test (`tests/unit/test_case_cards.py`) enforces that committed
 `input.json` and `input.md` files contain no answer-bearing keys or
-identifiers, and that `input.md` never contains the sealed card title or
+identifiers, and that `input.md` never contains the card title or
 scenario id.
 
 ## K1 action vocabulary
@@ -85,9 +90,11 @@ A card does not return accept/reject. It recommends the next **human** step:
    (`action_claim_ids`, optional), an ordinal confidence, and a one-line
    rationale; plus a per-claim status (same status enum) with an optional
    one-line note; plus `judged_date` and `judge`. Roughly 5–8 minutes per card.
-3. Only after the owner's judgment is committed is the card.yaml answer key
-   shown/added, and any divergence is recorded in `adjudication.md`.
-   Nothing is deleted; the owner never fills in for the orchestrator.
+3. The card.yaml answer keys were added only after the owner's blind judgments
+   were committed (d4b7e65, 7bb0360, 6b9cc2e), and the judgment-vs-key
+   comparison is recorded in each `adjudication.md`. Recorded differences are
+   left open — resolution is pending the owner's decision. Nothing is deleted;
+   the owner never fills in for the orchestrator.
 
 Each card directory has a generated `owner-judgment.template.yaml` with one
 card-level `action`, `action_claim_ids` (optional), `confidence` and a

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -19,12 +20,12 @@ from sloplab.safety.policy import is_reserved_host, validate_content_safety
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CARDS_DIR = REPO_ROOT / "cards"
-SEALED_DIR = REPO_ROOT / ".scratch" / "sealed"
 SCHEMA_PATH = CARDS_DIR / "schema" / "case-card-v0.1.schema.json"
 
 COMMITTED_INPUTS = sorted((CARDS_DIR / "v0.1").glob("c*/input.json"))
 COMMITTED_INPUT_MDS = sorted((CARDS_DIR / "v0.1").glob("c*/input.md"))
-SEALED_CARD_PATHS = sorted(SEALED_DIR.glob("*/card.yaml")) if SEALED_DIR.is_dir() else []
+COMMITTED_CARD_PATHS = sorted((CARDS_DIR / "v0.1").glob("c*/card.yaml"))
+OWNER_JUDGMENT_SCHEMA_PATH = CARDS_DIR / "schema" / "owner-judgment-v0.1.schema.json"
 
 ANSWER_BEARING_KEYS = frozenset(
     {
@@ -229,21 +230,51 @@ class TestSchema:
             errors = sorted(validator.iter_errors(data), key=lambda e: e.message)
             assert not errors, f"{path}: {[e.message for e in errors]}"
 
-    def test_sealed_cards_validate_against_full_schema(self) -> None:
-        """Validates the sealed card.yaml files in .scratch/sealed (not tracked).
-
-        Skipped only when the sealed directory is absent (e.g. CI).
-        """
-        if not SEALED_CARD_PATHS:
-            pytest.skip(
-                "sealed card directory .scratch/sealed is absent in this checkout (e.g. CI); "
-                "the sealed card.yaml files are untracked orchestrator inputs"
-            )
+    def test_cards_validate_against_full_schema(self) -> None:
+        """Validates the committed card.yaml answer-key files (tracked)."""
+        assert COMMITTED_CARD_PATHS, "expected committed card.yaml answer keys"
         validator = Draft202012Validator(_card_schema(), format_checker=FormatChecker())
-        for path in SEALED_CARD_PATHS:
+        for path in COMMITTED_CARD_PATHS:
             card = yaml.safe_load(path.read_text(encoding="utf-8"))
             errors = sorted(validator.iter_errors(card), key=lambda e: e.message)
             assert not errors, f"{path}: {[e.message for e in errors]}"
+
+    def test_card_provenance_sha256_matches_committed_input(self) -> None:
+        """provenance.input_sha256 is the sha256 of the committed input.json bytes."""
+        for card_path in COMMITTED_CARD_PATHS:
+            card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
+            input_path = card_path.parent / "input.json"
+            expected = hashlib.sha256(input_path.read_bytes()).hexdigest()
+            assert card["provenance"]["input_sha256"] == expected, card_path
+
+    def test_card_directories_have_judgment_and_adjudication(self) -> None:
+        """Every committed card.yaml directory also holds the judgment and the record."""
+        assert COMMITTED_CARD_PATHS, "expected committed card.yaml answer keys"
+        for card_path in COMMITTED_CARD_PATHS:
+            card_id = card_path.parent.name
+            assert (card_path.parent / "owner-judgment.yaml").is_file(), card_id
+            adjudication = card_path.parent / "adjudication.md"
+            assert adjudication.is_file(), card_id
+            text = adjudication.read_text(encoding="utf-8")
+            assert f"# Adjudication record: {card_id}" in text, card_id
+            keys = re.findall(r"`([a-f0-9]{64})`", text)
+            assert keys and len(keys[0]) == 64, card_id
+            assert "pending owner decision" in text or "DIFFER details\n\nNone." in text, card_id
+
+    def test_owner_judgment_files_validate_and_match_claim_ids(self) -> None:
+        """Owner judgments validate against their schema and mirror the card claim ids."""
+        schema = json.loads(OWNER_JUDGMENT_SCHEMA_PATH.read_text(encoding="utf-8"))
+        validator = Draft202012Validator(schema, format_checker=FormatChecker())
+        for card_path in COMMITTED_CARD_PATHS:
+            card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
+            card_ids = [claim["id"] for claim in card["input"]["claims"]]
+            judgment = yaml.safe_load(
+                (card_path.parent / "owner-judgment.yaml").read_text(encoding="utf-8")
+            )
+            errors = sorted(validator.iter_errors(judgment), key=lambda e: e.message)
+            assert not errors, f"{card_path}: {[e.message for e in errors]}"
+            assert judgment["card_id"] == card["card_id"], card_path
+            assert [claim["claim_id"] for claim in judgment["claims"]] == card_ids, card_path
 
 
 @pytest.mark.parametrize(
@@ -344,22 +375,23 @@ def test_committed_input_md_have_no_leaks() -> None:
 
 
 def test_committed_input_md_title_is_opaque_id_only() -> None:
-    """The heading is 'Case <opaque_id>'; never the sealed card title or scenario id."""
+    """The heading is 'Case <opaque_id>'; never the card title or scenario id."""
     for path in COMMITTED_INPUT_MDS:
         text = path.read_text(encoding="utf-8")
         opaque_id = json.loads((path.parent / "input.json").read_text(encoding="utf-8"))[
             "opaque_id"
         ]
         assert f"# Case {opaque_id}" in text, path
-        if SEALED_CARD_PATHS:
-            sealed = {
-                line.split(": ", 1)[1]
-                for card_path in SEALED_CARD_PATHS
-                for line in card_path.read_text(encoding="utf-8").splitlines()
-                if line.startswith(("title: ", "scenario_id: "))
-            }
-            for forbidden in sealed:
-                assert forbidden not in text, f"{path}: sealed identity leaked: {forbidden!r}"
+    sealed = {
+        line.split(": ", 1)[1]
+        for card_path in COMMITTED_CARD_PATHS
+        for line in card_path.read_text(encoding="utf-8").splitlines()
+        if line.startswith(("title: ", "scenario_id: "))
+    }
+    for path in COMMITTED_INPUT_MDS:
+        text = path.read_text(encoding="utf-8")
+        for forbidden in sealed:
+            assert forbidden not in text, f"{path}: card identity leaked: {forbidden!r}"
 
 
 @pytest.mark.parametrize(
@@ -423,16 +455,8 @@ def test_input_md_judgment_footer_is_neutral_and_identical() -> None:
 
 class TestExportDeterminism:
     def test_export_check_mode_matches_committed_bytes(self) -> None:
-        card_paths: list[Path] = []
-        if SEALED_DIR.is_dir():
-            for path in COMMITTED_INPUTS:
-                card = SEALED_DIR / path.parent.name / "card.yaml"
-                if card.exists():
-                    card_paths.append(card)
-        if not card_paths:
-            pytest.skip(
-                "sealed card directory .scratch/sealed is absent in this checkout (e.g. CI)"
-            )
+        card_paths = COMMITTED_CARD_PATHS
+        assert card_paths, "expected committed card.yaml answer keys"
         proc = subprocess.run(
             [
                 sys.executable,
@@ -454,9 +478,7 @@ class TestExportDeterminism:
 
     def test_check_mode_detects_tampered_input_md(self, tmp_path: Path) -> None:
         """--check must also fail when a committed input.md was edited."""
-        card = SEALED_DIR / "c01" / "card.yaml"
-        if not card.exists():
-            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        card = CARDS_DIR / "v0.1" / "c01" / "card.yaml"
         out = tmp_path / "out"
         first = subprocess.run(
             [
@@ -493,9 +515,7 @@ class TestExportDeterminism:
 
     def test_input_md_content_is_derived_only_from_input_json(self, tmp_path: Path) -> None:
         """input.md regenerates byte-identically; the export never rewrites input.json."""
-        card = SEALED_DIR / "c01" / "card.yaml"
-        if not card.exists():
-            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        card = CARDS_DIR / "v0.1" / "c01" / "card.yaml"
         out = tmp_path / "out"
         proc = subprocess.run(
             [
@@ -558,9 +578,7 @@ class TestExportDeterminism:
 
     def test_input_md_is_deterministic(self, tmp_path: Path) -> None:
         """Two export runs produce byte-identical input.md files."""
-        card = SEALED_DIR / "c01" / "card.yaml"
-        if not card.exists():
-            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        card = CARDS_DIR / "v0.1" / "c01" / "card.yaml"
         out_a, out_b = tmp_path / "a", tmp_path / "b"
         for out in (out_a, out_b):
             proc = subprocess.run(
@@ -582,9 +600,7 @@ class TestExportDeterminism:
 
     def test_check_mode_detects_tampered_template(self, tmp_path: Path) -> None:
         """--check must also fail when a committed template was edited."""
-        card = SEALED_DIR / "c01" / "card.yaml"
-        if not card.exists():
-            pytest.skip("sealed card directory .scratch/sealed is absent in this checkout")
+        card = CARDS_DIR / "v0.1" / "c01" / "card.yaml"
         out = tmp_path / "out"
         first = subprocess.run(
             [

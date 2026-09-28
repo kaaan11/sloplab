@@ -1,0 +1,148 @@
+schema_version: case-card-v0.1
+card_id: c01
+scenario_id: toytracker-reset-link-after-password-change-01
+revision: 1
+title: Short report of a reset link that stays valid after a password change
+language: en
+license: CC0-1.0
+fully_synthetic: true
+input:
+  opaque_id: case-5e19a4c07b32
+  context:
+  - id: P1
+    kind: setting
+    text: This is a fully fictional exercise about ToyTracker build 3.2.0 at https://tracker.example.org.
+      There is no running target and no tests were executed to produce these materials.
+  - id: P2
+    kind: stipulated_fact
+    text: ToyTracker's documented account policy for build 3.2.0 states that every outstanding password-reset
+      link for an account stops working as soon as that account's password is changed.
+  - id: P3
+    kind: program_policy
+    text: The fictional program includes account-security flaws in the core ToyTracker web application. To
+      begin human verification it requires the exact build, the acting account, the ordered steps and the
+      observed result. It sets no minimum report length and requires no particular headings, severity score
+      or impact section.
+  - id: P4
+    kind: assistant_role
+    text: Only a human can confirm whether a vulnerability exists. The assistant recommends a verification
+      step, requests specific missing information, or identifies likely policy exclusions. It does not assign
+      rewards, close submissions, or advise how a report could pass triage.
+  - id: P5
+    kind: stipulated_fact
+    text: Artifacts E1 to E3 are stipulated fictional records of the reporter's session. They show what the
+      reporter says they observed; they are not independent reproduction.
+  report:
+  - id: R01
+    text: '# Old reset link still works after password change'
+  - id: R02
+    text: ToyTracker 3.2.0, test account on tracker.example.org.
+  - id: R03
+    text: 1. As user acct-310, request a password-reset link (E1).
+  - id: R04
+    text: 2. While logged in as acct-310, change the password through account settings (E2).
+  - id: R05
+    text: 3. Open the link from step 1 and set another password. It is accepted (E3).
+  - id: R06
+    text: Expected the step-1 link to be rejected after step 2.
+  artifacts:
+  - id: E1
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: build=3.2.0; account=acct-310; event=reset_link_issued; link_id=rl-7731;
+      time=T0.'
+  - id: E2
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: build=3.2.0; account=acct-310; event=password_changed; method=account_settings;
+      result=success; time=T1 (after T0).'
+  - id: E3
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: build=3.2.0; account=acct-310; event=reset_link_used; link_id=rl-7731; result=password_updated;
+      time=T2 (after T1).'
+  claims:
+  - id: C1
+    statement: A password-reset link issued before a password change was accepted after that change.
+    report_refs:
+    - R03
+    - R04
+    - R05
+  - id: C2
+    statement: Accepting that link differs from the product's documented behavior.
+    report_refs:
+    - R06
+review:
+  failure_mode_ids:
+  - FM07
+  why_it_matters: The report is six lines long and has no impact section, severity score or polished prose,
+    yet it names the build, the account, the ordered steps and the observed result that the policy requires.
+    Asking for length, headings or a more professional tone would delay verification without changing what
+    a human can check.
+  finding_refs:
+  - R1-001
+  claim_evidence_map:
+  - claim_id: C1
+    status: supported
+    evidence_refs:
+    - E1
+    - E2
+    - E3
+    - R03
+    - R04
+    - R05
+    explanation: The three stipulated records share the account and link identifier and are ordered T0 < T1
+      < T2, so they tie the issued link, the password change and the later successful use together. This supports
+      a verification attempt in this exercise, not a real vulnerability conclusion.
+    blocks_core_verification: false
+  - claim_id: C2
+    status: supported
+    evidence_refs:
+    - P2
+    - R06
+    explanation: P2 is authoritative context stating that outstanding reset links stop working after a password
+      change, so the observed acceptance in E3 departs from documented behavior.
+    blocks_core_verification: false
+  next_action:
+    primary: verify
+    verification_claim_ids:
+    - C1
+    verification_question: On build 3.2.0, does a reset link issued before a password change still allow a
+      new password to be set after the change completes?
+    blocking_requests: []
+    non_blocking_requests: []
+    policy_refs:
+    - P2
+    - P3
+    - P4
+  confidence: high
+  confidence_scope: Confidence in the next-action recommendation conditional on the stipulated fictional context;
+    not a probability that a real vulnerability exists.
+  counterconditions:
+  - condition: E1 to E3 refer to different accounts or different links, so the sequence does not connect.
+    alternative_action: request_specific_information
+  - condition: The password change in E2 did not complete, or was an administrator-side change that the documented
+      policy does not cover.
+    alternative_action: request_specific_information
+  - condition: The applicable policy grants reset links a fixed validity window that survives password changes,
+      or excludes this component.
+    alternative_action: likely_out_of_scope
+  status: draft_unreviewed
+provenance:
+  authoring_model_family: Anthropic Claude
+  authoring_model_product: Claude Opus 5.5 (Claude Code orchestrator session)
+  authored_date: '2026-09-27'
+  source_commit: ed8542b
+  source_fixture_paths: []
+  source_finding_ids:
+  - R1-001
+  public_source_ancestry: false
+  first_publication_date: null
+  prior_exposure_note: Newly written scenario for case-card-v0.1. Not derived from an existing SlopLab fixture
+    or any real report. The research-03 draft example was used only as a format reference.
+  panel_excluded_families:
+  - OpenAI
+  - Meta
+  - Anthropic
+  licensing_status: Proposed CC0-1.0, subject to the owner's publication decision.
+  input_sha256: 2d98564febbac3ef011753dcb199d0f8b0686cb71e973ea7c6a9321cce9f57d5
+  model_annotation_status: not_run
+  owner_review_status: pre_vote_recorded
+  external_review_status: none
