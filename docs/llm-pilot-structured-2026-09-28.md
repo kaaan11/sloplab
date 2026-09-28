@@ -1,5 +1,8 @@
 # Şema kısıtlı canlı LLM pilotu — 28 Eylül 2026
 
+İlk üç vakadan sonraki [on yeni vakanın sonuçları](llm-pilot-batch-10-2026-09-28.md)
+ayrı bir kayıtta yer alıyor.
+
 ## Kurulum ve model seçimi
 
 İlk [pilot kaydında](llm-pilot-2026-09-28.md) kullanılan modelin 18 yanıtından

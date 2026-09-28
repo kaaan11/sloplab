@@ -69,7 +69,9 @@ far below any daily free-tier limit. To stay under 50 requests in a day,
 dispatch plans whose *worst case* sums to at most 45
 (`sum(max_cases x repeats x (1 + max_retries_per_case))` across the day). The
 runner prints the computed worst-case number before starting, so oversized plans
-are visible immediately.
+are visible immediately. The ten-case x three-repeat batch has a worst-case
+limit of 90 requests, so free-tier users should split it into smaller batches
+across days.
 
 ## What you get back
 
