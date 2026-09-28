@@ -25,6 +25,10 @@ on:
         description: "Max canonical cases to evaluate (each case costs API tokens)"
         required: false
         default: "3"
+      repeats:
+        description: "Evaluations per selected case (each repeat costs API tokens)"
+        required: false
+        default: "1"
 
 permissions:
   contents: read
@@ -68,6 +72,7 @@ jobs:
           SLOPLAB_LLM_MODEL: ${{ vars.LLM_MODEL }}
           SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
           MAX_CASES: ${{ inputs.max_cases }}
+          REPEATS: ${{ inputs.repeats }}
         run: |
           # Dispatch input reaches the shell only through this quoted, validated
           # environment variable - never via direct workflow expression interpolation.
@@ -77,8 +82,15 @@ jobs:
               exit 1
               ;;
           esac
+          case "$REPEATS" in
+            ''|*[!0-9]*)
+              echo "::error::repeats must be a non-negative integer (got '$REPEATS')"
+              exit 1
+              ;;
+          esac
           uv run python scripts/llm_bench.py \
             --max-cases "$MAX_CASES" \
+            --repeats "$REPEATS" \
             --out llm-bench-results.jsonl
 
       - name: Upload results artifact

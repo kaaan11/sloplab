@@ -17,7 +17,8 @@ Without these, dispatching the workflow fails fast with a red configuration chec
 ## Running the pilot
 
 1. Actions -> **llm-benchmark** -> Run workflow.
-2. Set `max_cases` (default 3 for smoke; pilot protocol uses up to 60).
+2. Set `max_cases` (default 3 for smoke; pilot protocol uses up to 60) and
+   `repeats` (default 1; use 3 for a repeat-stability run).
 3. Dispatch. The job runs only on manual dispatch - never on push/PR/schedule.
 
 ## Budget enforcement (scripts/llm_bench.py)
