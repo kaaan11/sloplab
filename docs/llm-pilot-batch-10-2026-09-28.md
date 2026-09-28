@@ -1,5 +1,8 @@
 # On yeni vakalık canlı LLM pilotu — 28 Eylül 2026
 
+Sonraki 47 vakanın koşuları ve eksik kapsam [kanonik korpus çalışma
+kaydında](llm-pilot-canonical-coverage-2026-09-28.md) yer alıyor.
+
 ## Kapsam ve kanıt
 
 Önceki [üç vakalık şema kısıtlı pilotun](llm-pilot-structured-2026-09-28.md)
@@ -39,5 +42,6 @@ outcome kayıtlarıyla karşılaştırıldığında vaka kümeleri ayrık; model
 İki ayrık başarılı koşuda toplam **13 kanonik vaka × 3 tekrar = 39/39 geçerli
 değerlendirme** elde edildi; 13 vakanın tümünde kararlar tekrarlar boyunca aynı
 ve referans kararlarla uyumlu. Bu, suite sırasındaki ilk 13 vakaya ait gözlemdir.
-Kalan 47 kanonik vaka ve mutasyonlu vakalar değerlendirilmedi; bu örnek genel
-triage doğruluğu veya gelecekteki servis kararlılığı için yeterli değildir.
+Bu koşu tamamlandığında kalan 47 kanonik vaka ve mutasyonlu vakalar henüz
+değerlendirilmemişti. Bu örnek genel triage doğruluğu veya gelecekteki servis
+kararlılığı için yeterli değildir.

@@ -1,7 +1,8 @@
 # Şema kısıtlı canlı LLM pilotu — 28 Eylül 2026
 
 İlk üç vakadan sonraki [on yeni vakanın sonuçları](llm-pilot-batch-10-2026-09-28.md)
-ayrı bir kayıtta yer alıyor.
+ve [60 kanonik vakanın kapsama çalışması](llm-pilot-canonical-coverage-2026-09-28.md)
+ayrı kayıtlarda yer alıyor.
 
 ## Kurulum ve model seçimi
 
