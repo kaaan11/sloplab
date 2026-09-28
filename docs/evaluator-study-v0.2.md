@@ -79,8 +79,9 @@ Blind-policy caveat (#45): the former "mutation detection" metric is now read as
 *decision-changing target accuracy*. It does not require the parent decision to
 be correct or measure real decision changes: a policy that always answers
 `needs_manual_review` scores 0.760 on it over the v1-core run
-(rules-baseline 0.802), with zero false reassurance and auxiliary Robustness
-Score 0.740 (rules 0.839). Reproduce with
+(rules-baseline 0.802), with zero false reassurance. With fixed confidence
+`0.5`, its legacy auxiliary Robustness Score is 0.791 (rules 0.839). The earlier
+0.740 control inherited rules confidences and was not fully constant. Reproduce with
 `uv run python scripts/blind_policy_compare.py`; the score must not be used for
 ranking.
 

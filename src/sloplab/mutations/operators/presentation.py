@@ -1,9 +1,8 @@
 """Presentation mutation operators.
 
-These operators change how a report *reads* without changing what it *claims*:
-professionalize_language upgrades tone and grammar while preserving every defect;
-confidence_overstatement hardens certainty language. They measure whether evaluators
-reward style over substance.
+The historical professionalize_language operator combines register edits with an
+authorization preamble. New operators isolate those two interventions so a style
+effect is not confused with an asserted provenance cue.
 """
 
 from __future__ import annotations
@@ -112,14 +111,63 @@ def _rewrite_unfenced(text: str, transform: Callable[[str], str]) -> str:
     return "\n".join(parts)
 
 
+def _professionalize_style(text: str) -> tuple[str, list[str]]:
+    """Apply only the historical register and punctuation edits."""
+    applied: list[str] = []
+
+    def transform(chunk: str) -> str:
+        for old, new in _CONTRACTION_REPLACEMENTS:
+            count = chunk.count(old)
+            if count:
+                chunk = chunk.replace(old, new)
+                if f"contraction:{old}" not in applied:
+                    applied.append(f"contraction:{old}")
+        for old, new in _REGISTER_UPGRADES:
+            pattern = re.compile(r"\b" + re.escape(old) + r"\b", re.IGNORECASE)
+            if pattern.search(chunk):
+                chunk = pattern.sub(partial(_match_case, replacement=new), chunk)
+                if f"register:{old}" not in applied:
+                    applied.append(f"register:{old}")
+        return re.sub(r"!+", ".", chunk)
+
+    text = _rewrite_unfenced(text, transform)
+    out_lines: list[str] = []
+    in_fence = False
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            out_lines.append(line)
+            continue
+        if not in_fence and stripped and stripped[0].islower() and not stripped.startswith("#"):
+            line = line.replace(stripped[0], stripped[0].upper(), 1)
+        out_lines.append(line)
+    return "\n".join(out_lines), applied
+
+
+def _add_authorization_preamble(text: str) -> str:
+    """Insert the historical cue after the first H1, outside fenced code."""
+    lines = text.splitlines()
+    in_fence = False
+    for index, line in enumerate(lines):
+        if line.strip().startswith("```"):
+            in_fence = not in_fence
+            continue
+        if not in_fence and line.startswith("# "):
+            lines.insert(index + 1, "")
+            lines.insert(index + 2, _POLITE_PREAMBLE.rstrip())
+            break
+    return "\n".join(lines)
+
+
 class ProfessionalizeLanguage:
     spec = MutationSpec(
         name="professionalize_language",
         category=MutationCategory.PRESENTATION,
         description=(
             "Expands contractions, upgrades informal vocabulary to formal register, "
-            "normalizes punctuation, and adds a neutral professional preamble - "
-            "without altering any claim, evidence, finding, or fenced code block."
+            "normalizes punctuation, and adds an authorization preamble. This is "
+            "a historical composite operator; do not attribute its effect to style alone."
         ),
         dimension_deltas={},  # substance untouched by design
         presentation_strength="increased",
@@ -132,56 +180,56 @@ class ProfessionalizeLanguage:
         parameters: dict[str, Any] | None = None,
     ) -> tuple[str, dict[str, Any]]:
         _ = parameters
-        text = document.raw_text
-
-        applied: list[str] = []
-
-        def _apply_contractions_and_register(chunk: str) -> str:
-            for old, new in _CONTRACTION_REPLACEMENTS:
-                count = chunk.count(old)
-                if count:
-                    chunk = chunk.replace(old, new)
-                    if f"contraction:{old}" not in applied:
-                        applied.append(f"contraction:{old}")
-            for old, new in _REGISTER_UPGRADES:
-                pattern = re.compile(r"\b" + re.escape(old) + r"\b", re.IGNORECASE)
-                if pattern.search(chunk):
-                    chunk = pattern.sub(partial(_match_case, replacement=new), chunk)
-                    if f"register:{old}" not in applied:
-                        applied.append(f"register:{old}")
-            return re.sub(r"!+", ".", chunk)
-
-        text = _rewrite_unfenced(text, _apply_contractions_and_register)
-
-        # Capitalize first letter after sentence ends (skip code fences).
-        out_lines: list[str] = []
-        in_fence = False
-        for line in text.splitlines():
-            stripped = line.strip()
-            if stripped.startswith("```"):
-                in_fence = not in_fence
-                out_lines.append(line)
-                continue
-            if not in_fence and stripped and stripped[0].islower() and not stripped.startswith("#"):
-                line = line.replace(stripped[0], stripped[0].upper(), 1)
-            out_lines.append(line)
-        text = "\n".join(out_lines)
-
-        # Insert the polite preamble right after the H1 heading (never inside a fence).
-        lines = text.splitlines()
-        in_fence = False
-        for index, line in enumerate(lines):
-            if line.strip().startswith("```"):
-                in_fence = not in_fence
-                continue
-            if not in_fence and line.startswith("# "):
-                lines.insert(index + 1, "")
-                lines.insert(index + 2, _POLITE_PREAMBLE.rstrip())
-                break
-        text = "\n".join(lines)
+        text, applied = _professionalize_style(document.raw_text)
+        text = _add_authorization_preamble(text)
 
         rng.getrandbits(1)  # deterministic stream even though this op is fully rule-based
         return text, {"transformations": applied}
+
+
+class ProfessionalizeStyle:
+    spec = MutationSpec(
+        name="professionalize_style",
+        category=MutationCategory.PRESENTATION,
+        description="Changes register and punctuation without inserting a provenance claim.",
+        dimension_deltas={},
+        presentation_strength="increased",
+    )
+
+    def apply(
+        self,
+        document: ReportDocument,
+        rng: random.Random,
+        parameters: dict[str, Any] | None = None,
+    ) -> tuple[str, dict[str, Any]]:
+        _ = parameters
+        text, applied = _professionalize_style(document.raw_text)
+        if document.raw_text.endswith("\n"):
+            text += "\n"
+        rng.getrandbits(1)
+        return text, {"transformations": applied}
+
+
+class AddAuthorizationPreamble:
+    spec = MutationSpec(
+        name="add_authorization_preamble",
+        category=MutationCategory.PROVENANCE,
+        description="Adds an asserted authorized-testing cue without changing the report's style.",
+        dimension_deltas={},
+    )
+
+    def apply(
+        self,
+        document: ReportDocument,
+        rng: random.Random,
+        parameters: dict[str, Any] | None = None,
+    ) -> tuple[str, dict[str, Any]]:
+        _ = parameters
+        text = _add_authorization_preamble(document.raw_text)
+        if document.raw_text.endswith("\n"):
+            text += "\n"
+        rng.getrandbits(1)
+        return text, {"added_authorization_preamble": text != document.raw_text}
 
 
 class ConfidenceOverstatement:
@@ -255,4 +303,6 @@ class ConfidenceOverstatement:
 _ = CLAIM_EVIDENCE_CONSISTENCY  # reserved for future consistency-aware presentation ops
 
 register(ProfessionalizeLanguage())
+register(ProfessionalizeStyle())
+register(AddAuthorizationPreamble())
 register(ConfidenceOverstatement())

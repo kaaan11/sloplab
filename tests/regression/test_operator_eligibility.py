@@ -27,8 +27,10 @@ def test_presentation_set_matches_categories() -> None:
     table = operator_metric_eligibility()
     assert {n for n, r in table.items() if r["presentation"]} == {
         "professionalize_language",
+        "professionalize_style",
         "confidence_overstatement",
     }
     assert table["professionalize_language"]["degrading_capable"] is False
+    assert table["add_authorization_preamble"]["susceptibility_eligible"] is False
     assert table["impact_inflation"]["degrading_capable"] is True
     assert table["impact_inflation"]["susceptibility_eligible"] is False

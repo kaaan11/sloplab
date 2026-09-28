@@ -142,7 +142,7 @@ provenance:
   - R1-002
   - R1-003
   public_source_ancestry: false
-  first_publication_date: null
+  first_publication_date: '2026-09-27'
   prior_exposure_note: Newly written scenario for case-card-v0.1. Not derived from an existing SlopLab fixture
     or any real report. The research-03 draft example was used only as a format reference; its scenario (cross-tenant
     document read with an execution claim) was deliberately not reused.

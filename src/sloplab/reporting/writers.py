@@ -135,13 +135,11 @@ def write_markdown_report(out_path: Path, bundles: list[MetricBundle], title: st
             )
         if bundle.mutation_detection_rate is not None:
             lines.append(
-                f"- Mutation detection rate: {bundle.mutation_detection_rate:.3f} "
-                f"(of {bundle.mutation_detection_total} degrading mutations)"
+                f"- Decision-changing target accuracy: {bundle.mutation_detection_rate:.3f} "
+                f"(of {bundle.mutation_detection_total} target-changing mutations)"
             )
         if bundle.robustness_delta is not None:
-            lines.append(
-                f"- Robustness delta (canonical - mutated): {bundle.robustness_delta:+.3f}"
-            )
+            lines.append(f"- Decision-preserving drift: {bundle.robustness_delta:+.3f}")
         if bundle.presentation_susceptibility is not None:
             lines.append(
                 f"- Presentation susceptibility: {bundle.presentation_susceptibility:+.3f}"
@@ -156,8 +154,6 @@ def write_markdown_report(out_path: Path, bundles: list[MetricBundle], title: st
             lines.append("- Accuracy by report class:")
             for cls, acc in bundle.per_class_accuracy.items():
                 lines.append(f"  - {cls}: {acc:.3f}")
-        if bundle.robustness_score is not None:
-            lines.append(f"- Auxiliary Robustness Score: {bundle.robustness_score:.4f}")
         lines.append("")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines), encoding="utf-8")

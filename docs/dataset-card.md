@@ -63,6 +63,12 @@ Expected triage decisions by class: valid -> accept, invalid -> reject,
 review -> needs_manual_review. Presentation-pair members share identical ground
 truth across the pair by construction.
 
+These are **author-defined targets**, not independently measured quality or
+verified vulnerability status. `required_evidence` records what the author
+expected in the legacy fixture; it does not automatically determine a new
+case-card action. The case-card contract separates claim support, report
+communication and the next human step (issues #46 and #47).
+
 ## Known limitations
 
 - English only; phrasing diversity is limited to what 60 model-assisted,

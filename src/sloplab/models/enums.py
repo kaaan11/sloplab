@@ -67,6 +67,7 @@ class MutationCategory(StrEnum):
     TECHNICAL_CONSISTENCY = "technical_consistency"
     REFERENCE = "reference"
     PRESENTATION = "presentation"
+    PROVENANCE = "provenance"
     NOISE = "noise"
 
 

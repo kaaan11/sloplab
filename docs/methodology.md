@@ -10,6 +10,23 @@ Benchmark results answer exactly one question: *how robust is a given evaluator'
 triage behavior on this corpus, under these mutations?* They do not measure general
 security-review quality and must not be quoted as such.
 
+The legacy corpus mixes four constructs that new [case cards](../cards/README.md)
+keep separate: whether a security boundary is actually violated (a human must
+verify this), whether each claim is supported by the supplied evidence, how
+clearly the report communicates, and the **next human triage action**. For a
+card, `verify` means enough is available for a human verification attempt;
+it is not a finding that a vulnerability exists. `request_specific_information`
+names a material gap; `likely_out_of_scope` refers to the stated program
+policy. Claim support is recorded per claim rather than folded into a single
+report-quality number (#46).
+
+The legacy manifest `required_evidence` list is an authored quality target,
+**not a universal hard gate** on `accept` or the new `verify` action. Whether a
+missing version, step or artifact blocks verification depends on explicit
+program policy and the core claim. The existing 60 fixture targets and 237
+derived targets are kept as historical authored labels; they are not
+independently adjudicated report-quality ground truth (#46, #47).
+
 ## Case population
 
 A benchmark run evaluates two kinds of cases:
@@ -84,17 +101,25 @@ quality was preserved (see decision-preserving mutations above, #47).
 
 ### Presentation susceptibility
 
-Acceptance-rate delta between presentation-mutated cases (`professionalize_language`,
-`confidence_overstatement`) and their canonical parents, computed over non-accept-
-expected cases only. Positive values mean polished-but-broken content buys acceptance.
+Acceptance-rate delta between presentation-mutated cases
+(`professionalize_language`, `professionalize_style`,
+`confidence_overstatement`) and their canonical parents, computed over
+non-accept-expected cases only. Positive values mean these variants gain
+acceptance; the aggregate is not a pure style effect.
 
 Scope caution (#50): this metric covers only operator-generated presentation
 mutations. The 8 authored plain/polished presentation pairs in the corpus are
 *not* part of this population — on those pairs the rules-baseline decision
 changes on 7 of 8, with the plain members accepted 4 of 8 times and the
-polished members 0 of 8. Additionally, because `professionalize_language`
-also inserts a neutral "authorized sandbox" preamble sentence, any measured
-effect cannot be attributed to language polish alone.
+polished members 0 of 8. The historical `professionalize_language` operator
+also inserts an **asserted authorized-testing provenance cue**, so its measured
+effect cannot be attributed to language polish alone. New
+`professionalize_style` and `add_authorization_preamble` operators expose the
+two interventions separately; the provenance operator is excluded from this
+presentation metric. Historical `v1-core` results retain the composite output.
+The authored pairs are reported separately with transition and both-correct
+counts by `scripts/presentation_pair_audit.py`; a four-arm rules-baseline audit
+over standalone canonicals is in `scripts/presentation_intervention_audit.py`.
 
 ### Dimension error
 
@@ -110,7 +135,9 @@ correctness as the outcome.
 
 ### Robustness Score (auxiliary)
 
-A weighted auxiliary summary; must not be used alone or for ranking (#45):
+A legacy weighted auxiliary summary, retained in machine-readable metrics for
+historical compatibility but omitted from current human-facing comparisons.
+It must not be used for ranking (#45):
 
 ```
 40% decision-changing target accuracy + 25% (1 - false reassurance) + 15% canonical decision accuracy
@@ -120,12 +147,12 @@ A weighted auxiliary summary; must not be used alone or for ranking (#45):
 Canonical decision accuracy is computed over scored canonical cases only; derived
 case accuracy does not enter that 15% component. Missing components are reweighted
 by their available mass. Primary results are always the per-metric values above;
-never cite the auxiliary score alone. Caveat (#45): the auxiliary score is
-*not blind-policy safe*. On the committed v1-core corpus a policy that always
-answers `needs_manual_review` reaches 0.740 (rules-baseline 0.839): the gap
-between a genuinely discriminating evaluator and a blind one is only ten
-points, so this
-score must not be used to rank evaluators. Reproduce all values with
+never cite the auxiliary score as evidence of ability. Caveat (#45): the
+auxiliary score is *not blind-policy safe*. On the committed v1-core corpus a
+policy that always answers `needs_manual_review` with confidence `0.5` reaches
+0.791 (rules-baseline 0.839): the gap is under five points. The older 0.740
+comparison inherited the rules evaluator's varying confidence values, so it
+was not a fully constant policy. Reproduce all values with
 `uv run python scripts/blind_policy_compare.py`.
 
 ## Protocol

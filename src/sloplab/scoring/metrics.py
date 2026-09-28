@@ -13,7 +13,9 @@ from dataclasses import dataclass, field
 from sloplab.models.enums import DIMENSIONS, Decision, ReportClass, canonical_expected_decision
 from sloplab.models.run import CaseRecord
 
-PRESENTATION_OPERATORS = frozenset({"professionalize_language", "confidence_overstatement"})
+PRESENTATION_OPERATORS = frozenset(
+    {"professionalize_language", "professionalize_style", "confidence_overstatement"}
+)
 _CALIBRATION_BINS = 10
 
 

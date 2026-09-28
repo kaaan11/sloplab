@@ -5,8 +5,9 @@ annotator-visible input view and a separately held answer key. Stage 1 ships the
 versioned schema, an export/leak-check pipeline, and three example cards
 proposed as additional examples for
 [OpenSSF wg-vulnerability-disclosures #178](https://github.com/ossf/wg-vulnerability-disclosures/issues/178).
-The general benchmark is deliberately NOT growing; stage 2 (12 cards, model
-panel) only opens if there is external interest.
+The general benchmark is deliberately NOT growing. A separate nine-card private
+candidate set (c04–c12) is now being prepared for owner-first review and an
+exploratory model panel; it is not part of the committed benchmark.
 
 ## Layout
 
@@ -116,3 +117,15 @@ order for every card, with no defaults. The owner copies it to
 - **Panel exclusion rule**: any future stage-2 model panel must exclude the
   authoring family and the corpus-authoring families — OpenAI, Meta, and
   Anthropic for these cards (`panel_excluded_families` in provenance).
+
+## Private candidate panel
+
+`scripts/prepare_heldout_inputs.py` exports only neutral views and blank owner
+templates inside Git-ignored `heldout-private/`. For c04–c12, the owner reads
+only each `owner-packet/<id>/input.md` and fills
+`owner-packet/judgment-sheet.yaml`. `scripts/heldout_panel.py` refuses to call
+models while any owner judgment is blank or an input hash differs from its
+manifest. Its default invocation is a preflight; `--run` is the explicit,
+metered dispatch. The sealed author key and raw model votes remain outside Git.
+The [exposure register](../docs/exposure-register.md) records the policy for
+interpreting a held-out result.
