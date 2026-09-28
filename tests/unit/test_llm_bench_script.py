@@ -104,8 +104,37 @@ class TestSmokeDefaults:
         lines = out.read_text(encoding="utf-8").splitlines()
         assert len(lines) == 3
 
+    def test_offset_selects_new_canonical_cases(
+        self, fake_http: type[FakeHttp], tmp_path: Path
+    ) -> None:
+        out = tmp_path / "offset.jsonl"
+        rc = llm_bench.main(
+            ["--case-offset", "3", "--max-cases", "2", "--repeats", "1", "--out", str(out)]
+        )
+        assert rc == 0
+        manifest = json.loads((tmp_path / "offset.bundle/manifest.json").read_text())
+        assert manifest["case_offset"] == 3
+        assert manifest["selected_case_ids"] == [
+            "canonical-cachepois-027",
+            "canonical-corswild-025",
+        ]
+        assert {json.loads(line)["case_id"] for line in out.read_text().splitlines()} == set(
+            manifest["selected_case_ids"]
+        )
+        assert fake_http.last is not None and fake_http.last.calls == 2
+
 
 class TestPreflightRejection:
+    def test_out_of_range_slice_rejected_without_client(
+        self, fake_http: type[FakeHttp], tmp_path: Path, capsys: Any
+    ) -> None:
+        out = tmp_path / "invalid.jsonl"
+        rc = llm_bench.main(["--case-offset", "59", "--max-cases", "2", "--out", str(out)])
+        assert rc == 2
+        assert "exceeds 60 cases" in capsys.readouterr().err
+        assert fake_http.instances == []
+        assert not out.exists()
+
     def test_oversized_plan_rejected_before_any_request(
         self,
         fake_http: type[FakeHttp],
@@ -368,6 +397,9 @@ class TestWorkflowContract:
         assert metered["env"]["MAX_CASES"] == "${{ inputs.max_cases }}"
         assert '"$MAX_CASES"' in metered["run"], "variable must be quoted at use site"
         assert "*[!0-9]*" in metered["run"], "numeric validation guard required"
+        assert metered["env"]["CASE_OFFSET"] == "${{ inputs.case_offset }}"
+        assert "${{ inputs.case_offset }}" not in metered["run"]
+        assert '--case-offset "$CASE_OFFSET"' in metered["run"]
 
     def test_job_has_hard_timeout(self) -> None:
         doc = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))

@@ -46,5 +46,7 @@ budget:
   # 3 s between dispatch starts: comfortably inside free-tier rate limits for
   # the smoke plan and safe for the full protocol as well.
   min_interval_ms: 3000
+  # Stop cleanly and publish a partial ledger before the 35-minute Actions cap.
+  deadline_s: 1800
 
 case_selection: canonical_first

@@ -29,6 +29,10 @@ on:
         description: "Evaluations per selected case (each repeat costs API tokens)"
         required: false
         default: "1"
+      case_offset:
+        description: "Skip this many canonical cases in suite order (0-based)"
+        required: false
+        default: "0"
 
 permissions:
   contents: read
@@ -37,7 +41,7 @@ jobs:
   run:
     runs-on: ubuntu-latest
     environment: llm-bench
-    # Allows the 3-case x 3-repeat pilot to use all retries and request timeouts.
+    # The runner's 30-minute deadline publishes a partial ledger before this cap.
     # Larger plans may require separate dispatches.
     timeout-minutes: 35
     steps:
@@ -73,6 +77,7 @@ jobs:
           SLOPLAB_LLM_ENDPOINT: ${{ vars.LLM_ENDPOINT }}
           MAX_CASES: ${{ inputs.max_cases }}
           REPEATS: ${{ inputs.repeats }}
+          CASE_OFFSET: ${{ inputs.case_offset }}
         run: |
           # Dispatch input reaches the shell only through this quoted, validated
           # environment variable - never via direct workflow expression interpolation.
@@ -88,7 +93,14 @@ jobs:
               exit 1
               ;;
           esac
+          case "$CASE_OFFSET" in
+            ''|*[!0-9]*)
+              echo "::error::case_offset must be a non-negative integer (got '$CASE_OFFSET')"
+              exit 1
+              ;;
+          esac
           uv run python scripts/llm_bench.py \
+            --case-offset "$CASE_OFFSET" \
             --max-cases "$MAX_CASES" \
             --repeats "$REPEATS" \
             --out llm-bench-results.jsonl

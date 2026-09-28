@@ -15,7 +15,7 @@ Wired to the committed pilot budget config
 
 Usage (requires the SLOPLAB_LLM_API_KEY environment variable):
 
-    python scripts/llm_bench.py [--max-cases 3] [--repeats 1] \
+    python scripts/llm_bench.py [--case-offset 0] [--max-cases 3] [--repeats 1] \
         [--out llm-bench-results.jsonl]
 
 Stdout prints only counts and decisions - never API keys, raw model responses,
@@ -48,6 +48,7 @@ from sloplab.scoring.harness import build_cases  # noqa: E402
 DEFAULT_CONFIG = REPO_ROOT / "experiments/configs/llm-pilot-v0.2.yaml"
 DEFAULT_MAX_CASES = 3
 DEFAULT_REPEATS = 1
+DEFAULT_CASE_OFFSET = 0
 
 
 def _worst_case_requests(max_cases: int, repeats: int, max_retries: int) -> int:
@@ -58,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--max-cases", type=int, default=DEFAULT_MAX_CASES)
     parser.add_argument("--repeats", type=int, default=DEFAULT_REPEATS)
+    parser.add_argument("--case-offset", type=int, default=DEFAULT_CASE_OFFSET)
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument(
         "--suite-index",
@@ -72,8 +74,11 @@ def main(argv: list[str] | None = None) -> int:
     if not model_env or not endpoint:
         print("error: set SLOPLAB_LLM_MODEL and SLOPLAB_LLM_ENDPOINT", file=sys.stderr)
         return 2
-    if args.max_cases < 1 or args.repeats < 1:
-        print("error: --max-cases and --repeats must be >= 1", file=sys.stderr)
+    if args.max_cases < 1 or args.repeats < 1 or args.case_offset < 0:
+        print(
+            "error: --max-cases and --repeats must be >= 1; --case-offset must be >= 0",
+            file=sys.stderr,
+        )
         return 2
 
     try:
@@ -83,6 +88,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
     config.max_cases = args.max_cases
     config.repeats = args.repeats
+    config.case_offset = args.case_offset
 
     # Pre-flight budget rejection: refuse to start when the dispatch plan could
     # exceed the hard cap even if every evaluation exhausts its retries.
@@ -90,7 +96,8 @@ def main(argv: list[str] | None = None) -> int:
         config.max_cases or 0, config.repeats, config.budget.max_retries_per_case
     )
     print(
-        f"plan: {config.max_cases} cases x {config.repeats} repeat(s), "
+        f"plan: cases [{config.case_offset}:{config.case_offset + (config.max_cases or 0)}] "
+        f"x {config.repeats} repeat(s), "
         f"worst-case {worst_case} requests incl. retries "
         f"(hard cap {config.budget.max_requests}, min interval "
         f"{config.budget.min_interval_ms} ms, per-request timeout "
@@ -100,6 +107,20 @@ def main(argv: list[str] | None = None) -> int:
         print(
             f"error: requested plan can spend up to {worst_case} requests but the "
             f"budget caps at {config.budget.max_requests}; reduce --max-cases/--repeats",
+            file=sys.stderr,
+        )
+        return 2
+
+    cases = build_cases(
+        args.suite_index,
+        REPO_ROOT / "corpus",
+        args.suite_index.parent,  # committed reference bundle holds the trees
+    )
+    canonical = [c for c in cases if c.kind == "canonical"]
+    if config.case_offset + args.max_cases > len(canonical):
+        print(
+            f"error: requested canonical slice [{config.case_offset}:"
+            f"{config.case_offset + args.max_cases}] exceeds {len(canonical)} cases",
             file=sys.stderr,
         )
         return 2
@@ -132,13 +153,6 @@ def main(argv: list[str] | None = None) -> int:
         max_retries=config.budget.max_retries_per_case,
         enabled=True,
     )
-
-    cases = build_cases(
-        args.suite_index,
-        REPO_ROOT / "corpus",
-        args.suite_index.parent,  # committed reference bundle holds the trees
-    )
-    canonical = [c for c in cases if c.kind == "canonical"]
 
     bundle_dir = args.out.parent / f"{args.out.stem}.bundle"
     try:
