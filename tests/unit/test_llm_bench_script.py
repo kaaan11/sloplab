@@ -129,9 +129,7 @@ class TestPreflightRejection:
         self, fake_http: type[FakeHttp], tmp_path: Path, capsys: Any
     ) -> None:
         out = tmp_path / "invalid.jsonl"
-        rc = llm_bench.main(
-            ["--case-offset", "59", "--max-cases", "2", "--out", str(out)]
-        )
+        rc = llm_bench.main(["--case-offset", "59", "--max-cases", "2", "--out", str(out)])
         assert rc == 2
         assert "exceeds 60 cases" in capsys.readouterr().err
         assert fake_http.instances == []
