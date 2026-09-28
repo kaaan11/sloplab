@@ -191,6 +191,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 - [Terminology changes](docs/terminology-changes.md) — old metric names → new names, and why (#44–#52)
 - [Evaluator study guide](docs/evaluator-study.md) — run and read comparative studies
 - [LLM pilot runbook](docs/llm-pilot-runbook.md) — the only manual, metered step
+- [Live pilot record (2026-09-28)](docs/llm-pilot-2026-09-28.md) — three-case
+  run, response failures, and verified artifacts
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not
 - [Safety policy](docs/safety.md) — content rules for fixtures and mutations
 - [Evaluator contract](docs/evaluator-contract.md) — writing your own evaluator
@@ -204,9 +206,11 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 v0.2.2 - audit-remediation patch over the v0.2.x
 deterministic-scope releases: no-op derived cases eliminated, mutation/provenance
 and identity-hygiene fixes, safety enforcement tests, documentation regeneration.
-Live LLM pilot remains deferred; see
+The v0.2.2 release did not include a live LLM study; see
 [docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md) and
-[docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md).
+[docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md). A post-release,
+three-case live pilot ran on 2026-09-28. Its repeat runs had incomplete valid
+response coverage; see the [pilot record](docs/llm-pilot-2026-09-28.md).
 
 ## License
 

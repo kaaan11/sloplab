@@ -1,0 +1,42 @@
+{
+  "experiment_name": "llm-pilot-v0.2",
+  "kind": "llm-pilot",
+  "commit_sha": "370031ab9fa61f52ebd1952914b85c773ae235a3",
+  "base_seed": 20260825,
+  "repeats": 1,
+  "selected_cases": 3,
+  "budget": {
+    "max_requests": 180,
+    "request_timeout_s": 60,
+    "max_retries_per_case": 2,
+    "min_interval_ms": 3000,
+    "deadline_s": null
+  },
+  "effective_max_requests": 180,
+  "counters": {
+    "physical_dispatches": 3,
+    "errors": 0,
+    "timeouts": 0
+  },
+  "planned": 3,
+  "successful": 3,
+  "failed": 0,
+  "not_run": 0,
+  "skipped_by_budget": 0,
+  "skipped_by_deadline": 0,
+  "scored": 3,
+  "stability": {},
+  "stability_omitted_reason": "single-repeat-or-empty",
+  "coverage": {
+    "expected": 3,
+    "successful": 3,
+    "complete": true
+  },
+  "bundle_complete": true,
+  "coverage_sufficient": true,
+  "prompt_hash": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42",
+  "prompt_renderer_version": "file-template-v1",
+  "model_env": "SLOPLAB_LLM_MODEL",
+  "finished_at": "2026-09-28T13:21:14Z",
+  "note": "raw model responses are not stored; only normalized records"
+}
