@@ -3,7 +3,7 @@
 - Card id: `c02`
 - Owner judgment commit: `7bb0360` (`git log --format=%h -1 -- cards/v0.1/c02/owner-judgment.yaml`)
 - Sealed key sha256: `6f169ef110552c4472351b62e2213bb3a90407c4e45e7bb0f940b8356eac19cd`
-- The committed `card.yaml` equals the sealed copy except `provenance.input_sha256` and `provenance.owner_review_status`, the two provenance fields filled after unsealing.
+- The committed `card.yaml` equals the sealed copy except `provenance.input_sha256` and `provenance.owner_review_status`, the two provenance fields filled after unsealing, and the adjudication resolution line below.
 
 ## Card-level comparison
 
@@ -24,6 +24,8 @@
 ## DIFFER details
 
 None.
+
+- Resolution: full agreement; no change (adjudicated 2026-09-28)
 
 ## Summary
 

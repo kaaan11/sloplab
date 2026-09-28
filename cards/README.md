@@ -30,8 +30,8 @@ panel) only opens if there is external interest.
 - `v0.1/<id>/card.yaml` — the full card (answer key). Added after the owner's
   blind judgments were committed (d4b7e65, 7bb0360, 6b9cc2e); until then the
   sealed answer keys lived outside tracked paths. Judgment-vs-key differences
-  are recorded in `adjudication.md`; the resolutions are still pending the
-  owner's decision. See workflow below.
+  are recorded in `adjudication.md`; the resolutions are recorded there and all
+  three cards are adjudicated (2026-09-28). See workflow below.
 - `v0.1/<id>/owner-judgment.template.yaml` — the **generated** per-card blind
   review template: one card-level action, confidence and one-line rationale;
   per-claim status entries for exactly that card's claim ids — all answer
@@ -93,8 +93,10 @@ A card does not return accept/reject. It recommends the next **human** step:
 3. The card.yaml answer keys were added only after the owner's blind judgments
    were committed (d4b7e65, 7bb0360, 6b9cc2e), and the judgment-vs-key
    comparison is recorded in each `adjudication.md`. Recorded differences are
-   left open — resolution is pending the owner's decision. Nothing is deleted;
-   the owner never fills in for the orchestrator.
+   resolved by the owner's judgment and never deleted; nothing else is removed,
+   and the owner never fills in for the orchestrator.
+   All three cards are adjudicated (2026-09-28) and
+   `provenance.owner_review_status` is `adjudicated`.
 
 Each card directory has a generated `owner-judgment.template.yaml` with one
 card-level `action`, `action_claim_ids` (optional), `confidence` and a

@@ -153,5 +153,5 @@ provenance:
   licensing_status: Proposed CC0-1.0, subject to the owner's publication decision.
   input_sha256: c61fab9e196c315f7f1be31297d811691b0b10124459a0f0d1bde50f2d531f3e
   model_annotation_status: not_run
-  owner_review_status: pre_vote_recorded
+  owner_review_status: adjudicated
   external_review_status: none

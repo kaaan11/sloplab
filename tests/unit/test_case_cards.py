@@ -251,6 +251,7 @@ class TestSchema:
         """Every committed card.yaml directory also holds the judgment and the record."""
         assert COMMITTED_CARD_PATHS, "expected committed card.yaml answer keys"
         for card_path in COMMITTED_CARD_PATHS:
+            card = yaml.safe_load(card_path.read_text(encoding="utf-8"))
             card_id = card_path.parent.name
             assert (card_path.parent / "owner-judgment.yaml").is_file(), card_id
             adjudication = card_path.parent / "adjudication.md"
@@ -259,7 +260,9 @@ class TestSchema:
             assert f"# Adjudication record: {card_id}" in text, card_id
             keys = re.findall(r"`([a-f0-9]{64})`", text)
             assert keys and len(keys[0]) == 64, card_id
-            assert "pending owner decision" in text or "DIFFER details\n\nNone." in text, card_id
+            assert text.count("Resolution:") == 1, card_id
+            assert "pending owner decision" not in text, card_id
+            assert card["provenance"]["owner_review_status"] == "adjudicated", card_id
 
     def test_owner_judgment_files_validate_and_match_claim_ids(self) -> None:
         """Owner judgments validate against their schema and mirror the card claim ids."""
