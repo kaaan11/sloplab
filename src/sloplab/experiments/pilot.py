@@ -501,6 +501,9 @@ def run_llm_pilot(
     # prompt_file resolves against repo_root; an absolute one passes through
     # unchanged (pathlib behaviour, kept intentionally).
     loaded_prompt = load_prompt_template(repo_root / config.prompt_file)
+    # Freeze source identity before dispatch. A checkout update during a long
+    # manual run must not relabel its requests with the later commit.
+    run_commit_sha = current_commit_sha(repo_root)
     active = evaluator.with_prompt(loaded_prompt.text)
     # Bind the validated (possibly normalized) chain to the pilot-local copy;
     # the caller's evaluator object keeps its original client.
@@ -661,7 +664,7 @@ def run_llm_pilot(
     manifest = {
         "experiment_name": config.name,
         "kind": "llm-pilot",
-        "commit_sha": current_commit_sha(repo_root),
+        "commit_sha": run_commit_sha,
         "base_seed": config.base_seed,
         "repeats": config.repeats,
         "selected_cases": len(selected),
