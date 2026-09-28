@@ -12,8 +12,7 @@ to a future release's acceptance criteria.
 - Plugin discovery of third-party evaluators via entry points.
 - Localization of fixture prose beyond English.
 - Corpus contribution workflow with automated safety review gate.
-- Broader live LLM study: the initial three-case pilot had incomplete coverage
-  (docs/llm-pilot-2026-09-28.md). The structured-output follow-up reached full
-  three-case repeat coverage (docs/llm-pilot-structured-2026-09-28.md). Expand
-  case coverage in separately budgeted dispatches before making any broader
-  claim about triage quality or stability.
+- Broader live LLM study: structured-output runs covered 13 distinct canonical
+  cases with three repeats each (docs/llm-pilot-structured-2026-09-28.md and
+  docs/llm-pilot-batch-10-2026-09-28.md). The remaining 47 canonical cases and
+  mutation cases need separately budgeted dispatches before broader claims.
