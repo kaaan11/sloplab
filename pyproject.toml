@@ -43,6 +43,8 @@ dev = [
     "ruff>=0.6",
     "mypy>=1.10",
     "types-PyYAML",
+    "jsonschema>=4.21",
+    "types-jsonschema",
     "prompt-toolkit==3.0.52",  # run the optional UI tests in development / CI
 ]
 

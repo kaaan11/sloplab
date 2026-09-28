@@ -1,0 +1,157 @@
+schema_version: case-card-v0.1
+card_id: c03
+scenario_id: acmeportal-invoice-read-with-payment-claim-01
+revision: 1
+title: Documented cross-account invoice read with an untested write claim
+language: en
+license: CC0-1.0
+fully_synthetic: true
+input:
+  opaque_id: case-2f6bc8e91d47
+  context:
+  - id: P1
+    kind: setting
+    text: This is a fully fictional exercise about AcmePortal build 7.1.4 at https://portal.example.org. There
+      is no running target and no tests were executed to produce these materials.
+  - id: P2
+    kind: stipulated_fact
+    text: In AcmePortal a customer-role account may view only invoices owned by its own customer account, unless
+      billing access has been explicitly delegated by the owning account.
+  - id: P3
+    kind: program_policy
+    text: The fictional program includes cross-account data access in the AcmePortal customer portal. To begin
+      human verification it requires the exact build, the acting account and role, the ownership of the affected
+      object, a bounded procedure and an observed result. Proof of additional claimed impact is not required
+      to investigate a sufficiently evidenced core issue.
+  - id: P4
+    kind: assistant_role
+    text: Only a human can confirm whether a vulnerability exists. The assistant recommends a verification
+      step, requests specific missing information, or identifies likely policy exclusions. It does not assign
+      rewards, close submissions, or advise how a report could pass triage.
+  - id: P5
+    kind: stipulated_fact
+    text: Artifacts E1 and E2 are stipulated fictional records of the reporter's session. They show what the
+      reporter says they observed; they are not independent reproduction.
+  report:
+  - id: R01
+    text: '# Invoice page shows another customer''s invoice'
+  - id: R02
+    text: 'Build: AcmePortal 7.1.4, demo tenant on portal.example.org.'
+  - id: R03
+    text: Logged in as account cust-17 with the customer role.
+  - id: R04
+    text: Opened my own invoice INV-2203, then requested invoice INV-2204 through the same invoice page.
+  - id: R05
+    text: INV-2204 belongs to account cust-42. cust-17 has no delegated billing access to cust-42 (E1).
+  - id: R06
+    text: The page showed INV-2204 with cust-42's billing name, amounts and line items (E2).
+  - id: R07
+    text: 'Impact: customer invoice data is exposed across accounts.'
+  - id: R08
+    text: 'Impact: this also lets an attacker change other customers'' saved payment details.'
+  - id: R09
+    text: I did not try changing any payment details.
+  artifacts:
+  - id: E1
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: account=cust-17 (role=customer); account=cust-42; delegations between cust-17
+      and cust-42: none.'
+  - id: E2
+    origin: stipulated_synthetic_artifact
+    text: 'Fictional record only: build=7.1.4; caller=cust-17; caller_role=customer; object=INV-2204; object_owner=cust-42;
+      result=200; rendered=billing name, amounts and line items of INV-2204.'
+  claims:
+  - id: C1
+    statement: A customer-role account was shown an invoice owned by an unrelated customer account.
+    report_refs:
+    - R03
+    - R04
+    - R05
+    - R06
+    - R07
+  - id: C2
+    statement: The same issue lets another account's saved payment details be changed.
+    report_refs:
+    - R08
+    - R09
+review:
+  failure_mode_ids:
+  - FM04
+  why_it_matters: The core cross-account read is documented to the level the policy requires, while the payment-change
+    claim is unsupported. Two errors are possible - repeating the payment claim as established, or deferring
+    or rejecting the whole report because of that unsupported extension.
+  finding_refs:
+  - R1-002
+  - R1-003
+  claim_evidence_map:
+  - claim_id: C1
+    status: supported
+    evidence_refs:
+    - E1
+    - E2
+    - P2
+    - R03
+    - R04
+    - R05
+    - R06
+    explanation: E1 establishes that the accounts are unrelated with no delegation; E2 ties the customer-role
+      caller to the invoice owned by cust-42 and the rendered content. This supports a verification attempt
+      in this exercise, not a real vulnerability conclusion.
+    blocks_core_verification: false
+  - claim_id: C2
+    status: missing
+    evidence_refs:
+    - R08
+    - R09
+    explanation: R08 asserts a write impact, R09 states it was not tried, and no artifact shows any modification
+      path. A read result alone does not establish a write. The gap does not block checking C1.
+    blocks_core_verification: false
+  next_action:
+    primary: verify
+    verification_claim_ids:
+    - C1
+    verification_question: On build 7.1.4, can a customer-role session for one account retrieve an invoice
+      owned by an unrelated account without delegated billing access?
+    blocking_requests: []
+    non_blocking_requests:
+    - If there are observations showing that another account's payment details can be changed, provide them
+      separately; otherwise limit the stated impact to the invoice read. This does not block verification of
+      C1.
+    policy_refs:
+    - P2
+    - P3
+    - P4
+  confidence: high
+  confidence_scope: Confidence in the next-action recommendation conditional on the stipulated fictional context;
+    not a probability that a real vulnerability exists.
+  counterconditions:
+  - condition: cust-17 actually had delegated billing access to cust-42, contrary to E1.
+    alternative_action: request_specific_information
+  - condition: E2 does not correspond to the request described in R04, for example a different caller or invoice.
+    alternative_action: request_specific_information
+  - condition: The applicable policy excluded the customer portal invoice view.
+    alternative_action: likely_out_of_scope
+  status: draft_unreviewed
+provenance:
+  authoring_model_family: Anthropic Claude
+  authoring_model_product: Claude Opus 5.5 (Claude Code orchestrator session)
+  authored_date: '2026-09-27'
+  source_commit: ed8542b
+  source_fixture_paths: []
+  source_finding_ids:
+  - R1-002
+  - R1-003
+  public_source_ancestry: false
+  first_publication_date: null
+  prior_exposure_note: Newly written scenario for case-card-v0.1. Not derived from an existing SlopLab fixture
+    or any real report. The research-03 draft example was used only as a format reference; its scenario (cross-tenant
+    document read with an execution claim) was deliberately not reused.
+  panel_excluded_families:
+  - OpenAI
+  - Meta
+  - Anthropic
+  licensing_status: Proposed CC0-1.0, subject to the owner's publication decision.
+  input_sha256: c61fab9e196c315f7f1be31297d811691b0b10124459a0f0d1bde50f2d531f3e
+  model_annotation_status: not_run
+  owner_review_status: adjudicated
+  external_review_status: none

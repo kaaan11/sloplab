@@ -1,0 +1,22 @@
+# Owner-judgment template for this card. Copy it to owner-judgment.yaml in the
+# same directory and fill in every field before looking at the answer key.
+# Allowed values (choose exactly one per field; leave nothing empty):
+#   action: verify, request_specific_information, likely_out_of_scope
+#   confidence: low, medium, high
+#   per-claim status: supported, missing, contradictory
+# rationale: one short free-text line for the card as a whole (single line).
+# Optional: per-claim note (one line) and action_claim_ids (the claim ids the
+# chosen action is about; may stay empty).
+schema_version: owner-judgment-v0.1
+card_id: c01
+judge: ""
+judged_date: ""
+action: ""
+action_claim_ids: []
+confidence: ""
+rationale: ""
+claims:
+- claim_id: C1
+  status: ""
+- claim_id: C2
+  status: ""

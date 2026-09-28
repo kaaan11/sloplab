@@ -1,0 +1,93 @@
+{
+  "artifacts": [
+    {
+      "id": "E1",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: build=3.2.0; account=acct-310; event=reset_link_issued; link_id=rl-7731; time=T0."
+    },
+    {
+      "id": "E2",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: build=3.2.0; account=acct-310; event=password_changed; method=account_settings; result=success; time=T1 (after T0)."
+    },
+    {
+      "id": "E3",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: build=3.2.0; account=acct-310; event=reset_link_used; link_id=rl-7731; result=password_updated; time=T2 (after T1)."
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "report_refs": [
+        "R03",
+        "R04",
+        "R05"
+      ],
+      "statement": "A password-reset link issued before a password change was accepted after that change."
+    },
+    {
+      "id": "C2",
+      "report_refs": [
+        "R06"
+      ],
+      "statement": "Accepting that link differs from the product's documented behavior."
+    }
+  ],
+  "context": [
+    {
+      "id": "P1",
+      "kind": "setting",
+      "text": "This is a fully fictional exercise about ToyTracker build 3.2.0 at https://tracker.example.org. There is no running target and no tests were executed to produce these materials."
+    },
+    {
+      "id": "P2",
+      "kind": "stipulated_fact",
+      "text": "ToyTracker's documented account policy for build 3.2.0 states that every outstanding password-reset link for an account stops working as soon as that account's password is changed."
+    },
+    {
+      "id": "P3",
+      "kind": "program_policy",
+      "text": "The fictional program includes account-security flaws in the core ToyTracker web application. To begin human verification it requires the exact build, the acting account, the ordered steps and the observed result. It sets no minimum report length and requires no particular headings, severity score or impact section."
+    },
+    {
+      "id": "P4",
+      "kind": "assistant_role",
+      "text": "Only a human can confirm whether a vulnerability exists. The assistant recommends a verification step, requests specific missing information, or identifies likely policy exclusions. It does not assign rewards, close submissions, or advise how a report could pass triage."
+    },
+    {
+      "id": "P5",
+      "kind": "stipulated_fact",
+      "text": "Artifacts E1 to E3 are stipulated fictional records of the reporter's session. They show what the reporter says they observed; they are not independent reproduction."
+    }
+  ],
+  "note": "Annotator-visible view of a case card. Contains only the neutral input context, report, artifacts and claim inventory. The card's review, provenance and answer key are intentionally excluded.",
+  "opaque_id": "case-5e19a4c07b32",
+  "report": [
+    {
+      "id": "R01",
+      "text": "# Old reset link still works after password change"
+    },
+    {
+      "id": "R02",
+      "text": "ToyTracker 3.2.0, test account on tracker.example.org."
+    },
+    {
+      "id": "R03",
+      "text": "1. As user acct-310, request a password-reset link (E1)."
+    },
+    {
+      "id": "R04",
+      "text": "2. While logged in as acct-310, change the password through account settings (E2)."
+    },
+    {
+      "id": "R05",
+      "text": "3. Open the link from step 1 and set another password. It is accepted (E3)."
+    },
+    {
+      "id": "R06",
+      "text": "Expected the step-1 link to be rejected after step 2."
+    }
+  ],
+  "schema_version": "case-card-v0.1"
+}

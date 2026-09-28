@@ -1,0 +1,103 @@
+{
+  "artifacts": [
+    {
+      "id": "E1",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: account=cust-17 (role=customer); account=cust-42; delegations between cust-17 and cust-42: none."
+    },
+    {
+      "id": "E2",
+      "origin": "stipulated_synthetic_artifact",
+      "text": "Fictional record only: build=7.1.4; caller=cust-17; caller_role=customer; object=INV-2204; object_owner=cust-42; result=200; rendered=billing name, amounts and line items of INV-2204."
+    }
+  ],
+  "claims": [
+    {
+      "id": "C1",
+      "report_refs": [
+        "R03",
+        "R04",
+        "R05",
+        "R06",
+        "R07"
+      ],
+      "statement": "A customer-role account was shown an invoice owned by an unrelated customer account."
+    },
+    {
+      "id": "C2",
+      "report_refs": [
+        "R08",
+        "R09"
+      ],
+      "statement": "The same issue lets another account's saved payment details be changed."
+    }
+  ],
+  "context": [
+    {
+      "id": "P1",
+      "kind": "setting",
+      "text": "This is a fully fictional exercise about AcmePortal build 7.1.4 at https://portal.example.org. There is no running target and no tests were executed to produce these materials."
+    },
+    {
+      "id": "P2",
+      "kind": "stipulated_fact",
+      "text": "In AcmePortal a customer-role account may view only invoices owned by its own customer account, unless billing access has been explicitly delegated by the owning account."
+    },
+    {
+      "id": "P3",
+      "kind": "program_policy",
+      "text": "The fictional program includes cross-account data access in the AcmePortal customer portal. To begin human verification it requires the exact build, the acting account and role, the ownership of the affected object, a bounded procedure and an observed result. Proof of additional claimed impact is not required to investigate a sufficiently evidenced core issue."
+    },
+    {
+      "id": "P4",
+      "kind": "assistant_role",
+      "text": "Only a human can confirm whether a vulnerability exists. The assistant recommends a verification step, requests specific missing information, or identifies likely policy exclusions. It does not assign rewards, close submissions, or advise how a report could pass triage."
+    },
+    {
+      "id": "P5",
+      "kind": "stipulated_fact",
+      "text": "Artifacts E1 and E2 are stipulated fictional records of the reporter's session. They show what the reporter says they observed; they are not independent reproduction."
+    }
+  ],
+  "note": "Annotator-visible view of a case card. Contains only the neutral input context, report, artifacts and claim inventory. The card's review, provenance and answer key are intentionally excluded.",
+  "opaque_id": "case-2f6bc8e91d47",
+  "report": [
+    {
+      "id": "R01",
+      "text": "# Invoice page shows another customer's invoice"
+    },
+    {
+      "id": "R02",
+      "text": "Build: AcmePortal 7.1.4, demo tenant on portal.example.org."
+    },
+    {
+      "id": "R03",
+      "text": "Logged in as account cust-17 with the customer role."
+    },
+    {
+      "id": "R04",
+      "text": "Opened my own invoice INV-2203, then requested invoice INV-2204 through the same invoice page."
+    },
+    {
+      "id": "R05",
+      "text": "INV-2204 belongs to account cust-42. cust-17 has no delegated billing access to cust-42 (E1)."
+    },
+    {
+      "id": "R06",
+      "text": "The page showed INV-2204 with cust-42's billing name, amounts and line items (E2)."
+    },
+    {
+      "id": "R07",
+      "text": "Impact: customer invoice data is exposed across accounts."
+    },
+    {
+      "id": "R08",
+      "text": "Impact: this also lets an attacker change other customers' saved payment details."
+    },
+    {
+      "id": "R09",
+      "text": "I did not try changing any payment details."
+    }
+  ],
+  "schema_version": "case-card-v0.1"
+}

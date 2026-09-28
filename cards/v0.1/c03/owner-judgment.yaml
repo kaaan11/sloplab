@@ -1,0 +1,15 @@
+# Owner-judgment for this card.
+schema_version: owner-judgment-v0.1
+card_id: c03
+judge: "Kaan Gökçek"
+judged_date: "2026-09-28"
+action: "verify"
+action_claim_ids:
+- C1
+confidence: "high"
+rationale: "The required cross-account access facts and observed result are supplied for C1; the additional payment-detail impact claim lacks supporting evidence but does not block verification of the core issue."
+claims:
+- claim_id: C1
+  status: "supported"
+- claim_id: C2
+  status: "missing"
