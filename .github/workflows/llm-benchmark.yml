@@ -70,7 +70,7 @@ jobs:
           MAX_CASES: ${{ inputs.max_cases }}
         run: |
           # Dispatch input reaches the shell only through this quoted, validated
-          # environment variable - never via direct ${{ }} interpolation.
+          # environment variable - never via direct workflow expression interpolation.
           case "$MAX_CASES" in
             ''|*[!0-9]*)
               echo "::error::max_cases must be a non-negative integer (got '$MAX_CASES')"
