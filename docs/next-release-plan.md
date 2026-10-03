@@ -4,7 +4,7 @@ The user's October continuation authorizes implementation of remaining work.
 The current tagged release stays v0.2.2; this plan records candidates for the next
 release without changing the historical V1/V0.2 acceptance contract.
 
-## Current implementation wave: installed evaluator plugins
+## Delivered implementation: installed evaluator plugins
 
 - [x] List built-ins and installed `sloplab.evaluators` metadata without importing
   plugin targets; include distribution version and conflicts in deterministic JSON.
@@ -18,6 +18,24 @@ release without changing the historical V1/V0.2 acceptance contract.
 
 The merge gate is successful CI on Python 3.11/3.12/3.13. The implementation PR's
 check results record that gate; the release itself remains a separate milestone.
+
+## Current implementation wave: offline text quality baseline
+
+- [x] Register `text-quality-baseline` with no added dependencies or live calls.
+- [x] Measure section content and distinct ordered-step detail using documented
+  lexical features; expose similarity/repetition as diagnostics only.
+- [x] Keep decisions at manual review, confidence as an uncalibrated control and
+  semantic dimensions explicitly unassessed; preserve labels/identity isolation.
+- [x] Verify missing evidence, duplicate/empty/Unicode/fenced content and repeated
+  benchmark/evaluate/study execution through the normalized contract.
+- [ ] Record the full public-suite descriptive control results and reproducibility.
+- [ ] Complete lint, format, strict mypy, full tests and the three-version CI gate.
+
+The formulas and fixed decision policy are documented before running the full
+suite in [the evaluator guide](text-quality-baseline.md). Corpus outcomes do not
+drive threshold selection; this is a lexical quality control, not a model
+accuracy improvement claim. A trained local-model adapter remains a separate
+backlog item.
 
 ## Previously delivered functionality
 

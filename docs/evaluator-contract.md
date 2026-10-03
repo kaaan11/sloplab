@@ -84,3 +84,6 @@ and the offline HTML report.
 - `oracle` - echoes labels; validates scoring plumbing end to end.
 - `rules-baseline` - deterministic heuristics over section structure and language;
   documented limitations in its docstring and docs/methodology.md.
+- `text-quality-baseline` - offline section/step lexical quality control;
+  always routes to manual review and marks three semantic dimensions unassessed.
+  See [feature definitions and limitations](text-quality-baseline.md).

@@ -88,6 +88,7 @@ installation and cleanup-warning semantics.
 |---|---|---|
 | `rules-baseline` | **in-domain reference** | deterministic lexical heuristics tuned on this corpus; the floor to beat in-domain, not a general triage claim |
 | `evidence-graph-baseline` | **negative control** | structure-only claim-evidence graph; intentionally blind to content-quality mutations - it exists to prove the benchmark detects such blindness, not to win |
+| `text-quality-baseline` | **lexical quality control** | offline section content/step detail; always manual review, with semantic dimensions unassessed; [guide](docs/text-quality-baseline.md) |
 | `oracle` | test-only | echoes ground truth; validates scoring plumbing |
 | `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
 

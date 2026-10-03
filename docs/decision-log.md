@@ -154,3 +154,22 @@ Each entry records a material engineering decision, its context, and consequence
 - **Scope:** benchmark/evaluate CLI and an installable teaching example. Tagged
   release version, corpus targets, mutation operators and study settings remain
   governed by their existing contracts. No release tag is created by this decision.
+
+## D-0015 - Add a content-only lexical quality control
+
+- **Date:** 2026-10-03
+- **Authorization:** The user requested continued work on additional evaluators;
+  existing push and implementation authorization persists.
+- **Decision:** Promote the heuristic text-scoring part of the additional-baseline
+  backlog into [next-release acceptance criteria](next-release-plan.md).
+  `text-quality-baseline` measures transparent section/step proxies without
+  labels, fitted models, new dependencies or corpus-specific mutation phrases.
+- **Semantics:** Lexical overlap and repetition are descriptive diagnostics.
+  Decisions always request manual review; confidence is a fixed uncalibrated
+  control. Claim consistency, impact and scope remain explicitly unassessed at
+  the normalized contract's neutral 0.5. Existing metrics retain their formulas.
+- **Evidence:** [The formulas and limitations](text-quality-baseline.md) are
+  recorded before the full public-suite run. No thresholds are fitted to that
+  run's outcomes. Previous studies, corpus targets and published coverage
+  snapshots keep their existing inputs and results. A trained local-model adapter
+  and release tagging remain separate work.
