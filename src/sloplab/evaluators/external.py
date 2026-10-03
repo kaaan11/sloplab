@@ -54,8 +54,8 @@ def _preserve_registry() -> Iterator[None]:
         base._EVALUATOR_REGISTRY = registry
 
 
-def _import_source(source: str) -> ModuleType:
-    if source.endswith(".py") or "/" in source or "\\" in source:
+def _import_source(source: str, *, module_only: bool = False) -> ModuleType:
+    if not module_only and (source.endswith(".py") or "/" in source or "\\" in source):
         path = Path(source).expanduser().resolve()
         if not path.is_file():
             raise ExternalEvaluatorError(f"Evaluator file not found: {source}")
@@ -81,7 +81,7 @@ def _import_source(source: str) -> ModuleType:
 
 
 @contextmanager
-def _loaded_source(source: str) -> Iterator[ModuleType]:
+def _loaded_source(source: str, *, module_only: bool = False) -> Iterator[ModuleType]:
     """Keep import-cache ownership alive through validation and registry exit.
 
     A rejected importable module must not be reused without executing its body.
@@ -90,9 +90,8 @@ def _loaded_source(source: str) -> Iterator[ModuleType]:
     modules. Like registry restoration, this assumes serialized BYOE resolution,
     not arbitrary concurrent imports or sandboxing of Python side effects.
     """
-    namespace = (
-        None if source.endswith(".py") or "/" in source or "\\" in source else source.split(".")[0]
-    )
+    file_source = not module_only and (source.endswith(".py") or "/" in source or "\\" in source)
+    namespace = None if file_source else source.split(".")[0]
 
     def in_namespace(name: str) -> bool:
         return namespace is not None and (name == namespace or name.startswith(namespace + "."))
@@ -115,7 +114,7 @@ def _loaded_source(source: str) -> Iterator[ModuleType]:
         with _preserve_registry():
             try:
                 try:
-                    module = _import_source(source)
+                    module = _import_source(source, module_only=module_only)
                 finally:
                     # Also record successful parent imports if the leaf fails.
                     remember_imports()
@@ -225,19 +224,33 @@ class _ExternalEvaluator:
             ) from exc
 
 
-def load_external_evaluator(spec: str) -> Evaluator:
+def load_external_evaluator(spec: str, *, expected_name: str | None = None) -> Evaluator:
     """Resolve ``FILE.py:ATTR`` or ``MODULE:ATTR`` without registering the result."""
     source, separator, attribute = spec.rpartition(":")
-    if not separator or not source or not attribute or not attribute.isidentifier():
+    valid_attribute = attribute.isidentifier()
+    if expected_name is not None:
+        # Installed entry points also permit dotted object references. Keep the
+        # existing direct-module specification grammar for its current callers.
+        valid_attribute = bool(attribute) and all(
+            part.isidentifier() for part in attribute.split(".")
+        )
+    if not separator or not source or not attribute or not valid_attribute:
         raise ExternalEvaluatorError(
             "Evaluator spec requires :ATTR: use FILE.py:make or package.module:evaluator."
         )
-    with _loaded_source(source) as module:
-        if not hasattr(module, attribute):
+    with _loaded_source(source, module_only=expected_name is not None) as module:
+        candidate: object = module
+        try:
+            for part in attribute.split("."):
+                candidate = getattr(candidate, part)
+        except AttributeError as exc:
             raise ExternalEvaluatorError(
                 f"Evaluator attribute '{attribute}' not found in '{source}'."
-            )
-        candidate = getattr(module, attribute)
+            ) from exc
+        except Exception as exc:
+            raise ExternalEvaluatorError(
+                f"Cannot inspect evaluator attribute ({type(exc).__name__})."
+            ) from exc
         if inspect.isclass(candidate) or (
             callable(candidate) and not hasattr(candidate, "evaluate")
         ):
@@ -257,13 +270,24 @@ def load_external_evaluator(spec: str) -> Evaluator:
                 f"Cannot inspect evaluator fields ({type(exc).__name__}); "
                 "provide name, version and callable evaluate."
             ) from exc
+        if expected_name is not None and evaluator.name != expected_name:
+            raise ExternalEvaluatorError(
+                "Evaluator name must match its installed entry-point name."
+            )
         return _ExternalEvaluator(evaluator)
 
 
-def resolve_evaluators(names: Sequence[str], modules: Sequence[str] = ()) -> list[Evaluator]:
+def resolve_evaluators(
+    names: Sequence[str], modules: Sequence[str] = (), plugins: Sequence[str] = ()
+) -> list[Evaluator]:
     """Combine built-ins and external objects; reject every name collision."""
-    if not names and not modules:
-        raise ExternalEvaluatorError("Select at least one --evaluator or --evaluator-module.")
+    if not names and not modules and not plugins:
+        raise ExternalEvaluatorError(
+            "Select at least one --evaluator, --evaluator-module or --evaluator-plugin."
+        )
+    from sloplab.evaluators.plugins import resolve_plugin_specs
+
+    plugin_specs = resolve_plugin_specs(plugins) if plugins else []
     reserved = set(base.list_evaluators())
     resolved: list[Evaluator] = []
     seen: set[str] = set()
@@ -282,6 +306,12 @@ def resolve_evaluators(names: Sequence[str], modules: Sequence[str] = ()) -> lis
             raise ExternalEvaluatorError(
                 f"Evaluator name collision: {evaluator.name}; choose a unique external name."
             )
+        seen.add(evaluator.name)
+        resolved.append(evaluator)
+    for name, spec in plugin_specs:
+        if name in reserved or name in seen:
+            raise ExternalEvaluatorError(f"Evaluator name collision: {name}")
+        evaluator = load_external_evaluator(spec, expected_name=name)
         seen.add(evaluator.name)
         resolved.append(evaluator)
     return resolved

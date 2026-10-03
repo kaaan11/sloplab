@@ -43,6 +43,11 @@ uv run sloplab evaluate /tmp/byoe \
 
 ## Loading and trust
 
+Installed packages can advertise evaluators through `sloplab.evaluators` entry
+points. Use `sloplab evaluators` for metadata discovery and the repeatable
+`--evaluator-plugin NAME` option for explicit selection. See the
+[installed plugin guide](evaluator-plugins.md) for packaging and installation.
+
 `--evaluator` and `--evaluator-module` are repeatable and **can be combined**.
 Built-ins only, externals only, and mixed selections all work; at least one source
 is required. A missing/invalid selection is rejected before materialization.

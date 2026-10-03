@@ -24,6 +24,29 @@ def cli() -> None:
     """Adversarial testing framework for vulnerability-report triage evaluators."""
 
 
+@cli.command("evaluators")
+def evaluators_command() -> None:
+    """List built-ins and installed plugin metadata as JSON, without loading plugin targets."""
+    import json
+
+    from sloplab.evaluators.base import get_evaluator, list_evaluators
+    from sloplab.evaluators.external import ExternalEvaluatorError
+    from sloplab.evaluators.plugins import ENTRY_POINT_GROUP, list_plugins
+
+    try:
+        plugins = list_plugins()
+    except ExternalEvaluatorError as exc:
+        raise click.ClickException(str(exc)) from exc
+    builtins = [
+        {"name": name, "version": get_evaluator(name).version} for name in list_evaluators()
+    ]
+    click.echo(
+        json.dumps(
+            {"builtins": builtins, "plugin_group": ENTRY_POINT_GROUP, "plugins": plugins}, indent=2
+        )
+    )
+
+
 @cli.command("add-report")
 @click.argument("report", type=click.Path(exists=True, dir_okay=False, path_type=Path))
 @click.option(
@@ -296,11 +319,13 @@ def _metrics_filename(name: str) -> str:
     return f"metrics-{name}.json"
 
 
-def _select_evaluators(names: tuple[str, ...], modules: tuple[str, ...]) -> list[Evaluator]:
+def _select_evaluators(
+    names: tuple[str, ...], modules: tuple[str, ...], plugins: tuple[str, ...] = ()
+) -> list[Evaluator]:
     from sloplab.evaluators.external import ExternalEvaluatorError, resolve_evaluators
 
     try:
-        return resolve_evaluators(names, modules)
+        return resolve_evaluators(names, modules, plugins)
     except ExternalEvaluatorError as exc:
         raise click.ClickException(str(exc)) from exc
 
@@ -361,15 +386,25 @@ def _hash_file(path: Path) -> str:
     help="Trusted local Python FILE.py:ATTR or MODULE:ATTR; repeatable, not sandboxed.",
 )
 @click.option("--out", type=click.Path(path_type=str), required=True)
+@click.option(
+    "--evaluator-plugin",
+    "evaluator_plugins",
+    multiple=True,
+    help="Installed trusted Python evaluator entry-point name; repeatable.",
+)
 def evaluate(
-    cases: str, evaluators: tuple[str, ...], out: str, evaluator_modules: tuple[str, ...] = ()
+    cases: str,
+    evaluators: tuple[str, ...],
+    out: str,
+    evaluator_modules: tuple[str, ...] = (),
+    evaluator_plugins: tuple[str, ...] = (),
 ) -> None:
     """Run evaluators over a materialized suite (directory with suite-index.jsonl)."""
     from pathlib import Path as _Path
 
     from sloplab.reporting.writers import write_markdown_report
 
-    selected = _select_evaluators(evaluators, evaluator_modules)
+    selected = _select_evaluators(evaluators, evaluator_modules, evaluator_plugins)
     index_path, corpus_root, materialized_root = _resolve_suite_index(cases)
     out_dir = _Path(out)
     bundles = _run_evaluators_over_suite(
@@ -392,6 +427,12 @@ def evaluate(
 )
 @click.option("--out", type=click.Path(path_type=str), required=True)
 @click.option(
+    "--evaluator-plugin",
+    "evaluator_plugins",
+    multiple=True,
+    help="Installed trusted Python evaluator entry-point name; repeatable.",
+)
+@click.option(
     "--materialize/--no-materialize",
     "do_materialize",
     default=True,
@@ -403,6 +444,7 @@ def benchmark(
     out: str,
     do_materialize: bool,
     evaluator_modules: tuple[str, ...] = (),
+    evaluator_plugins: tuple[str, ...] = (),
 ) -> None:
     """Materialize and evaluate a full suite, then score it."""
     from pathlib import Path as _Path
@@ -417,7 +459,7 @@ def benchmark(
     )
     from sloplab.reporting.writers import write_markdown_report, write_records_csv
 
-    selected = _select_evaluators(evaluators, evaluator_modules)
+    selected = _select_evaluators(evaluators, evaluator_modules, evaluator_plugins)
     suite_path = _Path(suite)
     config = load_suite_config(suite_path)
     out_dir = _Path(out)

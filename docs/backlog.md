@@ -10,10 +10,15 @@ to a future release's acceptance criteria.
 - Prospective repeat study with registered provider decoding seeds. The offline
   multi-run/base-seed [variance CLI](variance-analysis.md) is delivered; existing
   run base seeds alone do not establish provider decoding seed control.
-- HTML report format with embedded charts.
-- Plugin discovery of third-party evaluators via entry points.
+- HTML reports with inline SVG charts are already delivered; see the
+  [BYOE guide](bring-your-own-evaluator.md).
+- Installed evaluator plugin discovery is promoted into the
+  [next-release acceptance plan](next-release-plan.md) and delivered with
+  [packaging/usage documentation](evaluator-plugins.md) and clean-wheel verification.
 - Localization of fixture prose beyond English.
-- Corpus contribution workflow with automated safety review gate.
+- Synthetic corpus contributions already use a validated add-report transaction
+  and CI's rule-based content-safety gate; see [CONTRIBUTING](../CONTRIBUTING.md).
+  Independent human validation of targets remains a separate scientific task.
 - Live LLM follow-up: all 60 canonical cases were dispatched, but
   `canonical-sqlx-002` returned HTTP 400 on all six attempts, leaving 59 cases
   with at least three valid responses. `canonical-saml-019` showed a decision
@@ -26,7 +31,10 @@ to a future release's acceptance criteria.
   votes and 417/423 edit votes. A separate NVIDIA sqlx-002 study has three valid
   responses; Dots coverage remains 59/60 and its six edit votes remain blocked
   by HTTP 400.
-- Reopened methodological issues #45, #46, #47, #50 and #52: deterministic
+  The [second recovery](plugin-and-coverage-followup-2026-10-03.md) subsequently
+  brings edit votes to 420/423; three votes remain missing and the canonical
+  diagnostic still returns HTTP 400.
+- Methodological follow-ups from issues #45, #46, #47, #50 and #52: deterministic
   controls and operator/pair audits are recorded in
   [the follow-up](methodology-followup-2026-09-28.md). Owner judgments and a
   three-family panel for nine private
