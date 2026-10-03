@@ -140,3 +140,17 @@ Each entry records a material engineering decision, its context, and consequence
   docs/backlog.md. v0.2.0 is tagged on the latest green main commit; the rc1/rc2
   pre-releases remain untouched. Final v0.2.0 must not be presented as including any
   live-model observation.
+
+## D-0014 - Promote installed evaluator plugins into the next release
+
+- **Date:** 2026-10-03
+- **Authorization:** The user requested continuous implementation of remaining
+  work and granted push permission; routine implementation choices remain delegated.
+- **Decision:** Installed evaluator discovery/selection is promoted from backlog
+  under [explicit acceptance criteria](next-release-plan.md). Group
+  `sloplab.evaluators` uses metadata-only discovery and explicit plugin selection.
+  Selected targets use the existing trusted-local BYOE loader and normalized
+  contract. Duplicate registrations and name collisions are rejected.
+- **Scope:** benchmark/evaluate CLI and an installable teaching example. Tagged
+  release version, corpus targets, mutation operators and study settings remain
+  governed by their existing contracts. No release tag is created by this decision.

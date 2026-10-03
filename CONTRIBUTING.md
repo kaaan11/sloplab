@@ -66,6 +66,16 @@ requires no UI dependency; development installs include the UI toolkit for tests
 - Safety policy (docs/safety.md) is binding; contributions enabling deceptive
   report writing against real targets are rejected.
 
+## Automated corpus gate
+
+`sloplab validate corpus/` checks manifest/identity consistency, required
+evidence sections and the enumerated content-safety policy for canonical and
+derived fixtures. The CI workflow runs this command on pull requests alongside
+lint, type checks and tests; `add-report` also validates before committing its
+local transaction. See [the safety policy](docs/safety.md) for the rule scope.
+These checks cover structural and content-rule conformance. Human reviewers
+assess factual validity and authored target decisions separately.
+
 ## Project layout
 
 ```

@@ -61,6 +61,8 @@ verification) are written by `sloplab study` and the LLM pilot.
 
 Bring your own **trusted local Python evaluator**, alongside the baseline, without
 editing SlopLab source. See the [five-minute BYOE guide](docs/bring-your-own-evaluator.md).
+Installed Python packages can also expose named evaluators: use `sloplab evaluators`
+and `--evaluator-plugin NAME`; see the [plugin guide](docs/evaluator-plugins.md).
 
 ```bash
 uv run sloplab benchmark benchmarks/suites/v1-core.yaml --evaluator rules-baseline --evaluator-module examples/my_evaluator.py:make --out /tmp/byoe
@@ -206,6 +208,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   frozen owner judgments, private-card agreement, and blinded realized-edit annotations
 - [Coverage recovery](docs/coverage-recovery-2026-10-03.md) —
   27/27 card votes, 417/423 edit votes, separate NVIDIA recovery and second-human packet
+- [Plugin and second recovery delivery](docs/plugin-and-coverage-followup-2026-10-03.md) —
+  installed evaluator packages and the latest 420/423 edit-vote snapshot
 - [Second human review](docs/independent-human-review-2026-10-03.md) — returned
   judgments, descriptive agreement and verified rationale correction
 - [Offline repeat analysis](docs/variance-analysis.md) — verified multi-run inputs,
