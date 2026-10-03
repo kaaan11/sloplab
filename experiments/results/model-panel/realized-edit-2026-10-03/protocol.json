@@ -1,0 +1,617 @@
+{
+  "schema_version": "realized-edit-protocol-v0.1",
+  "registered_at": "2026-10-03T15:52:22.406579+00:00",
+  "model_ids": [
+    "dots-studio/dots-3-note-preview:free",
+    "liquid/lfm-2.5-2.6b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free"
+  ],
+  "catalog": {
+    "dots-studio/dots-3-note-preview:free": {
+      "id": "dots-studio/dots-3-note-preview:free",
+      "canonical_slug": "dots-studio/dots-3-note-preview-20260813",
+      "hugging_face_id": null,
+      "name": "Dots Studio: Dots3-Note Preview (free)",
+      "created": 1786680361,
+      "description": "Dots3-Note Preview is an open-weight mixture-of-experts model from Dots Studio, with 16B active parameters out of 280B total. It is the lightest model in the Dots 3 family and is...",
+      "context_length": 512000,
+      "architecture": {
+        "modality": "text+image->text",
+        "input_modalities": [
+          "text",
+          "image"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 512000,
+        "max_completion_tokens": 460800,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "response_format",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "default_parameters": {},
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": "2026-12-31",
+      "links": {
+        "details": "/api/v1/models/dots-studio/dots-3-note-preview-20260813/endpoints"
+      },
+      "reasoning": {
+        "mandatory": false
+      }
+    },
+    "liquid/lfm-2.5-2.6b:free": {
+      "id": "liquid/lfm-2.5-2.6b:free",
+      "canonical_slug": "liquid/lfm-2.5-2.6b-20260811",
+      "hugging_face_id": "LiquidAI/LFM2.5-2.6B",
+      "name": "LiquidAI: LFM2.5-2.6B (free)",
+      "created": 1786470519,
+      "description": "LFM2.5-2.6B is a compact reasoning model from Liquid AI. It is suited for agent workflows, data extraction, RAG, and long-context processing. Liquid advises against using it for agentic coding or...",
+      "context_length": 65536,
+      "architecture": {
+        "modality": "text->text",
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 65536,
+        "max_completion_tokens": 8192,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [
+        "frequency_penalty",
+        "include_reasoning",
+        "logprobs",
+        "max_completion_tokens",
+        "max_tokens",
+        "min_p",
+        "presence_penalty",
+        "reasoning",
+        "repetition_penalty",
+        "response_format",
+        "seed",
+        "stop",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_k",
+        "top_logprobs",
+        "top_p"
+      ],
+      "default_parameters": {
+        "temperature": 0.1,
+        "top_k": 50,
+        "repetition_penalty": 1.1
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/liquid/lfm-2.5-2.6b-20260811/endpoints"
+      },
+      "reasoning": {
+        "mandatory": true
+      }
+    },
+    "nvidia/nemotron-3-super-120b-a12b:free": {
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "canonical_slug": "nvidia/nemotron-3-super-120b-a12b-20230311",
+      "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
+      "name": "NVIDIA: Nemotron 3 Super (free)",
+      "created": 1773245239,
+      "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer...",
+      "context_length": 262144,
+      "architecture": {
+        "modality": "text->text",
+        "input_modalities": [
+          "text"
+        ],
+        "output_modalities": [
+          "text"
+        ],
+        "tokenizer": "Other",
+        "instruct_type": null
+      },
+      "pricing": {
+        "prompt": "0",
+        "completion": "0"
+      },
+      "top_provider": {
+        "context_length": 262144,
+        "max_completion_tokens": 235929,
+        "is_moderated": false
+      },
+      "per_request_limits": null,
+      "supported_parameters": [
+        "include_reasoning",
+        "max_tokens",
+        "reasoning",
+        "reasoning_effort",
+        "response_format",
+        "seed",
+        "structured_outputs",
+        "temperature",
+        "tool_choice",
+        "tools",
+        "top_p"
+      ],
+      "default_parameters": {
+        "temperature": 1,
+        "top_p": 0.95,
+        "top_k": null,
+        "frequency_penalty": null,
+        "presence_penalty": null,
+        "repetition_penalty": null
+      },
+      "supported_voices": null,
+      "knowledge_cutoff": null,
+      "expiration_date": null,
+      "links": {
+        "details": "/api/v1/models/nvidia/nemotron-3-super-120b-a12b-20230311/endpoints"
+      },
+      "benchmarks": {
+        "design_arena": [],
+        "artificial_analysis": {
+          "intelligence_index": 12.8,
+          "coding_index": 37.7,
+          "agentic_index": 1.7
+        }
+      },
+      "reasoning": {
+        "mandatory": false,
+        "default_enabled": true,
+        "supports_max_tokens": true,
+        "supported_efforts": [
+          "medium",
+          "low"
+        ],
+        "default_effort": "medium"
+      }
+    }
+  },
+  "max_requests": 240,
+  "max_attempts_per_vote": 3,
+  "batch_size": 3,
+  "batch_mapping": {
+    "batch-000": [
+      "mut-totiming-019-remove-affected-version-03",
+      "mut-perm-012-remove-reproduction-step-01",
+      "mut-ssrf-005-remove-affected-version-02"
+    ],
+    "batch-001": [
+      "mut-robots-022-scope-expansion-02",
+      "mut-filetype-023-remove-reproduction-step-01",
+      "mut-oob-008-add-irrelevant-detail-02"
+    ],
+    "batch-002": [
+      "mut-crypto-011-professionalize-language-02",
+      "mut-ssrf-005-professionalize-language-06",
+      "mut-pair5a-health-professionalize-language-01"
+    ],
+    "batch-003": [
+      "mut-headermiss-020-professionalize-language-03",
+      "mut-pair2a-dirlist-professionalize-language-01",
+      "mut-permdiff-020-add-irrelevant-detail-04"
+    ],
+    "batch-004": [
+      "mut-permdiff-020-professionalize-language-03",
+      "mut-headermiss-020-scope-expansion-02",
+      "mut-jwtalg-026-add-irrelevant-detail-03"
+    ],
+    "batch-005": [
+      "mut-deserial-030-professionalize-language-05",
+      "mut-authz2-014-remove-affected-version-01",
+      "mut-cachehdr-024-remove-affected-version-02"
+    ],
+    "batch-006": [
+      "mut-tokenurl-013-professionalize-language-05",
+      "mut-crypto-011-remove-reproduction-step-04",
+      "mut-ratelimit2-032-add-irrelevant-detail-02"
+    ],
+    "batch-007": [
+      "mut-ghauthz-015-professionalize-language-03",
+      "mut-loginject-031-professionalize-language-01",
+      "mut-cachehdr-024-add-irrelevant-detail-05"
+    ],
+    "batch-008": [
+      "mut-norepro-009-scope-expansion-04",
+      "mut-graphql-028-add-irrelevant-detail-04",
+      "mut-deserial-030-add-irrelevant-detail-01"
+    ],
+    "batch-009": [
+      "mut-info-006-professionalize-language-02",
+      "mut-racecond-018-remove-affected-version-05",
+      "mut-pair1a-cookie-professionalize-language-01"
+    ],
+    "batch-010": [
+      "mut-ratelimit2-032-remove-affected-version-04",
+      "mut-openred-015-add-irrelevant-detail-05",
+      "mut-pathtrav-017-remove-affected-version-06"
+    ],
+    "batch-011": [
+      "mut-verb-021-scope-expansion-04",
+      "mut-cspnonc-021-professionalize-language-01",
+      "mut-totiming-019-remove-reproduction-step-02"
+    ],
+    "batch-012": [
+      "mut-dup-007-add-irrelevant-detail-02",
+      "mut-selfreg-023-professionalize-language-02",
+      "mut-loginject-031-add-irrelevant-detail-02"
+    ],
+    "batch-013": [
+      "mut-oob-008-scope-expansion-03",
+      "mut-headermiss-020-add-irrelevant-detail-01",
+      "mut-wstoken-022-remove-reproduction-step-01"
+    ],
+    "batch-014": [
+      "mut-openred-015-remove-affected-version-07",
+      "mut-jwtalg-026-remove-reproduction-step-04",
+      "mut-info-006-scope-expansion-01"
+    ],
+    "batch-015": [
+      "mut-wstoken-022-professionalize-language-04",
+      "mut-corswild-025-professionalize-language-01",
+      "mut-filetype-023-remove-affected-version-02"
+    ],
+    "batch-016": [
+      "mut-tokenurl-013-remove-affected-version-01",
+      "mut-saml-019-remove-affected-version-04",
+      "mut-idor-004-professionalize-language-02"
+    ],
+    "batch-017": [
+      "mut-norepro-009-add-irrelevant-detail-03",
+      "mut-authz-001-remove-affected-version-02",
+      "mut-oob-008-professionalize-language-04"
+    ],
+    "batch-018": [
+      "mut-verb-021-add-irrelevant-detail-03",
+      "mut-filetype-023-add-irrelevant-detail-05",
+      "mut-pair4a-passpol-professionalize-language-01"
+    ],
+    "batch-019": [
+      "mut-xssref-016-professionalize-language-02",
+      "mut-totiming-019-add-irrelevant-detail-01",
+      "mut-jwtalg-026-professionalize-language-02"
+    ],
+    "batch-020": [
+      "mut-crypto-011-add-irrelevant-detail-03",
+      "mut-infodisc-016-add-irrelevant-detail-07",
+      "mut-jwtalg-026-remove-affected-version-05"
+    ],
+    "batch-021": [
+      "mut-verb-021-professionalize-language-01",
+      "mut-xsssto-013-add-irrelevant-detail-07",
+      "mut-csvinj-017-professionalize-language-04"
+    ],
+    "batch-022": [
+      "mut-pair7a-404-professionalize-language-01",
+      "mut-robots-022-professionalize-language-03",
+      "mut-authz-001-professionalize-language-06"
+    ],
+    "batch-023": [
+      "mut-saml-019-professionalize-language-08",
+      "mut-massign-014-add-irrelevant-detail-06",
+      "mut-ratelimit-010-add-irrelevant-detail-03"
+    ],
+    "batch-024": [
+      "mut-oauthstate-029-confidence-overstatement-04",
+      "mut-cachepois-027-remove-affected-version-01",
+      "mut-wstoken-022-confidence-overstatement-03"
+    ],
+    "batch-025": [
+      "mut-ratelimit-010-remove-affected-version-05",
+      "mut-info-006-add-irrelevant-detail-04",
+      "mut-cachehdr-024-remove-reproduction-step-01"
+    ],
+    "batch-026": [
+      "mut-loginject-031-confidence-overstatement-05",
+      "mut-graphql-028-remove-affected-version-01",
+      "mut-oauthstate-029-remove-reproduction-step-02"
+    ],
+    "batch-027": [
+      "mut-permdiff-020-remove-reproduction-step-05",
+      "mut-sqlx-002-add-irrelevant-detail-01",
+      "mut-versiondisc-024-add-irrelevant-detail-02"
+    ],
+    "batch-028": [
+      "mut-filetype-023-professionalize-language-04",
+      "mut-ratelimit-010-professionalize-language-02",
+      "mut-cspnonc-021-remove-reproduction-step-03"
+    ],
+    "batch-029": [
+      "mut-ratelimit-010-remove-reproduction-step-04",
+      "mut-saml-019-add-irrelevant-detail-02",
+      "mut-cspnonc-021-add-irrelevant-detail-02"
+    ],
+    "batch-030": [
+      "mut-deserial-030-remove-affected-version-03",
+      "mut-massign-014-remove-affected-version-08",
+      "mut-wstoken-022-add-irrelevant-detail-05"
+    ],
+    "batch-031": [
+      "mut-oauthstate-029-remove-affected-version-03",
+      "mut-ratelimit-010-confidence-overstatement-01",
+      "mut-sqlx-002-remove-affected-version-03"
+    ],
+    "batch-032": [
+      "mut-websig-018-professionalize-language-04",
+      "mut-ratelimit2-032-remove-reproduction-step-03",
+      "mut-loginject-031-remove-affected-version-04"
+    ],
+    "batch-033": [
+      "mut-selfreg-023-scope-expansion-01",
+      "mut-perm-012-remove-affected-version-02",
+      "mut-cachehdr-024-professionalize-language-04"
+    ],
+    "batch-034": [
+      "mut-cachepois-027-professionalize-language-03",
+      "mut-oauthstate-029-professionalize-language-05",
+      "mut-totiming-019-professionalize-language-05"
+    ],
+    "batch-035": [
+      "mut-perm-012-professionalize-language-04",
+      "mut-versiondisc-024-scope-expansion-03",
+      "mut-xsrf-003-professionalize-language-03"
+    ],
+    "batch-036": [
+      "mut-deserial-030-remove-reproduction-step-02",
+      "mut-loginject-031-remove-reproduction-step-03",
+      "mut-wstoken-022-remove-affected-version-02"
+    ],
+    "batch-037": [
+      "mut-selfreg-023-add-irrelevant-detail-04",
+      "mut-corswild-025-add-irrelevant-detail-03",
+      "mut-sqlx-002-professionalize-language-07"
+    ],
+    "batch-038": [
+      "mut-crypto-011-remove-affected-version-05",
+      "mut-pair6a-logout-professionalize-language-01",
+      "mut-oauthstate-029-add-irrelevant-detail-01"
+    ],
+    "batch-039": [
+      "mut-corswild-025-scope-expansion-04",
+      "mut-jwtalg-026-confidence-overstatement-01",
+      "mut-pair3a-comment-professionalize-language-01"
+    ],
+    "batch-040": [
+      "mut-dup-007-professionalize-language-04",
+      "mut-permdiff-020-remove-affected-version-01",
+      "mut-cachepois-027-add-irrelevant-detail-04"
+    ],
+    "batch-041": [
+      "mut-ratelimit2-032-professionalize-language-01",
+      "mut-xssref-016-add-irrelevant-detail-08",
+      "mut-graphql-028-professionalize-language-03"
+    ],
+    "batch-042": [
+      "mut-xsssto-013-professionalize-language-01",
+      "mut-perm-012-add-irrelevant-detail-05",
+      "mut-norepro-009-professionalize-language-01"
+    ],
+    "batch-043": [
+      "mut-cachepois-027-remove-reproduction-step-05",
+      "mut-cspnonc-021-remove-affected-version-04",
+      "mut-pathtrav-017-add-irrelevant-detail-04"
+    ],
+    "batch-044": [
+      "mut-racecond-018-add-irrelevant-detail-03",
+      "mut-versiondisc-024-professionalize-language-04",
+      "mut-graphql-028-remove-reproduction-step-05"
+    ],
+    "batch-045": [
+      "mut-idor-004-add-irrelevant-detail-08",
+      "mut-infodisc-016-professionalize-language-01",
+      "mut-pair8a-session-professionalize-language-01"
+    ],
+    "batch-046": [
+      "mut-authz2-014-professionalize-language-05",
+      "mut-robots-022-add-irrelevant-detail-01",
+      "mut-dup-007-scope-expansion-03"
+    ]
+  },
+  "min_interval_seconds": 3.1,
+  "request_settings": {
+    "dots-studio/dots-3-note-preview:free": {
+      "max_tokens": 4096,
+      "reasoning": {
+        "enabled": false
+      }
+    },
+    "liquid/lfm-2.5-2.6b:free": {
+      "max_tokens": 8192,
+      "reasoning": {
+        "enabled": true
+      }
+    },
+    "nvidia/nemotron-3-super-120b-a12b:free": {
+      "max_tokens": 8192,
+      "reasoning": {
+        "enabled": true
+      }
+    }
+  },
+  "script_sha256": "953ec9d4710c8685bca3b584f306d3e3914d06d046b468c419aa959cd2c6d3ef",
+  "input_sha256": {
+    "mut-authz-001-professionalize-language-06": "cf5a35aacc05d87e37d1eeb8c7e3ec42252d6d5750ba650b706bfb0bb54250bd",
+    "mut-authz-001-remove-affected-version-02": "dfa19cb260b1f18556d643b2ffda01bbd7894c9e3a44840f45925cedbf388861",
+    "mut-authz2-014-professionalize-language-05": "af9e2c6a64b1dd411ac993b43fa1090beebedd80160ad845b444b947c3164a7c",
+    "mut-authz2-014-remove-affected-version-01": "8f375ae82acf59d21817a185df08d7284856e76e8f2edca258bdc881f3f17396",
+    "mut-cachehdr-024-add-irrelevant-detail-05": "7d1c9d20e61918010c9e8695af1960f2a8b8765a418ab270460b2bf763d5dc7e",
+    "mut-cachehdr-024-professionalize-language-04": "dfe980ec9ea72cde3c4ec0e6958085de36af59a6c0c16b5b93f9c0f7ef011ad1",
+    "mut-cachehdr-024-remove-affected-version-02": "fd176ab47bde9fa8efcdf0ada6b732916dd596ae2a28647999953da81c06e95f",
+    "mut-cachehdr-024-remove-reproduction-step-01": "c653dd519b549c9fe4b16aab45602f524764a0cadf1d0febdb73b4328c57b484",
+    "mut-cachepois-027-add-irrelevant-detail-04": "97cf2ece54a74f8558d440a1979af98082c68acb2870eadfd99c69a0230a69cb",
+    "mut-cachepois-027-professionalize-language-03": "93abb8a8c4212ffb5e4afc80024196fe9f4f166d38e8b04181415aa6b96a25f2",
+    "mut-cachepois-027-remove-affected-version-01": "02ca7e670ef26a7298d01d25ba53f2d9297bda6b678201f4df3f9e447af146d1",
+    "mut-cachepois-027-remove-reproduction-step-05": "c968b7342fc8601fa84bbbb987a5d6c000f5627abd1f74030e17d8ef1834eeec",
+    "mut-corswild-025-add-irrelevant-detail-03": "b4f592c25a1acd3bf2b91b54febfe3a4c033148b3dfe969afb3a27565f24d8bd",
+    "mut-corswild-025-professionalize-language-01": "2d943fa169bf618d0e4fb76d56a3940129bfee4930ac5a1396dad4b19e569054",
+    "mut-corswild-025-scope-expansion-04": "e019b2eaa74dfdba92b1519545b475364b171ab7a36541ccb6c272176b7cee31",
+    "mut-crypto-011-add-irrelevant-detail-03": "5ca0b9a180b9d018777832f2ddaf088801fc84c862bbadd1ed9d3b3f3aa1f2f7",
+    "mut-crypto-011-professionalize-language-02": "6baf72c5d583be6bd2112bffc24f16f99c0b6b1145f569e83e37c0ed1c97c185",
+    "mut-crypto-011-remove-affected-version-05": "883b40cd5f1cd41caaae70ea2e55d98b5f454b326239b07d40b15cfdadf346ba",
+    "mut-crypto-011-remove-reproduction-step-04": "e906955e79336119df9fda10126839daf016ab4672999748eb6b7e7dc0b143fb",
+    "mut-cspnonc-021-add-irrelevant-detail-02": "9b2dff309c9ffedc3e5153c3167d28afce865a5b24ac9889906022a6a0d1c76a",
+    "mut-cspnonc-021-professionalize-language-01": "67443d205d5370abfb6b7e6be57441c1ff63370f032517176d9b033a1d95db6e",
+    "mut-cspnonc-021-remove-affected-version-04": "ec08780255173cd67aa4e486e788342bd20242cd0a9daf5b8f5bb511fbe6aecd",
+    "mut-cspnonc-021-remove-reproduction-step-03": "0f8bf822737058d0d25d2b9e01b6407ee5f1997f8dbc1af64b1a84e9ff2d2775",
+    "mut-csvinj-017-professionalize-language-04": "2843ad93658cb9e0ba6b61ec23b7723f8ed7999a208367b86fd29d4368015195",
+    "mut-deserial-030-add-irrelevant-detail-01": "7b1a2fe661fa00a37bceba4ccd285daab6927897213a87230a491e57e552e271",
+    "mut-deserial-030-professionalize-language-05": "9c7583d562b95eb1a16344b0caf2b47fdd3c56ba3038af592979010308ed437a",
+    "mut-deserial-030-remove-affected-version-03": "d5af3ee80dcdf025156dddb16db50a988fa4c43613afe9d71b3eea8d4c214e14",
+    "mut-deserial-030-remove-reproduction-step-02": "c585841026f0fa245b2cea7b441fab69f1603f46d29d7bfeeed58f667350741d",
+    "mut-dup-007-add-irrelevant-detail-02": "d31bd6205322cf0343abd93fa82680b06fb7eb1861f56032610d97df4f4502d0",
+    "mut-dup-007-professionalize-language-04": "8d8165af0c1db3dfeb8984c372837c531a4e06b2f21bce3793f4c8e0d9f353a3",
+    "mut-dup-007-scope-expansion-03": "b3097782ad6e57d7be0694ecdf42841f06598f6d9663b520e65560ce4b6d1ac8",
+    "mut-filetype-023-add-irrelevant-detail-05": "d8c6e136aa030e2deb2aa5a44f252327235cd022e0b30fda7494bd61bebe23c8",
+    "mut-filetype-023-professionalize-language-04": "53e695d0d794c3e355f55137731fffdb40df1cc5105c9a7bd2eb5f20972ea2ca",
+    "mut-filetype-023-remove-affected-version-02": "dcb117eb2cfd4de26284d42d2842a49c0e12b56f1ed2708447583d54a33eae6e",
+    "mut-filetype-023-remove-reproduction-step-01": "a2ee855d3edcfe04fd6517246f9fd059b912e81db22d32a485225da83769b728",
+    "mut-ghauthz-015-professionalize-language-03": "541885cec7d78bac767c02f3ead8267fa0bec73bd4cd467ad2569a8ec73830f9",
+    "mut-graphql-028-add-irrelevant-detail-04": "9f2d3e374a4390fdc2c5a31865bb7a6165749a8764f73de0fe6a338bc7db38b8",
+    "mut-graphql-028-professionalize-language-03": "d4e6bb5befd0cbd2e3cdb16ca8da891e807c4213ddb241a819add12e708f41d5",
+    "mut-graphql-028-remove-affected-version-01": "6fe56e58a0d44b23bdefffe38f3dfb85cc69d6d6ebb51100ba0a3819cd11db17",
+    "mut-graphql-028-remove-reproduction-step-05": "3c38f85f3e5f5910a8d877f6bb3b1922f4d2d8ea65e8a994615fb5770321ae7b",
+    "mut-headermiss-020-add-irrelevant-detail-01": "5dba871c2d724396b47e84268a238aeca0f53af39e66c9ae4230fdb028b427ad",
+    "mut-headermiss-020-professionalize-language-03": "36e3c9844b11d7158656af075f5761c7f6027c59d3390485351aaa6f6657e853",
+    "mut-headermiss-020-scope-expansion-02": "e0e4428bde5f4a151cd1d0791b12a9b79af24b174592fc6e80a74ae9d4adfc54",
+    "mut-idor-004-add-irrelevant-detail-08": "8e73e323e26ebb893e8489ded4e7e93039cf95ac09155b9ae3a8e42a94c09b68",
+    "mut-idor-004-professionalize-language-02": "11e81b25ed313851f47f9ed601652ee233d0356e4150a9e529183dcccd2b2506",
+    "mut-info-006-add-irrelevant-detail-04": "dcae71078dc8b3ff33e1e35cd343baf147eb47425ce3bfd29169fb8cf9e51829",
+    "mut-info-006-professionalize-language-02": "693d81cb98ca95f18745260a9182bc9a7c35d2023609f6e8893cc2e23723889c",
+    "mut-info-006-scope-expansion-01": "742a34f5acda8f5f6a5c0407e8636974c8e3917cbb9b279d155a450c842bd60c",
+    "mut-infodisc-016-add-irrelevant-detail-07": "a8ea58c1a6734e5c02a2da34758e0e37cf2747c524c122d6e508c3317237345c",
+    "mut-infodisc-016-professionalize-language-01": "57fb8e446e5e0b5e5c1e02a600ed7213306777d3fa2dbce2c63b8867f5f5d2f1",
+    "mut-jwtalg-026-add-irrelevant-detail-03": "53b0d210534f62afdb415f1402e1cb7fcd6ceb52ade1072a38ae88563313751f",
+    "mut-jwtalg-026-confidence-overstatement-01": "292e1fbb2357012ca3ea2a338a6692fadc090b407bd8f4d1979f951e70fe7dfb",
+    "mut-jwtalg-026-professionalize-language-02": "ec9605a6dd7ad3806d29f4a3485aaecb915acb9f8bc02b9f0a97b6d68a6918c1",
+    "mut-jwtalg-026-remove-affected-version-05": "96bcac0118d99fe7e22a2edc44aeb5aa3f97a8117088638f7c4f4adebb855777",
+    "mut-jwtalg-026-remove-reproduction-step-04": "2fb89d53441a9e51df3efee1621e7a13a18b644a8952bfb0aefd6992a7cbf2ae",
+    "mut-loginject-031-add-irrelevant-detail-02": "09583672c83644f5837359ceda90d8709ea2913ad21a6d759d9f1e9c33e1068d",
+    "mut-loginject-031-confidence-overstatement-05": "9bdd3f2aba1a4b715be6d4ba946be4e2ea7f466db391a72c88efefa8c7f52446",
+    "mut-loginject-031-professionalize-language-01": "3afb50a9f8068aee11b9d7944fc5cef0ee94458e28161580dda2f7c181404a9d",
+    "mut-loginject-031-remove-affected-version-04": "3d4ea9969d1163965d39a315c637e87a4d30e1299aa04319713228b086a5cd00",
+    "mut-loginject-031-remove-reproduction-step-03": "b5709de7b225b7d25dc7ab596828c52ed9c5a35bd643e8d7b9ddece88c51c026",
+    "mut-massign-014-add-irrelevant-detail-06": "83f9e499ed28d43d6339450d42e1ddec7a423a2741194ab4f1df5ab38a6852c4",
+    "mut-massign-014-remove-affected-version-08": "8eba895caa103880ed4098a42d359c20335fb1a02ec8a8d734817880b6c98297",
+    "mut-norepro-009-add-irrelevant-detail-03": "97b4473c3506cb7578e4e0fd5b74c14878d3c59f0050b6b0b11cf06f696d2eea",
+    "mut-norepro-009-professionalize-language-01": "47acd7d167941bfde96437a2ebe32f238b5594fd1cbe583fa8e9c26389d76416",
+    "mut-norepro-009-scope-expansion-04": "20f1bcea3581ee4e7d123ac11bfee82104613c3d57a021569a268bf7aa62c058",
+    "mut-oauthstate-029-add-irrelevant-detail-01": "bce112904f10e573a24ab09b2eed4b681d7f85c65686fbabae0fa548db82880f",
+    "mut-oauthstate-029-confidence-overstatement-04": "adc2c6bbf6a2e1efe33c5f8a18a6d8579118db180e3bf375fbd420bfd87546b1",
+    "mut-oauthstate-029-professionalize-language-05": "703bca21c582c4cee5bdc2d6c32f6fb44f8b4cb2cb90478646069d2c77a6ca93",
+    "mut-oauthstate-029-remove-affected-version-03": "5dbe52f99a0e5ebe4115a6bd22f35bc933417d8477aa827e36cd68b22cfbb32c",
+    "mut-oauthstate-029-remove-reproduction-step-02": "bea0342fd73c5c1334c3ad27c4b7e05daa78a53006231ccae76e57112ebec8ca",
+    "mut-oob-008-add-irrelevant-detail-02": "ed1b2cee949e1424013f3fc3cad1fde0de0aec2f9b4355cbdd79dd1e11ab21f8",
+    "mut-oob-008-professionalize-language-04": "9d7f67ee446a08c999ae624b8c3c870bc6444d1f770c7e8abd1ffe9ef69b1dbe",
+    "mut-oob-008-scope-expansion-03": "b36fc7b4cc19dd78982826fe79f0b466de782ce1f259c340f7abef6f3ba6e510",
+    "mut-openred-015-add-irrelevant-detail-05": "75007bdeb6754025c8983c010096f68eb86cac54203d5b4d37718fd335d6c593",
+    "mut-openred-015-remove-affected-version-07": "5b9d7b9de20d8a11aacddc2e53d68ea22eb832f35e2d0ae607ebbfc84e233601",
+    "mut-pair1a-cookie-professionalize-language-01": "8ccb6ce7f4ceae0cdc8431be696541f4879d72dead7c1bc02d16ccd8ed8bf346",
+    "mut-pair2a-dirlist-professionalize-language-01": "127f170a686dfcad3b9d2f78b5782414767263387d97999fa9d1e1b0ca50cc73",
+    "mut-pair3a-comment-professionalize-language-01": "f01790017ac46456b656801e69c589c98494194c7943a9cc57ec9c80197d1dae",
+    "mut-pair4a-passpol-professionalize-language-01": "be4f9beb83c9b73481cc5feed8925d7cecac4b52304db2f87840bb87385004df",
+    "mut-pair5a-health-professionalize-language-01": "a8d545b5f2f8b30bee2392bd3e040a5f160a528c3b076eef2867cacc8445bcc1",
+    "mut-pair6a-logout-professionalize-language-01": "3ed5cc70e4e57b52f7ed63365bdc5b0b706f6f48d5309ce7f0d5b3a3f9ff8251",
+    "mut-pair7a-404-professionalize-language-01": "43e87fbf22d422ed1a25629187dd9fd8e2d57b46936b664813a4674a78550668",
+    "mut-pair8a-session-professionalize-language-01": "87af5bc8a3daedfcbfb3f02a0b04cc2cf60bdccbb29d3591513deed93c09c416",
+    "mut-pathtrav-017-add-irrelevant-detail-04": "92513ad12d380fe35c0d68a5c0f1e6a10992076ed5683bce9cc2bd4a955bf4f8",
+    "mut-pathtrav-017-remove-affected-version-06": "c2e0ab5649956f8393c25f7f1199a15c487fe2de94f68f608e4cf23bdb24936a",
+    "mut-perm-012-add-irrelevant-detail-05": "b87f3a48184ddfd1333bc4cc66e37d5166c94e9cc02159e74bef2b5778891032",
+    "mut-perm-012-professionalize-language-04": "6f56c40f1d4e382b4c3e5615f362ec05af7bfa398ac7ef5a527652dea910a66a",
+    "mut-perm-012-remove-affected-version-02": "4036617f17783197e3401b0292a2805eaa819760bafd661ad447aa70d16fc1ee",
+    "mut-perm-012-remove-reproduction-step-01": "f5f3291eb19ea9c65495157818bd360e7d46c64693dbad73a75eade1aed3b682",
+    "mut-permdiff-020-add-irrelevant-detail-04": "9e370ddd981f9fe061c6ffecdcd57d6d5f7c4ff86b04f0a8b4f4c88bf4798364",
+    "mut-permdiff-020-professionalize-language-03": "eb9236b5ac8d73ca51938dcbe976c38058bb787f649376f6610555bd86c61c70",
+    "mut-permdiff-020-remove-affected-version-01": "fb5b920af8dd60a129d429f78e9bee1b21e8666acfc0e3037fdcde3700abc5e3",
+    "mut-permdiff-020-remove-reproduction-step-05": "fcb787a4f411c5c13b1b125fa666befd44ef0926e761f5dbec4a96db247d54a8",
+    "mut-racecond-018-add-irrelevant-detail-03": "3462a9ec24873d0e3806c7bcdd4cde0064f255b5bdd42bdbef841fad098a9a70",
+    "mut-racecond-018-remove-affected-version-05": "9c080a1405deca2df1d661166932c374f8ad17319cebf3f8d4436630c0ec92e4",
+    "mut-ratelimit-010-add-irrelevant-detail-03": "57019647a14a62936a12ee0e328531f31ed51393704352c37f242fd6042bd4dd",
+    "mut-ratelimit-010-confidence-overstatement-01": "653226a5a021015045bac6e51b1616ee3684aab3a22507e9f35ead6e99d075fc",
+    "mut-ratelimit-010-professionalize-language-02": "ed8721a43ad94d678ada69c3b44d7603797b0c55d61ac016e3064b33a1f364ac",
+    "mut-ratelimit-010-remove-affected-version-05": "5a60f4fc00dbba173ad84e040e5cf72ecac3429928b0125522ff07eed370a21e",
+    "mut-ratelimit-010-remove-reproduction-step-04": "a0ea00bfe69924157158fd32bc7f77b3a80fea71f4a5d512140415293b765a0e",
+    "mut-ratelimit2-032-add-irrelevant-detail-02": "fb7f159aa39c3a4eb8383b6c743796789c5ee25dfe0daa72991ba4c75867ca6d",
+    "mut-ratelimit2-032-professionalize-language-01": "679e25297f70537bf1ccfbcfec38190035e836f12396bbd78ba8787d13cd412e",
+    "mut-ratelimit2-032-remove-affected-version-04": "a0e9e28f3bba0483480c9876834b53dbd452a8a7eea1667fffc7827542f905b9",
+    "mut-ratelimit2-032-remove-reproduction-step-03": "d3265dc483770eb4526566ddffae37019cd80a15195d09fed5c05f225a09b3ba",
+    "mut-robots-022-add-irrelevant-detail-01": "76231aa8d2654fdada9c1203534f0b1c117aeb164c0178b093693c2e0870b645",
+    "mut-robots-022-professionalize-language-03": "9f6211cd9982d74b8b612abad566acc949d59781dcad8f968d007e7a708be7bb",
+    "mut-robots-022-scope-expansion-02": "6721790dcbdfbb8c9620100afbe83a448ca537b16549db9058452f41be20feb1",
+    "mut-saml-019-add-irrelevant-detail-02": "4e13833c1c60d1d50103687bd28732e648083cd2102318c481099c26e8234c93",
+    "mut-saml-019-professionalize-language-08": "01aa139b7f730c662cb878ac55eadca58b56928b8ba2ee24cb8017476e7f3341",
+    "mut-saml-019-remove-affected-version-04": "0dc59acc0e686b5e8bf978f7ca1861ab1749967059a031b34b04b0d684d02674",
+    "mut-selfreg-023-add-irrelevant-detail-04": "79cc94c6a6219f96aa872d32ccdcafd94f720ee52596deaee2b29666b67f317d",
+    "mut-selfreg-023-professionalize-language-02": "8b1ce92d3d29308c4bae4f3b32bd956a1333b14bbc6d08322b0456648d9ef9b6",
+    "mut-selfreg-023-scope-expansion-01": "8ae45796e1a10e0440ee03ba2d50d4e1ee283b4c26dcf757451ee9fd5edb79dc",
+    "mut-sqlx-002-add-irrelevant-detail-01": "da1315833ad6d348d2f096bf82cbc3b4b3acbb3485cf93deef74b0038ef857ad",
+    "mut-sqlx-002-professionalize-language-07": "eb3cdeac1cfcf1172cb13ac1e8e6254fa5430b93c59182abe3eb570c5298df42",
+    "mut-sqlx-002-remove-affected-version-03": "887a4df3beed7e19344296f374fd3320e38031e7128bc2918a324a4038416a3f",
+    "mut-ssrf-005-professionalize-language-06": "44a19e4495108e46c78c69610abe902cc70212ff6a904d243d0582dbb77104cc",
+    "mut-ssrf-005-remove-affected-version-02": "3d561498b02c168f9a4550bb65ad49accd273ee9ae3cf882fc311ee935a16621",
+    "mut-tokenurl-013-professionalize-language-05": "34dfe527d84c679ab9c45ec3098424f790e7baf397b80dab4ae3a53fdb651570",
+    "mut-tokenurl-013-remove-affected-version-01": "23e74aa6a1ce96b0bc14334eeb9b8b8bc9e66db776480e7e7c633c7b4f9d06e1",
+    "mut-totiming-019-add-irrelevant-detail-01": "bb6f735cbb4db4379810996fbc5a5a4ef026ee2b8ea63c6337cd7cac8adefc3b",
+    "mut-totiming-019-professionalize-language-05": "e01adcc45c9894711a8590e15da35f863aedf3f9ac12267b46dd0ae2f40761b4",
+    "mut-totiming-019-remove-affected-version-03": "688c14ddcb6ab6c1e26ef39819f036a55450cbc18e826c90d77fc0594bbc9675",
+    "mut-totiming-019-remove-reproduction-step-02": "b1ac2529127d56192ae735f3faf518a320acb3da6b42b815fffcd77aac4d6e38",
+    "mut-verb-021-add-irrelevant-detail-03": "bc48ce3b6868eb94aa72419c6a2201d6f31001ba7078fbb9dbac9227f07eef0c",
+    "mut-verb-021-professionalize-language-01": "4dabec6798eb7853a1c7267c1059b08d36d5d684117a7df425d7d01ac0769f05",
+    "mut-verb-021-scope-expansion-04": "90e8d636dd1fb7ed0f554827ba0ea6d921c4db7ceaf6420c64e06a3383676b63",
+    "mut-versiondisc-024-add-irrelevant-detail-02": "764a2d24c5aeca19d40385787c7402c008383f1d99cb387aece2be10d308ed91",
+    "mut-versiondisc-024-professionalize-language-04": "a16666e7d3b427442809d1cf0ed676a8c50b5820df9618ab100eeb008f537d4d",
+    "mut-versiondisc-024-scope-expansion-03": "b941f6f835b9e1de68985ce27a3ee66d3d507dfcef0461dfda2ad3ca4371985c",
+    "mut-websig-018-professionalize-language-04": "5c11e87ac6826ab15939c0f05426b1c024ae5078edbe06abf855f08120e2ef73",
+    "mut-wstoken-022-add-irrelevant-detail-05": "8f92fb9a8a8a5e3d7471d64ab522e775cdef0f7bc4ce30c13a587fc432b95ac7",
+    "mut-wstoken-022-confidence-overstatement-03": "147d7743f9e75fd7d42c96610e6a39fd00b48c150e4c6dce92174951fe9345a9",
+    "mut-wstoken-022-professionalize-language-04": "fdea1a49a7aae0cb1a8c954b8896b4d618049106a3cb73cbd142d95e57d958c0",
+    "mut-wstoken-022-remove-affected-version-02": "7b86a131df9bae72fccc3ed8e9c3d94f7288e3380ad6b4bed14ca58cd7e3c0fb",
+    "mut-wstoken-022-remove-reproduction-step-01": "fe2999d467af9b70b3e6d7c076fd98b32c1afa42069afa49646f5b24c06c184c",
+    "mut-xsrf-003-professionalize-language-03": "fc3cb998d03a9b85562bdcd7f28949ffdb7154165b276b9243adf7ef46e5b833",
+    "mut-xssref-016-add-irrelevant-detail-08": "49a5d051ef7517e82d1a78b8f7bcca63a3b7882b8eb7c381d1a30381c89d860d",
+    "mut-xssref-016-professionalize-language-02": "36fcf07413f3885f53b26c31207bace6cc54c96c8bfdae51a03800cce4fb62ec",
+    "mut-xsssto-013-add-irrelevant-detail-07": "f36203c37e043bb940445e8d12cb2cc226a0cb08224dff36a9e9dbf2d3351f75",
+    "mut-xsssto-013-professionalize-language-01": "938f3333854a56a4df0da4425325a20ebc63aa79bf7217f87e8304e49671f053"
+  },
+  "raw_ledger_sha256": "4cdb462f63876282d7a0747179e8dcd7538cea1cc7388dd9cf09ad7f25a5fee8",
+  "request_accounting": {
+    "physical_requests": 159,
+    "physical_request_status": {
+      "success": 138,
+      "invalid_or_transport_error": 11,
+      "http_error": 10
+    }
+  }
+}

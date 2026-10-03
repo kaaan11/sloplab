@@ -1,0 +1,65 @@
+{
+  "schema_version": "private-panel-aggregate-v0.1",
+  "reference": "frozen owner blind judgments; descriptive agreement",
+  "owner_sheet_sha256": "ccb0271bf20d5e93960a7473da34d4c18f7c31dffbca4ff564fcda790fcc9a26",
+  "freeze_sha256": "b8dd1c12a53911c9c94391708786c0c1dfec0be8d1b893181f3d4acf17a74fe2",
+  "ledger_sha256": "ce9ee1acca21d2ef29033d6936746f7eb5f49222b3e4772d78237caf643bb947",
+  "physical_requests": 42,
+  "original_physical_requests": 36,
+  "supplemental_physical_requests": 6,
+  "supplemental_hashes": {
+    "protocol_sha256": "c1ec0452a1919f322776918f6f4386c98bade944760741a93fe89d3424c1f852",
+    "ledger_sha256": "422dc8f4c94de4af12aa2fba617391cbd8494f914eee0113463f06cdab4a34aa"
+  },
+  "request_statuses": {
+    "http_error": 16,
+    "success": 25,
+    "invalid_or_transport_error": 1
+  },
+  "planned_votes": 27,
+  "valid_votes": 25,
+  "complete_cards": 7,
+  "cards_with_any_action_disagreement": 4,
+  "cards_with_any_claim_disagreement": 3,
+  "models": {
+    "qwen/qwen3.8-27b:free": {
+      "valid_votes": 7,
+      "owner_action_agreement": 7,
+      "owner_claim_status_agreement": 13,
+      "claim_status_total": 14,
+      "owner_confidence_agreement": 7,
+      "action_transitions": {
+        "request_specific_information -> request_specific_information": 2,
+        "likely_out_of_scope -> likely_out_of_scope": 2,
+        "verify -> verify": 3
+      }
+    },
+    "dots-studio/dots-3-note-preview:free": {
+      "valid_votes": 9,
+      "owner_action_agreement": 9,
+      "owner_claim_status_agreement": 15,
+      "claim_status_total": 18,
+      "owner_confidence_agreement": 8,
+      "action_transitions": {
+        "request_specific_information -> request_specific_information": 3,
+        "likely_out_of_scope -> likely_out_of_scope": 3,
+        "verify -> verify": 3
+      }
+    },
+    "liquid/lfm-2.5-2.6b:free": {
+      "valid_votes": 9,
+      "owner_action_agreement": 4,
+      "owner_claim_status_agreement": 15,
+      "claim_status_total": 18,
+      "owner_confidence_agreement": 8,
+      "action_transitions": {
+        "request_specific_information -> verify": 1,
+        "likely_out_of_scope -> request_specific_information": 1,
+        "verify -> request_specific_information": 1,
+        "likely_out_of_scope -> verify": 2,
+        "request_specific_information -> request_specific_information": 2,
+        "verify -> verify": 2
+      }
+    }
+  }
+}
