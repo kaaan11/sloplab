@@ -88,6 +88,7 @@ installation and cleanup-warning semantics.
 |---|---|---|
 | `rules-baseline` | **in-domain reference** | deterministic lexical heuristics tuned on this corpus; the floor to beat in-domain, not a general triage claim |
 | `evidence-graph-baseline` | **negative control** | structure-only claim-evidence graph; intentionally blind to content-quality mutations - it exists to prove the benchmark detects such blindness, not to win |
+| `text-quality-baseline` | **lexical quality control** | offline section content/step detail; always manual review, with semantic dimensions unassessed; [guide](docs/text-quality-baseline.md) |
 | `oracle` | test-only | echoes ground truth; validates scoring plumbing |
 | `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
 
@@ -210,6 +211,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   27/27 card votes, 417/423 edit votes, separate NVIDIA recovery and second-human packet
 - [Plugin and second recovery delivery](docs/plugin-and-coverage-followup-2026-10-03.md) —
   installed evaluator packages and the latest 420/423 edit-vote snapshot
+- [Text quality control delivery](docs/text-quality-delivery-2026-10-03.md) —
+  offline lexical features, explicit review semantics and 297 replayed records
 - [Second human review](docs/independent-human-review-2026-10-03.md) — returned
   judgments, descriptive agreement and verified rationale correction
 - [Offline repeat analysis](docs/variance-analysis.md) — verified multi-run inputs,

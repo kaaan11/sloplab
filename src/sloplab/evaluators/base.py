@@ -59,10 +59,12 @@ def evaluator_requires_labels(evaluator: object) -> bool:
 from sloplab.evaluators.oracle import OracleEvaluator
 from sloplab.evaluators.rules.baseline import RulesBaselineEvaluator
 from sloplab.evaluators.rules.evidence_graph import EvidenceGraphBaselineEvaluator
+from sloplab.evaluators.text_quality import TextQualityBaselineEvaluator
 
 register_evaluator(OracleEvaluator())
 register_evaluator(RulesBaselineEvaluator())
 register_evaluator(EvidenceGraphBaselineEvaluator())
+register_evaluator(TextQualityBaselineEvaluator())
 
 __all__ = [
     "Evaluator",

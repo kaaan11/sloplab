@@ -12,6 +12,8 @@ Build queue status. Updated after every completed queue item.
 - **Delivered:** bounded recovery ledgers and validation, single-call diagnostic,
   offline repeat/seed variance CLI and deterministic September replay artifact;
   installed evaluator plugin discovery/selection and a clean-wheel-tested example.
+  The offline `text-quality-baseline` is also delivered, with explicit manual-review
+  semantics, 297 replayed public-suite records and a clean-wheel benchmark.
 - **Human dependency:** second-human packet with Turkish instructions is ready
   for the user's friend (nine cards, 18 pairs). Filled judgments are received
   and structurally validated: card action/confidence agreement 9/9, claim status
@@ -23,6 +25,8 @@ Build queue status. Updated after every completed queue item.
   original scope; optional expansions remain in [backlog](backlog.md).
   [Plugin/second recovery delivery](plugin-and-coverage-followup-2026-10-03.md)
   records the latest implementation and coverage checkpoint.
+  [Text quality delivery](text-quality-delivery-2026-10-03.md) records the new
+  lexical control, source-bound artifacts and 1264 passing tests.
 
 ## V1 acceptance criteria
 
