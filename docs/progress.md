@@ -13,7 +13,8 @@ Build queue status. Updated after every completed queue item.
 - **Human dependency:** second-human packet with Turkish instructions is ready
   for the user's friend (nine cards, 18 pairs). Filled judgments are received
   and structurally validated: card action/confidence agreement 9/9, claim status
-  agreement 16/18. One p10 rationale revision remains pending; see the
+  agreement 16/18. The p10 rationale revision is received and verified with
+  unchanged decisions and aggregate counts; see the
   [independent review](independent-human-review-2026-10-03.md).
 - **Evidence:** [coverage recovery](coverage-recovery-2026-10-03.md) and
   [variance guide](variance-analysis.md). Historical results below retain their

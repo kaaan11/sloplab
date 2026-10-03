@@ -104,7 +104,7 @@ Arkadaşın yalnızca paketi inceleyip bütün alanları doldurduğu
 `judgment-sheet.json` dosyasını geri vermesi gerekir. İsim yerine farklı bir
 takma ad kullanılabilir. İnsan yanıtı bekleniyor; sonuç üretilmedi veya
 insanlar arası uyum hesaplanmadı. Bu, paketin hazırlık anındaki durumdur;
-sonrasında gelen formun kontrolü ve p10 gerekçe revizyonu
+sonrasında gelen formun kontrolü ve tamamlanan p10 gerekçe revizyonu
 [ikinci insan incelemesinde](independent-human-review-2026-10-03.md) kayıtlıdır.
 Paket daha önce proje/sağlayıcı tarafından
 görülmüş girdilerden oluşur; yeni bir görülmemiş küme değildir.

@@ -14,13 +14,15 @@ senaryo metinleri erişim kontrollü dizinde kalır.
 | İncelenen girdiler hazırlanan paketle aynı | Doğrulandı | Senaryo ve yönerge hash'leri aynı; yalnızca yanıt formu değişti. Kartlar ilk insanın girdileriyle, çiftler kamuya açık kaynaklarıyla ayrıca eşleşti. |
 | Değerlendirici farklı kimlikle kayıtlı | Doğrulandı | İsim/takma ad ilk insanınkinden farklı. Bu kontrolün kapsamı kayıtlı kimliktir. |
 | Önceki yanıtlardan etkilenmeden farklı insan doldurdu | Belirsiz | Farklı insan kullanıcı tarafından beyan edildi. Paket önceki oyları içermiyordu; dosya kontrolleri doldurma sırasında ne görüldüğünü veya bağımsız yazarlığı kanıtlayamaz. |
-| p10 A metni imzalama adımını atlıyor | Çürütüldü | İkinci imzalama adımı A'da mevcut. B'de olup A'da eksik olan üçüncü gönderme/karşılaştırma adımı. Kalite gerekçesi için değerlendiriciden düzeltme istendi. |
+| İlk p10 gerekçesi: A metni imzalama adımını atlıyor | Çürütüldü; düzeltildi | İkinci imzalama adımı A'da mevcut. B'de olup A'da eksik olan üçüncü gönderme/karşılaştırma adımı. İlk teslim özel snapshot'ta korundu. |
+| Düzeltilen p10 gerekçesi eksik adımı doğru tanımlıyor | Doğrulandı | Yeni kalite gerekçesi A'daki ikinci yeniden imzalama adımının mevcut, üçüncü gönderme/karşılaştırma adımının eksik olduğunu açıkça belirtiyor. |
 
-**Form yapısal olarak kabul edilebilir; p10 gerekçe düzeltmesi bekleniyor.**
-Aşağıdaki sayılar teslim edilen mevcut yanıtların betimsel özetidir. Kararlar
-değerlendirici adına değiştirilmedi; p10 revizyonu kararları değiştirirse özet
-yeniden üretilecektir. Metin uyuşmazlığı eylem/kalite kararlarının otomatik
-olarak yanlış olduğu anlamına gelmez.
+**Form kontrolü ve istenen p10 gerekçe düzeltmesi tamamlandı.** Kullanıcının
+düzelttiğini bildirdiği formda yalnız p10'un kalite ve eylem gerekçeleri
+değişti. Girdiler, kararlar, kart yanıtları ve bütün toplu sayılar aynı kaldı.
+Yeni form yeniden doğrulandı, özel snapshot olarak korundu ve toplu JSON'un
+kaynak hash'i güncellendi. Kararlar değerlendirici adına değiştirilmedi.
+Aşağıdaki sayılar teslim edilen yanıtların betimsel özetidir.
 
 ## Kartlar: iki insan arasında uyum
 
@@ -47,7 +49,7 @@ ayrışmalar yeni bir ortak hedef karara dönüştürülmedi. Kart girdileri dah
 cevaplar, tarihsel `decision-preserving` hedeflerini bağımsız olarak
 sorgulayan anotasyonlardır. İnsan yanıtını model çoğunluğuyla değiştirmek veya
 eski hedefleri otomatik yeniden etiketlemek için kullanılmadı. p10 bunlardan
-biridir; gerekçe düzeltmesi beklenmektedir.
+biridir; düzeltilen gerekçesinde de eylem/kalite kararları korundu.
 
 18 çiftin 17'sinde üç modelin de geçerli oyu var. Bir çiftte Dots oyu eksik;
 bu çift tam model çoğunluğu karşılaştırmasına alınmaz.
@@ -98,10 +100,14 @@ paydasına alınmasını, girdi değişimini, aynı değerlendirici kimliğini,
 geçersiz/eksik yanıtları ve yinelenen JSON alanlarını denetler. Toplu JSON
 aynı baytlarla yeniden üretildi.
 
+Düzeltme kontrolünde 12 ilgili paket/özet testi geçti. Yeni form kaynak
+hash'i dışında eski toplu JSON'la tam eşleşti; yeni JSON aynı baytlarla tekrar
+üretildi. İlk ve düzeltilen özel teslimlerin ikisi de saklanmıştır.
+
 ## Kalan işler
 
-p10 gerekçe düzeltmesi ve gerekirse iki karttaki iddia durumu ayrışmasının
-insanlar arasında ayrıca görüşülmesi sonraki adımlardır. Dots'un altı eksik
+p10 düzeltmesi tamamlandı. Gerekirse iki karttaki iddia durumu ayrışmasının
+insanlar arasında ayrıca görüşülmesi sonraki adımdır. Dots'un altı eksik
 çift oyu ve kanonik `sqlx-002` HTTP 400 sorunu bu insan değerlendirmesinden
 bağımsız olarak sürer. Yeni insan yazımı özel girdiler, kapsamlı yeni tekrar
 çalışmaları ve isteğe bağlı genişletmeler [backlog](backlog.md) içindedir.

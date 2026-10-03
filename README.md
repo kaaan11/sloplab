@@ -207,7 +207,7 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 - [Coverage recovery](docs/coverage-recovery-2026-10-03.md) —
   27/27 card votes, 417/423 edit votes, separate NVIDIA recovery and second-human packet
 - [Second human review](docs/independent-human-review-2026-10-03.md) — returned
-  judgments, descriptive agreement and one pending rationale correction
+  judgments, descriptive agreement and verified rationale correction
 - [Offline repeat analysis](docs/variance-analysis.md) — verified multi-run inputs,
   decision/confidence variability and cluster bootstrap intervals
 - [Exposure register](docs/exposure-register.md) — public ancestry and private
