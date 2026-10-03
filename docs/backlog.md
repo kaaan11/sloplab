@@ -31,7 +31,9 @@ to a future release's acceptance criteria.
   [the follow-up](methodology-followup-2026-09-28.md). Owner judgments and a
   three-family panel for nine private
   inputs are now recorded in the [October follow-up](model-panel-followup-2026-10-03.md),
-  alongside blinded realized-edit annotations. Further human raters and
-  newly authored private inputs are future validation work. A blinded second-human
-  packet (nine cards, 18 balanced edit pairs) is prepared for the user's friend;
-  the actual judgment sheet is pending, as recorded in the coverage recovery.
+  alongside blinded realized-edit annotations. The user's friend returned the
+  second-human packet (nine cards, 18 balanced edit pairs); structure and source
+  integrity pass, while one p10 rationale revision is pending. See the
+  [independent review](independent-human-review-2026-10-03.md). Additional human
+  raters, adjudication of disagreements and newly authored private inputs remain
+  future validation work.

@@ -11,7 +11,10 @@ Build queue status. Updated after every completed queue item.
 - **Delivered:** bounded recovery ledgers and validation, single-call diagnostic,
   offline repeat/seed variance CLI and deterministic September replay artifact.
 - **Human dependency:** second-human packet with Turkish instructions is ready
-  for the user's friend (nine cards, 18 pairs); filled judgments are pending.
+  for the user's friend (nine cards, 18 pairs). Filled judgments are received
+  and structurally validated: card action/confidence agreement 9/9, claim status
+  agreement 16/18. One p10 rationale revision remains pending; see the
+  [independent review](independent-human-review-2026-10-03.md).
 - **Evidence:** [coverage recovery](coverage-recovery-2026-10-03.md) and
   [variance guide](variance-analysis.md). Historical results below retain their
   original scope; optional expansions remain in [backlog](backlog.md).
