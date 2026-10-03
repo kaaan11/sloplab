@@ -33,7 +33,7 @@ to a future release's acceptance criteria.
   inputs are now recorded in the [October follow-up](model-panel-followup-2026-10-03.md),
   alongside blinded realized-edit annotations. The user's friend returned the
   second-human packet (nine cards, 18 balanced edit pairs); structure and source
-  integrity pass, while one p10 rationale revision is pending. See the
+  integrity pass, and the requested p10 rationale correction is verified. See the
   [independent review](independent-human-review-2026-10-03.md). Additional human
   raters, adjudication of disagreements and newly authored private inputs remain
   future validation work.
