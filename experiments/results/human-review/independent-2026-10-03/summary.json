@@ -1,0 +1,84 @@
+{
+  "schema_version": "independent-human-review-aggregate-v1",
+  "judged_date": "2026-10-03",
+  "provenance": {
+    "protocol_sha256": "8d33de7a5f95606bd5e3c2a41e28229b33d96d5df010780fae37af0326c9cb23",
+    "second_sheet_sha256": "baf41ce36deddeff9109b0aa13d5192815d3600433cc70ac67a0d8687549d191",
+    "first_sheet_sha256": "ccb0271bf20d5e93960a7473da34d4c18f7c31dffbca4ff564fcda790fcc9a26",
+    "annotations_sha256": "da47be89a01f55090ff4814425b3d816339630097c58139ed35ff9c52174bf4b"
+  },
+  "validation": {
+    "complete": true,
+    "inputs_unchanged": true,
+    "reviewer_identifier_differs": true,
+    "scope": "field completeness and input identity; rationale correctness is not adjudicated"
+  },
+  "independence_note": "different human declared by user; blindness and independent authorship cannot be established from file checks",
+  "cards": {
+    "total": 9,
+    "action_matches_first_human": 9,
+    "confidence_matches_first_human": 9,
+    "claim_status_matches_first_human": 16,
+    "claim_status_total": 18
+  },
+  "pairs": {
+    "total": 18,
+    "human_categories": {
+      "both": 2,
+      "neither": 7,
+      "quality_only": 9
+    },
+    "by_operator": {
+      "add_irrelevant_detail": {
+        "neither": 3
+      },
+      "confidence_overstatement": {
+        "quality_only": 3
+      },
+      "professionalize_language": {
+        "neither": 3
+      },
+      "remove_affected_version": {
+        "quality_only": 3
+      },
+      "remove_reproduction_step": {
+        "both": 2,
+        "neither": 1
+      },
+      "scope_expansion": {
+        "quality_only": 3
+      }
+    },
+    "complete_model_panels": 17,
+    "individual_model_agreement": {
+      "dots-studio/dots-3-note-preview:free": {
+        "valid_pairs": 17,
+        "quality_matches": 8,
+        "action_matches": 15
+      },
+      "liquid/lfm-2.5-2.6b:free": {
+        "valid_pairs": 18,
+        "quality_matches": 6,
+        "action_matches": 16
+      },
+      "nvidia/nemotron-3-super-120b-a12b:free": {
+        "valid_pairs": 18,
+        "quality_matches": 9,
+        "action_matches": 9
+      }
+    },
+    "definite_model_majority_agreement": {
+      "quality_changed": {
+        "definite_pairs": 13,
+        "matches": 7
+      },
+      "action_changed": {
+        "definite_pairs": 17,
+        "matches": 15
+      }
+    },
+    "definite_model_category_pairs": 13,
+    "category_matches_definite_model_majority": 5
+  },
+  "interpretation": "descriptive agreement on nine exposed cards and 18 targeted pairs; no new ground truth, representative prevalence or general accuracy claim"
+}
