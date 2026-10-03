@@ -2,6 +2,20 @@
 
 Build queue status. Updated after every completed queue item.
 
+## October 2026 follow-up checkpoint
+
+- **Coverage:** nine private cards now have 27/27 valid model votes. The public
+  realized-edit panel has 417/423 votes; six Dots votes still fail with HTTP 400.
+- **Canonical diagnosis:** Dots sqlx-002 still fails. A separately registered
+  NVIDIA study has 3/3 valid observations; original Dots coverage stays 59/60.
+- **Delivered:** bounded recovery ledgers and validation, single-call diagnostic,
+  offline repeat/seed variance CLI and deterministic September replay artifact.
+- **Human dependency:** second-human packet with Turkish instructions is ready
+  for the user's friend (nine cards, 18 pairs); filled judgments are pending.
+- **Evidence:** [coverage recovery](coverage-recovery-2026-10-03.md) and
+  [variance guide](variance-analysis.md). Historical results below retain their
+  original scope; optional expansions remain in [backlog](backlog.md).
+
 ## V1 acceptance criteria
 
 - [x] 48 controlled canonical fixtures (12 valid / 10 invalid / 10 review / 8 presentation pairs as 16 files).
