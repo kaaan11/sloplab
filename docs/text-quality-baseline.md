@@ -23,7 +23,8 @@ study configs continue to select their original evaluators explicitly.
 
 Tokens use Unicode NFKC normalization and case folding. Alphanumeric words,
 including numbers, count as tokens; internal apostrophes and hyphens stay within
-a word. Ordered-list markers are removed. There is no stemming, learned
+a word. Ordered-list markers and fence delimiters/language tags are removed.
+There is no stemming, learned
 vocabulary or language detection. Section names follow the existing English
 heading conventions. Heading words themselves do not count as body content;
 child section bodies are included.
@@ -36,7 +37,7 @@ child section bodies are included.
 | `decision` | Always `needs_manual_review`, including well-filled and empty reports. |
 | `confidence` | Fixed `0.5`; `confidence_kind=fixed_uncalibrated_control`. This is a control value, not an estimated correctness probability. |
 
-Steps are ordered-list first lines with at most three leading spaces/tabs;
+Steps are ordered-list first lines with at most three leading spaces;
 fenced code and indented code lines do not provide steps. Continuation/code
 contents can contribute to section content, but do not contribute to step-detail
 scores. The content-token filter removes a fixed list of common English function

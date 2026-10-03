@@ -74,7 +74,7 @@ def test_registered_quality_control_has_explicit_unknown_semantics() -> None:
     assert "TEXT_SEMANTICS_UNASSESSED" in codes(result)
 
 
-@pytest.mark.parametrize("body", ["", "# Title only", "!!!", "## Summary\n\n```\n```"])
+@pytest.mark.parametrize("body", ["", "# Title only", "!!!", "## Summary\n\n```text\n```"])
 def test_empty_or_unusual_content_returns_valid_zero_quality(body: str) -> None:
     result = evaluate(body)
     assert result.dimensions.reproducibility == 0.0
@@ -137,6 +137,7 @@ def test_repeated_steps_and_word_padding_do_not_improve_quality() -> None:
     "fenced",
     [
         "```text\n1. Fake ordered sample line.\n```",
+        "\u00a0```text\n1. Fake ordered sample line.\n\u00a0```",
         "~~~text\n1. Fake ordered sample line.\n~~~",
         "````\n1. Fake ordered sample line.\n```\n2. Still fenced sample line.\n````",
         "```\n1. Fake ordered sample line.\n~~~\n2. Still fenced sample line.\n```",
@@ -150,7 +151,10 @@ def test_numbered_code_lines_are_not_reproduction_steps(fenced: str) -> None:
 
 
 def test_indented_code_and_stop_word_steps_supply_no_detail() -> None:
-    result = evaluate("## Reproduction Steps\n    1. Indented code sample.\n1. The and it.\n")
+    result = evaluate(
+        "## Reproduction Steps\n    1. Indented code sample.\n"
+        "\t1. Tab indented code sample.\n1. The and it.\n"
+    )
     assert result.metadata["ordered_steps"] == 1
     assert result.metadata["distinct_content_steps"] == 0
     assert result.dimensions.reproducibility == 0.0

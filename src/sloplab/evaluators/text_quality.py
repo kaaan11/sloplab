@@ -26,9 +26,9 @@ from sloplab.models.evaluation import (
 from sloplab.models.report import ReportDocument, ReportSection
 
 _TOKEN_RE = re.compile(r"[^\W_]+(?:['’-][^\W_]+)*")
-_STEP_RE = re.compile(r"^[ \t]{0,3}\d+[.)][ \t]+(?P<body>\S.*)$")
-_LIST_PREFIX_RE = re.compile(r"^[ \t]{0,3}\d+[.)][ \t]+", re.MULTILINE)
-_FENCE_RE = re.compile(r"^[ \t]*(?P<marker>`{3,}|~{3,})(?P<tail>.*)$")
+_STEP_RE = re.compile(r"^ {0,3}\d+[.)][ \t]+(?P<body>\S.*)$")
+_LIST_PREFIX_RE = re.compile(r"^ {0,3}\d+[.)][ \t]+", re.MULTILINE)
+_FENCE_RE = re.compile(r"^\s*(?P<marker>`{3,}|~{3,})(?P<tail>.*)$")
 _STOP_WORDS = frozenset(
     [
         "a",
@@ -96,6 +96,7 @@ _UNASSESSED = (
 
 def _tokens(text: str) -> list[str]:
     normalized = unicodedata.normalize("NFKC", text).casefold()
+    normalized = "\n".join(line for line in normalized.splitlines() if not _FENCE_RE.match(line))
     return _TOKEN_RE.findall(_LIST_PREFIX_RE.sub("", normalized))
 
 
