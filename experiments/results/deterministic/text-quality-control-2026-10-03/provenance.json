@@ -1,0 +1,63 @@
+{
+  "artifact_sha256": {
+    "input-identity.json": "9efeb410edd8824eb37df5713e6a0f9a83bc550dc9cde9100da4b05f630bd258",
+    "metrics-text-quality-baseline.json": "67df3bd8d0b6564683498626149552e873f21cb93285857e1a5416a98d6fd620",
+    "records.jsonl": "e3a3694c9da45edf92e2c6c7ca0debd54e29fc084f8a9c0cfcbdc467059888e0"
+  },
+  "authored_target_counts": {
+    "accept": 52,
+    "needs_manual_review": 158,
+    "reject": 87
+  },
+  "canonical_target_counts": {
+    "accept": 18,
+    "needs_manual_review": 16,
+    "reject": 26
+  },
+  "decision_counts": {
+    "needs_manual_review": 297
+  },
+  "kind": "descriptive_text_quality_control_snapshot",
+  "limitations": [
+    "Public synthetic cases; no independent accuracy claim.",
+    "All decisions route to manual review; three dimensions are unassessed.",
+    "Selected evaluator records are exported; this is not an integrity-marked study bundle."
+  ],
+  "schema_version": 1,
+  "selection": {
+    "case_count": 297,
+    "evaluator": "text-quality-baseline"
+  },
+  "source_file_sha256": {
+    "benchmarks/suites/v1-core.yaml": "95a68b1c761e74678494253292f45a5443c506bededf8f5087edfd169ff52b40",
+    "src/sloplab/corpus/conventions.py": "01c2f9c9b1f9fae4b635e50c9bd2aba0b80b99bec6b595246fd3393820b547fb",
+    "src/sloplab/corpus/parser.py": "4332bef095c0cd36bcc5d237ae830af8d5feeb147dcf0045dc66c519b49a0b05",
+    "src/sloplab/evaluators/text_quality.py": "01c5fe99546cf4b7e9253254cd2f2c01ac77d76e5c7b225e6e5ce7a92282ded1"
+  },
+  "source_run_metadata": {
+    "base_seed": 20260825,
+    "evaluators": [
+      {
+        "name": "rules-baseline",
+        "version": "0.1.0"
+      },
+      {
+        "name": "text-quality-baseline",
+        "version": "0.1.0"
+      }
+    ],
+    "git_commit": "a44788087f6faac46ceabace1fb0e026be9ae48c",
+    "python_version": "3.13.15",
+    "record_type": "run_metadata",
+    "run_id": "run-20261003T204432",
+    "sloplab_version": "0.2.2",
+    "started_at": "2026-10-03T20:44:32.745325Z",
+    "suite_config": {
+      "corpus_root": "corpus",
+      "index": "suite-index.jsonl",
+      "outcomes_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "suite_hash": "0ff9ef81ef92d0d40470a9b285bce27bf89b6e4ce517356a4b96477b0b4d4771",
+    "suite_name": "v1-core"
+  }
+}

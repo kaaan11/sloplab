@@ -7,9 +7,10 @@ to a future release's acceptance criteria.
   licenses, permission tracking, PII/target scrubbing pipeline.
 - Live GitHub issue ingestion mode (read-only) with provenance capture.
 - The offline heuristic text scorer is promoted into the
-  [next-release plan](next-release-plan.md); see
-  [text-quality-baseline](text-quality-baseline.md). A trained small local-model
-  adapter remains a separate additional-baseline candidate.
+  [next-release plan](next-release-plan.md) and delivered; see
+  [text-quality-baseline](text-quality-baseline.md) and its
+  [297-case snapshot](text-quality-delivery-2026-10-03.md).
+  A trained small local-model adapter remains a separate additional-baseline candidate.
 - Prospective repeat study with registered provider decoding seeds. The offline
   multi-run/base-seed [variance CLI](variance-analysis.md) is delivered; existing
   run base seeds alone do not establish provider decoding seed control.
