@@ -8,6 +8,7 @@ from collections import Counter
 
 from heldout_panel import FREEZE, MANIFEST, MODELS, RESULTS, ROOT, _output_schema, load_owner_sheet
 from jsonschema import Draft202012Validator
+from panel_supplements import load_supplements
 
 
 def summarize() -> dict:
@@ -40,6 +41,7 @@ def summarize() -> dict:
             "protocol_sha256": hashlib.sha256(supplemental_protocol_path.read_bytes()).hexdigest(),
             "ledger_sha256": hashlib.sha256(supplemental_path.read_bytes()).hexdigest(),
         }
+    rows, coverage_supplements, _ = load_supplements(ROOT, "cards", FREEZE, rows)
     successful: dict[tuple[str, str], dict] = {}
     attempts: Counter[tuple[str, str]] = Counter()
     statuses: Counter[str] = Counter()
@@ -104,6 +106,7 @@ def summarize() -> dict:
         "original_physical_requests": original_requests,
         "supplemental_physical_requests": len(rows) - original_requests,
         "supplemental_hashes": supplemental_hashes,
+        "coverage_supplements": coverage_supplements,
         "request_statuses": dict(statuses),
         "planned_votes": len(views) * len(MODELS),
         "valid_votes": len(successful),

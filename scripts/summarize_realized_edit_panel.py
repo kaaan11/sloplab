@@ -10,11 +10,15 @@ from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
+from panel_supplements import load_supplements
 from realized_edit_panel import MAX_ATTEMPTS, MODELS, PROTOCOL, RESULTS, SCHEMA, load_pairs
 
 
 def normalize_requests(
-    raw_rows: list[dict[str, Any]], protocol: dict[str, Any], pairs: list[dict[str, str]]
+    raw_rows: list[dict[str, Any]],
+    protocol: dict[str, Any],
+    pairs: list[dict[str, str]],
+    attempt_limits: dict[tuple[str, str], int] | None = None,
 ) -> list[dict[str, Any]]:
     expected_ids = {p["mutation_id"] for p in pairs}
     reverse: dict[str, str] = {}
@@ -33,7 +37,8 @@ def normalize_requests(
         if key[0] not in protocol["batch_mapping"] or key[1] not in MODELS:
             raise ValueError("unknown batch or model")
         history = histories[key]
-        if row["attempt"] != len(history) + 1 or len(history) >= MAX_ATTEMPTS:
+        cap = (attempt_limits or {}).get(key, MAX_ATTEMPTS)
+        if row["attempt"] != len(history) + 1 or len(history) >= cap:
             raise ValueError("duplicate or nonsequential attempt")
         if any(r["status"] == "success" for r in history):
             raise ValueError("request after successful batch")
@@ -87,15 +92,23 @@ def main() -> None:
         public_protocol = protocol
     else:
         raw_rows = [json.loads(line) for line in RESULTS.read_text(encoding="utf-8").splitlines()]
-        rows = normalize_requests(raw_rows, protocol, pairs)
+        normalize_requests(raw_rows, protocol, pairs)
+        original_request_count = len(raw_rows)
+        raw_rows, supplements, limits = load_supplements(
+            RESULTS.parent, "edits", PROTOCOL, raw_rows
+        )
+        rows = normalize_requests(raw_rows, protocol, pairs, limits)
         accounting = {
             "physical_requests": len(raw_rows),
             "physical_request_status": dict(Counter(r["status"] for r in raw_rows)),
+            "original_physical_requests": original_request_count,
+            "supplemental_physical_requests": len(raw_rows) - original_request_count,
         }
         public_protocol = {
             **protocol,
             "raw_ledger_sha256": hashlib.sha256(RESULTS.read_bytes()).hexdigest(),
             "request_accounting": accounting,
+            "coverage_supplements": supplements,
         }
     by_pair: dict[str, list[dict]] = defaultdict(list)
     model_status: Counter[str] = Counter()

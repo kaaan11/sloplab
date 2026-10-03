@@ -887,6 +887,52 @@ def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -
     click.echo(rendered.read_text())
 
 
+@cli.command("variance")
+@click.argument(
+    "bundles",
+    nargs=-1,
+    required=True,
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+)
+@click.option("--bootstrap-samples", default=2000, show_default=True, type=click.IntRange(min=100))
+@click.option("--confidence", default=0.95, show_default=True, type=float)
+@click.option("--seed", default=0, show_default=True, type=int)
+@click.option(
+    "--corpus", type=click.Path(exists=True, file_okay=False, path_type=Path), default=None
+)
+@click.option("--out", type=click.Path(dir_okay=False, path_type=Path), default=None)
+def variance(
+    bundles: tuple[Path, ...],
+    bootstrap_samples: int,
+    confidence: float,
+    seed: int,
+    corpus: Path | None,
+    out: Path | None,
+) -> None:
+    """Analyze repeat variability from verified LLM pilot bundles, without model calls."""
+    import json
+
+    from sloplab.experiments.variance import VarianceError, analyze_variance
+
+    try:
+        result = analyze_variance(
+            list(bundles),
+            samples=bootstrap_samples,
+            confidence=confidence,
+            seed=seed,
+            corpus_root=corpus,
+        )
+    except (VarianceError, ValueError, KeyError, OSError) as exc:
+        raise click.ClickException(str(exc)) from exc
+    rendered = json.dumps(result, indent=2, allow_nan=False) + "\n"
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(rendered)
+        click.echo(f"variance report written to {out}")
+    else:
+        click.echo(rendered, nl=False)
+
+
 def main() -> None:  # pragma: no cover - console entry point
     cli()
 

@@ -1,0 +1,1093 @@
+{
+  "schema_version": "llm-variance-v1",
+  "bootstrap_samples": 2000,
+  "confidence_level": 0.95,
+  "bootstrap_seed": 0,
+  "unit": "logical report cluster; complete cases with >=2 valid observations",
+  "cluster_source": "corpus pair_id plus parent_id",
+  "seed_note": "base_seed records run provenance; it does not establish provider decoding seed control",
+  "interpretation": "descriptive variability on supplied inputs; no general accuracy claim",
+  "conditions": [
+    {
+      "condition_id": "0e79a8edf5b1e446256b00615c80213fa50140181b8770b90b7b85949f237c22",
+      "model_id": "dots-studio/dots-3-note-preview:free",
+      "prompt_hash": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42",
+      "prompt_renderer_version": "file-template-v1",
+      "output_mode": "json_schema",
+      "response_schema_sha256": "08cddbaf77e328885c16fecabddb5e9d97a4725d4fa7f82f92d0acd82a51dde7",
+      "provider_require_parameters": true,
+      "temperature": 0.0,
+      "sources": [
+        {
+          "bundle_sha256": "6f3742ad87ac3d018d814cca3989cbe13df99a3d22b828128e0cbf0ed8a13d60",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "1c96e8264a358b2d8c72368e01a6553acc8fc8156721cd294434e29a45801b65",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "fcac0b08b217701be44c503e5a7034092c26a229cc2baf92ec0c86e6aa07d623",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "b5f26f49ce949ece6b59f0cb156232e57613beef4dac4160b74c58e5644038d9",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "acae277a2098a571b373ee6031cdb206ae2985f81bd77d8772b9a12dcba146dc",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "c675ac126a006f48ed760310deedddd600601487c06275bb220998f60a43783c",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "8826a1f5cbd86728d06cd37c02d9f65a9fece67fb2d319d75009578862a4e68a",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "7a906a87f987f5f15aae3be90b2434a6899f9d4700e41c6625505c5742fcff1d",
+          "base_seed": 20260825
+        },
+        {
+          "bundle_sha256": "86220802243fe470f5c4b4227ca014f15f393837db624646fbfd3d272192779b",
+          "base_seed": 20260825
+        }
+      ],
+      "cases": [
+        {
+          "case_id": "canonical-authz-001",
+          "cluster_id": "canonical-authz-001",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9833333333333333,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-authz2-014",
+          "cluster_id": "canonical-authz2-014",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-cachehdr-024",
+          "cluster_id": "canonical-cachehdr-024",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-cachepois-027",
+          "cluster_id": "canonical-cachepois-027",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8666666666666667,
+          "confidence_population_sd": 0.04714045207910316,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-corswild-025",
+          "cluster_id": "canonical-corswild-025",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-crypto-011",
+          "cluster_id": "canonical-crypto-011",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-cspnonc-021",
+          "cluster_id": "canonical-cspnonc-021",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.7666666666666667,
+          "confidence_population_sd": 0.04714045207910321,
+          "confidence_range": 0.10000000000000009
+        },
+        {
+          "case_id": "canonical-csvinj-017",
+          "cluster_id": "canonical-csvinj-017",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-deserial-030",
+          "cluster_id": "canonical-deserial-030",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8833333333333333,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-dup-007",
+          "cluster_id": "canonical-dup-007",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-filetype-023",
+          "cluster_id": "canonical-filetype-023",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.85,
+          "confidence_population_sd": 0.10801234497346435,
+          "confidence_range": 0.25
+        },
+        {
+          "case_id": "canonical-ghauthz-015",
+          "cluster_id": "canonical-ghauthz-015",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-graphql-028",
+          "cluster_id": "canonical-graphql-028",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.7333333333333333,
+          "confidence_population_sd": 0.04714045207910321,
+          "confidence_range": 0.10000000000000009
+        },
+        {
+          "case_id": "canonical-headermiss-020",
+          "cluster_id": "canonical-headermiss-020",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-idor-004",
+          "cluster_id": "canonical-idor-004",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-info-006",
+          "cluster_id": "canonical-info-006",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-infodisc-016",
+          "cluster_id": "canonical-infodisc-016",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-jwtalg-026",
+          "cluster_id": "canonical-jwtalg-026",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-loginject-031",
+          "cluster_id": "canonical-loginject-031",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8166666666666667,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-massign-014",
+          "cluster_id": "canonical-massign-014",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9333333333333333,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-norepro-009",
+          "cluster_id": "canonical-norepro-009",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-oauthstate-029",
+          "cluster_id": "canonical-oauthstate-029",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.7833333333333333,
+          "confidence_population_sd": 0.06236095644623237,
+          "confidence_range": 0.15000000000000002
+        },
+        {
+          "case_id": "canonical-oob-008",
+          "cluster_id": "canonical-oob-008",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-openred-015",
+          "cluster_id": "canonical-openred-015",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9266666666666666,
+          "confidence_population_sd": 0.03771236166328252,
+          "confidence_range": 0.07999999999999996
+        },
+        {
+          "case_id": "canonical-pair1a-cookie",
+          "cluster_id": "pair-001",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.04714045207910316,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-pair1b-cookie",
+          "cluster_id": "pair-001",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pair2a-dirlist",
+          "cluster_id": "pair-002",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pair2b-dirlist",
+          "cluster_id": "pair-002",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.96,
+          "confidence_population_sd": 0.014142135623730963,
+          "confidence_range": 0.030000000000000027
+        },
+        {
+          "case_id": "canonical-pair3a-comment",
+          "cluster_id": "pair-003",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pair3b-comment",
+          "cluster_id": "pair-003",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.96,
+          "confidence_population_sd": 0.014142135623730963,
+          "confidence_range": 0.030000000000000027
+        },
+        {
+          "case_id": "canonical-pair4a-passpol",
+          "cluster_id": "pair-004",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-pair4b-passpol",
+          "cluster_id": "pair-004",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.96,
+          "confidence_population_sd": 0.014142135623730963,
+          "confidence_range": 0.030000000000000027
+        },
+        {
+          "case_id": "canonical-pair5a-health",
+          "cluster_id": "pair-005",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-pair5b-health",
+          "cluster_id": "pair-005",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pair6a-logout",
+          "cluster_id": "pair-006",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-pair6b-logout",
+          "cluster_id": "pair-006",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-pair7a-404",
+          "cluster_id": "pair-007",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pair7b-404",
+          "cluster_id": "pair-007",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-pair8a-session",
+          "cluster_id": "pair-008",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-pair8b-session",
+          "cluster_id": "pair-008",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-pathtrav-017",
+          "cluster_id": "canonical-pathtrav-017",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9333333333333333,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-perm-012",
+          "cluster_id": "canonical-perm-012",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.85,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-permdiff-020",
+          "cluster_id": "canonical-permdiff-020",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.85,
+          "confidence_population_sd": 0.04082482904638629,
+          "confidence_range": 0.09999999999999998
+        },
+        {
+          "case_id": "canonical-racecond-018",
+          "cluster_id": "canonical-racecond-018",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-ratelimit-010",
+          "cluster_id": "canonical-ratelimit-010",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.8833333333333333,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-ratelimit2-032",
+          "cluster_id": "canonical-ratelimit2-032",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.7833333333333333,
+          "confidence_population_sd": 0.06236095644623237,
+          "confidence_range": 0.15000000000000002
+        },
+        {
+          "case_id": "canonical-robots-022",
+          "cluster_id": "canonical-robots-022",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-saml-019",
+          "cluster_id": "canonical-saml-019",
+          "planned_observations": 6,
+          "statuses": {
+            "failed": 1,
+            "success": 5
+          },
+          "complete": false,
+          "eligible_for_flip_interval": false,
+          "decision_counts": {
+            "accept": 4,
+            "needs_manual_review": 1
+          },
+          "observed_decision_flip": true,
+          "confidence_mean": 0.9,
+          "confidence_population_sd": 0.05477225575051658,
+          "confidence_range": 0.1499999999999999
+        },
+        {
+          "case_id": "canonical-selfreg-023",
+          "cluster_id": "canonical-selfreg-023",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9333333333333333,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-sqlx-002",
+          "cluster_id": "canonical-sqlx-002",
+          "planned_observations": 6,
+          "statuses": {
+            "failed": 6
+          },
+          "complete": false,
+          "eligible_for_flip_interval": false,
+          "decision_counts": {},
+          "observed_decision_flip": null,
+          "confidence_mean": null,
+          "confidence_population_sd": null,
+          "confidence_range": null
+        },
+        {
+          "case_id": "canonical-ssrf-005",
+          "cluster_id": "canonical-ssrf-005",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9333333333333333,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-tokenurl-013",
+          "cluster_id": "canonical-tokenurl-013",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-totiming-019",
+          "cluster_id": "canonical-totiming-019",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.7833333333333333,
+          "confidence_population_sd": 0.06236095644623237,
+          "confidence_range": 0.15000000000000002
+        },
+        {
+          "case_id": "canonical-verb-021",
+          "cluster_id": "canonical-verb-021",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.96,
+          "confidence_population_sd": 0.014142135623730963,
+          "confidence_range": 0.030000000000000027
+        },
+        {
+          "case_id": "canonical-versiondisc-024",
+          "cluster_id": "canonical-versiondisc-024",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "reject": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9666666666666667,
+          "confidence_population_sd": 0.023570226039551605,
+          "confidence_range": 0.050000000000000044
+        },
+        {
+          "case_id": "canonical-websig-018",
+          "cluster_id": "canonical-websig-018",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-wstoken-022",
+          "cluster_id": "canonical-wstoken-022",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "needs_manual_review": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.75,
+          "confidence_population_sd": 0.07071067811865477,
+          "confidence_range": 0.15000000000000002
+        },
+        {
+          "case_id": "canonical-xsrf-003",
+          "cluster_id": "canonical-xsrf-003",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.95,
+          "confidence_population_sd": 0.0,
+          "confidence_range": 0.0
+        },
+        {
+          "case_id": "canonical-xssref-016",
+          "cluster_id": "canonical-xssref-016",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9333333333333333,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        },
+        {
+          "case_id": "canonical-xsssto-013",
+          "cluster_id": "canonical-xsssto-013",
+          "planned_observations": 3,
+          "statuses": {
+            "success": 3
+          },
+          "complete": true,
+          "eligible_for_flip_interval": true,
+          "decision_counts": {
+            "accept": 3
+          },
+          "observed_decision_flip": false,
+          "confidence_mean": 0.9166666666666666,
+          "confidence_population_sd": 0.023570226039551553,
+          "confidence_range": 0.04999999999999993
+        }
+      ],
+      "observation_statuses": {
+        "success": 179,
+        "failed": 7
+      },
+      "eligible_cases": 58,
+      "logical_report_clusters": 50,
+      "flip_rate": 0.0,
+      "flip_rate_interval": [
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

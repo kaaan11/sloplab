@@ -204,6 +204,10 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   fixed-action controls, transition and presentation audits, and owner-review status
 - [Model panel follow-up](docs/model-panel-followup-2026-10-03.md) —
   frozen owner judgments, private-card agreement, and blinded realized-edit annotations
+- [Coverage recovery](docs/coverage-recovery-2026-10-03.md) —
+  27/27 card votes, 417/423 edit votes, separate NVIDIA recovery and second-human packet
+- [Offline repeat analysis](docs/variance-analysis.md) — verified multi-run inputs,
+  decision/confidence variability and cluster bootstrap intervals
 - [Exposure register](docs/exposure-register.md) — public ancestry and private
   held-out protocol
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not

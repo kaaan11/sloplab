@@ -1,5 +1,10 @@
 # Kanonik korpus canlı LLM çalışması — 28 Eylül 2026
 
+3 Ekim ek kaydı: Dots teşhisi HTTP 400 vermeyi sürdürüyor. Aynı vaka için
+ayrı NVIDIA çalışması üç geçerli yanıt verdi; aşağıdaki Dots çalışmasının
+59/60 kapsamı değişmedi. [Kapsam tamamlama kaydı](coverage-recovery-2026-10-03.md)
+ve [başarısızlıkları koruyan tekrar analizi](variance-analysis.md).
+
 ## Kapsam ve kurulum
 
 Kanonik suite sırasındaki 60 farklı vaka, üçer tekrar hedefiyle yedi ayrık

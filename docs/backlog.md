@@ -7,7 +7,9 @@ to a future release's acceptance criteria.
   licenses, permission tracking, PII/target scrubbing pipeline.
 - Live GitHub issue ingestion mode (read-only) with provenance capture.
 - Additional evaluator baselines: heuristic NLP scorer, small local model adapter.
-- Multi-seed variance analysis CLI with confidence intervals for stochastic evaluators.
+- Prospective repeat study with registered provider decoding seeds. The offline
+  multi-run/base-seed [variance CLI](variance-analysis.md) is delivered; existing
+  run base seeds alone do not establish provider decoding seed control.
 - HTML report format with embedded charts.
 - Plugin discovery of third-party evaluators via entry points.
 - Localization of fixture prose beyond English.
@@ -20,10 +22,16 @@ to a future release's acceptance criteria.
   the provider failure before claiming complete canonical coverage; mutation
   cases beyond the realized-edit annotation panel remain future work.
   The separate nine-card private panel is recorded in the October follow-up.
+  [The coverage recovery](coverage-recovery-2026-10-03.md) completes all 27 card
+  votes and 417/423 edit votes. A separate NVIDIA sqlx-002 study has three valid
+  responses; Dots coverage remains 59/60 and its six edit votes remain blocked
+  by HTTP 400.
 - Reopened methodological issues #45, #46, #47, #50 and #52: deterministic
   controls and operator/pair audits are recorded in
   [the follow-up](methodology-followup-2026-09-28.md). Owner judgments and a
   three-family panel for nine private
   inputs are now recorded in the [October follow-up](model-panel-followup-2026-10-03.md),
   alongside blinded realized-edit annotations. Further human raters and
-  newly authored private inputs are future validation work.
+  newly authored private inputs are future validation work. A blinded second-human
+  packet (nine cards, 18 balanced edit pairs) is prepared for the user's friend;
+  the actual judgment sheet is pending, as recorded in the coverage recovery.
