@@ -202,6 +202,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   60 cases dispatched, 59 with valid responses, one persistent HTTP 400
 - [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
   fixed-action controls, transition and presentation audits, and owner-review status
+- [Model panel follow-up](docs/model-panel-followup-2026-10-03.md) —
+  frozen owner judgments, private-card agreement, and blinded realized-edit annotations
 - [Exposure register](docs/exposure-register.md) — public ancestry and private
   held-out protocol
 - [Threat model](docs/threat-model.md) — what SlopLab defends against, and what it is not

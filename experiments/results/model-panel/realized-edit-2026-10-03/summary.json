@@ -1,0 +1,78 @@
+{
+  "population": "141 public decision-preserving realized edits",
+  "annotation": "exploratory model votes; authored labels hidden",
+  "models": [
+    "dots-studio/dots-3-note-preview:free",
+    "liquid/lfm-2.5-2.6b:free",
+    "nvidia/nemotron-3-super-120b-a12b:free"
+  ],
+  "planned_votes": 423,
+  "physical_requests": 159,
+  "physical_request_status": {
+    "success": 138,
+    "invalid_or_transport_error": 11,
+    "http_error": 10
+  },
+  "successful_votes": 414,
+  "model_status": {
+    "dots-studio/dots-3-note-preview:free:http_error": 6,
+    "dots-studio/dots-3-note-preview:free:success": 135,
+    "liquid/lfm-2.5-2.6b:free:http_error": 3,
+    "liquid/lfm-2.5-2.6b:free:success": 138,
+    "nvidia/nemotron-3-super-120b-a12b:free:success": 141
+  },
+  "majority_categories": {
+    "incomplete": 9,
+    "neither": 73,
+    "quality_only": 55,
+    "uncertain": 4
+  },
+  "pairs_with_any_dissent": 114,
+  "uncertain_pairs": 4,
+  "pairs_with_failed_vote": 9,
+  "axis_vote_counts": {
+    "quality": {
+      "no": 223,
+      "yes": 167,
+      "uncertain": 6
+    },
+    "action": {
+      "no": 379,
+      "uncertain": 6,
+      "yes": 11
+    }
+  },
+  "by_operator": {
+    "add_irrelevant_detail": {
+      "incomplete": 1,
+      "neither": 27,
+      "quality_only": 8
+    },
+    "confidence_overstatement": {
+      "incomplete": 1,
+      "neither": 3,
+      "quality_only": 1
+    },
+    "professionalize_language": {
+      "incomplete": 3,
+      "neither": 29,
+      "quality_only": 14,
+      "uncertain": 2
+    },
+    "remove_affected_version": {
+      "incomplete": 3,
+      "neither": 10,
+      "quality_only": 13
+    },
+    "remove_reproduction_step": {
+      "incomplete": 1,
+      "neither": 2,
+      "quality_only": 13
+    },
+    "scope_expansion": {
+      "neither": 2,
+      "quality_only": 6,
+      "uncertain": 2
+    }
+  }
+}

@@ -11,7 +11,7 @@ later edits and repackaging do not reset exposure.
 | Derived `v1-core` variants and reference decisions in `benchmarks/results/v1-core-example/` | 2026-08-25, beginning at `f98107e` | Yes: mutation manifests and run records | Generated from public canonicals; current 237-case population was regenerated later | Public development corpus, not held out |
 | Three `cards/v0.1/` annotator inputs | 2026-09-27, beginning at `70b32cc` | Answer keys added 2026-09-28 at `c534002`; owner judgments were committed first | Fully synthetic, Anthropic Claude authored; no existing fixture ancestry | Public examples; exclude Anthropic, OpenAI and Meta from a future model panel as recorded in card provenance |
 | Canonical OpenRouter pilot records | 2026-09-28, PR #77 | Yes: normalized decisions and authored targets | Same public canonical inputs | Descriptive run only; 59/60 cases with valid responses, not an independent accuracy estimate |
-| Nine fresh private card inputs, c04–c12 | Not published; created locally 2026-09-28 | No: author key sealed outside Git; owner judgment pending | OpenAI-authored, fully synthetic, no copied fixture text; source SHA-256 `2348100781dc3dca5dabd877fd236fb0a600cad8b253044b085fb58778e35feb` | Access-controlled candidate set under ignored `heldout-private/`; no model dispatch yet |
+| Nine fresh private card inputs, c04–c12 | Not published; created locally 2026-09-28 | No: author key and owner judgments remain outside Git; owner judged all nine on 2026-10-03 before dispatch | OpenAI-authored, fully synthetic, no copied fixture text; source SHA-256 `2348100781dc3dca5dabd877fd236fb0a600cad8b253044b085fb58778e35feb` | Access-controlled panel inputs under ignored `heldout-private/`; first dispatch 2026-10-03, 15:16 UTC; 25/27 valid votes, aggregate publication only |
 
 ## Exposure policy for new evaluation inputs
 
@@ -34,6 +34,20 @@ later edits and repackaging do not reset exposure.
    provider is a controlled exposure and must be recorded even if the
    repository remains private.
 
-No held-out model accuracy claim exists yet. The [canonical LLM
+## October private panel
+
+The owner sheet was frozen before the first dispatch at 2026-10-03T15:16:46Z,
+SHA-256 `ccb0271bf20d5e93960a7473da34d4c18f7c31dffbca4ff564fcda790fcc9a26`.
+Qwen, Dots and Liquid received neutral inputs only. The sealed author key was
+compared afterward: one claim-status disagreement is retained privately, with
+the submitted owner judgment governing the reference. No post-panel owner
+review is asserted. Original inputs, judgments, answer key and raw votes stay
+ignored; only aggregates and hashes are published. See the
+[panel follow-up](model-panel-followup-2026-10-03.md).
+
+These nine inputs are now exposed to those providers and cannot be reused as
+fresh inputs. Provider training exposure to similar scenarios is unknown.
+The result is descriptive agreement with one owner's frozen judgments, not a
+general model accuracy claim. The [canonical LLM
 study](llm-pilot-canonical-coverage-2026-09-28.md) used the public corpus and
 does not satisfy this protocol.

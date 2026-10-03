@@ -18,8 +18,12 @@ to a future release's acceptance criteria.
   flip across repeated runs. See
   [the coverage report](llm-pilot-canonical-coverage-2026-09-28.md). Resolve
   the provider failure before claiming complete canonical coverage; mutation
-  cases and a fresh, access-controlled held-out set remain future work.
+  cases beyond the realized-edit annotation panel remain future work.
+  The separate nine-card private panel is recorded in the October follow-up.
 - Reopened methodological issues #45, #46, #47, #50 and #52: deterministic
   controls and operator/pair audits are recorded in
-  [the follow-up](methodology-followup-2026-09-28.md). Nine fresh private
-  inputs await the owner's blind judgment before a three-family panel.
+  [the follow-up](methodology-followup-2026-09-28.md). Owner judgments and a
+  three-family panel for nine private
+  inputs are now recorded in the [October follow-up](model-panel-followup-2026-10-03.md),
+  alongside blinded realized-edit annotations. Further human raters and
+  newly authored private inputs are future validation work.

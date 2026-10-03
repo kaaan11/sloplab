@@ -70,36 +70,35 @@ its parent manifest while the target decision remains unchanged. This is a
 provenance inconsistency to disclose, not evidence that all 26 actions should
 change. A listed `required_evidence` item is not a universal hard gate: the
 program policy and the core claim decide what blocks human verification.
-The old variants have **not** been independently relabeled.
+The old authored targets are retained. A separate blinded model annotation
+sidecar is recorded in the [October panel follow-up](model-panel-followup-2026-10-03.md).
 
-A blinded three-family realized-edit panel is prepared in
-`scripts/realized_edit_panel.py`: all 141 parent/child report pairs are shown
-without the operator, report class, or authored targets; A/B order is fixed by
-a hash of the variant ID. Its first 423-request attempt on 2026-09-28 yielded
-**zero valid votes**: all 141 Google requests returned HTTP 404 for unavailable
-structured-output routing, while all 282 Mistral/Qwen requests returned HTTP
-403 because the local OpenRouter key had exceeded its total limit. The raw
-failure ledger stays under ignored `heldout-private/`. These failures supply
-no semantic labels. The runner now stops after the first permanent provider
-error, and the replacement Google model is checked against the live catalog.
-Once the key limit is resolved, the audit will retain per-model votes and
-uncertainty; model agreement will remain exploratory evidence, not independent
-human ground truth.
+The first realized-edit attempt on 2026-09-28 yielded **zero valid votes**:
+141 Google requests returned HTTP 404 for unavailable structured-output routing,
+and 282 Mistral/Qwen requests returned HTTP 403. The earlier explanation that the
+free daily request quota was exhausted was incorrect. Live inspection on
+2026-10-03 found a zero USD spending cap and zero paid usage: the failed models
+were paid variants. A free Qwen call succeeded. The private failure ledger is
+retained and provides no semantic labels. The October follow-up uses only
+catalog-verified zero-price `:free` variants and records subsequent provider
+429 errors separately from quota or spending failures.
 
 Three public cards (c01–c03) already have owner judgments and adjudication.
 Nine fresh synthetic inputs (c04–c12) have been prepared outside Git under
 `heldout-private/v0.1/owner-packet/`. Their answer key is sealed separately.
-The owner must judge the neutral input views before any model votes. The
-aggregate will preserve both owner/model disagreements and uncertainty;
+The owner judged all nine neutral inputs on 2026-10-03, before model votes.
+The [panel report](model-panel-followup-2026-10-03.md) preserves
+owner/model disagreements and incomplete coverage;
 these nine are not being added to the legacy 60-fixture benchmark.
 
 ## #52: exposure and held-out status
 
 The [exposure register](exposure-register.md) records when corpus, derived
 variants, public cards and pilot outputs first appeared in Git. Public
-material cannot be an unseen test. The nine new private inputs are a
-**candidate** held-out set only: no model has seen them through this project,
-but there is no claim that a provider has not seen similar material. Owner
-judgment, an allowed three-family model panel, discrepancy retention and
-controlled aggregate publication remain required before a held-out result
-can be reported. No private input or sealed answer key is committed.
+material cannot be an unseen test. The nine private inputs were frozen and
+judged before their first
+provider dispatch on 2026-10-03. Their aggregate results are recorded in
+the October panel report. There is no claim that a provider has not seen
+similar material. They have now been exposed to the selected providers and
+are not fresh inputs for a future panel. No private input or sealed answer key
+is committed.

@@ -6,8 +6,8 @@ versioned schema, an export/leak-check pipeline, and three example cards
 proposed as additional examples for
 [OpenSSF wg-vulnerability-disclosures #178](https://github.com/ossf/wg-vulnerability-disclosures/issues/178).
 The general benchmark is deliberately NOT growing. A separate nine-card private
-candidate set (c04–c12) is now being prepared for owner-first review and an
-exploratory model panel; it is not part of the committed benchmark.
+set (c04–c12) received owner-first review and an
+exploratory model panel on 2026-10-03; it is not part of the committed benchmark.
 
 ## Layout
 
@@ -129,3 +129,10 @@ manifest. Its default invocation is a preflight; `--run` is the explicit,
 metered dispatch. The sealed author key and raw model votes remain outside Git.
 The [exposure register](../docs/exposure-register.md) records the policy for
 interpreting a held-out result.
+
+
+The [annotation rubric](../docs/case-card-rubric-v0.1.md) supplies materiality
+and confidence anchors. The [October panel report](../docs/model-panel-followup-2026-10-03.md)
+records 25/27 valid votes, failures and aggregate owner agreement. The submitted
+owner judgments remain the reference; one author-key disagreement is retained
+privately under the existing owner precedence policy.
