@@ -68,6 +68,8 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 # (operator/evaluator modules import the registry they register into).
 "src/sloplab/evaluators/base.py" = ["E402"]
 "src/sloplab/mutations/base.py" = ["E402"]
+# Immutable live-study source hash: preserve the registered 101-character literal.
+"experiments/scripts/nemotron_completion_20261004.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.11"

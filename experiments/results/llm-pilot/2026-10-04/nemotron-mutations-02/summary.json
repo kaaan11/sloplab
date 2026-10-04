@@ -1,0 +1,717 @@
+{
+  "study": "mutations",
+  "planned_cases": 297,
+  "repeats": 1,
+  "planned_evaluations": 297,
+  "physical_requests": 297,
+  "valid_responses": 296,
+  "failed_evaluations": 1,
+  "not_run_in_batches": 0,
+  "unstarted_evaluations": [],
+  "complete_success_coverage": false,
+  "recorded_batches": [
+    "batch-000",
+    "batch-010",
+    "batch-020",
+    "batch-030",
+    "batch-040",
+    "batch-050",
+    "batch-060",
+    "batch-070",
+    "batch-080",
+    "batch-090",
+    "batch-100",
+    "batch-110",
+    "batch-120",
+    "batch-130",
+    "batch-140",
+    "batch-150",
+    "batch-160",
+    "batch-170",
+    "batch-180",
+    "batch-190",
+    "batch-200",
+    "batch-210",
+    "batch-220",
+    "batch-230",
+    "batch-240",
+    "batch-250",
+    "batch-260",
+    "batch-270",
+    "batch-280",
+    "batch-290"
+  ],
+  "authored_target_matches": 195,
+  "decision_counts": {
+    "accept": 137,
+    "needs_manual_review": 87,
+    "reject": 72
+  },
+  "failure_counts": {
+    "transport.error": 1
+  },
+  "disagreements": [
+    {
+      "case_id": "canonical-racecond-018",
+      "expected_decision": "accept",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-fabricate-reference-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-impact-inflation-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-invent-api-identifier-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-remove-reproduction-step-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-scope-expansion-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-fabricate-reference-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-impact-inflation-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-invent-api-identifier-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-misattribute-cve-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-scope-expansion-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cspnonc-021-professionalize-language-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-fabricate-reference-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-impossible-precondition-08",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-invent-api-identifier-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-misattribute-cve-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-scope-expansion-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-deserial-030-professionalize-language-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-professionalize-language-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-remove-affected-version-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-contradict-observed-result-08",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-fabricate-reference-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-impossible-precondition-07",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-invent-api-identifier-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-misattribute-cve-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-scope-expansion-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-contradict-observed-result-07",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-fabricate-reference-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-impossible-precondition-06",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-invent-api-identifier-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-misattribute-cve-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-contradict-observed-result-06",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-fabricate-reference-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-impossible-precondition-05",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-misattribute-cve-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-remove-reproduction-step-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-contradict-observed-result-05",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-fabricate-reference-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-impossible-precondition-04",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-misattribute-cve-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-remove-reproduction-step-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-add-irrelevant-detail-05",
+      "expected_decision": "accept",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-contradict-observed-result-04",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-fabricate-reference-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-impact-inflation-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-impossible-precondition-03",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-misattribute-cve-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-remove-reproduction-step-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-contradict-observed-result-03",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-impact-inflation-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-impossible-precondition-02",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-misattribute-cve-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-remove-reproduction-step-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-scope-expansion-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-impact-inflation-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-impossible-precondition-01",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-invent-api-identifier-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-remove-reproduction-step-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-scope-expansion-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit2-032-professionalize-language-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-contradict-observed-result-01",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-impact-inflation-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-invent-api-identifier-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-remove-reproduction-step-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-scope-expansion-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-impact-inflation-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-invent-api-identifier-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-remove-reproduction-step-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-scope-expansion-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-fabricate-reference-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-impact-inflation-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-invent-api-identifier-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-remove-reproduction-step-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-scope-expansion-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-fabricate-reference-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-impact-inflation-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-invent-api-identifier-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-misattribute-cve-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-scope-expansion-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-fabricate-reference-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-impact-inflation-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-impossible-precondition-08",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-invent-api-identifier-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-misattribute-cve-07",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-scope-expansion-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-contradict-observed-result-08",
+      "expected_decision": "reject",
+      "decision": "needs_manual_review",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-fabricate-reference-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-impossible-precondition-07",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-invent-api-identifier-02",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-misattribute-cve-06",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-scope-expansion-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-contradict-observed-result-07",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-fabricate-reference-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-impossible-precondition-06",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-invent-api-identifier-01",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-misattribute-cve-05",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-contradict-observed-result-06",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-fabricate-reference-03",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-impossible-precondition-05",
+      "expected_decision": "reject",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-misattribute-cve-04",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-remove-reproduction-step-08",
+      "expected_decision": "needs_manual_review",
+      "decision": "accept",
+      "repeat_index": 0
+    }
+  ],
+  "protocol_sha256": "fbc3047e5bea578c8a233565223e5488452d181e9a423e22e96983dd4e2a5979",
+  "case_kind_counts": {
+    "canonical": 60,
+    "mutated": 236
+  },
+  "operator_results": {
+    "add_irrelevant_detail": {
+      "valid": 36,
+      "matches": 35
+    },
+    "confidence_overstatement": {
+      "valid": 4,
+      "matches": 4
+    },
+    "contradict_observed_result": {
+      "valid": 11,
+      "matches": 1
+    },
+    "fabricate_reference": {
+      "valid": 14,
+      "matches": 0
+    },
+    "impact_inflation": {
+      "valid": 11,
+      "matches": 1
+    },
+    "impossible_precondition": {
+      "valid": 12,
+      "matches": 0
+    },
+    "invent_api_identifier": {
+      "valid": 13,
+      "matches": 0
+    },
+    "misattribute_cve": {
+      "valid": 13,
+      "matches": 0
+    },
+    "professionalize_language": {
+      "valid": 48,
+      "matches": 44
+    },
+    "remove_affected_version": {
+      "valid": 26,
+      "matches": 25
+    },
+    "remove_reproduction_step": {
+      "valid": 26,
+      "matches": 16
+    },
+    "scope_expansion": {
+      "valid": 22,
+      "matches": 10
+    }
+  },
+  "metrics": null
+}

@@ -214,6 +214,10 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   60/60 valid single-observation results, 59/60 authored-target agreement and offline replay
 - [Nemotron repeat pilot](docs/nemotron-repeat-2026-10-04.md) —
   three new observations each on the first ten cases; 30/30 valid and no decision flips
+- [Nemotron remaining-repeat follow-up](docs/nemotron-full-repeats-2026-10-04.md) —
+  one preserved transport failure, a separate replacement block and 57/60 unanimous matrix cases
+- [Nemotron mutation study](docs/nemotron-mutations-2026-10-04.md) —
+  60 fresh controls and 237 variants dispatched; 296 valid responses, one transport failure
 - [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
   fixed-action controls, transition and presentation audits, and owner-review status
 - [Model panel follow-up](docs/model-panel-followup-2026-10-03.md) —
@@ -257,7 +261,21 @@ is outside the current Nemotron work scope.
 A separate [first-ten repeat pilot](docs/nemotron-repeat-2026-10-04.md) obtained
 30/30 valid responses and unchanged decisions across three repeats on all ten
 selected cases. This is not full-corpus stability; repeat coverage for the other
-50 cases and Nemotron mutation evaluation remain future work.
+50 cases was subsequently evaluated in a
+[separate follow-up](docs/nemotron-full-repeats-2026-10-04.md). That original
+150-request study retained one transport failure. A user-authorized three-call
+replacement block produces an explicitly defined 60-case × three-observation
+matrix: 57/60 unanimous cases and three decision-changing cases. Original
+successful/failed records are preserved outside or inside the matrix as documented.
+
+The [single-observation mutation study](docs/nemotron-mutations-2026-10-04.md)
+dispatched all 237 variants with 60 fresh parent controls: 296/297 valid responses,
+with one preserved transport failure. A separately authorized single-call supplement
+completes a matched dataset of 60 controls and 237 variants. Mutation target agreement
+is 137/237 (57.81%), versus 59/60 for fresh canonical controls; decision-changing
+target agreement is 2/96 (2.08%). These are descriptive synthetic-target agreements,
+not general triage accuracy. The incomplete original and completed matched dataset
+are reported separately; mutation repeat stability remains future work.
 
 Historical Dots canonical coverage remains 59/60 and realized-edit panel
 coverage 420/423 votes

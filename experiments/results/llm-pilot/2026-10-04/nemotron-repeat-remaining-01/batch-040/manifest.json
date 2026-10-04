@@ -1,0 +1,67 @@
+{
+  "experiment_name": "nemotron-repeat-remaining-01",
+  "kind": "llm-pilot",
+  "commit_sha": "c380c4da6b317af7c86a6dfec0e94ca49919d0dc",
+  "base_seed": 20260825,
+  "repeats": 3,
+  "selected_cases": 10,
+  "case_offset": 40,
+  "selected_case_ids": [
+    "canonical-ssrf-005",
+    "canonical-tokenurl-013",
+    "canonical-totiming-019",
+    "canonical-verb-021",
+    "canonical-versiondisc-024",
+    "canonical-websig-018",
+    "canonical-wstoken-022",
+    "canonical-xsrf-003",
+    "canonical-xssref-016",
+    "canonical-xsssto-013"
+  ],
+  "budget": {
+    "max_requests": 30,
+    "request_timeout_s": 60,
+    "max_retries_per_case": 0,
+    "min_interval_ms": 3100,
+    "deadline_s": 1900.0
+  },
+  "effective_max_requests": 30,
+  "counters": {
+    "physical_dispatches": 30,
+    "errors": 0,
+    "timeouts": 0
+  },
+  "planned": 30,
+  "successful": 30,
+  "failed": 0,
+  "not_run": 0,
+  "skipped_by_budget": 0,
+  "skipped_by_deadline": 0,
+  "scored": 30,
+  "stability": {
+    "repeats": 3,
+    "cases_compared": 10,
+    "unanimous_cases": 10,
+    "flipped_cases": 0,
+    "mean_confidence_spread": 0.06,
+    "unanimity_rate": 1.0
+  },
+  "stability_omitted_reason": null,
+  "coverage": {
+    "expected": 30,
+    "successful": 30,
+    "complete": true
+  },
+  "bundle_complete": true,
+  "coverage_sufficient": true,
+  "prompt_hash": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42",
+  "prompt_renderer_version": "file-template-v1",
+  "model_env": "SLOPLAB_LLM_MODEL",
+  "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+  "output_mode": "json_schema",
+  "provider_require_parameters": true,
+  "temperature": 0.0,
+  "response_schema_sha256": "08cddbaf77e328885c16fecabddb5e9d97a4725d4fa7f82f92d0acd82a51dde7",
+  "finished_at": "2026-10-04T18:54:58Z",
+  "note": "raw model responses are not stored; only normalized records"
+}
