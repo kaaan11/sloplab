@@ -1,0 +1,297 @@
+{
+  "registered_at": "2026-10-04T18:26:04.773661+00:00",
+  "source_commit": "b5444cde73e04ec98cafd87754ec64eec50ca39d",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "catalog": {
+    "id": "nvidia/nemotron-3-super-120b-a12b:free",
+    "canonical_slug": "nvidia/nemotron-3-super-120b-a12b-20230311",
+    "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
+    "name": "NVIDIA: Nemotron 3 Super (free)",
+    "created": 1773245239,
+    "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer...",
+    "context_length": 262144,
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "pricing": {
+      "prompt": "0",
+      "completion": "0"
+    },
+    "top_provider": {
+      "context_length": 262144,
+      "max_completion_tokens": 235929,
+      "is_moderated": false
+    },
+    "per_request_limits": null,
+    "supported_parameters": [
+      "include_reasoning",
+      "max_tokens",
+      "reasoning",
+      "reasoning_effort",
+      "response_format",
+      "seed",
+      "structured_outputs",
+      "temperature",
+      "tool_choice",
+      "tools",
+      "top_p"
+    ],
+    "default_parameters": {
+      "temperature": 1,
+      "top_p": 0.95,
+      "top_k": null,
+      "frequency_penalty": null,
+      "presence_penalty": null,
+      "repetition_penalty": null
+    },
+    "supported_voices": null,
+    "knowledge_cutoff": null,
+    "expiration_date": null,
+    "links": {
+      "details": "/api/v1/models/nvidia/nemotron-3-super-120b-a12b-20230311/endpoints"
+    },
+    "benchmarks": {
+      "design_arena": [],
+      "artificial_analysis": {
+        "intelligence_index": 12.8,
+        "coding_index": 37.7,
+        "agentic_index": 1.7
+      }
+    },
+    "reasoning": {
+      "mandatory": false,
+      "default_enabled": true,
+      "supports_max_tokens": true,
+      "supported_efforts": [
+        "medium",
+        "low"
+      ],
+      "default_effort": "medium"
+    }
+  },
+  "endpoints": [
+    {
+      "name": "Nvidia | nvidia/nemotron-3-super-120b-a12b-20230311:free",
+      "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "model_name": "NVIDIA: Nemotron 3 Super",
+      "context_length": 262144,
+      "pricing": {
+        "prompt": "0",
+        "completion": "0",
+        "discount": 0
+      },
+      "provider_name": "Nvidia",
+      "tag": "nvidia",
+      "quantization": "unknown",
+      "max_completion_tokens": 235929,
+      "max_prompt_tokens": null,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "temperature",
+        "max_tokens",
+        "seed",
+        "top_p",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "reasoning_effort"
+      ],
+      "supports_tool_choice": {
+        "none": false,
+        "auto": true,
+        "required": true,
+        "function": true
+      },
+      "status": 0,
+      "uptime_last_30m": 99.96364014128403,
+      "uptime_last_5m": 99.95102040816326,
+      "uptime_last_1d": 99.94699327889678,
+      "supports_implicit_caching": false,
+      "native_tools": {},
+      "supports_voice_cloning": false,
+      "supports_multiple_audio_references": false,
+      "supports_image_reference": false,
+      "latency_last_30m": null,
+      "throughput_last_30m": null
+    }
+  ],
+  "selected_case_ids": [
+    "canonical-authz-001",
+    "canonical-authz2-014",
+    "canonical-cachehdr-024",
+    "canonical-cachepois-027",
+    "canonical-corswild-025",
+    "canonical-crypto-011",
+    "canonical-cspnonc-021",
+    "canonical-csvinj-017",
+    "canonical-deserial-030",
+    "canonical-dup-007"
+  ],
+  "selection_rule": "First ten public canonical cases in the frozen suite order",
+  "input_identity": {
+    "schema_version": 1,
+    "cases": [
+      {
+        "case_id": "canonical-authz-001",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "3cdf566dea23ecb2e9885ee19b53f827a651f82cc7c28edfc75edf8cd19fd4ec",
+        "target_hash": "2d689a529cea9ebd1756fb50d82af00bdf127320fa81073b9595aa9323ce4588",
+        "input_hash": "26d33050e7bb307ba269a1d51a08dcbebfd27a3be2520bebcdad225c0a77afa9"
+      },
+      {
+        "case_id": "canonical-authz2-014",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "1b1cc0838bd87108dd03d6f00b9587487237716cd0188a74d35cc2d742cae582",
+        "target_hash": "c0912ec39fbd9925f32b243a43469886f80b7c0ed58439c3edf201d592f5061b",
+        "input_hash": "f18cfad5d723d1fc9d2ef1c21b8e480e6344b2809da9ecda1c98ffecb872f410"
+      },
+      {
+        "case_id": "canonical-cachehdr-024",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "7f4ef6e7672ececebebfa699295aa887e3d62b125b78bc4b176f2c22f315ebff",
+        "target_hash": "bb556d1c7a03585a3b32a933cebe6cfcd841866dbae64dc06d4b068f1c5418c3",
+        "input_hash": "d4e72b00b1fb91eb2a35db2b6d5c8ca5ddfc79e7339ef6839b4cf2e042bf1935"
+      },
+      {
+        "case_id": "canonical-cachepois-027",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "662ec9f189e02005b8b8b10e1569c18bc4f506edfd3e39a1287c4a7b7fd278d8",
+        "target_hash": "b06cb603f1923cac190cb7f1f79f9ad171e018004b94db3147f4837fb86aa07c",
+        "input_hash": "347fb133a3cfad7bd40b3cf2f5245b97eb8524b486546c954b2e591e8776c28c"
+      },
+      {
+        "case_id": "canonical-corswild-025",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "12e8bcb143094ab71194aac86fa21673ad1b9cd6c453d1fc701ff9ce91022980",
+        "target_hash": "676ef97c526fdb52344fbeed3c70e7933e7afe413c684ea527fbe36ae616b736",
+        "input_hash": "f5bdc4c957faa01ba05485a424f82301cb8e659781de7db2dbe6f7ac1758b89e"
+      },
+      {
+        "case_id": "canonical-crypto-011",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "1d39a0f7e7a2a7e0af0459562861d47d8bbd8a5d9cc642c24a412cb256548ab2",
+        "target_hash": "bf8dc43c06ca0cde216319a1479260f67405178686f865c8e0af72869b1e60ca",
+        "input_hash": "1d50c662bd8c2b8318f69ed2d26aea8c6cd0a642a62088fc38eef4efa8192c60"
+      },
+      {
+        "case_id": "canonical-cspnonc-021",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "9648adaa6f568841b43f95967a47d5bd01625f6a9cba2a400240b12aa9bbb8c6",
+        "target_hash": "b7c1faf4f0703cb8559494d2556f5cf7cc59ffae9d1e1ca85c07dd213f546e3a",
+        "input_hash": "6bac065eba55678c14bf693c78e544b6999a27b452cccc65e39e7757cb0d4875"
+      },
+      {
+        "case_id": "canonical-csvinj-017",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "747dc7eaa8b645e3a53c712925f81da8a162c2d4a4a65e9f64b7c0439fcc7475",
+        "target_hash": "23b99faf0c629c8c55606fbc90a4dc199e1a930a0a0e3ed6e530e194ab73f5fb",
+        "input_hash": "9458c0c138fa0d13697b876d61830efe70395409a6da977daed7dddb1337abb3"
+      },
+      {
+        "case_id": "canonical-deserial-030",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "d2e17f84eacf8518486d911722d7677691dccdd7769032d12bd41e82f871ca41",
+        "target_hash": "09e1c2086bb42ccbf28105d130c79d228ed2bcf8838b139a017aeb38aaa73f89",
+        "input_hash": "6d662af06fb6906412f7b5e9198fea667836aa3aa4241c4c1ab840df408c85b3"
+      },
+      {
+        "case_id": "canonical-dup-007",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "7e966173df8205cb04cf5df6ae4022e700d24216df030d67c96e3ebb16620e74",
+        "target_hash": "6ab13c6ed65ad5553cb07ada8f72a2276e41d7d62a6517a5181bece972b2a72b",
+        "input_hash": "15b81b431e38362707737e54732df1b37031d0f6db0ada0b9c3bda97782c208e"
+      }
+    ],
+    "selection_hash": "22cebb244327aba1f00b85647f9033ad02a1bc792a4690fb7692c59c4bad8bf6",
+    "inputs_hash": "1ecc2b104d4d7c44a933c4c57b808f2835092871cb0d92fba9136a0c75f649d6"
+  },
+  "config": {
+    "schema_version": 2,
+    "name": "nemotron-repeat-20261004",
+    "description": "",
+    "suite": {
+      "config_path": "benchmarks/suites/v1-core.yaml",
+      "corpus_root": "corpus"
+    },
+    "base_seed": 20260825,
+    "repeats": 3,
+    "model_env": "SLOPLAB_LLM_MODEL",
+    "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+    "api_key_env": "OPENROUTER_API_KEY",
+    "output_mode": "json_schema",
+    "provider_require_parameters": true,
+    "temperature": 0.0,
+    "prompt_file": "experiments/prompts/triage-v1.md",
+    "budget": {
+      "max_requests": 30,
+      "request_timeout_s": 60,
+      "max_retries_per_case": 0,
+      "min_interval_ms": 3100,
+      "deadline_s": 1900.0
+    },
+    "case_selection": "canonical_first",
+    "case_offset": 0,
+    "max_cases": 10
+  },
+  "runner_file": "experiments/scripts/nemotron_repeat_20261004.py",
+  "runner_sha256": "f70a3166f5d4eecd5a8da77eabce4b742d7afad2129a809f8037d6a93f7654dd",
+  "prompt_sha256": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42",
+  "stop_policy": "First HTTP 401/402/403/404/429 stops subsequent physical requests",
+  "limitations": [
+    "Selected ten-case operational pilot, not full-corpus repeat stability",
+    "No provider decoding seed is set; base_seed describes benchmark provenance",
+    "No mutation cases, Jev calls, target changes or raw responses",
+    "Catalog prices checked; transport does not retain response-level billing"
+  ]
+}

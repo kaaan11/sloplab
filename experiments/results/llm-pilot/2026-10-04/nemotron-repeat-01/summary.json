@@ -1,0 +1,151 @@
+{
+  "planned_cases": 10,
+  "repeats": 3,
+  "planned_evaluations": 30,
+  "physical_requests": 30,
+  "valid_responses": 30,
+  "failed_evaluations": 0,
+  "not_run": 0,
+  "authored_target_matches": 30,
+  "stability": {
+    "repeats": 3,
+    "cases_compared": 10,
+    "unanimous_cases": 10,
+    "flipped_cases": 0,
+    "mean_confidence_spread": 0.07,
+    "unanimity_rate": 1.0
+  },
+  "per_case": [
+    {
+      "case_id": "canonical-authz-001",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        1.0,
+        0.93,
+        0.88
+      ]
+    },
+    {
+      "case_id": "canonical-authz2-014",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.95,
+        0.92,
+        0.93
+      ]
+    },
+    {
+      "case_id": "canonical-cachehdr-024",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.4,
+        0.45,
+        0.45
+      ]
+    },
+    {
+      "case_id": "canonical-cachepois-027",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.6,
+        0.55
+      ]
+    },
+    {
+      "case_id": "canonical-corswild-025",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.9,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-crypto-011",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.7,
+        0.62,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-cspnonc-021",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.6,
+        0.5
+      ]
+    },
+    {
+      "case_id": "canonical-csvinj-017",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.9,
+        0.88,
+        0.85
+      ]
+    },
+    {
+      "case_id": "canonical-deserial-030",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.7,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-dup-007",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    }
+  ],
+  "protocol_sha256": "28527c677909bdd5d7fa257e94bd3ecedb758668c4f27461ab976d82375ca438"
+}

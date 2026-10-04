@@ -2,6 +2,19 @@
 
 Build queue status. Updated after every completed queue item.
 
+## Nemotron repeat pilot — 4 October 2026
+
+- A separately registered first-ten-canonical pilot ran three new observations
+  per case: **30 requests, 30 valid responses, zero failures/not-run outcomes**.
+- All ten cases had unanimous decisions (zero flips); 30/30 decisions matched
+  authored targets. The mean within-case confidence range was 0.07 on the 0–1
+  scale. No provider decoding seed was configured.
+- The [report](nemotron-repeat-2026-10-04.md), pre-dispatch protocol, integrity-marked
+  bundle, frozen runner, derived summary and offline replay preserve the evidence.
+- This establishes repeat observations for ten selected public cases only.
+  The other 50 canonical cases, the GraphQL disagreement and mutation studies
+  remain separate future work. Historical studies/targets were not changed.
+
 ## Nemotron canonical continuation — 4 October 2026
 
 - The user selected Nemotron and excluded live Jev testing from the current

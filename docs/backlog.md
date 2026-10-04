@@ -41,8 +41,10 @@ to a future release's acceptance criteria.
   The user subsequently selected Nemotron for the current live continuation.
   Its separate [4 October study](nemotron-canonical-2026-10-04.md) completed
   **60/60** single-observation canonical evaluations with **59/60** authored-target
-  agreement. Nemotron repeat stability and mutation evaluation remain future
-  work; these results do not replace historical Dots observations.
+  agreement. A separate [first-ten repeat pilot](nemotron-repeat-2026-10-04.md)
+  then produced 30/30 valid responses and unanimous decisions on all ten cases.
+  Repeat coverage for the remaining 50 canonical cases and mutation evaluation
+  remain future work; these results do not replace historical Dots observations.
 - Live Jev workflow integration: the typed adapter is implemented and mock-tested,
   but is not wired into the manual chat-model workflow. Live Jev work is deferred
   under the user's current Nemotron choice.
