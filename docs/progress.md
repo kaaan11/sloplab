@@ -2,6 +2,25 @@
 
 Build queue status. Updated after every completed queue item.
 
+## v0.3.0 release preparation — 4 October 2026
+
+- Package/source/lockfile and current documentation now identify v0.3.0.
+  [Release notes](release-notes-v0.3.0.md) cover the delivered integrations,
+  contribution/reporting tools, integrated corrections and research limitations.
+- Historical bundles keep their original versions and hashes. The source-span
+  regression explicitly checks the historical/current generator stamps and
+  compares every other manifest/report byte without changing archived results.
+- Local Ruff lint/format, strict mypy and **1264 tests** passed. All 60 canonical
+  fixtures validate with zero errors or warnings. A fresh wheel environment ran
+  both rules and lexical evaluators over all 297 cases outside the checkout and
+  generated offline HTML.
+- Release archives are built from a clean Git checkout so local worktrees and
+  untracked notes cannot enter the source distribution. The publish gate is
+  successful Python 3.11/3.12/3.13 CI on the release PR and merged main commit.
+- Dots HTTP 400 failures, remaining human disagreements and future independent
+  studies remain explicit backlog items. Release preparation makes no live
+  model calls.
+
 ## October 2026 follow-up checkpoint
 
 - **Coverage:** nine private cards now have 27/27 valid model votes. The public

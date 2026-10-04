@@ -8,6 +8,7 @@ import random
 from pathlib import Path
 from typing import Any
 
+from sloplab import __version__
 from sloplab.corpus.loader import discover_fixtures
 from sloplab.corpus.parser import parse_report
 from sloplab.models.report import ReportSection, SourceLocation
@@ -341,7 +342,8 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     The E5a byte-identity premise was superseded first by the B1 fix (exactly
     the derivatives whose picked step had continuations changed) and then by
     the PR #33 full regeneration, which absorbed that divergence into the
-    committed bundle. Fresh materialization is now byte-identical; the
+    committed bundle. Fresh materialization is byte-identical except for the
+    release's generator version stamp; the
     B1-fixed shape (span identity keys, residue lines gone) stays pinned on
     the three E5a inventory members, and counts reconcile with the E5a
     inventory.
@@ -363,16 +365,34 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
         if p.is_file()
     }
     assert set(fresh) == set(stored)
+    # Historical provenance stays frozen when the package version advances.
+    # Check both stamps explicitly, then normalize only that one YAML line;
+    # every other byte (including all report bytes) must still match.
+    import yaml
+
+    old = (
+        (REPO_ROOT / "benchmarks/results/v1-core-example/suite-index.jsonl")
+        .read_text(encoding="utf-8")
+        .splitlines()
+    )
+    old_header = json.loads(old[0])
+    historical_version = old_header["generator_version"]
+    for name in fresh:
+        if Path(name).name == "mutation-manifest.yaml":
+            assert yaml.safe_load(fresh[name])["generator_version"] == __version__
+            assert yaml.safe_load(stored[name])["generator_version"] == historical_version
+            old_stamp = f"\ngenerator_version: {historical_version}\n".encode()
+            new_stamp = f"\ngenerator_version: {__version__}\n".encode()
+            assert stored[name].count(old_stamp) == 1
+            stored[name] = stored[name].replace(old_stamp, new_stamp, 1)
     differing = sorted(k for k in fresh if fresh[k] != stored[k])
     # PR #33 regenerated the committed bundle with current code, absorbing the
-    # B1 divergence documented below: fresh materialization is now byte-identical
-    # to the committed bundle. The B1-fixed shape stays pinned instead.
+    # B1 divergence documented below: after normalizing the generator stamp,
+    # fresh materialization is byte-identical to the committed bundle.
     assert differing == []
     # The three E5a-inventory derivatives whose picked step had continuations
     # carry span identity in the committed bundle (report residue lines gone,
     # manifest params gained span_model), and only they do.
-    import yaml
-
     b1_manifests = sorted(
         str(p.relative_to(committed))
         for p in sorted(committed.rglob("mutation-manifest.yaml"))
@@ -390,14 +410,8 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
         assert params["span_model"] == "full-item-v1"
         assert params["removed_extra_lines"] == 1
     # Suite index body identical; header differs only by machine corpus_root.
-    old = (
-        (REPO_ROOT / "benchmarks/results/v1-core-example/suite-index.jsonl")
-        .read_text(encoding="utf-8")
-        .splitlines()
-    )
     new = (out / "suite-index.jsonl").read_text(encoding="utf-8").splitlines()
     assert [json.loads(line) for line in old[1:]] == [json.loads(line) for line in new[1:]]
-    old_header = json.loads(old[0])
     assert set(old_header) == set(json.loads(new[0]))
     # Ledger counts unchanged (fix changes bytes, not populations).
     assert "planned 280" in result.summary()
