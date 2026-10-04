@@ -2,6 +2,27 @@
 
 Build queue status. Updated after every completed queue item.
 
+## Nemotron canonical continuation — 4 October 2026
+
+- The user selected Nemotron and excluded live Jev testing from the current
+  continuation. GitHub's `llm-bench` model variable is now
+  `nvidia/nemotron-3-super-120b-a12b:free`, using the OpenRouter chat endpoint.
+- A three-case smoke passed, followed by a separately registered 60-case study:
+  **60 requests, 60 valid responses, zero failures, 59/60 authored-target matches**.
+  Each case has one observation; no repeat stability is claimed. The only
+  disagreement is `canonical-graphql-028` (target review, model reject).
+- Six integrity-marked bundles, the pre-dispatch protocol, aggregate summary,
+  path-redacted runner source with separate provenance hashes and offline replay
+  are archived with the
+  [study report](nemotron-canonical-2026-10-04.md). Inputs, prompt, source commit,
+  request accounting and all 60 unique case identities were verified.
+- Historical Dots and model-panel results retain their original coverage.
+  Nemotron repeats/mutation studies and further independent human validation
+  remain future work. The optional Jev adapter is implemented and mock-tested;
+  its live workflow integration is deferred under the current model choice.
+- README quick-start commands, adapter descriptions and current result/status
+  claims were reconciled with the code and recorded evidence.
+
 ## v0.3.0 release preparation — 4 October 2026
 
 - Package/source/lockfile and current documentation now identify v0.3.0.
@@ -17,6 +38,8 @@ Build queue status. Updated after every completed queue item.
 - Release archives are built from a clean Git checkout so local worktrees and
   untracked notes cannot enter the source distribution. The publish gate is
   successful Python 3.11/3.12/3.13 CI on the release PR and merged main commit.
+- Release PR #85 merged and v0.3.0 was published after both CI runs passed;
+  wheel, source archive and SHA-256 checksums accompany the release.
 - Dots HTTP 400 failures, remaining human disagreements and future independent
   studies remain explicit backlog items. Release preparation makes no live
   model calls.

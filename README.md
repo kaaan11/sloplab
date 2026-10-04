@@ -10,9 +10,8 @@
 
 SlopLab measures one question:
 
-> When a triage system receives a technically valid report that has been degraded
-> with missing evidence, inflated impact, or fabricated detail, does it still
-> classify the report correctly?
+> When a report's evidence, claims, or presentation change, how do a triage
+> evaluator's decisions change relative to the authored target decisions?
 
 SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
 a scanner, or an exploit framework.
@@ -40,18 +39,19 @@ See [docs/safety.md](docs/safety.md) and [docs/threat-model.md](docs/threat-mode
 ## Quick start
 
 ```bash
-git clone <repo-url> && cd sloplab
+git clone https://github.com/kaaan11/sloplab.git
+cd sloplab
 uv sync --group dev          # or: pip install -e .
 
 # validate the committed corpus (60 fixture files / 52 logical reports)
-sloplab validate corpus/
+uv run sloplab validate corpus/
 
 # run the full V1 benchmark with the deterministic rules baseline (~297 cases)
-sloplab benchmark benchmarks/suites/v1-core.yaml \
+uv run sloplab benchmark benchmarks/suites/v1-core.yaml \
     --evaluator rules-baseline --out benchmarks/results/my-run
 
 # human-readable metrics summary
-sloplab report benchmarks/results/my-run/run.jsonl
+uv run sloplab report benchmarks/results/my-run/run.jsonl
 ```
 
 `sloplab benchmark` writes a plain result directory without a completion marker, so
@@ -90,7 +90,12 @@ installation and cleanup-warning semantics.
 | `evidence-graph-baseline` | **negative control** | structure-only claim-evidence graph; intentionally blind to content-quality mutations - it exists to prove the benchmark detects such blindness, not to win |
 | `text-quality-baseline` | **lexical quality control** | offline section content/step detail; always manual review, with semantic dimensions unassessed; [guide](docs/text-quality-baseline.md) |
 | `oracle` | test-only | echoes ground truth; validates scoring plumbing |
-| `llm-json` | opt-in live adapter | disabled by default; see pilot runbook |
+| `llm-json` | opt-in live adapter | explicit manual pilot; current configured model is NVIDIA Nemotron; [runbook](docs/llm-pilot-runbook.md) |
+| `jev-typed` | optional decision-model adapter | explicit Python construction; not in the default registry or wired into the manual live workflow; no live Jev study is reported |
+
+Built-ins, local modules and installed plugins use separate selection mechanisms.
+`sloplab evaluators` lists registered built-ins and installed plugin metadata;
+the two live adapters above require explicit construction/configuration.
 
 A step-by-step walkthrough with real output lives in
 [examples/walkthrough.md](examples/walkthrough.md). Reference results regenerated at
@@ -105,7 +110,9 @@ Example v1-core numbers (rules-baseline, regenerated for PR #33 fixing issue
 with the authored target decisions of this synthetic, single-author collection
 (60 fixtures representing 52 logical reports, 297 realized cases). They are
 *not* validated triage accuracy, bug-bounty performance, or general evaluator
-robustness; no independent human validation of the targets has been completed.
+robustness; the full canonical corpus has not been independently human-validated.
+The [second-human review](docs/independent-human-review-2026-10-03.md) covers a
+separate nine-card/18-pair sample, not validation of all canonical targets.
 The rules baseline was developed against this very corpus: the PR #33 accuracy
 gain (0.811 -> 0.848 from 11 conditional-boundary corrections) is in-domain
 target agreement, not generalization evidence. An ablation study
@@ -155,7 +162,7 @@ derived cases).
                                                         ▼
                                             metrics & aggregation
                                                         ▼
-                                         JSONL / CSV / Markdown reports
+                                     JSONL / CSV / Markdown / offline HTML
 ```
 
 Design principle: the corpus, mutation engine, evaluator, and metrics layers are
@@ -168,14 +175,14 @@ Primary metrics are reported per dimension:
 
 | Metric | Question it answers |
 |---|---|
-| Decision accuracy | Does the decision match ground truth? |
+| Decision accuracy | Does the decision match the authored target? |
 | Decision-changing target accuracy | Of derived cases whose expected decision is designed to change the parent-class decision, how often does the evaluator match the changed decision? |
 | False reassurance rate | Did the evaluator `accept` a case that should not be accepted? |
 | Over-rejection rate | How often are valid reports rejected? |
 | Decision-preserving drift | On decision-preserving mutations, how often does the evaluator's decision differ from its canonical-parent decision? |
 | Presentation susceptibility | Acceptance gained by polished-but-broken variants over their canonical parents (operator-generated presentation mutations only). |
 | Dimension error | Per-quality-dimension score error where expected values exist. |
-| Calibration error | Do confidence values track actual correctness? |
+| Calibration error | Do confidence values track agreement with authored targets? |
 
 A legacy weighted **Robustness Score** remains in machine-readable metrics for
 historical compatibility but is omitted from current human-facing comparisons.
@@ -202,7 +209,9 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 - [Ten-case follow-up pilot](docs/llm-pilot-batch-10-2026-09-28.md) —
   disjoint canonical batch and repeat results
 - [Canonical coverage study](docs/llm-pilot-canonical-coverage-2026-09-28.md) —
-  60 cases dispatched, 59 with valid responses, one persistent HTTP 400
+  historical Dots run: 60 cases dispatched, 59 with valid responses
+- [Nemotron canonical study](docs/nemotron-canonical-2026-10-04.md) —
+  60/60 valid single-observation results, 59/60 authored-target agreement and offline replay
 - [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
   fixed-action controls, transition and presentation audits, and owner-review status
 - [Model panel follow-up](docs/model-panel-followup-2026-10-03.md) —
@@ -230,12 +239,21 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 ## Status
 
 v0.3.0 adds installed evaluator plugins, the offline lexical text-quality control,
-BYOE and offline HTML reporting, synthetic report contribution tools, typed JEV
-evaluation and offline repeat analysis. It includes the integrated corrections
+BYOE and offline HTML reporting, synthetic report contribution tools, a typed Jev
+adapter and offline repeat analysis. It includes the integrated corrections
 and the descriptive model/human follow-ups since v0.2.2; see
 [release notes](docs/release-notes-v0.3.0.md).
 
-Dots canonical coverage remains 59/60 and realized-edit coverage 420/423 votes
+The current manual live benchmark is configured for
+`nvidia/nemotron-3-super-120b-a12b:free` through OpenRouter. The 4 October
+[canonical study](docs/nemotron-canonical-2026-10-04.md) obtained 60/60 valid
+responses in 60 requests, with 59/60 (98.33%) agreement with authored targets.
+This is one observation per public synthetic case; it establishes operational
+coverage, not general triage accuracy or repeat stability. Jev live integration
+is outside the current Nemotron work scope.
+
+Historical Dots canonical coverage remains 59/60 and realized-edit panel
+coverage 420/423 votes
 because of persistent HTTP 400 responses. One canonical case changed decisions
 across repeats. Human disagreements remain recorded without automatic target
 changes. These observations do not establish general triage accuracy; see the

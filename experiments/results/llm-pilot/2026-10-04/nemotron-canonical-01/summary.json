@@ -1,0 +1,388 @@
+{
+  "completed_at": "2026-10-04T17:59:30.344686+00:00",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "planned_cases": 60,
+  "physical_requests": 60,
+  "valid_responses": 60,
+  "failed_evaluations": 0,
+  "not_run_in_batches": 0,
+  "unstarted_cases": [],
+  "authored_target_matches": 59,
+  "authored_target_agreement_on_valid": 0.9833333333333333,
+  "decision_counts": {
+    "accept": 18,
+    "needs_manual_review": 15,
+    "reject": 27
+  },
+  "failure_counts": {},
+  "disagreements": [
+    {
+      "case_id": "canonical-graphql-028",
+      "expected_decision": "needs_manual_review",
+      "decision": "reject"
+    }
+  ],
+  "case_outcomes": [
+    {
+      "case_id": "canonical-authz-001",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-authz2-014",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-cachehdr-024",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-cachepois-027",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-corswild-025",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-crypto-011",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-cspnonc-021",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-csvinj-017",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-deserial-030",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-dup-007",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-filetype-023",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-ghauthz-015",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-graphql-028",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-headermiss-020",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-idor-004",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-info-006",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-infodisc-016",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-jwtalg-026",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-loginject-031",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-massign-014",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-norepro-009",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-oauthstate-029",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-oob-008",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-openred-015",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair1a-cookie",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair1b-cookie",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair2a-dirlist",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair2b-dirlist",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair3a-comment",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair3b-comment",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair4a-passpol",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair4b-passpol",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair5a-health",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair5b-health",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair6a-logout",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair6b-logout",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair7a-404",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair7b-404",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair8a-session",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pair8b-session",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-pathtrav-017",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-perm-012",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-permdiff-020",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-racecond-018",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-ratelimit-010",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-ratelimit2-032",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-robots-022",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-saml-019",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-selfreg-023",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-sqlx-002",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-ssrf-005",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-tokenurl-013",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-totiming-019",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-verb-021",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-versiondisc-024",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-websig-018",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-wstoken-022",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-xsrf-003",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-xssref-016",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    },
+    {
+      "case_id": "canonical-xsssto-013",
+      "status": "success",
+      "error_kind": null,
+      "detail": null
+    }
+  ],
+  "protocol_sha256": "ae442cab5113c8e79a641269f3047079200cd5ec78937b70798decc7252e08cd"
+}

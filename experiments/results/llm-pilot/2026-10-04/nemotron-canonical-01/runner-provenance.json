@@ -1,0 +1,5 @@
+{
+  "original_runner_sha256": "f8cea731ba8e798d2202394269e59e8d7f33aa80e59afdc1a3ff69630d8eba2f",
+  "public_runner_sha256": "ab9b53aa0df195920d82d0d84e01069f08c3e4fbdcb787e703baba20f4f40973",
+  "transformation": "Only the ROOT assignment was replaced with Path.cwd() and a redaction comment to remove the machine-specific absolute checkout path; all remaining bytes are unchanged."
+}

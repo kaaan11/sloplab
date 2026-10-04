@@ -18,8 +18,8 @@ remaining scientific dependencies.
 - [x] Verify wheel installation and CLI usage from outside the checkout; record
   local verification and delivery in progress.md.
 
-The merge gate is successful CI on Python 3.11/3.12/3.13. The implementation PR's
-check results record that gate; the release itself remains a separate milestone.
+The implementation and release PRs passed CI on Python 3.11/3.12/3.13.
+v0.3.0 was published on 4 October 2026.
 
 ## Delivered implementation: offline text quality baseline
 
@@ -42,7 +42,7 @@ backlog item.
 
 The [delivery report](text-quality-delivery-2026-10-03.md) binds the 297-case
 descriptive snapshot to code, input and artifact hashes. The implementation PR's
-Python 3.11/3.12/3.13 checks are the merge gate. Tagging a release is separate.
+Python 3.11/3.12/3.13 checks passed before v0.3.0 publication.
 
 ## Previously delivered functionality
 
@@ -55,8 +55,12 @@ multi-seed experiment or complete independent validation.
 
 ## Remaining scientific dependencies
 
-Dots coverage is incomplete because recorded requests returned HTTP 400. Bounded
-registered retries may add observations; results from another model stay separate.
+The current live continuation uses Nemotron. Its separate
+[60-case study](nemotron-canonical-2026-10-04.md) has 60 valid single-observation
+responses and 59 authored-target matches. Repeat stability and mutation studies
+remain future work. Historical Dots coverage stays incomplete because recorded
+requests returned HTTP 400; another model's results do not replace those outcomes.
+Live Jev testing/integration is deferred under the user's current model choice.
 Two card claim-status disagreements and two action-changing human pair annotations
 remain recorded without automatic relabeling. New independently authored private
 inputs and prospective repeat/mutation studies require their own frozen protocol.
