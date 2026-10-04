@@ -212,6 +212,8 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   historical Dots run: 60 cases dispatched, 59 with valid responses
 - [Nemotron canonical study](docs/nemotron-canonical-2026-10-04.md) —
   60/60 valid single-observation results, 59/60 authored-target agreement and offline replay
+- [Nemotron repeat pilot](docs/nemotron-repeat-2026-10-04.md) —
+  three new observations each on the first ten cases; 30/30 valid and no decision flips
 - [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
   fixed-action controls, transition and presentation audits, and owner-review status
 - [Model panel follow-up](docs/model-panel-followup-2026-10-03.md) —
@@ -251,6 +253,11 @@ responses in 60 requests, with 59/60 (98.33%) agreement with authored targets.
 This is one observation per public synthetic case; it establishes operational
 coverage, not general triage accuracy or repeat stability. Jev live integration
 is outside the current Nemotron work scope.
+
+A separate [first-ten repeat pilot](docs/nemotron-repeat-2026-10-04.md) obtained
+30/30 valid responses and unchanged decisions across three repeats on all ten
+selected cases. This is not full-corpus stability; repeat coverage for the other
+50 cases and Nemotron mutation evaluation remain future work.
 
 Historical Dots canonical coverage remains 59/60 and realized-edit panel
 coverage 420/423 votes

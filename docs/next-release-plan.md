@@ -57,8 +57,11 @@ multi-seed experiment or complete independent validation.
 
 The current live continuation uses Nemotron. Its separate
 [60-case study](nemotron-canonical-2026-10-04.md) has 60 valid single-observation
-responses and 59 authored-target matches. Repeat stability and mutation studies
-remain future work. Historical Dots coverage stays incomplete because recorded
+responses and 59 authored-target matches. A separate
+[first-ten repeat pilot](nemotron-repeat-2026-10-04.md) has 30/30 valid responses
+and no decision flips across three repeats per selected case. Repeat coverage
+for the remaining 50 cases and mutation studies remain future work.
+Historical Dots coverage stays incomplete because recorded
 requests returned HTTP 400; another model's results do not replace those outcomes.
 Live Jev testing/integration is deferred under the user's current model choice.
 Two card claim-status disagreements and two action-changing human pair annotations
