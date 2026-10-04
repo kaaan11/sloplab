@@ -1,0 +1,1210 @@
+{
+  "study": "mutations",
+  "planned_cases": 297,
+  "repeats": 1,
+  "planned_evaluations": 297,
+  "physical_requests": 0,
+  "valid_responses": 0,
+  "failed_evaluations": 0,
+  "not_run_in_batches": 0,
+  "unstarted_evaluations": [
+    {
+      "case_id": "canonical-authz-001",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-authz2-014",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-cachehdr-024",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-cachepois-027",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-corswild-025",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-crypto-011",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-cspnonc-021",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-csvinj-017",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-deserial-030",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-dup-007",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-filetype-023",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-ghauthz-015",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-graphql-028",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-headermiss-020",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-idor-004",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-info-006",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-infodisc-016",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-jwtalg-026",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-loginject-031",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-massign-014",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-norepro-009",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-oauthstate-029",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-oob-008",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-openred-015",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair1a-cookie",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair1b-cookie",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair2a-dirlist",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair2b-dirlist",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair3a-comment",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair3b-comment",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair4a-passpol",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair4b-passpol",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair5a-health",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair5b-health",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair6a-logout",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair6b-logout",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair7a-404",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair7b-404",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair8a-session",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pair8b-session",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-pathtrav-017",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-perm-012",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-permdiff-020",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-racecond-018",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-ratelimit-010",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-ratelimit2-032",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-robots-022",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-saml-019",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-selfreg-023",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-sqlx-002",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-ssrf-005",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-tokenurl-013",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-totiming-019",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-verb-021",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-versiondisc-024",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-websig-018",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-wstoken-022",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-xsrf-003",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-xssref-016",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "canonical-xsssto-013",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-fabricate-reference-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-impact-inflation-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-invent-api-identifier-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-professionalize-language-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz-001-scope-expansion-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-fabricate-reference-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-impact-inflation-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-invent-api-identifier-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-misattribute-cve-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-professionalize-language-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-remove-affected-version-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-authz2-014-scope-expansion-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachehdr-024-add-irrelevant-detail-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachehdr-024-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachehdr-024-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachehdr-024-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachepois-027-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachepois-027-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachepois-027-remove-affected-version-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cachepois-027-remove-reproduction-step-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-corswild-025-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-corswild-025-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-corswild-025-scope-expansion-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-crypto-011-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-crypto-011-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-crypto-011-remove-affected-version-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-crypto-011-remove-reproduction-step-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cspnonc-021-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cspnonc-021-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cspnonc-021-remove-affected-version-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-cspnonc-021-remove-reproduction-step-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-fabricate-reference-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-impact-inflation-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-impossible-precondition-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-invent-api-identifier-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-misattribute-cve-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-csvinj-017-scope-expansion-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-deserial-030-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-deserial-030-professionalize-language-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-deserial-030-remove-affected-version-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-deserial-030-remove-reproduction-step-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-dup-007-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-dup-007-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-dup-007-scope-expansion-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-add-irrelevant-detail-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-filetype-023-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-contradict-observed-result-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-fabricate-reference-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-impossible-precondition-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-invent-api-identifier-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-misattribute-cve-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ghauthz-015-scope-expansion-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-graphql-028-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-graphql-028-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-graphql-028-remove-affected-version-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-graphql-028-remove-reproduction-step-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-headermiss-020-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-headermiss-020-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-headermiss-020-scope-expansion-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-add-irrelevant-detail-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-contradict-observed-result-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-fabricate-reference-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-impossible-precondition-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-invent-api-identifier-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-misattribute-cve-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-idor-004-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-info-006-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-info-006-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-info-006-scope-expansion-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-add-irrelevant-detail-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-contradict-observed-result-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-fabricate-reference-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-impossible-precondition-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-misattribute-cve-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-infodisc-016-remove-reproduction-step-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-jwtalg-026-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-jwtalg-026-confidence-overstatement-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-jwtalg-026-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-jwtalg-026-remove-affected-version-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-jwtalg-026-remove-reproduction-step-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-loginject-031-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-loginject-031-confidence-overstatement-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-loginject-031-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-loginject-031-remove-affected-version-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-loginject-031-remove-reproduction-step-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-add-irrelevant-detail-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-contradict-observed-result-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-fabricate-reference-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-impossible-precondition-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-misattribute-cve-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-remove-affected-version-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-massign-014-remove-reproduction-step-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-norepro-009-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-norepro-009-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-norepro-009-scope-expansion-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oauthstate-029-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oauthstate-029-confidence-overstatement-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oauthstate-029-professionalize-language-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oauthstate-029-remove-affected-version-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oauthstate-029-remove-reproduction-step-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oob-008-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oob-008-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-oob-008-scope-expansion-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-add-irrelevant-detail-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-contradict-observed-result-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-fabricate-reference-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-impact-inflation-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-impossible-precondition-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-misattribute-cve-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-remove-affected-version-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-openred-015-remove-reproduction-step-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair1a-cookie-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair2a-dirlist-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair3a-comment-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair4a-passpol-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair5a-health-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair6a-logout-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair7a-404-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pair8a-session-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-contradict-observed-result-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-impact-inflation-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-impossible-precondition-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-misattribute-cve-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-remove-affected-version-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-remove-reproduction-step-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-pathtrav-017-scope-expansion-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-perm-012-add-irrelevant-detail-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-perm-012-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-perm-012-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-perm-012-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-permdiff-020-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-permdiff-020-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-permdiff-020-remove-affected-version-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-permdiff-020-remove-reproduction-step-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-contradict-observed-result-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-impact-inflation-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-impossible-precondition-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-invent-api-identifier-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-remove-affected-version-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-remove-reproduction-step-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-racecond-018-scope-expansion-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit-010-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit-010-confidence-overstatement-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit-010-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit-010-remove-affected-version-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit-010-remove-reproduction-step-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit2-032-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit2-032-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit2-032-remove-affected-version-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ratelimit2-032-remove-reproduction-step-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-robots-022-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-robots-022-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-robots-022-scope-expansion-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-contradict-observed-result-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-impact-inflation-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-invent-api-identifier-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-professionalize-language-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-remove-affected-version-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-remove-reproduction-step-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-saml-019-scope-expansion-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-selfreg-023-add-irrelevant-detail-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-selfreg-023-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-selfreg-023-scope-expansion-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-impact-inflation-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-invent-api-identifier-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-professionalize-language-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-remove-affected-version-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-remove-reproduction-step-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-sqlx-002-scope-expansion-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-fabricate-reference-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-impact-inflation-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-invent-api-identifier-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-professionalize-language-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-ssrf-005-scope-expansion-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-fabricate-reference-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-impact-inflation-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-invent-api-identifier-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-misattribute-cve-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-professionalize-language-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-remove-affected-version-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-tokenurl-013-scope-expansion-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-totiming-019-add-irrelevant-detail-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-totiming-019-professionalize-language-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-totiming-019-remove-affected-version-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-totiming-019-remove-reproduction-step-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-verb-021-add-irrelevant-detail-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-verb-021-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-verb-021-scope-expansion-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-versiondisc-024-add-irrelevant-detail-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-versiondisc-024-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-versiondisc-024-scope-expansion-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-fabricate-reference-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-impact-inflation-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-impossible-precondition-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-invent-api-identifier-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-misattribute-cve-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-websig-018-scope-expansion-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-wstoken-022-add-irrelevant-detail-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-wstoken-022-confidence-overstatement-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-wstoken-022-professionalize-language-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-wstoken-022-remove-affected-version-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-wstoken-022-remove-reproduction-step-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-contradict-observed-result-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-fabricate-reference-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-impossible-precondition-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-invent-api-identifier-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-misattribute-cve-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-professionalize-language-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsrf-003-scope-expansion-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-add-irrelevant-detail-08",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-contradict-observed-result-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-fabricate-reference-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-impossible-precondition-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-invent-api-identifier-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-misattribute-cve-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xssref-016-professionalize-language-02",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-add-irrelevant-detail-07",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-contradict-observed-result-06",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-fabricate-reference-03",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-impossible-precondition-05",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-misattribute-cve-04",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-professionalize-language-01",
+      "repeat_index": 0
+    },
+    {
+      "case_id": "mut-xsssto-013-remove-reproduction-step-08",
+      "repeat_index": 0
+    }
+  ],
+  "complete_success_coverage": false,
+  "recorded_batches": [],
+  "authored_target_matches": 0,
+  "decision_counts": {},
+  "failure_counts": {},
+  "disagreements": [],
+  "protocol_sha256": "e5cfda1db681eab421acc0d89c7826edba8b35db8366407e790732e8799219b7",
+  "case_kind_counts": {},
+  "operator_results": {},
+  "metrics": null
+}

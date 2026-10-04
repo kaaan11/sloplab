@@ -43,8 +43,16 @@ to a future release's acceptance criteria.
   **60/60** single-observation canonical evaluations with **59/60** authored-target
   agreement. A separate [first-ten repeat pilot](nemotron-repeat-2026-10-04.md)
   then produced 30/30 valid responses and unanimous decisions on all ten cases.
-  Repeat coverage for the remaining 50 canonical cases and mutation evaluation
-  remain future work; these results do not replace historical Dots observations.
+  The [remaining-repeat follow-up](nemotron-full-repeats-2026-10-04.md) records
+  one transport failure and a separately authorized replacement block; its defined
+  60-case matrix has 57 unanimous cases and three flips. The
+  [mutation study](nemotron-mutations-2026-10-04.md) dispatched 237 variants and
+  60 fresh controls, with 296/297 valid responses. One variant response remains
+  incomplete in the original study. A separately authorized one-call supplement
+  completes the matched dataset at 451 total continuation calls: 137/237 mutation
+  target matches, with 2/96 decision-changing target matches. Original failures
+  remain archived. Mutation repeat stability remains future work. These results
+  do not replace historical Dots observations.
 - Live Jev workflow integration: the typed adapter is implemented and mock-tested,
   but is not wired into the manual chat-model workflow. Live Jev work is deferred
   under the user's current Nemotron choice.

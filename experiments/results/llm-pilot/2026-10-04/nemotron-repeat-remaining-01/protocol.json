@@ -1,0 +1,978 @@
+{
+  "registered_at": "2026-10-04T18:41:37.270762+00:00",
+  "study": "remaining-repeats",
+  "source_commit": "c380c4da6b317af7c86a6dfec0e94ca49919d0dc",
+  "model": "nvidia/nemotron-3-super-120b-a12b:free",
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "catalog": {
+    "id": "nvidia/nemotron-3-super-120b-a12b:free",
+    "canonical_slug": "nvidia/nemotron-3-super-120b-a12b-20230311",
+    "hugging_face_id": "nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
+    "name": "NVIDIA: Nemotron 3 Super (free)",
+    "created": 1773245239,
+    "description": "NVIDIA Nemotron 3 Super is a 120B-parameter open hybrid MoE model, activating just 12B parameters for maximum compute efficiency and accuracy in complex multi-agent applications. Built on a hybrid Mamba-Transformer...",
+    "context_length": 262144,
+    "architecture": {
+      "modality": "text->text",
+      "input_modalities": [
+        "text"
+      ],
+      "output_modalities": [
+        "text"
+      ],
+      "tokenizer": "Other",
+      "instruct_type": null
+    },
+    "pricing": {
+      "prompt": "0",
+      "completion": "0"
+    },
+    "top_provider": {
+      "context_length": 262144,
+      "max_completion_tokens": 235929,
+      "is_moderated": false
+    },
+    "per_request_limits": null,
+    "supported_parameters": [
+      "include_reasoning",
+      "max_tokens",
+      "reasoning",
+      "reasoning_effort",
+      "response_format",
+      "seed",
+      "structured_outputs",
+      "temperature",
+      "tool_choice",
+      "tools",
+      "top_p"
+    ],
+    "default_parameters": {
+      "temperature": 1,
+      "top_p": 0.95,
+      "top_k": null,
+      "frequency_penalty": null,
+      "presence_penalty": null,
+      "repetition_penalty": null
+    },
+    "supported_voices": null,
+    "knowledge_cutoff": null,
+    "expiration_date": null,
+    "links": {
+      "details": "/api/v1/models/nvidia/nemotron-3-super-120b-a12b-20230311/endpoints"
+    },
+    "benchmarks": {
+      "design_arena": [],
+      "artificial_analysis": {
+        "intelligence_index": 12.8,
+        "coding_index": 37.7,
+        "agentic_index": 1.7
+      }
+    },
+    "reasoning": {
+      "mandatory": false,
+      "default_enabled": true,
+      "supports_max_tokens": true,
+      "supported_efforts": [
+        "medium",
+        "low"
+      ],
+      "default_effort": "medium"
+    }
+  },
+  "endpoints": [
+    {
+      "name": "Nvidia | nvidia/nemotron-3-super-120b-a12b-20230311:free",
+      "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "model_name": "NVIDIA: Nemotron 3 Super",
+      "context_length": 262144,
+      "pricing": {
+        "prompt": "0",
+        "completion": "0",
+        "discount": 0
+      },
+      "provider_name": "Nvidia",
+      "tag": "nvidia",
+      "quantization": "unknown",
+      "max_completion_tokens": 235929,
+      "max_prompt_tokens": null,
+      "supported_parameters": [
+        "reasoning",
+        "include_reasoning",
+        "temperature",
+        "max_tokens",
+        "seed",
+        "top_p",
+        "tools",
+        "tool_choice",
+        "structured_outputs",
+        "response_format",
+        "reasoning_effort"
+      ],
+      "supports_tool_choice": {
+        "none": false,
+        "auto": true,
+        "required": true,
+        "function": true
+      },
+      "status": 0,
+      "uptime_last_30m": 99.96370762865646,
+      "uptime_last_5m": 99.94580924855492,
+      "uptime_last_1d": 99.94705062950622,
+      "supports_implicit_caching": false,
+      "native_tools": {},
+      "supports_voice_cloning": false,
+      "supports_multiple_audio_references": false,
+      "supports_image_reference": false,
+      "latency_last_30m": null,
+      "throughput_last_30m": null
+    }
+  ],
+  "repeats": 3,
+  "max_requests": 150,
+  "global_max_requests": 447,
+  "selected_case_ids": [
+    "canonical-filetype-023",
+    "canonical-ghauthz-015",
+    "canonical-graphql-028",
+    "canonical-headermiss-020",
+    "canonical-idor-004",
+    "canonical-info-006",
+    "canonical-infodisc-016",
+    "canonical-jwtalg-026",
+    "canonical-loginject-031",
+    "canonical-massign-014",
+    "canonical-norepro-009",
+    "canonical-oauthstate-029",
+    "canonical-oob-008",
+    "canonical-openred-015",
+    "canonical-pair1a-cookie",
+    "canonical-pair1b-cookie",
+    "canonical-pair2a-dirlist",
+    "canonical-pair2b-dirlist",
+    "canonical-pair3a-comment",
+    "canonical-pair3b-comment",
+    "canonical-pair4a-passpol",
+    "canonical-pair4b-passpol",
+    "canonical-pair5a-health",
+    "canonical-pair5b-health",
+    "canonical-pair6a-logout",
+    "canonical-pair6b-logout",
+    "canonical-pair7a-404",
+    "canonical-pair7b-404",
+    "canonical-pair8a-session",
+    "canonical-pair8b-session",
+    "canonical-pathtrav-017",
+    "canonical-perm-012",
+    "canonical-permdiff-020",
+    "canonical-racecond-018",
+    "canonical-ratelimit-010",
+    "canonical-ratelimit2-032",
+    "canonical-robots-022",
+    "canonical-saml-019",
+    "canonical-selfreg-023",
+    "canonical-sqlx-002",
+    "canonical-ssrf-005",
+    "canonical-tokenurl-013",
+    "canonical-totiming-019",
+    "canonical-verb-021",
+    "canonical-versiondisc-024",
+    "canonical-websig-018",
+    "canonical-wstoken-022",
+    "canonical-xsrf-003",
+    "canonical-xssref-016",
+    "canonical-xsssto-013"
+  ],
+  "input_identity": {
+    "schema_version": 1,
+    "cases": [
+      {
+        "case_id": "canonical-filetype-023",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "dbb9ac7201c0d30d98ace2d844b7877250652ee24fe2e183b978497561d8545f",
+        "target_hash": "9da4d2a003962aa7ea14a0b923127ed8c1a4f00b35f4c2de65ffdeeb38c824a8",
+        "input_hash": "96655528fcc90540015b68d1c431340f06569445fee8dd5ff0a8267914a02bef"
+      },
+      {
+        "case_id": "canonical-ghauthz-015",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "408b48796f7c07d9214299fb930550f42926716d0147361b385e356486c2f448",
+        "target_hash": "9cbb019f40a4b7cd301ca2762caae51143a9b71a675db9506c721c1041408dc8",
+        "input_hash": "4d1eedc74bff93e1f8dc218a387583dc83ac0ed4f0a0429623f793a72ca7c9d7"
+      },
+      {
+        "case_id": "canonical-graphql-028",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "7de4dfd5dc501ca740858173742cea5067350e0e13af93f2a745ddd1bfe05712",
+        "target_hash": "f51d8eb0d5ab4b7564468f7205d1c3f44c898d9974212ae7ecc2e0303fdfe49b",
+        "input_hash": "c7624eba8398bdf4bdbf8cca42471381149cefda5fdae7202ef0afd29452bef4"
+      },
+      {
+        "case_id": "canonical-headermiss-020",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "627c184582b709cf730af6fb16aec6d29e25474bf716899fde962594a5175e83",
+        "target_hash": "6b14dc19401df8c68f1e20df44906b01bbfe52ca45551f19c2bcd2fd50aa06b2",
+        "input_hash": "0ca4d42d98ddf93bf7dd558db72773e40c53f282f41746a0104f00a579742f92"
+      },
+      {
+        "case_id": "canonical-idor-004",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "d217521ec33e3a89dc2592c820107faef49b10720ed3da3a197b438127a7e39d",
+        "target_hash": "a96907f9491ff39020e37b092e8a08f777da9d515ce60b9bc8ebf31cd2533217",
+        "input_hash": "4203df579e667aa6843694f11304bbe73aa9823c81c06fd0af1374d28789e36b"
+      },
+      {
+        "case_id": "canonical-info-006",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "fa3995aaba3101243ae072b8a42e1d5238bd5213072095d1826c2c36ea926afa",
+        "target_hash": "a1b910d5d083ebbaf039c939285f4a7d5b27b96fea23a136cd462f230e8b1378",
+        "input_hash": "3dab033064d8451f74db924812309c3111be9fe3adfb0158e6575c5c011730b8"
+      },
+      {
+        "case_id": "canonical-infodisc-016",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "0f7dca07c67dc0818894de7cb7421a5b2c27d2dd964223cc8b178411aa4f6c99",
+        "target_hash": "af5929b2aaaa870d5100e094552337176cbeaab19726750240d4035e9949d9ce",
+        "input_hash": "cbeb8123618b7a9de06ce0a57aeb437071e0cf1e82bec84a63ad4aac52e22167"
+      },
+      {
+        "case_id": "canonical-jwtalg-026",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "02aeaac211d2674fdf7b8e11613f4b7f20074926110e6ec96d76fad0ee3b26f3",
+        "target_hash": "785244131cbd62cbd24998e62abd78f5cb9447d9990634ed82e1baa841af8255",
+        "input_hash": "2e37738caa8e5d76b4260492e820de2ce41c4d60dd64f7ffa9ed1cc3ca9d50c4"
+      },
+      {
+        "case_id": "canonical-loginject-031",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "5b6599375aa56658d16d11ceae30604a63674d28f88f590adb959cf113e51df0",
+        "target_hash": "3229d6649125f22932767dcda438b7681121fe946a66dd709290bdf044a254fc",
+        "input_hash": "202b3ea33efe954ca556283b4b70106c056ff103a9acedea8d3ca5b72bdf3c8f"
+      },
+      {
+        "case_id": "canonical-massign-014",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "00c5f66f26a7553184d9f660c8130d849acb96ea0b06e269aa58b8477e97faec",
+        "target_hash": "9f8669228c59c9e23de1b23b9a492c33e93f87e73ebb4db2d8a677fe303002e3",
+        "input_hash": "23a85b21f735e071f37227ea371c870083f337eafab5e13659846b25bf1d4dad"
+      },
+      {
+        "case_id": "canonical-norepro-009",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "f29fccc1e942c0802b346eaa49583f82b2b82891c8ddcfb96a6618bd87fe0123",
+        "target_hash": "49013d18581a9051823726649af3c24dc3164f49d0bd0c153df3eb2109429178",
+        "input_hash": "498fc4373a290e6781901db6b16bb769f56c3681a2faee27f3194df0e414e142"
+      },
+      {
+        "case_id": "canonical-oauthstate-029",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "43c1426738487b9d81b5be721fda38e80373cc99b3f53f2b5163e0992427415b",
+        "target_hash": "3339366225514b40b9ce9a34e594c892ab6763b31c1334e2d5e7496e99e32e51",
+        "input_hash": "7a51133917e37ccef2b90f46755213432aa849a057a550a16dbbef5ed3b8f792"
+      },
+      {
+        "case_id": "canonical-oob-008",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "7df7450fd91116ab879cf4c4b3da1aa7eedbfe61f0697ca37e0fd23c8a3fa5f9",
+        "target_hash": "b65948ed86ec43f0de9b83efb6426e20a192ed54b757a6efb67f5b15d2f6b28d",
+        "input_hash": "6a27a2d3803cf3213bc6e57c74f3d57d487d853f253676db97dfddfbb6594b46"
+      },
+      {
+        "case_id": "canonical-openred-015",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "8c606057d588d4ea98a31e8a762c28e20132df950a15fd48b8f9bd89430a3880",
+        "target_hash": "27cc159e58f120d057553bbc2b57c010fc609912af6ccbc50762c864135ddd28",
+        "input_hash": "653d643573b9ac0ba8035e5b31655f469c01364ef33f367ddeadf3f5accbac9a"
+      },
+      {
+        "case_id": "canonical-pair1a-cookie",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "d166446e0e346cec876e85eb7ec453226f8f94ea4c03a709ce990f333d17dfde",
+        "target_hash": "f3b06afa901edfa64d6e1f98a9c2a9e4be43afed6e132b8175b3e61874ea655d",
+        "input_hash": "2b71131b9cf89b4c8b79229ef4226c8d5f83681b2b13312c0ce57aa8724d8f8c"
+      },
+      {
+        "case_id": "canonical-pair1b-cookie",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "cd9205c3d6689e2d330ea9af94387055341de75bf633cab5f8eae616aed94f28",
+        "target_hash": "f3b06afa901edfa64d6e1f98a9c2a9e4be43afed6e132b8175b3e61874ea655d",
+        "input_hash": "c59f6a90be98d39bc76b9979958c39ed88f6027b88a8d138e5ddbbcb93a48c70"
+      },
+      {
+        "case_id": "canonical-pair2a-dirlist",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "339c62b5d20c81f6061d2a1de6d232600b01e0219e1f2d68f9b127d8ba27bbc7",
+        "target_hash": "6df0f4c828c8288f9e4828167f9cfe88373a4ef5b5f9eae72bb22705371dd90f",
+        "input_hash": "fc00a40a0de66b59d3ccf15c0dd339e87bdeec532f350b76035ca1fd7022bdfb"
+      },
+      {
+        "case_id": "canonical-pair2b-dirlist",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "cd0b8de11b94f1cf6dd2725c16b143dc61ff841ce948caac70f12f45db0dfbdc",
+        "target_hash": "6df0f4c828c8288f9e4828167f9cfe88373a4ef5b5f9eae72bb22705371dd90f",
+        "input_hash": "dc983d33ec4bbba6f71f00539adbebe52315c0ec688a6f23beb9195186972543"
+      },
+      {
+        "case_id": "canonical-pair3a-comment",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "e99928d416001e0d1f9cdcbab31c418e022ffec4798b897c19f23b9d47e0bf98",
+        "target_hash": "dbb5bd616c740ba12642c49d40c44d38bf320b2d9f08b43e9691bd9786544bc3",
+        "input_hash": "7d46a1cc08bc8af5c7cce53b1ccb91bb3cb206bd4ba90d85a31f1f6689a622b5"
+      },
+      {
+        "case_id": "canonical-pair3b-comment",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "67c665b43888fe3431818a6e06498c0a1f1fb38efb78720de07f3921ffcfe4b6",
+        "target_hash": "dbb5bd616c740ba12642c49d40c44d38bf320b2d9f08b43e9691bd9786544bc3",
+        "input_hash": "f01b75026e5797b153ae5a47ed185b6305ab2576873c81fe54e4ffdc7d0f77c4"
+      },
+      {
+        "case_id": "canonical-pair4a-passpol",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "0a7a4dca66721c38bf524f1e6c639dd0996df3a07d6efea0395d75d4b43c0b7c",
+        "target_hash": "7389cc435f0b66b63716fdd1feea2d3522944a7749b45e8764a8d84c5cd98784",
+        "input_hash": "e4c99b6cfb1aabb80f0ec1890cb08fe6084f00d3b5b6dc51a56ae076801d9b73"
+      },
+      {
+        "case_id": "canonical-pair4b-passpol",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "3fcd51a3c3b6fd1bf87f92065e8f948e6bde1e3dd3fb1a1163183c1f37b9d15b",
+        "target_hash": "7389cc435f0b66b63716fdd1feea2d3522944a7749b45e8764a8d84c5cd98784",
+        "input_hash": "229405214eed61be97455e3669a747f6c29bd8f9a24f99afdea5d08d52d5b13e"
+      },
+      {
+        "case_id": "canonical-pair5a-health",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "210c5e2d780d54f0e59f22950b6dda07987de0d719a7a4cf548f90da9558fe52",
+        "target_hash": "3507a83721a09095c70951cd453fbf0aaada25165b02fcdbec3e64f616bb3644",
+        "input_hash": "9e57beb0dd59eca805012b8431fce54d4873ce3a900619277bfe635391efc4f1"
+      },
+      {
+        "case_id": "canonical-pair5b-health",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "41cbd65758c2ffda709162ee223f226ea183ff2422cd9dceb88342ebf4841033",
+        "target_hash": "3507a83721a09095c70951cd453fbf0aaada25165b02fcdbec3e64f616bb3644",
+        "input_hash": "d1697374f7d52d6e1ec71d952c355f6c6f2d9efb2687597853d4272a7d4439ba"
+      },
+      {
+        "case_id": "canonical-pair6a-logout",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "5ebb8d957c0bee7743469435cc667eecfb2f35babde417d7751deff66e9757b8",
+        "target_hash": "e9f7f17fe0615e79bcb4081008ad514a4c419698b4b5edbabb11d507c83b6add",
+        "input_hash": "04065feea8d6c50647998263d7ea32451bd4202df951ffbc7f86e21d87ea6097"
+      },
+      {
+        "case_id": "canonical-pair6b-logout",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "8b447aef2e83cd3fa81a0ace28670bfd0940e51c0c1db01617ac8efd43380cc6",
+        "target_hash": "e9f7f17fe0615e79bcb4081008ad514a4c419698b4b5edbabb11d507c83b6add",
+        "input_hash": "b1a2a55f4af6fac601449c0ec318f92a0a1b018b753b069625fe46d62ffaf83e"
+      },
+      {
+        "case_id": "canonical-pair7a-404",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "8b0159a55a4c5362daf75c0ae4d30d3e7ba4d56ebef173b0346455e99b8f70bd",
+        "target_hash": "24ce599fd2b9c868afe4281ac9abb6fbb7a42915985504dd50d7bdc270a980d1",
+        "input_hash": "5acccfe5db6cb0719e6426777ea0dc8a6396ded8c06f84b2f29e32df9bfac0cb"
+      },
+      {
+        "case_id": "canonical-pair7b-404",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "661cef7feadc86c39b09c8794d9b71ce35bf0cd9e75536aa809286420a0d4869",
+        "target_hash": "24ce599fd2b9c868afe4281ac9abb6fbb7a42915985504dd50d7bdc270a980d1",
+        "input_hash": "03827fbc6f9c45f4a3b22123b59b4b4d056fbacbd92632fc5850d1e92e45e7aa"
+      },
+      {
+        "case_id": "canonical-pair8a-session",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "1c3fc15b718b1fc5a8921b69141014fcb483d70379bfa311a9426ee3cafc5b99",
+        "target_hash": "f4b27790b1f506d5ef03be34d410a1d27725eb6e12cb4e2da41ed61f2107f6a8",
+        "input_hash": "6d41f46d26d7791753e9f40108c7b00d8f4d7506392f83dafec31ada0328473a"
+      },
+      {
+        "case_id": "canonical-pair8b-session",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "40ecaf94ed31fa75e9fe660b35717d8b603e3d6017821803b286811337d31de4",
+        "target_hash": "f4b27790b1f506d5ef03be34d410a1d27725eb6e12cb4e2da41ed61f2107f6a8",
+        "input_hash": "630bc5e699171f043ecbefaf638f5a60ff296bd5ff8de89ebb25920194038020"
+      },
+      {
+        "case_id": "canonical-pathtrav-017",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "48ad9c2e2d3a2985fcb4618fa87f3ba941456ae4a71b3f1c62fde878a642e0af",
+        "target_hash": "305b452f38b86a6b78cad40762f32c1c82a845780a830cb0df896e77e0bf5ac9",
+        "input_hash": "066b3fd4c9aa48f09aa40f7a06596db3f3456fb1afe35e59676a25b0c2880672"
+      },
+      {
+        "case_id": "canonical-perm-012",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "6c4e75f774f6df40b8e50d1628479a92effc2c5701278fa47c9ae13c8344d14a",
+        "target_hash": "299e2c164424c0486620e77fb0b518196631f771387c3fdfe477ed11ff20a99c",
+        "input_hash": "9c1098041f75ebd3efea38b9fabe9f2c726854d145d45b376b208b4f796a78bf"
+      },
+      {
+        "case_id": "canonical-permdiff-020",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "7ac8a00b1f4726cedaf291150c0d874e95a638f27b0e4de2af92c3622ea752b9",
+        "target_hash": "f5de995ba47c1150518060b67406cbe32b4b6f8fff8b6a062fdd8ca17f4fefa3",
+        "input_hash": "788db1baa7ad7a8b9d2c1eec42c107f001f72dc68c0ae20a3e5c1d0f5de10be3"
+      },
+      {
+        "case_id": "canonical-racecond-018",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "e28f3da29e9207ad2db3ba6cf291bb304aaeadb6e4250a7c15986a9907718672",
+        "target_hash": "18789597109b23795461adffcefeef99bc57b8c4d493e56d99f576636ce293b1",
+        "input_hash": "fdc476b398fb83224ff8a6129520a87f89074f73eff8178d9fb4161f36624f4f"
+      },
+      {
+        "case_id": "canonical-ratelimit-010",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "15b0f98517836bf6eb83448113d52c25fceed581baf73811226f2e67039b6093",
+        "target_hash": "428ed28d7e7b46b472015d74a03942a78758a432ea4199c8599b0bcbf4176b81",
+        "input_hash": "08c947403ebd0a3bd5ee04161c2b8fbee872c870ef66a49b8d5da4b3c641f1e6"
+      },
+      {
+        "case_id": "canonical-ratelimit2-032",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "e3b35a69d135b4d4e6c0748566255983af951cf72ae51f21d6528079497bacb0",
+        "target_hash": "2f0522284fca7d17f6825a63cfb4205a086fbb7fcee5f39c0a8aba269ca87869",
+        "input_hash": "8664d17e23f5c3f1a570bcc8ceea5e7f3d18b2dbea1eb9729d27461d3452410e"
+      },
+      {
+        "case_id": "canonical-robots-022",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "557b8c09377cb65f3e7241623931f5e502f7de6a58f332ee9209935b1466b78a",
+        "target_hash": "cd5b85f3ad0efa0363bd134e59d21268787f99f712fd4a48d5b15dac1ff95fcb",
+        "input_hash": "a651e9376fe31971d20b3244be83d799d35e2f70ed647b42897646284a9903e0"
+      },
+      {
+        "case_id": "canonical-saml-019",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "5e7aba4700086beeab6ddf9a777c092ecebd9c1ef74101ee82fa1aeac9af1d4a",
+        "target_hash": "8758b419380271b92669310ea0bd46669f7f75ecdd5cf375ab84301aa2d788dc",
+        "input_hash": "db4abe172c0dff2c8fd067a191300b68fd7e72cdd4e4a462dad6cdbaed04f756"
+      },
+      {
+        "case_id": "canonical-selfreg-023",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "3276c38d1f13807acbba0dc90c1ccad10ba0d2dea30ed70db404b029142f0a49",
+        "target_hash": "49ae79d6c7fdd2585b52c705fbfdd0638883a83011f8c15f6d22c2f6d1f4c212",
+        "input_hash": "10e23da6f9fcfc9d9932c732bb4459aa1b6852b9707c370d395ffc7288f22e0e"
+      },
+      {
+        "case_id": "canonical-sqlx-002",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "22dadce8533529ff2f457f75131b8bc1823874a6a9245d96c1e786957738ed1d",
+        "target_hash": "2cbf63164fc525cad8ffc0fe23379aa0df9e0dcca9195007ab9b2c91057728a9",
+        "input_hash": "b5e12fab8b52b72ac2ca072deabae6e7c2025d13aa553328709e005c3f636c1b"
+      },
+      {
+        "case_id": "canonical-ssrf-005",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "0c32a9f7302f5abc661a99868447819a49769870e6e1bf6f5a8cb0e5e5cb9e86",
+        "target_hash": "3bf0203db7bd700ca54fbfc2cf761cb4f4ad3681398561e4ce7feed091480215",
+        "input_hash": "feb5aa9b5714c61982e4b02c5d51e2d21f9a669c0435a4a07beed112c0d1c3a1"
+      },
+      {
+        "case_id": "canonical-tokenurl-013",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "1ec1471b8b0715036641cde32974658e391a20eae8e36c64d6d479f8456b839e",
+        "target_hash": "d1d94f4ed57e0ef902f78e2a018279aaf1a49f9c1c736a100eea0806cc58d2d0",
+        "input_hash": "72d199741a8080b874a6060b7aac39362b54782244279366cdaeb7a75e64a7e0"
+      },
+      {
+        "case_id": "canonical-totiming-019",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "e1ed08029aac2451887760f6cdbf185fc4fb0130343457d5f09a85696ee617a2",
+        "target_hash": "9418526ba76c3bd031be5c1f9e1c0e057a8845aa3a417114c1669f0f71c23667",
+        "input_hash": "852ac5556c509ac04d6f26578b0fd41af61e768cb3dc3e2ec920ac846d90f71c"
+      },
+      {
+        "case_id": "canonical-verb-021",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "7adccd7a4fdf81ac98b55bd35e59d8b6eb8ca4719784e59e2fc4c6114928ff68",
+        "target_hash": "ebcc37c4ee6a317bfcecdc5b020a18c385d0b10c6fe9b1813984a4cd6eeb23f7",
+        "input_hash": "09ac1bf93146e8f9311b80426d4cead58eefb4e918a0c87a31562123d698403b"
+      },
+      {
+        "case_id": "canonical-versiondisc-024",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "invalid",
+        "seed": null,
+        "report_hash": "1a7b539308e4ed0649c1bec2b16a25fac2ee58b3918d368ab6b94d0ba1b25879",
+        "target_hash": "edf1f02f1efde441b88f52baba0a65082fa3c5c9829404e6a2f0efd4e4c4cc91",
+        "input_hash": "b5067c98848afe4a9bf9168ca7eacc734884fe73de328cf7e3a951d683e629b2"
+      },
+      {
+        "case_id": "canonical-websig-018",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "27535b0e95bdaf8754ac40777d1dc218916a36d8c0c59acf128b0beb6885ba41",
+        "target_hash": "e560eb2c4b630d230986efa3b178c4ce0fccdc1c5078d3068128e94e816313cf",
+        "input_hash": "ac240c0cf63b45c4354c05d25c0fbd15b27896e2423a92c620400fccade0ac4e"
+      },
+      {
+        "case_id": "canonical-wstoken-022",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "review",
+        "seed": null,
+        "report_hash": "ee5dff37a850aa99dc6b9f98fe802882e2a77d2c45e7c51a1764727a2848bf68",
+        "target_hash": "8e6089be28308e4e2649921cd6b2085e92cdba745d20378c69d25c01065a41cc",
+        "input_hash": "5163c2410637474b5c628c17cbab83a5c7007c36b3f1312babbaf2f78a5d1127"
+      },
+      {
+        "case_id": "canonical-xsrf-003",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "3387fffe6ac4e809110a2dac7828dcf151f6d9fe4497432c2952f6c56901430e",
+        "target_hash": "b87dd8abe830cd015c12479628d9892205d960bdb10fca3cd37b26d1cc4a7f9d",
+        "input_hash": "59ded7851ed036fbd6a4d978c8ff151a22eb04dcf2270112e863f382315309f1"
+      },
+      {
+        "case_id": "canonical-xssref-016",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "cb777223e169b499d6696cd23021b3642972d2e5ed7ab76021253965f82ff5bc",
+        "target_hash": "d40f6ebabf7cccdb729d996d0de6d831b96a5e3b4ddf3be57f30bee1aa8970d1",
+        "input_hash": "adfe6cdf652f9b9244c54f97d83efd66ea860d1f08a1c37752446b3d4471edf3"
+      },
+      {
+        "case_id": "canonical-xsssto-013",
+        "case_kind": "canonical",
+        "parent_id": null,
+        "operator": null,
+        "report_class": "valid",
+        "seed": null,
+        "report_hash": "fa8e17495d016a5a4f7fd0db787273c78542f3105b347c85d6a3aac7424fbc4a",
+        "target_hash": "261b86eb9af8951d1ef82474dfab7944dc8de93c922f6f1b752f0d799e7f1618",
+        "input_hash": "5ae50247684b078b9af45b3a5204ff688216f312a3e4e2f8ef3f8605b8eee9d5"
+      }
+    ],
+    "selection_hash": "2e0bad9c2e7ed87f9110c16cb19cd6479d698e19af8aa700f3c3f7b41e12841b",
+    "inputs_hash": "71e472dde0ad7846b40baf49a5b657b1911095496699802e7a22b920b3f87211"
+  },
+  "batches": [
+    {
+      "directory": "batch-000",
+      "case_ids": [
+        "canonical-filetype-023",
+        "canonical-ghauthz-015",
+        "canonical-graphql-028",
+        "canonical-headermiss-020",
+        "canonical-idor-004",
+        "canonical-info-006",
+        "canonical-infodisc-016",
+        "canonical-jwtalg-026",
+        "canonical-loginject-031",
+        "canonical-massign-014"
+      ],
+      "config": {
+        "schema_version": 2,
+        "name": "nemotron-repeat-remaining-01",
+        "description": "",
+        "suite": {
+          "config_path": "benchmarks/suites/v1-core.yaml",
+          "corpus_root": "corpus"
+        },
+        "base_seed": 20260825,
+        "repeats": 3,
+        "model_env": "SLOPLAB_LLM_MODEL",
+        "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "output_mode": "json_schema",
+        "provider_require_parameters": true,
+        "temperature": 0.0,
+        "prompt_file": "experiments/prompts/triage-v1.md",
+        "budget": {
+          "max_requests": 30,
+          "request_timeout_s": 60,
+          "max_retries_per_case": 0,
+          "min_interval_ms": 3100,
+          "deadline_s": 1900.0
+        },
+        "case_selection": "canonical_first",
+        "case_offset": 0,
+        "max_cases": 10
+      }
+    },
+    {
+      "directory": "batch-010",
+      "case_ids": [
+        "canonical-norepro-009",
+        "canonical-oauthstate-029",
+        "canonical-oob-008",
+        "canonical-openred-015",
+        "canonical-pair1a-cookie",
+        "canonical-pair1b-cookie",
+        "canonical-pair2a-dirlist",
+        "canonical-pair2b-dirlist",
+        "canonical-pair3a-comment",
+        "canonical-pair3b-comment"
+      ],
+      "config": {
+        "schema_version": 2,
+        "name": "nemotron-repeat-remaining-01",
+        "description": "",
+        "suite": {
+          "config_path": "benchmarks/suites/v1-core.yaml",
+          "corpus_root": "corpus"
+        },
+        "base_seed": 20260825,
+        "repeats": 3,
+        "model_env": "SLOPLAB_LLM_MODEL",
+        "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "output_mode": "json_schema",
+        "provider_require_parameters": true,
+        "temperature": 0.0,
+        "prompt_file": "experiments/prompts/triage-v1.md",
+        "budget": {
+          "max_requests": 30,
+          "request_timeout_s": 60,
+          "max_retries_per_case": 0,
+          "min_interval_ms": 3100,
+          "deadline_s": 1900.0
+        },
+        "case_selection": "canonical_first",
+        "case_offset": 10,
+        "max_cases": 10
+      }
+    },
+    {
+      "directory": "batch-020",
+      "case_ids": [
+        "canonical-pair4a-passpol",
+        "canonical-pair4b-passpol",
+        "canonical-pair5a-health",
+        "canonical-pair5b-health",
+        "canonical-pair6a-logout",
+        "canonical-pair6b-logout",
+        "canonical-pair7a-404",
+        "canonical-pair7b-404",
+        "canonical-pair8a-session",
+        "canonical-pair8b-session"
+      ],
+      "config": {
+        "schema_version": 2,
+        "name": "nemotron-repeat-remaining-01",
+        "description": "",
+        "suite": {
+          "config_path": "benchmarks/suites/v1-core.yaml",
+          "corpus_root": "corpus"
+        },
+        "base_seed": 20260825,
+        "repeats": 3,
+        "model_env": "SLOPLAB_LLM_MODEL",
+        "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "output_mode": "json_schema",
+        "provider_require_parameters": true,
+        "temperature": 0.0,
+        "prompt_file": "experiments/prompts/triage-v1.md",
+        "budget": {
+          "max_requests": 30,
+          "request_timeout_s": 60,
+          "max_retries_per_case": 0,
+          "min_interval_ms": 3100,
+          "deadline_s": 1900.0
+        },
+        "case_selection": "canonical_first",
+        "case_offset": 20,
+        "max_cases": 10
+      }
+    },
+    {
+      "directory": "batch-030",
+      "case_ids": [
+        "canonical-pathtrav-017",
+        "canonical-perm-012",
+        "canonical-permdiff-020",
+        "canonical-racecond-018",
+        "canonical-ratelimit-010",
+        "canonical-ratelimit2-032",
+        "canonical-robots-022",
+        "canonical-saml-019",
+        "canonical-selfreg-023",
+        "canonical-sqlx-002"
+      ],
+      "config": {
+        "schema_version": 2,
+        "name": "nemotron-repeat-remaining-01",
+        "description": "",
+        "suite": {
+          "config_path": "benchmarks/suites/v1-core.yaml",
+          "corpus_root": "corpus"
+        },
+        "base_seed": 20260825,
+        "repeats": 3,
+        "model_env": "SLOPLAB_LLM_MODEL",
+        "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "output_mode": "json_schema",
+        "provider_require_parameters": true,
+        "temperature": 0.0,
+        "prompt_file": "experiments/prompts/triage-v1.md",
+        "budget": {
+          "max_requests": 30,
+          "request_timeout_s": 60,
+          "max_retries_per_case": 0,
+          "min_interval_ms": 3100,
+          "deadline_s": 1900.0
+        },
+        "case_selection": "canonical_first",
+        "case_offset": 30,
+        "max_cases": 10
+      }
+    },
+    {
+      "directory": "batch-040",
+      "case_ids": [
+        "canonical-ssrf-005",
+        "canonical-tokenurl-013",
+        "canonical-totiming-019",
+        "canonical-verb-021",
+        "canonical-versiondisc-024",
+        "canonical-websig-018",
+        "canonical-wstoken-022",
+        "canonical-xsrf-003",
+        "canonical-xssref-016",
+        "canonical-xsssto-013"
+      ],
+      "config": {
+        "schema_version": 2,
+        "name": "nemotron-repeat-remaining-01",
+        "description": "",
+        "suite": {
+          "config_path": "benchmarks/suites/v1-core.yaml",
+          "corpus_root": "corpus"
+        },
+        "base_seed": 20260825,
+        "repeats": 3,
+        "model_env": "SLOPLAB_LLM_MODEL",
+        "endpoint_env": "SLOPLAB_LLM_ENDPOINT",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "output_mode": "json_schema",
+        "provider_require_parameters": true,
+        "temperature": 0.0,
+        "prompt_file": "experiments/prompts/triage-v1.md",
+        "budget": {
+          "max_requests": 30,
+          "request_timeout_s": 60,
+          "max_retries_per_case": 0,
+          "min_interval_ms": 3100,
+          "deadline_s": 1900.0
+        },
+        "case_selection": "canonical_first",
+        "case_offset": 40,
+        "max_cases": 10
+      }
+    }
+  ],
+  "runner_file": "experiments/scripts/nemotron_followups_20261004.py",
+  "verifier_file": "experiments/scripts/verify_nemotron_followups_20261004.py",
+  "prompt_file": "experiments/prompts/triage-v1.md",
+  "prior_protocol_sha256": "28527c677909bdd5d7fa257e94bd3ecedb758668c4f27461ab976d82375ca438",
+  "selection_rule": "Canonical cases after first ten",
+  "stop_policy": "Stop both studies after HTTP 401/402/403/404/429 or changed route pricing",
+  "mutation_gate": "Require complete remaining-repeat coverage and <=6/60 flipped cases",
+  "limitations": [
+    "Public synthetic authored targets; not independent real-world accuracy",
+    "No provider decoding seed; base_seed is benchmark provenance only",
+    "Mutation study is single-observation with fresh canonical parent controls",
+    "Earlier repeats and remaining repeats are chronological separate batches",
+    "No Jev, raw responses, automatic retries or target changes",
+    "Response-level usage/cost fields are not retained",
+    "Dimension-error metrics undefined: existing pilot omits dimensional targets"
+  ],
+  "runner_sha256": "6c53a02f63df3c53bac5e0a2f71339fde35f3c8620061a55ba62f08351b7506e",
+  "verifier_sha256": "2116a0e58463bc74e36133e8023cf64de8a4abdb651bfc266dc1d20a7643eb81",
+  "prompt_sha256": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42"
+}

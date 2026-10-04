@@ -1,0 +1,837 @@
+{
+  "study": "recovery-repeats",
+  "planned_cases": 1,
+  "repeats": 3,
+  "planned_evaluations": 3,
+  "physical_requests": 3,
+  "valid_responses": 3,
+  "failed_evaluations": 0,
+  "not_run_in_batches": 0,
+  "unstarted_evaluations": [],
+  "complete_success_coverage": true,
+  "recorded_batches": [
+    "batch-000"
+  ],
+  "authored_target_matches": 3,
+  "decision_counts": {
+    "accept": 3
+  },
+  "failure_counts": {},
+  "disagreements": [],
+  "protocol_sha256": "630a12ece443ed23cd35ab8863af4d8d9f1005a2509249f195bab8db35b1dc6c",
+  "recovery_stability": {
+    "repeats": 3,
+    "cases_compared": 1,
+    "unanimous_cases": 1,
+    "flipped_cases": 0,
+    "mean_confidence_spread": 0.1,
+    "unanimity_rate": 1.0
+  },
+  "combined_60_stability": {
+    "repeats": 3,
+    "cases_compared": 60,
+    "unanimous_cases": 57,
+    "flipped_cases": 3,
+    "mean_confidence_spread": 0.0672,
+    "unanimity_rate": 0.95
+  },
+  "per_case": [
+    {
+      "case_id": "canonical-racecond-018",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.78,
+        0.88,
+        0.82
+      ]
+    }
+  ],
+  "combined_matrix_target_matches": 177,
+  "original_valid_observations_retained_outside_matrix": 2,
+  "combined_per_case": [
+    {
+      "case_id": "canonical-authz-001",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        1.0,
+        0.93,
+        0.88
+      ]
+    },
+    {
+      "case_id": "canonical-authz2-014",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.95,
+        0.92,
+        0.93
+      ]
+    },
+    {
+      "case_id": "canonical-cachehdr-024",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.4,
+        0.45,
+        0.45
+      ]
+    },
+    {
+      "case_id": "canonical-cachepois-027",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.6,
+        0.55
+      ]
+    },
+    {
+      "case_id": "canonical-corswild-025",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.9,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-crypto-011",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.7,
+        0.62,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-cspnonc-021",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.6,
+        0.5
+      ]
+    },
+    {
+      "case_id": "canonical-csvinj-017",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.9,
+        0.88,
+        0.85
+      ]
+    },
+    {
+      "case_id": "canonical-deserial-030",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.7,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-dup-007",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-filetype-023",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.6,
+        0.7,
+        0.7
+      ]
+    },
+    {
+      "case_id": "canonical-ghauthz-015",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.92,
+        0.88,
+        0.98
+      ]
+    },
+    {
+      "case_id": "canonical-graphql-028",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.55,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-headermiss-020",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.92
+      ]
+    },
+    {
+      "case_id": "canonical-idor-004",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.86,
+        0.9,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-info-006",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.98,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-infodisc-016",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.88,
+        0.88,
+        0.82
+      ]
+    },
+    {
+      "case_id": "canonical-jwtalg-026",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.7,
+        0.45
+      ]
+    },
+    {
+      "case_id": "canonical-loginject-031",
+      "decisions": [
+        "needs_manual_review",
+        "accept",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.55,
+        0.65,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-massign-014",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.9,
+        0.9,
+        0.86
+      ]
+    },
+    {
+      "case_id": "canonical-norepro-009",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.96,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-oauthstate-029",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.35,
+        0.7,
+        0.3
+      ]
+    },
+    {
+      "case_id": "canonical-oob-008",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.98,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-openred-015",
+      "decisions": [
+        "accept",
+        "reject",
+        "accept"
+      ],
+      "confidences": [
+        0.85,
+        0.95,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-pair1a-cookie",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.92,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair1b-cookie",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair2a-dirlist",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair2b-dirlist",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair3a-comment",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.98,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-pair3b-comment",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.92,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair4a-passpol",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.88
+      ]
+    },
+    {
+      "case_id": "canonical-pair4b-passpol",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.92,
+        0.9,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair5a-health",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair5b-health",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair6a-logout",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.96
+      ]
+    },
+    {
+      "case_id": "canonical-pair6b-logout",
+      "decisions": [
+        "accept",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.7,
+        0.92,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-pair7a-404",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair7b-404",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pair8a-session",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.98
+      ]
+    },
+    {
+      "case_id": "canonical-pair8b-session",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-pathtrav-017",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.98,
+        0.95,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-perm-012",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.65,
+        0.5
+      ]
+    },
+    {
+      "case_id": "canonical-permdiff-020",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.8,
+        0.5,
+        0.58
+      ]
+    },
+    {
+      "case_id": "canonical-racecond-018",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.78,
+        0.88,
+        0.82
+      ]
+    },
+    {
+      "case_id": "canonical-ratelimit-010",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.65,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-ratelimit2-032",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.6,
+        0.6,
+        0.62
+      ]
+    },
+    {
+      "case_id": "canonical-robots-022",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-saml-019",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.95,
+        0.9,
+        0.93
+      ]
+    },
+    {
+      "case_id": "canonical-selfreg-023",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.9,
+        0.95,
+        0.9
+      ]
+    },
+    {
+      "case_id": "canonical-sqlx-002",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.88,
+        0.88,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-ssrf-005",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.98,
+        0.98,
+        0.92
+      ]
+    },
+    {
+      "case_id": "canonical-tokenurl-013",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.9,
+        0.88,
+        0.92
+      ]
+    },
+    {
+      "case_id": "canonical-totiming-019",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.55,
+        0.4
+      ]
+    },
+    {
+      "case_id": "canonical-verb-021",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-versiondisc-024",
+      "decisions": [
+        "reject",
+        "reject",
+        "reject"
+      ],
+      "confidences": [
+        0.95,
+        0.95,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-websig-018",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.88,
+        0.9,
+        0.95
+      ]
+    },
+    {
+      "case_id": "canonical-wstoken-022",
+      "decisions": [
+        "needs_manual_review",
+        "needs_manual_review",
+        "needs_manual_review"
+      ],
+      "confidences": [
+        0.5,
+        0.6,
+        0.6
+      ]
+    },
+    {
+      "case_id": "canonical-xsrf-003",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.88,
+        0.88,
+        0.88
+      ]
+    },
+    {
+      "case_id": "canonical-xssref-016",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.85,
+        0.93,
+        0.96
+      ]
+    },
+    {
+      "case_id": "canonical-xsssto-013",
+      "decisions": [
+        "accept",
+        "accept",
+        "accept"
+      ],
+      "confidences": [
+        0.93,
+        0.95,
+        0.88
+      ]
+    }
+  ]
+}

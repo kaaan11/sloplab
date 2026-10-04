@@ -1,0 +1,5 @@
+{
+  "finished_at": "2026-10-04T18:55:01.967727+00:00",
+  "stop_reason": "mutation-gate-incomplete-or-high-flip-rate",
+  "global_physical_requests": 150
+}

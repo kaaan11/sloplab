@@ -2,6 +2,35 @@
 
 Build queue status. Updated after every completed queue item.
 
+## Nemotron remaining repeats and mutation evaluation — 4 October 2026
+
+- The remaining 50 canonical cases received three observations each: 150 calls,
+  149 valid responses, one `transport.error` on racecond-018. The original
+  aggregate correctly withholds stability for incomplete coverage.
+- The user authorized up to three additional free calls. A separate three-observation
+  replacement block for racecond-018 passed; original two successes and failure
+  are preserved. The [defined 60-case matrix](nemotron-full-repeats-2026-10-04.md)
+  uses 180 valid observations: 57 unanimous cases, three flips, 177 target matches.
+- The original mutation plan made zero calls because its repeat gate failed.
+  A separately registered continuation then dispatched all 60 fresh canonical
+  controls and 237 existing mutations: 297 calls, 296 valid responses, one
+  `transport.error`. Before the mutation supplement: **450 calls, 448 valid, two failures**.
+- The [mutation report](nemotron-mutations-2026-10-04.md) records 59/60 canonical
+  target matches and 136/236 matches among valid variants. The missing variant is
+  `mut-loginject-031-confidence-overstatement-05`. No full-suite paired metrics
+  are reported for incomplete success coverage.
+- The user authorized at most three further free calls, ceiling 453. A separately
+  registered one-call supplement succeeded. Total continuation: **451 calls,
+  449 valid responses, two preserved failures**. The matched mutation dataset
+  has 297 valid records: 59/60 control matches, 137/237 variant matches,
+  196/297 overall matches and 2/96 decision-changing target matches. Production
+  paired metrics were independently recomputed without rewriting the original study.
+- Both original/continuation protocols, intact bundles, frozen sources, summaries
+  and offline replays are saved. Historical Dots results and targets are unchanged.
+  Local full tests, lint/format, strict mypy and result/document regressions passed.
+- The completion runner retains its registered bytes; a source-specific E501
+  exception preserves one 101-character literal without changing scientific evidence.
+
 ## Nemotron repeat pilot — 4 October 2026
 
 - A separately registered first-ten-canonical pilot ran three new observations

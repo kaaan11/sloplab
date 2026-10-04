@@ -60,7 +60,16 @@ The current live continuation uses Nemotron. Its separate
 responses and 59 authored-target matches. A separate
 [first-ten repeat pilot](nemotron-repeat-2026-10-04.md) has 30/30 valid responses
 and no decision flips across three repeats per selected case. Repeat coverage
-for the remaining 50 cases and mutation studies remain future work.
+for the remaining 50 cases was subsequently evaluated in the
+[remaining-repeat follow-up](nemotron-full-repeats-2026-10-04.md). One original
+transport failure and a separately authorized replacement block are preserved;
+the defined 60-case matrix has three decision-changing cases.
+The [mutation study](nemotron-mutations-2026-10-04.md) attempted all 237 variants
+and 60 fresh controls with 296 valid responses and one transport failure.
+The user subsequently authorized a bounded supplement; one additional call
+completes the matched dataset at 451 total continuation calls. Original failures
+remain intact. Mutation target agreement is 137/237, and decision-changing target
+agreement is 2/96; mutation repeat stability remains future work.
 Historical Dots coverage stays incomplete because recorded
 requests returned HTTP 400; another model's results do not replace those outcomes.
 Live Jev testing/integration is deferred under the user's current model choice.

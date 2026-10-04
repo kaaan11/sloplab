@@ -1,0 +1,97 @@
+{
+  "original_physical_requests": 297,
+  "original_valid_responses": 296,
+  "original_failed_evaluations": 1,
+  "supplement_physical_requests": 1,
+  "supplement_valid_responses": 1,
+  "supplement_failed_evaluations": 0,
+  "combined_success_coverage": true,
+  "combined_valid_responses": 297,
+  "total_authorized_continuation_requests": 451,
+  "selected_case_ids": [
+    "mut-loginject-031-confidence-overstatement-05"
+  ],
+  "case_kind_results": {
+    "canonical": {
+      "valid": 60,
+      "matches": 59
+    },
+    "mutated": {
+      "valid": 237,
+      "matches": 137
+    }
+  },
+  "metrics": {
+    "evaluator_name": "llm-json",
+    "total_cases": 297,
+    "correct_cases": 196,
+    "decision_accuracy": 0.6599326599326599,
+    "false_reassurance_rate": 0.3551020408163265,
+    "false_reassurance_count": 87,
+    "over_rejection_rate": 0.019230769230769232,
+    "over_rejection_count": 1,
+    "mutation_detection_rate": 0.020833333333333332,
+    "mutation_detection_total": 96,
+    "robustness_delta": 0.05673758865248227,
+    "presentation_susceptibility": 0.05128205128205128,
+    "calibration_error": 0.29208754208754206,
+    "dimension_mae": {},
+    "per_class_accuracy": {
+      "invalid": 1.0,
+      "review": 0.9411764705882353,
+      "valid": 0.35135135135135137,
+      "canonical_overall": 0.9833333333333333
+    },
+    "robustness_score": 0.4827,
+    "metric_coverage": {
+      "decision_accuracy": {
+        "presented": 297,
+        "scored": 297,
+        "unscored_no_expectation": 0,
+        "undefined_reason": null
+      },
+      "false_reassurance": {
+        "eligible": 245,
+        "undefined_reason": null
+      },
+      "over_rejection": {
+        "eligible": 52,
+        "undefined_reason": null
+      },
+      "mutation_detection": {
+        "eligible": 96,
+        "undefined_reason": null
+      },
+      "robustness_delta": {
+        "pairs": 141,
+        "pairs_missing_parent": 0,
+        "considered": 141,
+        "undefined_reason": null
+      },
+      "presentation_susceptibility": {
+        "pairs": 39,
+        "pairs_unresolved": 0,
+        "children_considered": 39,
+        "undefined_reason": null
+      },
+      "calibration_error": {
+        "observations": 297,
+        "binned": 297,
+        "out_of_range_excluded": 0,
+        "undefined_reason": null
+      },
+      "dimension_mae": {
+        "observations": 0,
+        "undefined_reason": "no expected dimensions"
+      },
+      "per_class_accuracy": {
+        "groups": 4,
+        "undefined_reason": null
+      },
+      "robustness_score": {
+        "undefined_reason": null
+      }
+    }
+  },
+  "protocol_sha256": "124f1a33e6c809f572afd3d786a706eb6685ccc9fdd8435e68390b7d6e219fb1"
+}
