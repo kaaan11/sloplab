@@ -1,0 +1,119 @@
+import hashlib
+import json
+import os
+import time
+import urllib.error
+import urllib.request
+from collections import Counter
+from datetime import UTC, datetime
+from pathlib import Path
+
+from sloplab.evaluators.llm.adapter import HttpLLMClient, LlmEvaluator
+from sloplab.experiments.bundle import verify_bundle
+from sloplab.experiments.config import LLMPilotConfig
+from sloplab.experiments.input_identity import build_input_identity
+from sloplab.experiments.pilot import build_pilot_client_chain, run_llm_pilot
+from sloplab.experiments.runner import current_commit_sha
+from sloplab.scoring.harness import build_cases
+
+ROOT = Path.cwd()  # PUBLIC ARCHIVE: original absolute checkout path redacted.
+OUT = ROOT / 'experiments/results/llm-pilot/2026-10-04/nemotron-canonical-01'
+MODEL = 'nvidia/nemotron-3-super-120b-a12b:free'
+assert os.environ.get('OPENROUTER_API_KEY'), 'OpenRouter key unavailable'
+with urllib.request.urlopen('https://openrouter.ai/api/v1/models', timeout=30) as response:
+    catalog = next(m for m in json.load(response)['data'] if m['id'] == MODEL)
+assert all(float(catalog['pricing'].get(p, '0')) == 0 for p in ('prompt', 'completion', 'request'))
+assert 'structured_outputs' in catalog['supported_parameters']
+with urllib.request.urlopen('https://openrouter.ai/api/v1/models/' + MODEL + '/endpoints', timeout=30) as response:
+    endpoints = json.load(response)['data']['endpoints']
+assert endpoints and all(float(e['pricing'].get(p, '0')) == 0 for e in endpoints for p in ('prompt', 'completion', 'request'))
+cases = [c for c in build_cases(ROOT / 'benchmarks/results/v1-core-example/suite-index.jsonl',
+                               ROOT / 'corpus', ROOT / 'benchmarks/results/v1-core-example')
+         if c.kind == 'canonical']
+assert len(cases) == len({c.case_id for c in cases}) == 60
+identity = build_input_identity(cases)
+OUT.mkdir(parents=True, exist_ok=False)
+config_base = {
+    'schema_version': 2, 'name': 'nemotron-canonical-20261004',
+    'suite': {'config_path': 'benchmarks/suites/v1-core.yaml', 'corpus_root': 'corpus'},
+    'base_seed': 20260825, 'repeats': 1, 'max_cases': 10,
+    'model_env': 'SLOPLAB_LLM_MODEL', 'endpoint_env': 'SLOPLAB_LLM_ENDPOINT',
+    'api_key_env': 'OPENROUTER_API_KEY', 'output_mode': 'json_schema',
+    'provider_require_parameters': True, 'temperature': 0,
+    'prompt_file': 'experiments/prompts/triage-v1.md',
+    'budget': {'max_requests': 10, 'request_timeout_s': 60,
+               'max_retries_per_case': 0, 'min_interval_ms': 3100, 'deadline_s': 650},
+    'case_selection': 'canonical_first'}
+protocol = {'registered_at': datetime.now(UTC).isoformat(), 'model': MODEL,
+            'source_commit': current_commit_sha(ROOT), 'catalog': catalog, 'endpoints': endpoints,
+            'planned_case_ids': [c.case_id for c in cases], 'input_identity': identity,
+            'planned_requests': 60, 'max_requests': 60, 'repeats': 1,
+            'batches': [{'offset': i, 'case_ids': [c.case_id for c in cases[i:i+10]]} for i in range(0,60,10)],
+            'stop_policy': 'Stop before next batch after an auth/access/rate-limit failure; record unstarted cases.',
+            'config_base': config_base, 'runner_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+            'prompt_sha256': hashlib.sha256((ROOT / config_base['prompt_file']).read_bytes()).hexdigest(),
+            'limitations': ['Single observation per public synthetic canonical case; no repeat stability estimate.',
+                            'Authored target agreement is not independently validated triage accuracy.',
+                            'Separate model/study; does not repair historical Dots coverage.']}
+(OUT / 'protocol.json').write_text(json.dumps(protocol, indent=2))
+print('Registered: 60 canonical cases, 6 batches, one observation each, no retries, cap 60 requests.', flush=True)
+
+started = 0
+last_start = 0.0
+class ObservedClient(HttpLLMClient):
+    def complete(self, prompt):
+        global started, last_start
+        time.sleep(max(0, 3.1 - (time.monotonic() - last_start)))
+        last_start = time.monotonic()
+        started += 1
+        assert started <= 60
+        begin = time.monotonic()
+        try:
+            value = super().complete(prompt)
+        except Exception as exc:
+            print(f'Request {started}/60: {type(exc).__name__}, HTTP {getattr(exc, "code", None)}', flush=True)
+            raise
+        print(f'Request {started}/60: response received in {time.monotonic()-begin:.1f}s', flush=True)
+        return value
+
+records, outcomes, manifests = [], [], []
+for offset in range(0, 60, 10):
+    config = LLMPilotConfig.model_validate({**config_base, 'case_offset': offset})
+    http = ObservedClient(model=MODEL, api_key_env='OPENROUTER_API_KEY',
+                     endpoint='https://openrouter.ai/api/v1/chat/completions', timeout_s=60,
+                     output_mode='json_schema', provider_require_parameters=True, temperature=0)
+    client = build_pilot_client_chain(http, min_interval_ms=3100, max_requests=10)
+    evaluator = LlmEvaluator(client=client, enabled=True, max_retries=0)
+    batch = OUT / f'batch-{offset:02d}'
+    result = run_llm_pilot(config, evaluator, cases, ROOT, batch, model_id=MODEL)
+    verify_bundle(batch, kind='llm-pilot')
+    new_records = [json.loads(line) for line in result.records_path.read_text().splitlines()]
+    new_outcomes = [json.loads(line) for line in (batch / 'outcomes.jsonl').read_text().splitlines()]
+    records.extend(new_records)
+    outcomes.extend(new_outcomes)
+    manifests.append(json.loads(result.manifest_path.read_text()))
+    print(f'Batch {offset}-{offset+9}: {result.successful}/10 valid; {result.failed_evaluations} failed; {result.not_run} not run.', flush=True)
+    if any(row.get('detail') in {'http.401','http.402','http.403','http.404','http.429'} or
+           row.get('error_kind') == 'rate-limit' for row in new_outcomes):
+        print('Access/rate-limit failure: stopping before next batch.', flush=True)
+        break
+
+covered = {row['case_id'] for row in outcomes}
+unstarted = [c.case_id for c in cases if c.case_id not in covered]
+assert len(covered) == len(outcomes)
+assert len(outcomes) + len(unstarted) == 60
+assert started == sum(m['counters']['physical_dispatches'] for m in manifests)
+correct = sum(bool(row['correct']) for row in records)
+summary = {'completed_at': datetime.now(UTC).isoformat(), 'model': MODEL,
+           'planned_cases': 60, 'physical_requests': started,
+           'valid_responses': len(records), 'failed_evaluations': sum(r['status']=='failed' for r in outcomes),
+           'not_run_in_batches': sum(r['status']=='not_run' for r in outcomes),
+           'unstarted_cases': unstarted, 'authored_target_matches': correct,
+           'authored_target_agreement_on_valid': correct/len(records) if records else None,
+           'decision_counts': dict(Counter(r['decision'] for r in records)),
+           'failure_counts': dict(Counter((r.get('detail') or r.get('error_kind')) for r in outcomes if r['status']=='failed')),
+           'disagreements': [{k:r[k] for k in ('case_id','expected_decision','decision')} for r in records if not r['correct']],
+           'case_outcomes': [{k:r.get(k) for k in ('case_id','status','error_kind','detail')} for r in outcomes],
+           'protocol_sha256': hashlib.sha256((OUT / 'protocol.json').read_bytes()).hexdigest()}
+(OUT / 'summary.json').write_text(json.dumps(summary, indent=2))
+print(json.dumps({k:v for k,v in summary.items() if k != 'case_outcomes'},indent=2),flush=True)

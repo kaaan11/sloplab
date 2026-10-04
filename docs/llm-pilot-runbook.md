@@ -10,10 +10,17 @@ network. Everything else in this repository runs offline.
 2. Add an **environment secret**: `LLM_API_KEY` = your API key.
 3. Add **environment variables**:
    - `LLM_MODEL` = a model identifier that supports strict `json_schema`
-     response format (current OpenRouter pilot: `dots-studio/dots-3-note-preview:free`)
+     response format (current configured model:
+     `nvidia/nemotron-3-super-120b-a12b:free`)
    - `LLM_ENDPOINT` = full chat-completions URL (OpenAI-compatible schema)
 
 Without these, dispatching the workflow fails fast with a red configuration check.
+
+The current [Nemotron canonical study](nemotron-canonical-2026-10-04.md) uses
+one observation per case. Earlier Dots studies retain their original models and
+coverage. This workflow uses the `llm-json` chat adapter; the optional `jev-typed`
+adapter is not connected to it. Changing only `LLM_MODEL` to a Jev decision model
+does not select the Jev transport or its typed request contract.
 
 ## Running the pilot
 

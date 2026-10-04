@@ -38,6 +38,14 @@ to a future release's acceptance criteria.
   The [second recovery](plugin-and-coverage-followup-2026-10-03.md) subsequently
   brings edit votes to 420/423; three votes remain missing and the canonical
   diagnostic still returns HTTP 400.
+  The user subsequently selected Nemotron for the current live continuation.
+  Its separate [4 October study](nemotron-canonical-2026-10-04.md) completed
+  **60/60** single-observation canonical evaluations with **59/60** authored-target
+  agreement. Nemotron repeat stability and mutation evaluation remain future
+  work; these results do not replace historical Dots observations.
+- Live Jev workflow integration: the typed adapter is implemented and mock-tested,
+  but is not wired into the manual chat-model workflow. Live Jev work is deferred
+  under the user's current Nemotron choice.
 - Methodological follow-ups from issues #45, #46, #47, #50 and #52: deterministic
   controls and operator/pair audits are recorded in
   [the follow-up](methodology-followup-2026-09-28.md). Owner judgments and a
