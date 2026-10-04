@@ -17,8 +17,8 @@ SlopLab measures one question:
 SlopLab is a benchmark and evaluation harness. It is **not** a live triage product,
 a scanner, or an exploit framework.
 
-**Current release: [v0.2.2](https://github.com/kaaan11/sloplab/releases/tag/v0.2.2)**
-([release notes](docs/release-notes-v0.2.2.md)).
+**Current release: [v0.3.0](https://github.com/kaaan11/sloplab/releases/tag/v0.3.0)**
+([release notes](docs/release-notes-v0.3.0.md)).
 
 ## What it does
 
@@ -229,17 +229,18 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
 
 ## Status
 
-v0.2.2 - audit-remediation patch over the v0.2.x
-deterministic-scope releases: no-op derived cases eliminated, mutation/provenance
-and identity-hygiene fixes, safety enforcement tests, documentation regeneration.
-The v0.2.2 release did not include a live LLM study; see
-[docs/remediation-audit-v0.2.2.md](docs/remediation-audit-v0.2.2.md) and
-[docs/release-notes-v0.2.2.md](docs/release-notes-v0.2.2.md). A post-release,
-three-case live pilot ran on 2026-09-28. Its first model had incomplete valid
-response coverage. Later structured-output runs dispatched all 60 canonical
-cases: 59 have at least three valid responses, while one case consistently
-returned HTTP 400. One case also changed decisions across repeats. See the
-[canonical coverage study](docs/llm-pilot-canonical-coverage-2026-09-28.md).
+v0.3.0 adds installed evaluator plugins, the offline lexical text-quality control,
+BYOE and offline HTML reporting, synthetic report contribution tools, typed JEV
+evaluation and offline repeat analysis. It includes the integrated corrections
+and the descriptive model/human follow-ups since v0.2.2; see
+[release notes](docs/release-notes-v0.3.0.md).
+
+Dots canonical coverage remains 59/60 and realized-edit coverage 420/423 votes
+because of persistent HTTP 400 responses. One canonical case changed decisions
+across repeats. Human disagreements remain recorded without automatic target
+changes. These observations do not establish general triage accuracy; see the
+[coverage follow-up](docs/plugin-and-coverage-followup-2026-10-03.md) and
+[independent review](docs/independent-human-review-2026-10-03.md).
 
 ## License
 

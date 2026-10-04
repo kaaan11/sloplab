@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sloplab"
-version = "0.2.2"
+version = "0.3.0"
 description = "Adversarial testing framework for vulnerability-report triage evaluators"
 readme = "README.md"
 license = { text = "MIT" }
@@ -50,6 +50,9 @@ dev = [
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/sloplab"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.claude", "/.agents", "/.codex", "/.aws", "/heldout-private"]
 
 [tool.ruff]
 line-length = 100

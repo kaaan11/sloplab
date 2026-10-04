@@ -1,8 +1,10 @@
-# Next release acceptance plan
+# v0.3.0 acceptance plan
 
 The user's October continuation authorizes implementation of remaining work.
-The current tagged release stays v0.2.2; this plan records candidates for the next
-release without changing the historical V1/V0.2 acceptance contract.
+The delivered candidates below are included in v0.3.0 without changing the
+historical V1/V0.2 acceptance contract. See the
+[release notes](release-notes-v0.3.0.md) for the complete release scope and
+remaining scientific dependencies.
 
 ## Delivered implementation: installed evaluator plugins
 
