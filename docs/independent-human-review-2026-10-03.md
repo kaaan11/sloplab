@@ -111,3 +111,13 @@ insanlar arasında ayrıca görüşülmesi sonraki adımdır. Dots'un altı eksi
 çift oyu ve kanonik `sqlx-002` HTTP 400 sorunu bu insan değerlendirmesinden
 bağımsız olarak sürer. Yeni insan yazımı özel girdiler, kapsamlı yeni tekrar
 çalışmaları ve isteğe bağlı genişletmeler [backlog](backlog.md) içindedir.
+
+
+## 7 Ekim 2026 — Sonraki kullanıcı hükmü
+
+İki kart ayrışması daha sonra kaynak metin ve rubrik karşılaştırmasıyla karara
+bağlandı. İki çiftte kalite değişimi kabul edildi; eylem değişimi `uncertain`
+olarak bırakıldı. Bu, kullanıcı tarafından kabul edilen ajan destekli bir
+hükümdür; yeni kör bağımsız insan değerlendirmesi değildir. Yukarıdaki ilk
+anotasyonlar ve 16/18 uyum sayısı değişmedi. Ayrıntı ve kamuya açık toplu kayıt:
+[kullanıcı hükmü](user-adjudication-2026-10-07.md).

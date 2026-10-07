@@ -1,0 +1,19 @@
+{
+  "schema_version": "user-adjudication-aggregate-v1",
+  "accepted_date": "2026-10-07",
+  "source_sha256": "bc964c7d8452e33be51530d3f573b1a6d4f3e02fff83eef10c85a09e8bb29dff",
+  "review_type": "User accepted source-aware assistant proposals; not a new blind independent human rating",
+  "claims": {
+    "reviewed": 2,
+    "decided": 2,
+    "missing": 1,
+    "contradictory": 1
+  },
+  "pairs": {
+    "reviewed": 2,
+    "quality_changed_yes": 2,
+    "action_changed_uncertain": 2
+  },
+  "historical_records": "Original human responses, 16/18 claim agreement, model votes and authored corpus targets are unchanged",
+  "privacy": "Only aggregate outcomes are public; the accepted sidecar and private scenario contents remain local"
+}

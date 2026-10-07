@@ -2,6 +2,32 @@
 
 Build queue status. Updated after every completed queue item.
 
+## October maintenance and experiment closeout — 7 October 2026
+
+- The fresh [mutation-repeat study](nemotron-mutation-repeats-2026-10-07.md)
+  used its 891-call ceiling: 890 valid responses, one preserved transport failure,
+  no unstarted evaluations and no supplemental calls. All 90 bundles completed.
+- Complete triples: 60 canonical (56 unanimous, four changed) and 236/237
+  mutations (217 unanimous, 19 changed). Mutation target agreement is 426/710
+  valid observations. Full-suite metrics remain withheld for incomplete repeat 0.
+- A registered-source/public-input snapshot and separate offline replay preserve
+  reproducibility after maintenance commits or in shallow clones. Original
+  protocol, source hashes, outcome ledgers and summary were not rewritten.
+- The [assisted user adjudication](user-adjudication-2026-10-07.md) decides two
+  card claim disagreements and accepts uncertain action change for two pairs.
+  Public exports contain aggregate outcomes only; original responses and targets
+  remain intact.
+- Report Builder lifecycle waits were traced to sandbox `EPERM` on asyncio's
+  cross-thread wakeup socket. The four affected/related shutdown tests passed
+  outside that restriction (3.59 seconds). No UI code workaround was introduced.
+- Maintenance validation: all 1,287 offline tests passed outside the socket
+  restriction; Ruff lint/format and strict mypy (169 files) passed. Corpus
+  validation checked 60 fixtures with no errors or warnings. BYOE and repeated
+  HTML reports passed with byte-identical output; recorded-study replay passed.
+  See the [validation record](../experiments/results/llm-pilot/2026-10-07/maintenance-validation.json).
+- Dots coverage recovery, live Jev integration and other optional product and
+  validation expansions remain explicitly deferred in [backlog](backlog.md).
+
 ## Nemotron remaining repeats and mutation evaluation — 4 October 2026
 
 - The remaining 50 canonical cases received three observations each: 150 calls,

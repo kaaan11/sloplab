@@ -57,8 +57,11 @@ exclude = ["/.claude", "/.agents", "/.codex", "/.aws", "/heldout-private"]
 [tool.ruff]
 line-length = 100
 src = ["src", "tests"]
-# Archived worker deliveries and review logs, not maintained source.
-extend-exclude = ["docs/reviews"]
+# Archived reviews and hash-bound study snapshots, not maintained source.
+extend-exclude = [
+    "docs/reviews",
+    "experiments/frozen/nemotron-mutation-repeats-2026-10-07",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "SIM"]

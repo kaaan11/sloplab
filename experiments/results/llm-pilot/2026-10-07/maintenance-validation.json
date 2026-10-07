@@ -1,0 +1,16 @@
+{
+  "schema_version": "maintenance-validation-v1",
+  "date": "2026-10-07",
+  "scope": "Post-study archive and documentation closeout; not pre-dispatch evidence",
+  "pytest": {"collected": 1287, "passed": 1287, "exit_code": 0, "execution": "Outside the restricted sandbox; local asyncio wakeup socket permitted"},
+  "ruff_check": "passed",
+  "ruff_format_check": "passed",
+  "mypy": {"status": "passed", "source_files": 169},
+  "corpus_validation": {"canonical": 60, "errors": 0, "warnings": 0},
+  "byoe_benchmark": "passed",
+  "repeated_offline_html": "byte-identical",
+  "frozen_study_replay": "passed; exact match to original saved summary",
+  "ui_diagnosis": "Restricted sandbox denies asyncio cross-thread wakeup socket send with EPERM; four lifecycle tests and full suite pass outside that restriction; no UI source change",
+  "original_preflight": "Preserved unchanged; earlier sandbox failures are historical evidence",
+  "additional_model_calls": 0
+}

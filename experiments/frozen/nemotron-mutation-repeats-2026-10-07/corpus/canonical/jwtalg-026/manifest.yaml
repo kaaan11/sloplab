@@ -1,0 +1,35 @@
+schema_version: 1
+id: canonical-jwtalg-026
+title: Token verifier accepts alternate algorithm identifiers in SampleStack demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: false
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - algorithm_confusion_confirmed
+  expected_dimensions:
+    reproducibility: 0.5
+    evidence_completeness: 0.72
+    claim_evidence_consistency: 0.62
+    impact_calibration: 0.6
+    scope_consistency: 0.65
+  rationale: >
+    Honest report of inconsistent behavior that could be library default rather
+    than product defect; neither reject nor accept is supportable without
+    maintainer input. Review is correct.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack is fictional. No real library behavior is
+  asserted for any real product.
+report:
+  path: canonical/jwtalg-026/report.md

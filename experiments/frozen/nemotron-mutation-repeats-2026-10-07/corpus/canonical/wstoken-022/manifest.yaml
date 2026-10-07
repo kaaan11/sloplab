@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-wstoken-022
+title: Dashboard websocket drops reconnects with expired tokens in AcmePortal demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: false
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - stale_token_streaming_confirmed
+  expected_dimensions:
+    reproducibility: 0.45
+    evidence_completeness: 0.68
+    claim_evidence_consistency: 0.6
+    impact_calibration: 0.52
+    scope_consistency: 0.6
+  rationale: >
+    Inconsistent expiry-edge behavior honestly reported against undocumented socket
+    lifetime semantics; classification requires maintainer input. Review.
+sanitization_note: >-
+  Fully synthetic scenario; AcmePortal is fictional. Tokens are sandbox-local.
+report:
+  path: canonical/wstoken-022/report.md

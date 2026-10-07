@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-graphql-028
+title: GraphQL endpoint exposes full schema introspection in PlaygroundAPI demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - production_introspection_confirmed
+  expected_dimensions:
+    reproducibility: 0.85
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.65
+    impact_calibration: 0.5
+    scope_consistency: 0.55
+  rationale: >
+    Accurate observation of demo behavior with genuinely unknown production intent;
+    classification hinges on undocumented configuration defaults. Review is correct.
+sanitization_note: >-
+  Fully synthetic scenario; PlaygroundAPI is fictional.
+report:
+  path: canonical/graphql-028/report.md

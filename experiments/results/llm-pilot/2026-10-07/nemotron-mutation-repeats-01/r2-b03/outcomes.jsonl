@@ -1,0 +1,10 @@
+{"case_id": "canonical-norepro-009", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-norepro-009", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-oauthstate-029", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-oauthstate-029", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-oob-008", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-oob-008", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-openred-015", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-openred-015", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair1a-cookie", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair1a-cookie", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair1b-cookie", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair1b-cookie", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair2a-dirlist", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair2a-dirlist", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair2b-dirlist", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair2b-dirlist", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair3a-comment", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair3a-comment", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-pair3b-comment", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pair3b-comment", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}

@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-idor-004
+title: Sequential invoice identifiers expose other tenants' invoices in ToyTracker
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - confirmed_cve
+  expected_dimensions:
+    reproducibility: 0.93
+    evidence_completeness: 0.91
+    claim_evidence_consistency: 0.94
+    impact_calibration: 0.8
+    scope_consistency: 0.88
+  rationale: >
+    Clear object-reference report with ownership boundary stated, both test accounts
+    described, and calibrated low-to-medium impact limited to demo data.
+sanitization_note: >-
+  Fully synthetic scenario; ToyTracker and tracker.example.org are fictional demo
+  assets.
+report:
+  path: canonical/idor-004/report.md

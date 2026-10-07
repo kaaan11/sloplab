@@ -1,0 +1,10 @@
+{"case_id": "canonical-filetype-023", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-filetype-023", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-ghauthz-015", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-ghauthz-015", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-graphql-028", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-graphql-028", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-headermiss-020", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-headermiss-020", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-idor-004", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-idor-004", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-info-006", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-info-006", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-infodisc-016", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-infodisc-016", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-jwtalg-026", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-jwtalg-026", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-loginject-031", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-loginject-031", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-massign-014", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-massign-014", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}

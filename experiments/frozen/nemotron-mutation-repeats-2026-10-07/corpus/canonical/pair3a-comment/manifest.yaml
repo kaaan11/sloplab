@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-pair3a-comment
+title: MockMart checkout page HTML comment mentions an internal hostname
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-003
+pair_role: plain
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - internal_network_exposure
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.6
+    claim_evidence_consistency: 0.25
+    impact_calibration: 0.06
+    scope_consistency: 0.3
+  rationale: >
+    Leftover comment references a reserved documentation hostname pointing to no
+    real infrastructure; no confidentiality boundary applies. Reject.
+sanitization_note: >-
+  Fully synthetic scenario; hostname uses RFC 2606 reserved domain.
+report:
+  path: canonical/pair3a-comment/report.md

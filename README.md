@@ -216,6 +216,10 @@ Old metric names ("mutation detection rate", "quality-neutral mutations",
   three new observations each on the first ten cases; 30/30 valid and no decision flips
 - [Nemotron remaining-repeat follow-up](docs/nemotron-full-repeats-2026-10-04.md) —
   one preserved transport failure, a separate replacement block and 57/60 unanimous matrix cases
+- [Nemotron mutation repeats](docs/nemotron-mutation-repeats-2026-10-07.md) —
+  891 fresh calls, explicit missingness and three-pass decision stability
+- [User adjudication](docs/user-adjudication-2026-10-07.md) —
+  aggregate assisted decisions; historical human responses preserved
 - [Nemotron mutation study](docs/nemotron-mutations-2026-10-04.md) —
   60 fresh controls and 237 variants dispatched; 296 valid responses, one transport failure
 - [Methodological follow-up](docs/methodology-followup-2026-09-28.md) —
@@ -275,13 +279,23 @@ completes a matched dataset of 60 controls and 237 variants. Mutation target agr
 is 137/237 (57.81%), versus 59/60 for fresh canonical controls; decision-changing
 target agreement is 2/96 (2.08%). These are descriptive synthetic-target agreements,
 not general triage accuracy. The incomplete original and completed matched dataset
-are reported separately; mutation repeat stability remains future work.
+are reported separately.
+
+The [7 October repeat study](docs/nemotron-mutation-repeats-2026-10-07.md)
+then made 891 fresh calls: 890 valid responses and one preserved transport failure.
+Across three observations, 56/60 canonical cases and 217/236 complete mutation
+triples were unanimous; four canonical cases and 19 mutation cases changed decision.
+One mutation triple remains incomplete. Mutation target agreement is 426/710 valid
+observations (60.00%); stable decisions do not establish target agreement or
+real-world accuracy. Historical observations were not reused as fresh repeats.
 
 Historical Dots canonical coverage remains 59/60 and realized-edit panel
 coverage 420/423 votes
 because of persistent HTTP 400 responses. One canonical case changed decisions
-across repeats. Human disagreements remain recorded without automatic target
-changes. These observations do not establish general triage accuracy; see the
+across repeats. The [7 October user adjudication](docs/user-adjudication-2026-10-07.md)
+decides the two card claim-status disagreements and accepts both reviewed pair
+action axes as uncertain. Original human responses and authored targets remain
+unchanged. These observations do not establish general triage accuracy; see the
 [coverage follow-up](docs/plugin-and-coverage-followup-2026-10-03.md) and
 [independent review](docs/independent-human-review-2026-10-03.md).
 

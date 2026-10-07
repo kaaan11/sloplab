@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-sqlx-002
+title: Unsanitized search filter concatenation allows query structure changes in MockMart
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - data_destruction_demonstrated
+  expected_dimensions:
+    reproducibility: 0.95
+    evidence_completeness: 0.9
+    claim_evidence_consistency: 0.92
+    impact_calibration: 0.85
+    scope_consistency: 0.9
+  rationale: >
+    Classic injection-pattern report with precise component, pinned version,
+    anonymous preconditions, side-by-side observed results, and honest scoping to
+    demo data.
+sanitization_note: >-
+  Fully synthetic scenario; MockMart and shop.example.org are fictional demo assets.
+report:
+  path: canonical/sqlx-002/report.md

@@ -1,0 +1,9 @@
+{
+  "bundle_schema": 1,
+  "files": {
+    "manifest.json": "f50bf16e5101c8a4039cae54d334e41f77362256e43da96beeff1a328fb83cd1",
+    "outcomes.jsonl": "4acb501516fdc415b46309e9cbfe264f232ff7277de9e5d0e4a6df790a2a349c",
+    "records.jsonl": "d6c4d5a62282c6f44c845ebae93d65e70aa09d6e52c63ab0c047ab59d14418c4"
+  },
+  "kind": "llm-pilot"
+}

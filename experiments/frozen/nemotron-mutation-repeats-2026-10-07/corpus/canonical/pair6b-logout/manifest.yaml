@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-pair6b-logout
+title: Session termination endpoint in AcmePortal demonstration accepts stateless requests
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-006
+pair_role: polished
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - forced_action_harm
+  expected_dimensions:
+    reproducibility: 0.87
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.28
+    impact_calibration: 0.09
+    scope_consistency: 0.33
+  rationale: >
+    Polished twin of pair-006 plain member; identical substance and ground truth.
+sanitization_note: >-
+  Fully synthetic scenario; AcmePortal is fictional.
+report:
+  path: canonical/pair6b-logout/report.md

@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-verb-021
+title: Debug HTTP methods respond with 405 status on MockMart API root
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - debug_mode_enabled
+  expected_dimensions:
+    reproducibility: 0.85
+    evidence_completeness: 0.6
+    claim_evidence_consistency: 0.15
+    impact_calibration: 0.05
+    scope_consistency: 0.3
+  rationale: >
+    The report's own observations (405 responses) demonstrate correct rejection of
+    unsupported verbs, directly contradicting its claim of enabled debug
+    functionality. Reject is correct.
+sanitization_note: >-
+  Fully synthetic scenario; MockMart API is fictional.
+report:
+  path: canonical/verb-021/report.md

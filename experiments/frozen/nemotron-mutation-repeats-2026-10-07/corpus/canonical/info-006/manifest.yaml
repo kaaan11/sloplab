@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-info-006
+title: Public marketing page does not set Referrer-Policy header in DemoVault site
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - user_data_exposure
+  expected_dimensions:
+    reproducibility: 0.85
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.35
+    impact_calibration: 0.1
+    scope_consistency: 0.4
+  rationale: >
+    Observation is accurate but describes absent hardening on a public static page
+    with no security boundary crossing. Correct triage decision is reject: no
+    vulnerability exists despite technically reproducible steps.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault marketing site is fictional demo content.
+report:
+  path: canonical/info-006/report.md

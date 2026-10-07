@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-websig-018
+title: Connector webhook endpoint accepts payloads without signature verification in SampleStack
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - remote_code_execution_via_webhook
+  expected_dimensions:
+    reproducibility: 0.93
+    evidence_completeness: 0.9
+    claim_evidence_consistency: 0.92
+    impact_calibration: 0.77
+    scope_consistency: 0.85
+  rationale: >
+    Missing-signature verification demonstrated with a proper control case and
+    impact honestly limited to stream authenticity.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack webhook scheme is fictional.
+report:
+  path: canonical/websig-018/report.md

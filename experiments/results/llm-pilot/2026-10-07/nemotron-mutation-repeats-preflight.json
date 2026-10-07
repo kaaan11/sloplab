@@ -1,0 +1,47 @@
+{
+  "schema_version": "mutation-repeat-preflight-v1",
+  "recorded_at": "2026-10-07T16:50:03.099203+00:00",
+  "status": "offline_study_checks_passed_live_not_started",
+  "protocol_file": "experiments/results/llm-pilot/2026-10-07/nemotron-mutation-repeats-01/protocol.json",
+  "protocol_sha256": "c21aafb4132e91c834f79ed1d4b6ef6c64e6196bc71997a13267d590c1a4d5f3",
+  "live_model_calls": 0,
+  "checks": {
+    "ruff_check": "passed",
+    "ruff_format": "passed",
+    "mypy_src_tests": "passed",
+    "canonical_fixtures_validated": 60,
+    "pytest_without_report_builder": {
+      "command": ".venv/bin/pytest --ignore=tests/regression/test_report_builder.py -q",
+      "passed": 1241,
+      "exit_code": 0,
+      "new_study_tests_included": 20
+    },
+    "mock_full_study": {
+      "physical_mock_requests": 891,
+      "global_repeats": 3,
+      "canonical_controls_per_repeat": 60,
+      "mutations_per_repeat": 237,
+      "independent_replay": "passed"
+    },
+    "prepared_protocol_inputs_and_sources": "297 inputs and 81 source/config hashes rechecked",
+    "unauthorized_dispatch_cli": "rejected before execution marker or network calls"
+  },
+  "full_suite_green": false,
+  "ui_verification_limitation": {
+    "file": "tests/regression/test_report_builder.py",
+    "confirmed_waits": [
+      "test_commit_not_abandoned_and_loop_responsive[key]",
+      "test_shutdown_closes_uncommitted_review"
+    ],
+    "key_variant": "isolated timeout after 45 seconds; faulthandler showed asyncio event-loop wait",
+    "shutdown_variant": "faulthandler wait after 25 seconds; isolated process then interrupted",
+    "other_exit_variants": {
+      "eof": "passed",
+      "task_cancel": "passed"
+    },
+    "remaining_file_group": "40-test run reached 120-second total timeout; no complete file-wide result",
+    "ui_files_modified": false,
+    "interpretation": "Observed lifecycle-test waits; root cause not diagnosed in this experiment-tooling task"
+  },
+  "dispatch_requirement": "Separate authorization of at most 891 fresh model calls; current model availability and zero route prices must pass runtime checks"
+}

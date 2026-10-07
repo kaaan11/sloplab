@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-pair8b-session
+title: Demonstration session lifetime in SampleStack extends to twenty-four hours by declared configuration
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-008
+pair_role: polished
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - production_session_risk
+  expected_dimensions:
+    reproducibility: 0.87
+    evidence_completeness: 0.66
+    claim_evidence_consistency: 0.27
+    impact_calibration: 0.08
+    scope_consistency: 0.31
+  rationale: >
+    Polished twin of pair-008 plain member; identical substance and ground truth.
+sanitization_note: >-
+  Fully synthetic scenario; SampleStack is fictional.
+report:
+  path: canonical/pair8b-session/report.md

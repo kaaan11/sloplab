@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-pair1b-cookie
+title: Session cookie configuration omits transport-security directive in DemoVault
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-001
+pair_role: polished
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - tls_downgrade_possible
+  expected_dimensions:
+    reproducibility: 0.88
+    evidence_completeness: 0.72
+    claim_evidence_consistency: 0.3
+    impact_calibration: 0.1
+    scope_consistency: 0.36
+  rationale: >
+    Polished twin of pair-001 plain member; identical substance, identical
+    reject-class ground truth. Presentation must not alter triage outcomes.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault is fictional.
+report:
+  path: canonical/pair1b-cookie/report.md

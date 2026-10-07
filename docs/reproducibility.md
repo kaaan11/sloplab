@@ -91,3 +91,18 @@ same draws for both evaluators. The cluster block also carries
 `pair_merge` = `applied` | `skipped`: `skipped` means pair ids could not be
 resolved (fallback to per-fixture clusters) and the `sloplab study` command
 warns on stderr.
+
+## Report Builder tests in restricted execution environments
+
+The optional UI uses a serialized executor and asyncio's local socketpair to
+wake the event loop when filesystem work completes. A sandbox that denies that
+socket's `send()` with `EPERM` can leave otherwise completed worker futures
+waiting until another timer wakes the loop. This caused the keyboard-exit and
+uncommitted-review shutdown tests to wait in the restricted local environment.
+The related four-test group passed in 3.59 seconds outside that restriction.
+Run the full offline suite in an environment that permits this local event-loop
+wakeup; no network access or live model calls are needed by these tests.
+
+The [7 October study replay](nemotron-mutation-repeats-2026-10-07.md) reconstructs
+its registered source/input snapshot in a separate Python process. Its original
+hash-bound verifier remains unchanged even after repository maintenance commits.

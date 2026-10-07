@@ -69,12 +69,20 @@ and 60 fresh controls with 296 valid responses and one transport failure.
 The user subsequently authorized a bounded supplement; one additional call
 completes the matched dataset at 451 total continuation calls. Original failures
 remain intact. Mutation target agreement is 137/237, and decision-changing target
-agreement is 2/96; mutation repeat stability remains future work.
+agreement is 2/96. The separate
+[7 October repeat study](nemotron-mutation-repeats-2026-10-07.md) made 891 new
+calls, with 890 valid responses and one failure. Three-pass mutation stability
+is measured on 236 complete triples: 217 unanimous and 19 changed decisions;
+one triple remains incomplete. Canonical controls have 56 unanimous and four
+changed cases across 60 complete triples. Further independently designed studies
+remain future work.
 Historical Dots coverage stays incomplete because recorded
 requests returned HTTP 400; another model's results do not replace those outcomes.
 Live Jev testing/integration is deferred under the user's current model choice.
-Two card claim-status disagreements and two action-changing human pair annotations
-remain recorded without automatic relabeling. New independently authored private
+The [7 October user adjudication](user-adjudication-2026-10-07.md) decides two
+card claim-status disagreements and accepts uncertain action-change judgments
+for two reviewed pairs. Original human annotations and authored corpus targets
+remain unchanged. New independently authored private
 inputs and prospective repeat/mutation studies require their own frozen protocol.
 
 Other product candidates remain in [backlog](backlog.md). Real-world corpus

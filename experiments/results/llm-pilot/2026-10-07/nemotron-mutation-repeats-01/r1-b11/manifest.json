@@ -1,0 +1,60 @@
+{
+  "experiment_name": "nemotron-mutation-repeats",
+  "kind": "llm-pilot",
+  "commit_sha": "55cef3c4d6b5a752ea1892b4821c1bf58957e2be",
+  "base_seed": 20260825,
+  "repeats": 1,
+  "selected_cases": 10,
+  "case_offset": 100,
+  "selected_case_ids": [
+    "mut-deserial-030-add-irrelevant-detail-01",
+    "mut-deserial-030-professionalize-language-05",
+    "mut-deserial-030-remove-affected-version-03",
+    "mut-deserial-030-remove-reproduction-step-02",
+    "mut-dup-007-add-irrelevant-detail-02",
+    "mut-dup-007-professionalize-language-04",
+    "mut-dup-007-scope-expansion-03",
+    "mut-filetype-023-add-irrelevant-detail-05",
+    "mut-filetype-023-professionalize-language-04",
+    "mut-filetype-023-remove-affected-version-02"
+  ],
+  "budget": {
+    "max_requests": 10,
+    "request_timeout_s": 60,
+    "max_retries_per_case": 0,
+    "min_interval_ms": 3100,
+    "deadline_s": 700.0
+  },
+  "effective_max_requests": 10,
+  "counters": {
+    "physical_dispatches": 10,
+    "errors": 0,
+    "timeouts": 0
+  },
+  "planned": 10,
+  "successful": 10,
+  "failed": 0,
+  "not_run": 0,
+  "skipped_by_budget": 0,
+  "skipped_by_deadline": 0,
+  "scored": 10,
+  "stability": {},
+  "stability_omitted_reason": "single-repeat-or-empty",
+  "coverage": {
+    "expected": 10,
+    "successful": 10,
+    "complete": true
+  },
+  "bundle_complete": true,
+  "coverage_sufficient": true,
+  "prompt_hash": "7410aa14ab220e29c92265eae7a6f6bb1efa940b2364365034fbcadf4c1f4d42",
+  "prompt_renderer_version": "file-template-v1",
+  "model_env": "SLOPLAB_LLM_MODEL",
+  "model_id": "nvidia/nemotron-3-super-120b-a12b:free",
+  "output_mode": "json_schema",
+  "provider_require_parameters": true,
+  "temperature": 0.0,
+  "response_schema_sha256": "08cddbaf77e328885c16fecabddb5e9d97a4725d4fa7f82f92d0acd82a51dde7",
+  "finished_at": "2026-10-07T17:45:37Z",
+  "note": "raw model responses are not stored; only normalized records"
+}
