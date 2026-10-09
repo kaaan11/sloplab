@@ -16,10 +16,41 @@ import re
 import subprocess
 import sys
 import tempfile
+import tomllib
+from importlib import metadata
 from pathlib import Path
 
 DEFAULT = "experiments/results/llm-pilot/2026-10-07/nemotron-mutation-repeats-01"
 SNAPSHOT = "experiments/frozen/nemotron-mutation-repeats-2026-10-07"
+# Third-party packages imported by the frozen sources on the replay path.
+DEPENDENCIES = ("pydantic", "pydantic-core", "pyyaml")
+JUNK_NAMES = {".DS_Store", "Thumbs.db"}
+JUNK_SUFFIXES = (".pyc", ".pyo", ".swp", ".swo", "~")
+
+
+def is_junk(path):
+    name = path.name
+    return (
+        "__pycache__" in path.parts
+        or name in JUNK_NAMES
+        or name.endswith(JUNK_SUFFIXES)
+        or name.startswith(".#")
+    )
+
+
+def check_dependencies(snapshot):
+    lock = tomllib.loads((snapshot / "uv.lock").read_text())
+    pinned = {package["name"]: package["version"] for package in lock["package"]}
+    for name in DEPENDENCIES:
+        try:
+            installed = metadata.version(name)
+        except metadata.PackageNotFoundError:
+            installed = "missing"
+        if name not in pinned or pinned[name] != installed:
+            raise RuntimeError(
+                f"Dependency {name} differs from snapshot uv.lock: "
+                f"expected {pinned.get(name)}, installed {installed}"
+            )
 
 
 def source_files(archive, snapshot):
@@ -54,7 +85,9 @@ def source_files(archive, snapshot):
         if hashlib.sha256(data).hexdigest() != expected:
             raise ValueError(f"Frozen source/input changed: {relative}")
         files[relative] = data
-    actual = {str(p.relative_to(snapshot)) for p in snapshot.rglob("*") if p.is_file()}
+    actual = {
+        str(p.relative_to(snapshot)) for p in snapshot.rglob("*") if p.is_file() and not is_junk(p)
+    }
     if actual != set(files) | {"snapshot-manifest.json"} or any(
         p.is_symlink() for p in snapshot.rglob("*")
     ):
@@ -71,6 +104,7 @@ def reconstruct(destination, files):
 
 def replay(archive, snapshot):
     files = source_files(archive, snapshot)
+    check_dependencies(snapshot)
     with tempfile.TemporaryDirectory(prefix="sloplab-repeat-replay-") as temporary:
         reconstructed = Path(temporary)
         reconstruct(reconstructed, files)
@@ -95,10 +129,13 @@ print(json.dumps(verifier.replay(root, archive), allow_nan=False))
             [sys.executable, "-c", code, str(reconstructed), str(archive.resolve())],
             cwd=reconstructed,
             env=environment,
-            check=True,
             capture_output=True,
             text=True,
         )
+        if result.returncode:
+            raise RuntimeError(
+                f"Frozen verifier failed with exit status {result.returncode}:\n{result.stderr}"
+            )
         return json.loads(result.stdout)
 
 

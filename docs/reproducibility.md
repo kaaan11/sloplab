@@ -105,4 +105,6 @@ wakeup; no network access or live model calls are needed by these tests.
 
 The [7 October study replay](nemotron-mutation-repeats-2026-10-07.md) reconstructs
 its registered source/input snapshot in a separate Python process. Its original
-hash-bound verifier remains unchanged even after repository maintenance commits.
+hash-bound verifier source is frozen in that snapshot; third-party packages are
+checked by version (pydantic, pydantic-core, pyyaml) against the snapshot `uv.lock`
+rather than vendored.
