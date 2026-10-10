@@ -6,7 +6,6 @@ import hashlib
 import importlib
 import json
 import shutil
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -56,6 +55,65 @@ def test_rehashed_post_study_input_manifest_cannot_override_registered_identity(
         path.read_bytes()
     ).hexdigest()
     manifest_path.write_text(json.dumps(manifest))
-    with pytest.raises(subprocess.CalledProcessError) as error:
+    with pytest.raises(RuntimeError, match="Input identities changed"):
         replay_module.replay(ARCHIVE, snapshot)
-    assert "Input identities changed" in error.value.stderr
+
+
+def test_child_verifier_stderr_reaches_caller(replay_module: Any, tmp_path: Path) -> None:
+    snapshot = tmp_path / "snapshot"
+    shutil.copytree(SNAPSHOT, snapshot)
+    path = snapshot / "corpus/canonical/authz-001/report.md"
+    path.write_text(path.read_text() + "\nA changed report.\n")
+    manifest_path = snapshot / "snapshot-manifest.json"
+    manifest = json.loads(manifest_path.read_text())
+    manifest["input_files"][str(path.relative_to(snapshot))] = hashlib.sha256(
+        path.read_bytes()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(RuntimeError) as error:
+        replay_module.replay(ARCHIVE, snapshot)
+    assert "exit status" in str(error.value)
+    assert "ValueError: Input identities changed" in str(error.value)
+
+
+def test_untracked_junk_is_ignored_but_real_extra_file_is_rejected(
+    replay_module: Any, tmp_path: Path
+) -> None:
+    snapshot = tmp_path / "snapshot"
+    shutil.copytree(SNAPSHOT, snapshot)
+    (snapshot / "src/sloplab/__pycache__").mkdir()
+    (snapshot / "src/sloplab/__pycache__/x.cpython-312.pyc").write_bytes(b"junk")
+    (snapshot / ".DS_Store").write_bytes(b"junk")
+    (snapshot / "src/sloplab/.models.py.swp").write_bytes(b"junk")
+    assert replay_module.source_files(ARCHIVE, snapshot)
+    (snapshot / "src/sloplab/extra.py").write_text("print('extra')")
+    with pytest.raises(ValueError, match="Snapshot inventory changed"):
+        replay_module.source_files(ARCHIVE, snapshot)
+
+
+def test_replay_rejects_dependency_version_mismatch(
+    replay_module: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = replay_module.metadata.version
+
+    def fake(name: str) -> str:
+        return "0.0.0" if name == "pydantic" else str(real(name))
+
+    monkeypatch.setattr(replay_module.metadata, "version", fake)
+    with pytest.raises(RuntimeError, match=r"pydantic.*expected 2\.13\.4.*installed 0\.0\.0"):
+        replay_module.replay(ARCHIVE, SNAPSHOT)
+
+
+def test_replay_reports_missing_dependency(
+    replay_module: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    real = replay_module.metadata.version
+
+    def fake(name: str) -> str:
+        if name == "pydantic":
+            raise replay_module.metadata.PackageNotFoundError(name)
+        return str(real(name))
+
+    monkeypatch.setattr(replay_module.metadata, "version", fake)
+    with pytest.raises(RuntimeError, match=r"pydantic.*expected 2\.13\.4.*installed missing"):
+        replay_module.replay(ARCHIVE, SNAPSHOT)

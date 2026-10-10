@@ -276,9 +276,9 @@ def main():
             json.dumps(
                 {
                     "mode": "offline",
-                    "cases": 297,
+                    "cases": len(protocol["selected_case_ids"]),
                     "repeats": 3,
-                    "batches": 90,
+                    "batches": len(protocol["batches"]),
                     "max_requests": CAP,
                     "prepared_archive": str(args.prepare) if args.prepare else None,
                 },

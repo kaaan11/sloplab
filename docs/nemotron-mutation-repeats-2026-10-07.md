@@ -54,8 +54,9 @@ contains per-case decisions and per-operator coverage and change counts.
 
 There are 426 target matches among 710 valid mutation observations (60.00%).
 This pooled descriptive count is not 710 independent samples. Canonical control
-agreement is 176/180. Decision-changing target agreement is 2/96 in repeat 1 and
-6/96 in repeat 2. Full-suite production metrics are withheld for repeat 0 because
+agreement is 176/180. Decision-changing target agreement (96 mutations whose authored decision
+differs from the parent) is 4/96 in repeat 0, 2/96 in repeat 1 and 6/96 in
+repeat 2. Full-suite production metrics are withheld for repeat 0 because
 one response is missing; its valid-subset counts remain available.
 
 Parent/child comparisons use fresh controls from the same global repeat. Stable
@@ -87,5 +88,10 @@ study tools; commit SHA alone is not the complete source identity.
 
 The original current-checkout verifier remains available for an exact registered
 checkout. The snapshot wrapper supports later code changes and shallow clones.
+Pinned precisely: study source and public inputs come from the snapshot (hash
+checked); third-party packages are not vendored, so the wrapper only checks that
+the installed pydantic, pydantic-core and pyyaml versions equal those pinned in
+the snapshot `uv.lock` and fails with a message naming the package otherwise.
+The Python interpreter and the standard library are not pinned.
 The runner rejects existing started archives, including interrupted ones. No live
 calls are made by replay or tests.

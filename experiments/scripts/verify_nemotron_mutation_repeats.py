@@ -7,6 +7,7 @@ import hashlib
 import json
 from collections import Counter
 from dataclasses import asdict
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 from verify_nemotron_followups_20261004 import load_cases
@@ -29,7 +30,7 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def read(path):
+def loads(text):
     def unique(items):
         result = {}
         for key, value in items:
@@ -37,7 +38,19 @@ def read(path):
             result[key] = value
         return result
 
-    return json.loads(path.read_text(), object_pairs_hook=unique)
+    return json.loads(text, object_pairs_hook=unique)
+
+
+def read(path):
+    return loads(path.read_text())
+
+
+def is_zero_price(value):
+    try:
+        number = Decimal(str(value))
+    except InvalidOperation:
+        return False
+    return number.is_finite() and number == 0
 
 
 def validate_protocol(root, protocol, cases=None):
@@ -213,21 +226,17 @@ def replay(root, archive):
         require(terminal_http is None, "Batch dispatched after HTTP halt")
         route = read(archive / (name + "-route.json"))
         # Price checks are recomputed offline from retained catalog observations.
-        from decimal import Decimal
-
         require(
             route["catalog"]["id"] == protocol["model"] and route["endpoints"],
             "Wrong or missing route",
         )
         for entry in [route["catalog"], *route["endpoints"]]:
-            require({"prompt", "completion"} <= entry["pricing"].keys(), "Missing prices")
+            pricing = entry.get("pricing")
             require(
-                all(
-                    Decimal(str(v)).is_finite() and Decimal(str(v)) == 0
-                    for v in entry["pricing"].values()
-                ),
-                "Nonzero route price",
+                isinstance(pricing, dict) and {"prompt", "completion"} <= pricing.keys(),
+                "Missing prices",
             )
+            require(all(is_zero_price(v) for v in pricing.values()), "Nonzero route price")
             require(
                 {"response_format", "structured_outputs"}
                 <= set(entry.get("supported_parameters", [])),
@@ -258,10 +267,8 @@ def replay(root, archive):
             manifest["effective_max_requests"] == config["budget"]["max_requests"],
             "Wrong effective cap",
         )
-        outcomes = [
-            json.loads(line) for line in (bundle / "outcomes.jsonl").read_text().splitlines()
-        ]
-        records = [json.loads(line) for line in (bundle / "records.jsonl").read_text().splitlines()]
+        outcomes = [loads(line) for line in (bundle / "outcomes.jsonl").read_text().splitlines()]
+        records = [loads(line) for line in (bundle / "records.jsonl").read_text().splitlines()]
         keys = [(row["case_id"], row["repeat_index"]) for row in outcomes]
         require(
             len(keys) == len(set(keys)) and set(keys) == {(c, 0) for c in batch["case_ids"]},

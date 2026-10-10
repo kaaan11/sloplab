@@ -151,6 +151,76 @@ def test_route_gate_fails_closed(modules: tuple[Any, Any], change: str) -> None:
         runner.validate_routes(route["catalog"], route["endpoints"])
 
 
+@pytest.mark.parametrize("change", ["no_pricing", "null_price", "text_price"])
+def test_verifier_route_check_raises_value_error_on_malformed_pricing(
+    modules: tuple[Any, Any], tmp_path: Path, monkeypatch: pytest.MonkeyPatch, change: str
+) -> None:
+    runner, verifier = modules
+    fast_clock(monkeypatch, runner)
+    archive = tmp_path / "study"
+    protocol = prepare(runner, archive)
+    runner.execute(ROOT, archive, protocol, runner.StudyTransport(FakeHTTP()), routes)
+    target = tmp_path / "tampered"
+    shutil.copytree(archive, target)
+    route_path = target / "r0-b01-route.json"
+    route = json.loads(route_path.read_text())
+    if change == "no_pricing":
+        del route["endpoints"][0]["pricing"]
+    elif change == "null_price":
+        route["catalog"]["pricing"]["prompt"] = None
+    else:
+        route["catalog"]["pricing"]["prompt"] = "free"
+    route_path.write_text(json.dumps(route))
+    with pytest.raises(ValueError, match="Missing prices|Nonzero route price"):
+        verifier.replay(ROOT, target)
+
+
+def test_verifier_rejects_duplicate_keys_in_records_and_outcomes(
+    modules: tuple[Any, Any], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    runner, verifier = modules
+    fast_clock(monkeypatch, runner)
+    archive = tmp_path / "study"
+    protocol = prepare(runner, archive)
+    checks = [0]
+
+    def check() -> dict[str, Any]:
+        checks[0] += 1
+        if checks[0] > 1:
+            raise ValueError("stop after first bundle")
+        return routes()
+
+    runner.execute(ROOT, archive, protocol, runner.StudyTransport(FakeHTTP()), check)
+    for name in ("records.jsonl", "outcomes.jsonl"):
+        target = tmp_path / ("dup-" + name)
+        shutil.copytree(archive, target)
+        path = target / "r0-b01" / name
+        lines = path.read_text().splitlines()
+        lines[0] = lines[0][:-1] + ', "case_id": "duplicated"}'
+        path.write_text("\n".join(lines) + "\n")
+        write_completion(path.parent, kind="llm-pilot")
+        with pytest.raises(ValueError, match="Duplicate JSON key"):
+            verifier.replay(ROOT, target)
+
+
+def test_offline_summary_reports_protocol_counts(
+    modules: tuple[Any, Any], monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    runner, _ = modules
+    protocol = runner.make_protocol(ROOT)
+    protocol["selected_case_ids"] = protocol["selected_case_ids"][:-1]
+    protocol["batches"] = protocol["batches"][:-1]
+    monkeypatch.setattr(runner, "make_protocol", lambda _: protocol)
+    monkeypatch.setattr("sys.argv", ["nemotron_mutation_repeats.py"])
+    monkeypatch.setattr(
+        "verify_nemotron_mutation_repeats.validate_protocol", lambda *args, **kwargs: None
+    )
+    runner.main()
+    summary = json.loads(capsys.readouterr().out)
+    assert summary["cases"] == 296
+    assert summary["batches"] == 89
+
+
 @pytest.mark.parametrize("reason", ["route", "http"])
 def test_stopped_archive_replays_missingness_and_cannot_rerun(
     modules: tuple[Any, Any], tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reason: str
