@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-loginject-031
+title: Log viewer renders submitted usernames verbatim in DemoVault admin demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: false
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - admin_session_compromise
+  expected_dimensions:
+    reproducibility: 0.55
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.6
+    impact_calibration: 0.58
+    scope_consistency: 0.64
+  rationale: >
+    Browser-inconsistent rendering honestly reported with the boundary question
+    left open; neither accept nor reject is justified on this evidence. Review.
+sanitization_note: >-
+  Fully synthetic scenario; payload is inert markup, no real admins involved.
+report:
+  path: canonical/loginject-031/report.md

@@ -1,0 +1,713 @@
+"""Deterministic rules-based evaluator baseline.
+
+This evaluator inspects ONLY the report text (never harness labels). It applies
+transparent heuristics over section structure and language patterns.
+
+Documented limitations (by design - this is a baseline to beat, not a strong system):
+- It cannot verify technical claims; "fabrication" signals are lexical only.
+- It cannot distinguish a genuinely invalid report from a well-written valid one
+  when no boundary-crossing statement is present.
+- It is intentionally sensitive to the exact phrases SlopLab operators insert,
+  because those phrases model common low-quality-report patterns. Real evaluators
+  should not be tuned to this corpus.
+"""
+
+from __future__ import annotations
+
+import re
+from collections.abc import Iterator
+
+from sloplab.corpus.conventions import EVIDENCE_SECTION_PATTERNS
+from sloplab.models.enums import (
+    CLAIM_EVIDENCE_CONSISTENCY,
+    EVIDENCE_COMPLETENESS,
+    IMPACT_CALIBRATION,
+    REPRODUCIBILITY,
+    SCOPE_CONSISTENCY,
+    Decision,
+    Severity,
+)
+from sloplab.models.evaluation import (
+    DimensionScores,
+    EvaluationContext,
+    EvaluationResult,
+    Finding,
+    mean_dimension_score,
+)
+from sloplab.models.report import ReportDocument
+from sloplab.mutations.textops import numbered_steps
+
+_CORE_SECTION_KEYS: tuple[str, ...] = (
+    "summary",
+    "affected_component",
+    "affected_versions",
+    "preconditions",
+    "reproduction_steps",
+    "observed_result",
+    "expected_security_boundary",
+)
+
+_FABRICATION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"assigns? this issue advisory",
+        r"matches the vendor advisory identifier",
+        r"according to the deployment manifest used during testing",
+        r"referenced in the component changelog",
+    )
+)
+
+_SCOPE_EXPANSION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"every version ever released",
+        r"all earlier releases since \d+\.\d+\.\d+ and all future releases",
+        r"including builds distributed through unofficial mirrors",
+        r"also present in the administrative api",
+        r"including batch jobs and internal tooling",
+    )
+)
+
+_INFLATION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"actively exploited data breach",
+        r"fully compromise the entire platform",
+        r"confirmed mass scanning in the wild",
+        r"exposes every customer record",
+        r"emergency response is required",
+    )
+)
+
+#: Max characters the tempered clause between "no boundary" and "crossed" may
+#: span. The clause must stay within one sentence (no blank line, no sentence
+#: terminator), and the longest such gap in the corpus is under 50 characters.
+#: The bound only caps pathological backtracking: unbounded tempered repetition
+#: is quadratic on adversarial repetitive near-miss input. Gaps beyond the
+#: bound do not match.
+_MAX_NO_BOUNDARY_GAP = 2000
+_NO_BOUNDARY_CLAUSE = (
+    rf"(?:(?!\n[ \t]*\n)(?![.?!][\"'”’)]*(?:\s|$))[\s\S]){{0,{_MAX_NO_BOUNDARY_GAP}}}"
+)
+_NO_BOUNDARY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"no security boundary",
+        r"does not identify one",
+        rf"no boundary {_NO_BOUNDARY_CLAUSE}crossed",
+        r"identifies none",
+        rf"no boundary between {_NO_BOUNDARY_CLAUSE}is crossed",
+        r"intended behavior",
+        r"product preference",
+        r"hardening (opportunity|suggestion)",
+        r"cosmetic observation",
+        r"usability tradeoff rather than a remediation",
+    )
+)
+
+
+#: The tempered patterns above (tuple indices 2 and 4) scan, from every
+#: "no boundary" occurrence, a terminator-free window for the "crossed" /
+#: "is crossed" anchor. On adversarial repetitive near-miss input that scan is
+#: quadratic, so these two patterns are matched through a cheap prefilter
+#: instead of a bare finditer: the anchor must occur within the reachable
+#: window (a necessary condition for any match), otherwise the regex is never
+#: attempted. An attempted anchored match is identical to finditer's attempt at
+#: that position, and iteration advances exactly like finditer, so the yielded
+#: matches are the same objects finditer would yield.
+_TEMPERED_NO_BOUNDARY: tuple[tuple[int, str, str], ...] = (
+    (2, "no boundary", "crossed"),
+    (4, "no boundary between", "is crossed"),
+)
+
+
+def _iter_gated_tempered_matches(
+    rx: re.Pattern[str], text: str, literal: str, anchor: str
+) -> Iterator[re.Match[str]]:
+    """Yield ``rx`` matches as ``rx.finditer(text)`` would, but in linear time.
+
+    Positions that cannot start a match (no anchor within the reachable
+    window) are skipped with a C-speed substring search instead of a
+    backtracking window scan.
+    """
+    literal_re = re.compile(literal, re.IGNORECASE)
+    lowered = text.lower()
+    anchor_lc = anchor.lower()
+    window = _MAX_NO_BOUNDARY_GAP + len(anchor)
+    next_pos = 0
+    for lit in literal_re.finditer(text):
+        start = lit.start()
+        if start < next_pos:
+            continue
+        end = lit.end()
+        if lowered.find(anchor_lc, end, end + window) < 0:
+            next_pos = start + 1
+            continue
+        match = rx.match(text, start)
+        if match is None:
+            next_pos = start + 1
+        else:
+            yield match
+            next_pos = match.end()
+
+
+def _iter_no_boundary_matches(text: str) -> Iterator[re.Match[str]]:
+    """Yield all ``_NO_BOUNDARY_PATTERNS`` matches in finditer order."""
+    for index, rx in enumerate(_NO_BOUNDARY_PATTERNS):
+        gate = next((g for g in _TEMPERED_NO_BOUNDARY if g[0] == index), None)
+        if gate is None:
+            yield from rx.finditer(text)
+        else:
+            yield from _iter_gated_tempered_matches(rx, text, gate[1], gate[2])
+
+
+# Self-declared uncertainty. Reports that openly say their findings are unresolved
+# should route to manual review rather than accept/reject. NOTE (v0.1.0): these
+# patterns overlap with the phrasing style of this corpus's review-class fixtures;
+# future corpora should include uncertain reports phrased differently so that
+# baseline performance on them reflects generality rather than familiarity.
+_UNCERTAINTY_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"manual review requested",
+        r"maintainer (?:confirmation|input|assistance|reproduction|ruling) requested",
+        r"happy to coordinate",
+        r"undetermined",
+        r"inconclusive",
+        r"unresolved",
+        r"withheld pending",
+        r"cannot (?:be |)(?:determined|established|confirmed|explained|classified)",
+        r"could not (?:be )?(?:determined|conclusively determine)",
+        r"unclear whether",
+        r"severity cannot be (?:set|determined)",
+        r"evidence is insufficient",
+        r"insufficient to distinguish",
+        r"genuinely unknown",
+        r"hinges on undocumented",
+    )
+)
+
+#: A boundary negation stated inside a conditional sentence ("If X were enabled..."
+# or "... if X were enabled") does not assert that the report's own subject
+# crosses no boundary.
+_CONDITIONAL_MARKER_RE = re.compile(r"\b(?:if|when|whether|unless)\b", re.IGNORECASE)
+_SENTENCE_CLOSERS = r"(?:[\"'”’)]|[*_~]{1,2})*"
+_SENTENCE_MARKDOWN_PREFIX = (
+    r"(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:\[[ xX]\]\s+)?"
+    r"(?:[*_~]{1,2})?[\"'“‘(]*"
+)
+_MARKDOWN_ITEM_BREAK = r"\n(?=[ \t]*(?:(?:>\s*)+|(?:[-+*]|\d+[.)])\s+))"
+_SENTENCE_BREAK_RE = re.compile(
+    rf";|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"\n\s*\n|{_MARKDOWN_ITEM_BREAK}"
+)
+_INITIALISM_SUFFIX_RE = re.compile(r"(?:\b[A-Za-z]\.){2,}$")
+_INITIALISM_CLEAR_OPENER_RE = re.compile(
+    r"^(?:A|An|If|It|No|The|There|This|That|We|When|Whether|Unless)\b"
+)
+_INITIALISM_CONTINUATION_RE = re.compile(
+    r"^[A-Z][A-Za-z0-9_'-]*(?:\s+[A-Za-z0-9_'-]+){0,5}\s+"
+    r"(?:is|are|was|were|has|have|had|does|do|did|can|could|may|might|must|"
+    r"should|will|would)\b(?:(?![.?!]).)*"
+    r"(?:,\s*|\bthen\b\s*|:\s*|--\s*|—\s*)"
+)
+_TRAILING_CONDITION_BARRIER_RE = re.compile(
+    rf";|--|—|\b(?i:but|however|yet)\b|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"\n\s*\n|{_MARKDOWN_ITEM_BREAK}"
+)
+_POSTFIX_FOLLOWUP_RE = re.compile(r",\s*(?:and|or)\b", re.IGNORECASE)
+_PARENTHETICAL_CONDITION_PREFIX_RE = re.compile(
+    r"^\s*(?:(?:only|even|especially)\s+)?$",
+    re.IGNORECASE,
+)
+_CONDITION_INTRO_PREFIX_RE = re.compile(
+    r"^(?:depending(?:\s+directly|\s+entirely)?\s+(?:on|upon)|"
+    r"(?:it\s+)?depend(?:s)?\s+(?:on|upon)|based\s+(?:on|upon)|"
+    r"contingent\s+(?:on|upon)|subject\s+to)$",
+    re.IGNORECASE,
+)
+_DENIAL_PREDICATE_PREFIX_RE = re.compile(
+    r"^(?:applies|is\s+crossed|between\b(?:(?![.?!;]).)*\bis\s+crossed)\b",
+    re.IGNORECASE,
+)
+_CLAUSE_START_RE = re.compile(
+    rf";|:|--|—|[!?](?={_SENTENCE_CLOSERS}(?:\s|$))|"
+    rf"\.(?={_SENTENCE_CLOSERS}\s+(?:{_SENTENCE_MARKDOWN_PREFIX}[A-Z]|$))|"
+    rf"{_MARKDOWN_ITEM_BREAK}"
+)
+_MARKDOWN_CLAUSE_PREFIX_RE = re.compile(rf"^{_SENTENCE_MARKDOWN_PREFIX}\s*")
+
+
+def _trailing_marker_introduces_condition(segment: str) -> bool:
+    """Whether text between a lexical denial match and marker is condition syntax."""
+    prefix = segment.strip().casefold()
+    predicate = _DENIAL_PREDICATE_PREFIX_RE.match(prefix)
+    if predicate is not None:
+        prefix = prefix[predicate.end() :].strip()
+    prefix = re.sub(r"^(?:,|--|—)\s*", "", prefix).strip()
+    if prefix in {"", "only", "even", "especially"}:
+        return True
+    if _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix):
+        return True
+    if prefix.startswith("to "):
+        complement = prefix[3:].strip()
+        if not complement:
+            return False
+        return re.search(r"(?:^|\s)(?:the|a|an|word|label)\s*[\`'\"]*$", complement) is None
+    return False
+
+
+def _has_trailing_condition_barrier(segment: str) -> bool:
+    """Whether text before a postfix condition contains a real clause barrier.
+
+    A dash directly introducing the condition ("— if ..." / "-- only if ...")
+    is punctuation, not a separate clause. A dash followed by substantive prose
+    remains a barrier.
+    """
+    for barrier in _TRAILING_CONDITION_BARRIER_RE.finditer(segment):
+        token = barrier.group(0)
+        if token in {"--", "—"}:
+            trailing = segment[barrier.end() :]
+            if _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(trailing):
+                continue
+        return True
+    return False
+
+
+def _marker_starts_clause(paragraph: str, marker_start: int) -> bool:
+    """Whether a leading conditional marker starts its own clause."""
+    clause_start = 0
+    for boundary in _CLAUSE_START_RE.finditer(paragraph, 0, marker_start):
+        clause_start = boundary.end()
+    prefix_raw = paragraph[clause_start:marker_start]
+    prefix = _MARKDOWN_CLAUSE_PREFIX_RE.sub("", prefix_raw).strip().casefold()
+    if prefix in {"", "and", "but", "or", "only", "even", "especially"}:
+        return True
+    if _CONDITION_INTRO_PREFIX_RE.fullmatch(prefix):
+        return True
+    parts = prefix.split()
+    return (
+        len(parts) == 2
+        and parts[0] in {"and", "but", "or"}
+        and parts[1] in {"only", "even", "especially"}
+    )
+
+
+def _starts_sentence_after_initialism(text: str) -> bool:
+    """Recognize a new sentence after an initialism without subject whitelists."""
+    stripped = text.lstrip()
+    prefix = re.match(_SENTENCE_MARKDOWN_PREFIX, stripped)
+    if prefix is not None:
+        stripped = stripped[prefix.end() :]
+    if not stripped:
+        return True
+    if _INITIALISM_CLEAR_OPENER_RE.match(stripped):
+        return True
+    if _INITIALISM_CONTINUATION_RE.match(stripped):
+        return False
+    return bool(re.match(r"^[A-Z]", stripped))
+
+
+def _has_sentence_break(text: str) -> bool:
+    """True when text contains a real sentence or clause boundary."""
+    for boundary in _SENTENCE_BREAK_RE.finditer(text):
+        if boundary.group(0) == "." and _INITIALISM_SUFFIX_RE.search(text[: boundary.end()]):
+            following = text[boundary.end() :]
+            if not _starts_sentence_after_initialism(following):
+                continue
+        return True
+    return False
+
+
+def _has_leading_condition_barrier(segment: str, denial_offset: int) -> bool:
+    """Sentence barrier between a leading condition marker and its denial.
+
+    The segment includes the denial text so sentence-boundary lookaheads can
+    inspect wrappers and the first denial word. Only boundaries strictly before
+    denial_offset count. A final em dash / double dash directly introducing the
+    denial is punctuation inside the conditional construction, not a separate
+    clause.
+    """
+    for boundary in _SENTENCE_BREAK_RE.finditer(segment):
+        if boundary.start() >= denial_offset:
+            break
+        token = boundary.group(0)
+        if token in {"--", "—"}:
+            trailing = segment[boundary.end() : denial_offset]
+            if re.fullmatch(rf"\s*{_SENTENCE_MARKDOWN_PREFIX}\s*", trailing):
+                continue
+        if token == "." and _INITIALISM_SUFFIX_RE.search(segment[: boundary.end()]):
+            following = segment[boundary.end() :]
+            if not _starts_sentence_after_initialism(following):
+                continue
+        return True
+    return False
+
+
+def _paragraph_bounds_for_match(text: str, match: re.Match[str]) -> tuple[int, int]:
+    """Return absolute blank-line-delimited bounds containing the match."""
+    left_boundary = text.rfind("\n\n", 0, match.start())
+    left = 0 if left_boundary < 0 else left_boundary + 2
+    right_boundary = text.find("\n\n", match.end())
+    right = len(text) if right_boundary < 0 else right_boundary
+    return left, right
+
+
+def _paren_depth(text: str, pos: int) -> int:
+    """Approximate parenthesis nesting depth at ``pos`` within a paragraph."""
+    depth = 0
+    for char in text[:pos]:
+        if char == "(":
+            depth += 1
+        elif char == ")" and depth:
+            depth -= 1
+    return depth
+
+
+def _is_conditional_boundary_match(text: str, match: re.Match[str]) -> bool:
+    """Whether a conditional marker governs the same clause as the negation."""
+    left, right = _paragraph_bounds_for_match(text, match)
+    paragraph = text[left:right]
+    match_rel = match.start() - left
+    match_depth = _paren_depth(paragraph, match_rel)
+
+    match_end_rel = match.end() - left
+    for marker in _CONDITIONAL_MARKER_RE.finditer(paragraph):
+        if match_rel <= marker.start() < match_end_rel:
+            continue
+        marker_depth = _paren_depth(paragraph, marker.start())
+        if marker_depth != match_depth:
+            # A parenthetical that begins with the conditional marker and
+            # follows the denial can qualify that denial directly:
+            # "no boundary applies (if the plugin is disabled)". Do not treat
+            # arbitrary nested prose such as "(contact support if ...)" as a
+            # qualifier merely because it contains a later marker.
+            if marker_depth == match_depth + 1 and marker.start() >= match_rel:
+                open_paren = paragraph.rfind("(", match_rel, marker.start() + 1)
+                parenthetical_prefix = paragraph[open_paren + 1 : marker.start()]
+                denial_to_paren = paragraph[match_end_rel:open_paren]
+                if (
+                    open_paren >= match_end_rel
+                    and _PARENTHETICAL_CONDITION_PREFIX_RE.fullmatch(parenthetical_prefix)
+                    and not _has_trailing_condition_barrier(denial_to_paren)
+                ):
+                    return True
+            continue
+        if marker.start() < match_rel:
+            if not _marker_starts_clause(paragraph, marker.start()):
+                continue
+            segment = paragraph[marker.end() : match_end_rel]
+            denial_offset = match_rel - marker.end()
+            if not _has_leading_condition_barrier(segment, denial_offset):
+                return True
+            continue
+
+        # A trailing marker may follow a short lexical match while still
+        # governing the full denial ("no security boundary applies if ..." or
+        # "... is crossed if ..."). It is unrelated once a sentence/clause
+        # barrier or a coordinated follow-up (", and/or ...") intervenes.
+        between = paragraph[match_end_rel : marker.end()]
+        before_marker = paragraph[match_end_rel : marker.start()]
+        if (
+            _has_trailing_condition_barrier(before_marker)
+            or _POSTFIX_FOLLOWUP_RE.search(between)
+            or not _trailing_marker_introduces_condition(before_marker)
+        ):
+            continue
+        return True
+    return False
+
+
+_CLAIM_CONTRADICTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"no bypass was demonstrated",
+        r"both observed responses show",
+        r"contradict",
+        r"identical `?location`?",
+        r"contain(s|ed)? no admin content",
+        r"returned 403 forbidden and no cross-tenant data",
+        r"could not reproduce any anomalous response",
+        r"boundary held in every configuration",
+    )
+)
+
+_UNVERIFIABLE_ATTRIBUTION_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
+    re.compile(p, re.IGNORECASE)
+    for p in (
+        r"vendor has confirmed this issue as CVE-",
+        r"previously disclosed and tracked as CVE-",
+        r"tracking lists this defect as CVE-.*with fix status confirmed",
+        r"fix status confirmed",
+    )
+)
+
+_REFERENCE_STUFFING_PATTERN = re.compile(r"^#{1,3}\s+references\s*$", re.MULTILINE | re.IGNORECASE)
+_NOISE_SECTION_PATTERN = re.compile(
+    r"^#{1,3}\s+(additional context|background information)\s*$", re.MULTILINE | re.IGNORECASE
+)
+
+_STRONG_CLAIM_PATTERN = re.compile(
+    r"bypass|compromise|exposes|breach|takeover|disclosure", re.IGNORECASE
+)
+
+
+def _section_text(report: ReportDocument, key: str) -> str:
+    pattern = EVIDENCE_SECTION_PATTERNS[key]
+    return report.section_text(pattern)
+
+
+def _count_pattern_hits(text: str, patterns: tuple[re.Pattern[str], ...]) -> list[str]:
+    hits: list[str] = []
+    for rx in patterns:
+        match = rx.search(text)
+        if match:
+            hits.append(match.group(0))
+    return hits
+
+
+class RulesBaselineEvaluator:
+    name = "rules-baseline"
+    version = "0.1.0"
+    # Content-based: no ground-truth labels needed (see evaluator_requires_labels).
+    requires_labels = False
+
+    def evaluate(
+        self,
+        report: ReportDocument,
+        context: EvaluationContext,
+    ) -> EvaluationResult:
+        _ = context  # content-only evaluator: labels deliberately unused
+        findings: list[Finding] = []
+        full = report.raw_text
+
+        # --- structural evidence ---
+        missing_core = [
+            k for k in _CORE_SECTION_KEYS if not report.find_sections(EVIDENCE_SECTION_PATTERNS[k])
+        ]
+        for key in missing_core:
+            findings.append(
+                Finding(code=f"MISSING_SECTION_{key.upper()}", severity=Severity.MEDIUM)
+            )
+
+        repro_section = None
+        for s in report.sections:
+            if s.heading and re.search(
+                EVIDENCE_SECTION_PATTERNS["reproduction_steps"], s.heading, re.I
+            ):
+                repro_section = s
+                break
+        step_count = len(numbered_steps(repro_section)) if repro_section else 0
+        if repro_section is not None and step_count == 0:
+            findings.append(Finding(code="EMPTY_REPRO_STEPS", severity=Severity.HIGH))
+        elif step_count < 3 and repro_section is not None:
+            findings.append(Finding(code="THIN_REPRO_STEPS", severity=Severity.MEDIUM))
+
+        # --- fabrication / scope / inflation signals ---
+        fab_hits = _count_pattern_hits(full, _FABRICATION_PATTERNS)
+        for hit in fab_hits:
+            findings.append(
+                Finding(
+                    code="FABRICATED_IDENTIFIER_CLAIM",
+                    severity=Severity.HIGH,
+                    evidence=hit[:80],
+                )
+            )
+
+        scope_hits = _count_pattern_hits(full, _SCOPE_EXPANSION_PATTERNS)
+        for hit in scope_hits[:1]:
+            findings.append(
+                Finding(code="SCOPE_EXPANSION_CLAIM", severity=Severity.MEDIUM, evidence=hit[:80])
+            )
+
+        inflation_hits = _count_pattern_hits(full, _INFLATION_PATTERNS)
+        for hit in inflation_hits[:1]:
+            findings.append(
+                Finding(
+                    code="IMPACT_INFLATION_LANGUAGE",
+                    severity=Severity.MEDIUM,
+                    evidence=hit[:80],
+                )
+            )
+
+        # --- boundary / validity reasoning ---
+        # Boundary negations stated conditionally ("if profile B were exposed...")
+        # do not assert the report's own subject is safe; they describe a
+        # hypothetical and should route to review, not reject.
+        no_boundary_matches = list(_iter_no_boundary_matches(full))
+        conditional_matches = [
+            m for m in no_boundary_matches if _is_conditional_boundary_match(full, m)
+        ]
+        unconditional_matches = [m for m in no_boundary_matches if m not in conditional_matches]
+        conditional_negation = bool(conditional_matches)
+        unconditional_negation = bool(unconditional_matches)
+        contradiction_hits = _count_pattern_hits(full, _CLAIM_CONTRADICTION_PATTERNS)
+        summary_claimed = bool(_STRONG_CLAIM_PATTERN.search(_section_text(report, "summary") or ""))
+
+        if unconditional_negation:
+            hit = unconditional_matches[0].group(0)
+            findings.append(
+                Finding(
+                    code="NO_SECURITY_BOUNDARY_STATED",
+                    severity=Severity.HIGH,
+                    evidence=hit[:80],
+                )
+            )
+        if conditional_negation:
+            findings.append(
+                Finding(
+                    code="CONDITIONAL_BOUNDARY_STATEMENT",
+                    severity=Severity.MEDIUM,
+                    evidence=conditional_matches[0].group(0)[:80],
+                )
+            )
+        for hit in contradiction_hits[:1]:
+            findings.append(
+                Finding(
+                    code="CLAIM_EVIDENCE_CONFLICT", severity=Severity.CRITICAL, evidence=hit[:80]
+                )
+            )
+        if "affected_versions" in missing_core:
+            findings.append(Finding(code="MISSING_AFFECTED_VERSIONS", severity=Severity.LOW))
+
+        attribution_hits = _count_pattern_hits(full, _UNVERIFIABLE_ATTRIBUTION_PATTERNS)
+        for hit in attribution_hits[:1]:
+            findings.append(
+                Finding(
+                    code="ATTRIBUTION_CLAIM_UNVERIFIED",
+                    severity=Severity.MEDIUM,
+                    evidence=hit[:80],
+                )
+            )
+        has_reference_section = bool(_REFERENCE_STUFFING_PATTERN.search(full))
+        if has_reference_section:
+            findings.append(Finding(code="UNVERIFIED_REFERENCE_BLOCK", severity=Severity.LOW))
+        noise_sections = _NOISE_SECTION_PATTERN.findall(full)
+        if noise_sections:
+            findings.append(
+                Finding(
+                    code="TANGENTIAL_CONTENT_SECTION",
+                    severity=Severity.INFO,
+                    evidence=noise_sections[0],
+                )
+            )
+        uncertainty_hits = _count_pattern_hits(full, _UNCERTAINTY_PATTERNS)
+        if uncertainty_hits:
+            findings.append(
+                Finding(
+                    code="SELF_DECLARED_UNCERTAINTY",
+                    severity=Severity.MEDIUM,
+                    evidence=uncertainty_hits[0][:80],
+                )
+            )
+
+        # --- dimension scoring (transparent arithmetic) ---
+        present_ratio = 1.0 - len(missing_core) / len(_CORE_SECTION_KEYS)
+        if repro_section is None:
+            step_score = 0.05
+        elif step_count == 0:
+            step_score = 0.1
+        elif step_count == 1:
+            step_score = 0.35
+        elif step_count == 2:
+            step_score = 0.65
+        else:
+            step_score = 1.0
+        reproducibility = min(1.0, present_ratio * 0.35 + step_score * 0.65)
+
+        penalty_fab = 0.45 * len(fab_hits)
+        penalty_contra = 0.55 * len(contradiction_hits)
+        penalty_attr = 0.3 * len(attribution_hits)
+        consistency = max(0.0, 1.0 - penalty_fab - penalty_contra - penalty_attr)
+        if summary_claimed and contradiction_hits:
+            consistency = max(0.0, consistency - 0.15)
+
+        completeness = present_ratio * 0.7 + (1.0 if not fab_hits else 0.6) * 0.3
+        completeness = max(
+            0.0,
+            min(1.0, completeness - 0.05 * len(fab_hits) - (0.1 if has_reference_section else 0.0)),
+        )
+
+        calibration = 1.0 - 0.35 * bool(inflation_hits) - 0.1 * len(inflation_hits)
+        if unconditional_negation and inflation_hits:
+            calibration -= 0.2
+        calibration = max(0.0, calibration)
+
+        scope = 1.0 - 0.4 * bool(scope_hits) - 0.25 * ("affected_versions" in missing_core)
+        scope = max(0.0, min(1.0, scope))
+
+        dims = {
+            REPRODUCIBILITY: round(reproducibility, 3),
+            EVIDENCE_COMPLETENESS: round(completeness, 3),
+            CLAIM_EVIDENCE_CONSISTENCY: round(consistency, 3),
+            IMPACT_CALIBRATION: round(calibration, 3),
+            SCOPE_CONSISTENCY: round(scope, 3),
+        }
+
+        overall = mean_dimension_score(dims)
+
+        # --- decision policy (documented thresholds) ---
+        # Hard-reject signals: explicit no-boundary statements, claim/evidence
+        # contradictions, or collapsed consistency.
+        # Manual-review signals: any fabrication/scope/inflation/attribution flag,
+        # thin evidence, or mediocre dimension scores - anything that should stop
+        # automation.
+        quality_flags = (
+            len(fab_hits)
+            + len(scope_hits)
+            + len(inflation_hits)
+            + len(attribution_hits)
+            + (1 if has_reference_section else 0)
+        )
+        noise_penalty = 0.02 * len(noise_sections)
+        if consistency <= 0.45 or unconditional_negation or contradiction_hits:
+            decision = Decision.REJECT
+        elif (
+            quality_flags > 0
+            or reproducibility < 0.8 - noise_penalty
+            or completeness < 0.8 - noise_penalty
+            or overall < 0.78 - noise_penalty
+            or conditional_negation
+        ):
+            decision = Decision.NEEDS_MANUAL_REVIEW
+        elif uncertainty_hits:
+            # The report itself declares its conclusions unresolved; automation
+            # should defer to humans regardless of structural quality.
+            decision = Decision.NEEDS_MANUAL_REVIEW
+        else:
+            decision = Decision.ACCEPT
+
+        if decision == Decision.ACCEPT:
+            confidence = min(0.95, 0.5 + (overall - 0.78) * 1.6)
+        elif decision == Decision.REJECT:
+            confidence = min(0.9, 0.6 + max(0.0, 0.45 - consistency) * 0.5)
+        else:
+            confidence = 0.45 if not uncertainty_hits else 0.5
+
+        rationale_parts = [
+            f"missing_core_sections={len(missing_core)}",
+            f"steps={step_count}",
+            f"fabrication_hits={len(fab_hits)}",
+            f"scope_expansion_hits={len(scope_hits)}",
+            f"inflation_hits={len(inflation_hits)}",
+            f"attribution_hits={len(attribution_hits)}",
+            f"reference_block={has_reference_section}",
+            f"noise_sections={len(noise_sections)}",
+            f"uncertainty={len(uncertainty_hits)}",
+            f"no_boundary={unconditional_negation} cond_boundary={conditional_negation}",
+            f"contradiction={bool(contradiction_hits)}",
+            f"overall={overall:.2f}",
+        ]
+        return EvaluationResult(
+            evaluator_name=self.name,
+            evaluator_version=self.version,
+            case_id=context.case_id,
+            decision=decision,
+            confidence=round(max(0.05, min(confidence, 0.99)), 3),
+            dimensions=DimensionScores.from_dict(dims),
+            findings=findings,
+            rationale="rules-baseline: " + "; ".join(rationale_parts),
+            metadata={"heuristic_version": self.version},
+        )

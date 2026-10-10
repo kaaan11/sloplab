@@ -1,0 +1,10 @@
+{"case_id": "canonical-pathtrav-017", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-pathtrav-017", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-perm-012", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-perm-012", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-permdiff-020", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-permdiff-020", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-racecond-018", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-racecond-018", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-ratelimit-010", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-ratelimit-010", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-ratelimit2-032", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-ratelimit2-032", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-robots-022", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-robots-022", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-saml-019", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-saml-019", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-selfreg-023", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-selfreg-023", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}
+{"case_id": "canonical-sqlx-002", "evaluator_name": "llm-json", "record_ref": {"case_id": "canonical-sqlx-002", "repeat_index": 0}, "repeat_index": 0, "schema_version": 1, "status": "success"}

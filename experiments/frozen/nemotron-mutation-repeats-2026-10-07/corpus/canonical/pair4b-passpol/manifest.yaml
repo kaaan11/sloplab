@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-pair4b-passpol
+title: Authentication credential policy in SampleStack demonstration permits reduced-length secrets
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-004
+pair_role: polished
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - weak_credentials_in_production
+  expected_dimensions:
+    reproducibility: 0.89
+    evidence_completeness: 0.68
+    claim_evidence_consistency: 0.3
+    impact_calibration: 0.09
+    scope_consistency: 0.34
+  rationale: >
+    Polished twin of pair-004 plain member; identical substance and ground truth.
+sanitization_note: >-
+  Fully synthetic scenario; placeholder credential only.
+report:
+  path: canonical/pair4b-passpol/report.md

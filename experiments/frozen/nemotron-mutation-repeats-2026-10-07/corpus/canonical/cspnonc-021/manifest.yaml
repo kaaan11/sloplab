@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-cspnonc-021
+title: Content Security Policy relies on permissive directives in DemoVault admin demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - xss_chain_demonstrated
+  expected_dimensions:
+    reproducibility: 0.85
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.66
+    impact_calibration: 0.55
+    scope_consistency: 0.6
+  rationale: >
+    Configuration divergence between bundled profiles observed accurately; security
+    meaning depends on unstated deployment intent. Manual review is correct.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault profiles are fictional.
+report:
+  path: canonical/cspnonc-021/report.md

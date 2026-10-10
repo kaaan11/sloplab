@@ -1,0 +1,89 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sloplab"
+version = "0.3.0"
+description = "Adversarial testing framework for vulnerability-report triage evaluators"
+readme = "README.md"
+license = { text = "MIT" }
+authors = [{ name = "SlopLab contributors" }]
+requires-python = ">=3.11"
+keywords = ["security", "benchmark", "evaluation", "triage", "adversarial"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+]
+dependencies = [
+    "click>=8.1",
+    "pydantic>=2.7",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+ui = ["prompt-toolkit==3.0.52"]
+
+[project.urls]
+Documentation = "https://github.com/kaaan11/sloplab/tree/main/docs"
+
+[project.scripts]
+sloplab = "sloplab.cli.main:cli"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "types-PyYAML",
+    "jsonschema>=4.21",
+    "types-jsonschema",
+    "prompt-toolkit==3.0.52",  # run the optional UI tests in development / CI
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sloplab"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.claude", "/.agents", "/.codex", "/.aws", "/heldout-private"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+# Archived worker deliveries and review logs, not maintained source.
+extend-exclude = ["docs/reviews"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+# Registration imports intentionally follow definitions to avoid circular imports
+# (operator/evaluator modules import the registry they register into).
+"src/sloplab/evaluators/base.py" = ["E402"]
+"src/sloplab/mutations/base.py" = ["E402"]
+# Immutable live-study source hash: preserve the registered 101-character literal.
+"experiments/scripts/nemotron_completion_20261004.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+mypy_path = "src"
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["yaml.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src/sloplab"]

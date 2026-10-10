@@ -1,0 +1,3587 @@
+{
+  "protocol_sha256": "c21aafb4132e91c834f79ed1d4b6ef6c64e6196bc71997a13267d590c1a4d5f3",
+  "physical_requests": 891,
+  "planned": 891,
+  "valid": 890,
+  "failed": 1,
+  "non_dispatch_failures": 0,
+  "not_run": 0,
+  "full_response_coverage": false,
+  "stop_reason": null,
+  "missing_observations": [
+    {
+      "adapter_attempts": 1,
+      "case_id": "mut-csvinj-017-professionalize-language-04",
+      "detail": "transport.error",
+      "error_kind": "transport",
+      "evaluator_name": "llm-json",
+      "rendered_prompt_hash": "027ee50f86b90175a801707aaab86a2e979d455c8b3cd1a3c433e2d62d3ed563",
+      "repeat_index": 0,
+      "schema_version": 1,
+      "status": "failed"
+    }
+  ],
+  "stability": {
+    "canonical": {
+      "eligible": 60,
+      "complete": 60,
+      "incomplete": 0,
+      "unanimous": 56,
+      "changed": 4,
+      "by_operator": {
+        "canonical": {
+          "eligible": 60,
+          "complete": 60,
+          "changed": 4
+        }
+      },
+      "per_case": [
+        {
+          "case_id": "canonical-authz-001",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-authz2-014",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-cachehdr-024",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-cachepois-027",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-corswild-025",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-crypto-011",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-cspnonc-021",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-csvinj-017",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-deserial-030",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-dup-007",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-filetype-023",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-ghauthz-015",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-graphql-028",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-headermiss-020",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-idor-004",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-info-006",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-infodisc-016",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-jwtalg-026",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-loginject-031",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-massign-014",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-norepro-009",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-oauthstate-029",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-oob-008",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-openred-015",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair1a-cookie",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair1b-cookie",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair2a-dirlist",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair2b-dirlist",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair3a-comment",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair3b-comment",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair4a-passpol",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair4b-passpol",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair5a-health",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair5b-health",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair6a-logout",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair6b-logout",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "canonical-pair7a-404",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair7b-404",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair8a-session",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pair8b-session",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-pathtrav-017",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-perm-012",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-permdiff-020",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-racecond-018",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "canonical-ratelimit-010",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "canonical-ratelimit2-032",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "canonical-robots-022",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-saml-019",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-selfreg-023",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-sqlx-002",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-ssrf-005",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-tokenurl-013",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-totiming-019",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-verb-021",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-versiondisc-024",
+          "operator": null,
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-websig-018",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-wstoken-022",
+          "operator": null,
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-xsrf-003",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-xssref-016",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "canonical-xsssto-013",
+          "operator": null,
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        }
+      ]
+    },
+    "mutated": {
+      "eligible": 237,
+      "complete": 236,
+      "incomplete": 1,
+      "unanimous": 217,
+      "changed": 19,
+      "by_operator": {
+        "fabricate_reference": {
+          "eligible": 14,
+          "complete": 14,
+          "changed": 0
+        },
+        "impact_inflation": {
+          "eligible": 11,
+          "complete": 11,
+          "changed": 5
+        },
+        "invent_api_identifier": {
+          "eligible": 13,
+          "complete": 13,
+          "changed": 0
+        },
+        "professionalize_language": {
+          "eligible": 48,
+          "complete": 47,
+          "changed": 4
+        },
+        "remove_affected_version": {
+          "eligible": 26,
+          "complete": 26,
+          "changed": 0
+        },
+        "remove_reproduction_step": {
+          "eligible": 26,
+          "complete": 26,
+          "changed": 3
+        },
+        "scope_expansion": {
+          "eligible": 22,
+          "complete": 22,
+          "changed": 0
+        },
+        "misattribute_cve": {
+          "eligible": 13,
+          "complete": 13,
+          "changed": 0
+        },
+        "add_irrelevant_detail": {
+          "eligible": 36,
+          "complete": 36,
+          "changed": 1
+        },
+        "impossible_precondition": {
+          "eligible": 12,
+          "complete": 12,
+          "changed": 2
+        },
+        "contradict_observed_result": {
+          "eligible": 11,
+          "complete": 11,
+          "changed": 4
+        },
+        "confidence_overstatement": {
+          "eligible": 5,
+          "complete": 5,
+          "changed": 0
+        }
+      },
+      "per_case": [
+        {
+          "case_id": "mut-authz-001-fabricate-reference-08",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-impact-inflation-03",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-invent-api-identifier-05",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-professionalize-language-06",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz-001-scope-expansion-04",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-fabricate-reference-07",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-impact-inflation-02",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-invent-api-identifier-04",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-misattribute-cve-08",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-professionalize-language-05",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-remove-affected-version-01",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-authz2-014-scope-expansion-03",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachehdr-024-add-irrelevant-detail-05",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachehdr-024-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachehdr-024-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachehdr-024-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachepois-027-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachepois-027-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachepois-027-remove-affected-version-01",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cachepois-027-remove-reproduction-step-05",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-corswild-025-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-corswild-025-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-corswild-025-scope-expansion-04",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-crypto-011-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-crypto-011-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-crypto-011-remove-affected-version-05",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-crypto-011-remove-reproduction-step-04",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cspnonc-021-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cspnonc-021-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "reject",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-cspnonc-021-remove-affected-version-04",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-cspnonc-021-remove-reproduction-step-03",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-csvinj-017-fabricate-reference-06",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-csvinj-017-impact-inflation-01",
+          "operator": "impact_inflation",
+          "decisions": [
+            "needs_manual_review",
+            "reject",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-csvinj-017-impossible-precondition-08",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-csvinj-017-invent-api-identifier-03",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-csvinj-017-misattribute-cve-07",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-csvinj-017-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            null,
+            "accept",
+            "accept"
+          ],
+          "complete": false,
+          "changed": null
+        },
+        {
+          "case_id": "mut-csvinj-017-scope-expansion-02",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-deserial-030-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "needs_manual_review",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-deserial-030-professionalize-language-05",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-deserial-030-remove-affected-version-03",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-deserial-030-remove-reproduction-step-02",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-dup-007-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-dup-007-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-dup-007-scope-expansion-03",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-filetype-023-add-irrelevant-detail-05",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-filetype-023-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-filetype-023-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-filetype-023-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-contradict-observed-result-08",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "reject",
+            "needs_manual_review",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-ghauthz-015-fabricate-reference-05",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-impossible-precondition-07",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-invent-api-identifier-02",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-misattribute-cve-06",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ghauthz-015-scope-expansion-01",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-graphql-028-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-graphql-028-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-graphql-028-remove-affected-version-01",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-graphql-028-remove-reproduction-step-05",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-headermiss-020-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-headermiss-020-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-headermiss-020-scope-expansion-02",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-add-irrelevant-detail-08",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-contradict-observed-result-07",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-fabricate-reference-04",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-impossible-precondition-06",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-invent-api-identifier-01",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-misattribute-cve-05",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-idor-004-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-info-006-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-info-006-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-info-006-scope-expansion-01",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-add-irrelevant-detail-07",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-contradict-observed-result-06",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-fabricate-reference-03",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-impossible-precondition-05",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-misattribute-cve-04",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-infodisc-016-remove-reproduction-step-08",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-jwtalg-026-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-jwtalg-026-confidence-overstatement-01",
+          "operator": "confidence_overstatement",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-jwtalg-026-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-jwtalg-026-remove-affected-version-05",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-jwtalg-026-remove-reproduction-step-04",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-loginject-031-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-loginject-031-confidence-overstatement-05",
+          "operator": "confidence_overstatement",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-loginject-031-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-loginject-031-remove-affected-version-04",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-loginject-031-remove-reproduction-step-03",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-massign-014-add-irrelevant-detail-06",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-contradict-observed-result-05",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-fabricate-reference-02",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-impossible-precondition-04",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-misattribute-cve-03",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-remove-affected-version-08",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-massign-014-remove-reproduction-step-07",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-norepro-009-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-norepro-009-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-norepro-009-scope-expansion-04",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oauthstate-029-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oauthstate-029-confidence-overstatement-04",
+          "operator": "confidence_overstatement",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oauthstate-029-professionalize-language-05",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oauthstate-029-remove-affected-version-03",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oauthstate-029-remove-reproduction-step-02",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oob-008-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oob-008-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-oob-008-scope-expansion-03",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-openred-015-add-irrelevant-detail-05",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-openred-015-contradict-observed-result-04",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-openred-015-fabricate-reference-01",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-openred-015-impact-inflation-08",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-openred-015-impossible-precondition-03",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "reject",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-openred-015-misattribute-cve-02",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-openred-015-remove-affected-version-07",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-openred-015-remove-reproduction-step-06",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "reject",
+            "accept"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-pair1a-cookie-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair2a-dirlist-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair3a-comment-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair4a-passpol-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair5a-health-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair6a-logout-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair7a-404-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pair8a-session-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-contradict-observed-result-03",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-impact-inflation-07",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-pathtrav-017-impossible-precondition-02",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-misattribute-cve-01",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-remove-affected-version-06",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-remove-reproduction-step-05",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-pathtrav-017-scope-expansion-08",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-perm-012-add-irrelevant-detail-05",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-perm-012-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-perm-012-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-perm-012-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-permdiff-020-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-permdiff-020-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-permdiff-020-remove-affected-version-01",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-permdiff-020-remove-reproduction-step-05",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-contradict-observed-result-02",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "reject",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-racecond-018-impact-inflation-06",
+          "operator": "impact_inflation",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-impossible-precondition-01",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "reject",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-racecond-018-invent-api-identifier-08",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-remove-affected-version-05",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-remove-reproduction-step-04",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-racecond-018-scope-expansion-07",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit-010-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit-010-confidence-overstatement-01",
+          "operator": "confidence_overstatement",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit-010-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit-010-remove-affected-version-05",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit-010-remove-reproduction-step-04",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit2-032-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit2-032-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit2-032-remove-affected-version-04",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ratelimit2-032-remove-reproduction-step-03",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-robots-022-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-robots-022-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-robots-022-scope-expansion-02",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-contradict-observed-result-01",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-impact-inflation-05",
+          "operator": "impact_inflation",
+          "decisions": [
+            "reject",
+            "accept",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-saml-019-invent-api-identifier-07",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-professionalize-language-08",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-remove-affected-version-04",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-remove-reproduction-step-03",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-saml-019-scope-expansion-06",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-selfreg-023-add-irrelevant-detail-04",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-selfreg-023-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-selfreg-023-scope-expansion-01",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-impact-inflation-04",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-invent-api-identifier-06",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-professionalize-language-07",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-remove-affected-version-03",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-remove-reproduction-step-02",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-sqlx-002-scope-expansion-05",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-fabricate-reference-08",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-impact-inflation-03",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-invent-api-identifier-05",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-professionalize-language-06",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-ssrf-005-scope-expansion-04",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-fabricate-reference-07",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-impact-inflation-02",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-invent-api-identifier-04",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-misattribute-cve-08",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-professionalize-language-05",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-remove-affected-version-01",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-tokenurl-013-scope-expansion-03",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-totiming-019-add-irrelevant-detail-01",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-totiming-019-professionalize-language-05",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-totiming-019-remove-affected-version-03",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-totiming-019-remove-reproduction-step-02",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "reject"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-verb-021-add-irrelevant-detail-03",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-verb-021-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-verb-021-scope-expansion-04",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-versiondisc-024-add-irrelevant-detail-02",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-versiondisc-024-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-versiondisc-024-scope-expansion-03",
+          "operator": "scope_expansion",
+          "decisions": [
+            "reject",
+            "reject",
+            "reject"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-fabricate-reference-06",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-impact-inflation-01",
+          "operator": "impact_inflation",
+          "decisions": [
+            "accept",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-websig-018-impossible-precondition-08",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-invent-api-identifier-03",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-misattribute-cve-07",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-websig-018-scope-expansion-02",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-wstoken-022-add-irrelevant-detail-05",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-wstoken-022-confidence-overstatement-03",
+          "operator": "confidence_overstatement",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-wstoken-022-professionalize-language-04",
+          "operator": "professionalize_language",
+          "decisions": [
+            "needs_manual_review",
+            "reject",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-wstoken-022-remove-affected-version-02",
+          "operator": "remove_affected_version",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-wstoken-022-remove-reproduction-step-01",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-contradict-observed-result-08",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-fabricate-reference-05",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-impossible-precondition-07",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-invent-api-identifier-02",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-misattribute-cve-06",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-professionalize-language-03",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsrf-003-scope-expansion-01",
+          "operator": "scope_expansion",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-add-irrelevant-detail-08",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-contradict-observed-result-07",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "accept",
+            "accept",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": true
+        },
+        {
+          "case_id": "mut-xssref-016-fabricate-reference-04",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-impossible-precondition-06",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-invent-api-identifier-01",
+          "operator": "invent_api_identifier",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-misattribute-cve-05",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xssref-016-professionalize-language-02",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-add-irrelevant-detail-07",
+          "operator": "add_irrelevant_detail",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-contradict-observed-result-06",
+          "operator": "contradict_observed_result",
+          "decisions": [
+            "needs_manual_review",
+            "needs_manual_review",
+            "needs_manual_review"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-fabricate-reference-03",
+          "operator": "fabricate_reference",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-impossible-precondition-05",
+          "operator": "impossible_precondition",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-misattribute-cve-04",
+          "operator": "misattribute_cve",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-professionalize-language-01",
+          "operator": "professionalize_language",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        },
+        {
+          "case_id": "mut-xsssto-013-remove-reproduction-step-08",
+          "operator": "remove_reproduction_step",
+          "decisions": [
+            "accept",
+            "accept",
+            "accept"
+          ],
+          "complete": true,
+          "changed": false
+        }
+      ]
+    }
+  },
+  "per_repeat": [
+    {
+      "repeat_index": 0,
+      "valid": 296,
+      "target_agreement": {
+        "canonical": {
+          "valid": 60,
+          "matches": 57
+        },
+        "mutated": {
+          "valid": 236,
+          "matches": 143
+        }
+      },
+      "decision_preserving_drift": {
+        "eligible": 141,
+        "paired": 140,
+        "missing_pairs": 1,
+        "changed": 8
+      },
+      "metrics": null
+    },
+    {
+      "repeat_index": 1,
+      "valid": 297,
+      "target_agreement": {
+        "canonical": {
+          "valid": 60,
+          "matches": 60
+        },
+        "mutated": {
+          "valid": 237,
+          "matches": 141
+        }
+      },
+      "decision_preserving_drift": {
+        "eligible": 141,
+        "paired": 141,
+        "missing_pairs": 0,
+        "changed": 2
+      },
+      "metrics": {
+        "evaluator_name": "llm-json",
+        "total_cases": 297,
+        "correct_cases": 201,
+        "decision_accuracy": 0.6767676767676768,
+        "false_reassurance_rate": 0.34285714285714286,
+        "false_reassurance_count": 84,
+        "over_rejection_rate": 0.0,
+        "over_rejection_count": 0,
+        "mutation_detection_rate": 0.020833333333333332,
+        "mutation_detection_total": 96,
+        "robustness_delta": 0.014184397163120567,
+        "presentation_susceptibility": 0.0,
+        "calibration_error": 0.2878451178451179,
+        "dimension_mae": {},
+        "per_class_accuracy": {
+          "invalid": 1.0,
+          "review": 0.9764705882352941,
+          "valid": 0.36486486486486486,
+          "canonical_overall": 1.0
+        },
+        "robustness_score": 0.4938,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 297,
+            "scored": 297,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 245,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 52,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 141,
+            "pairs_missing_parent": 0,
+            "considered": 141,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 39,
+            "pairs_unresolved": 0,
+            "children_considered": 39,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 297,
+            "binned": 297,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 0,
+            "undefined_reason": "no expected dimensions"
+          },
+          "per_class_accuracy": {
+            "groups": 4,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
+      }
+    },
+    {
+      "repeat_index": 2,
+      "valid": 297,
+      "target_agreement": {
+        "canonical": {
+          "valid": 60,
+          "matches": 59
+        },
+        "mutated": {
+          "valid": 237,
+          "matches": 142
+        }
+      },
+      "decision_preserving_drift": {
+        "eligible": 141,
+        "paired": 141,
+        "missing_pairs": 0,
+        "changed": 9
+      },
+      "metrics": {
+        "evaluator_name": "llm-json",
+        "total_cases": 297,
+        "correct_cases": 201,
+        "decision_accuracy": 0.6767676767676768,
+        "false_reassurance_rate": 0.3469387755102041,
+        "false_reassurance_count": 85,
+        "over_rejection_rate": 0.0,
+        "over_rejection_count": 0,
+        "mutation_detection_rate": 0.0625,
+        "mutation_detection_total": 96,
+        "robustness_delta": 0.06382978723404255,
+        "presentation_susceptibility": 0.02564102564102564,
+        "calibration_error": 0.287979797979798,
+        "dimension_mae": {},
+        "per_class_accuracy": {
+          "invalid": 1.0,
+          "review": 0.9294117647058824,
+          "valid": 0.3918918918918919,
+          "canonical_overall": 0.9833333333333333
+        },
+        "robustness_score": 0.5044,
+        "metric_coverage": {
+          "decision_accuracy": {
+            "presented": 297,
+            "scored": 297,
+            "unscored_no_expectation": 0,
+            "undefined_reason": null
+          },
+          "false_reassurance": {
+            "eligible": 245,
+            "undefined_reason": null
+          },
+          "over_rejection": {
+            "eligible": 52,
+            "undefined_reason": null
+          },
+          "mutation_detection": {
+            "eligible": 96,
+            "undefined_reason": null
+          },
+          "robustness_delta": {
+            "pairs": 141,
+            "pairs_missing_parent": 0,
+            "considered": 141,
+            "undefined_reason": null
+          },
+          "presentation_susceptibility": {
+            "pairs": 39,
+            "pairs_unresolved": 0,
+            "children_considered": 39,
+            "undefined_reason": null
+          },
+          "calibration_error": {
+            "observations": 297,
+            "binned": 297,
+            "out_of_range_excluded": 0,
+            "undefined_reason": null
+          },
+          "dimension_mae": {
+            "observations": 0,
+            "undefined_reason": "no expected dimensions"
+          },
+          "per_class_accuracy": {
+            "groups": 4,
+            "undefined_reason": null
+          },
+          "robustness_score": {
+            "undefined_reason": null
+          }
+        }
+      }
+    }
+  ]
+}

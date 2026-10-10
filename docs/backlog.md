@@ -51,8 +51,12 @@ to a future release's acceptance criteria.
   incomplete in the original study. A separately authorized one-call supplement
   completes the matched dataset at 451 total continuation calls: 137/237 mutation
   target matches, with 2/96 decision-changing target matches. Original failures
-  remain archived. Mutation repeat stability remains future work. These results
-  do not replace historical Dots observations.
+  remain archived. The [7 October three-pass study](nemotron-mutation-repeats-2026-10-07.md)
+  subsequently made 891 fresh calls: 890 valid responses, one failure. It provides
+  236 complete mutation triples (217 unanimous, 19 changed) and 60 complete
+  canonical triples (56 unanimous, four changed). One mutation response remains
+  missing; an optional separate supplement would require its own authorization.
+  These results do not replace historical Dots observations.
 - Live Jev workflow integration: the typed adapter is implemented and mock-tested,
   but is not wired into the manual chat-model workflow. Live Jev work is deferred
   under the user's current Nemotron choice.
@@ -65,5 +69,8 @@ to a future release's acceptance criteria.
   second-human packet (nine cards, 18 balanced edit pairs); structure and source
   integrity pass, and the requested p10 rationale correction is verified. See the
   [independent review](independent-human-review-2026-10-03.md). Additional human
-  raters, adjudication of disagreements and newly authored private inputs remain
-  future validation work.
+  raters and newly authored private inputs remain future validation work.
+  The [7 October assisted user adjudication](user-adjudication-2026-10-07.md)
+  decides the two card disagreements and accepts action uncertainty for the two
+  reviewed pairs. A definite action-change judgment still needs further evidence;
+  original human ratings and corpus targets remain unchanged.

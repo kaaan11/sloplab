@@ -1,0 +1,31 @@
+schema_version: 1
+id: canonical-headermiss-020
+title: Documentation site allows framing of its landing page in DemoVault docs
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - ui_redress_impact
+  expected_dimensions:
+    reproducibility: 0.87
+    evidence_completeness: 0.68
+    claim_evidence_consistency: 0.32
+    impact_calibration: 0.1
+    scope_consistency: 0.35
+  rationale: >
+    Observation is accurate but the framed page is informational only with no
+    sensitive action to redress; no security boundary exists. Reject is correct.
+sanitization_note: >-
+  Fully synthetic scenario; DemoVault docs are fictional static content.
+report:
+  path: canonical/headermiss-020/report.md

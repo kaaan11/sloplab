@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-deserial-030
+title: Import parser passes user blobs to a deserializer in SampleStack demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - code_execution_demonstrated
+  expected_dimensions:
+    reproducibility: 0.8
+    evidence_completeness: 0.62
+    claim_evidence_consistency: 0.68
+    impact_calibration: 0.58
+    scope_consistency: 0.66
+  rationale: >
+    Confirmed missing validation with deliberately unassessed exploitability;
+    honest scoping prevents both acceptance and rejection. Review is correct.
+sanitization_note: >-
+  Fully synthetic scenario; no gadget research performed or included.
+report:
+  path: canonical/deserial-030/report.md

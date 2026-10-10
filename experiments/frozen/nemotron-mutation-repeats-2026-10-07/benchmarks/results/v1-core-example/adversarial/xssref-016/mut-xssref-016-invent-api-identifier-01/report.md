@@ -1,0 +1,43 @@
+# Search error page renders raw query fragment in ToyTracker demo
+
+## Summary
+
+When a product search in the ToyTracker demo fails validation, the error page
+embeds a fragment of the submitted query directly into an HTML attribute without
+encoding, so crafted input can break out of the attribute context.
+
+This matches the vendor advisory identifier VND-9868 referenced in the component changelog.
+## Affected Component
+
+`SearchView.error_page()` in ToyTracker storefront, route
+`GET https://tracker.example.org/search?q=<term>`.
+
+## Affected Versions
+
+ToyTracker 0.9.0 through 0.9.4 (demo builds only).
+
+## Preconditions
+
+- None; search is anonymous.
+
+## Reproduction Steps
+
+1. Request `/search?q=cube" onmouseover="style.color='red'` from the demo host.
+2. Move the pointer over the rendered error message text.
+3. Inspect the applied inline style.
+
+## Observed Result
+
+The quote character closes the title attribute early and the remainder executes as
+markup attributes; hovering the message applies the injected style, confirming
+attribute-context breakout under the site origin.
+
+## Expected Security Boundary
+
+Reflected input must be encoded for its exact output context (HTML attribute), so
+quotes and angle brackets cannot terminate or extend markup.
+
+## Impact
+
+Reflected content injection against sandbox visitors who follow a crafted link.
+The demo carries no credentials worth capturing, limiting practical severity.

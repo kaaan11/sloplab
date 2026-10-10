@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-filetype-023
+title: Avatar upload accepts double-extension filenames in ToyTracker demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - script_execution_via_svg_confirmed
+  expected_dimensions:
+    reproducibility: 0.8
+    evidence_completeness: 0.66
+    claim_evidence_consistency: 0.62
+    impact_calibration: 0.5
+    scope_consistency: 0.58
+  rationale: >
+    Upload behavior fully mapped across two backends, but impact hinges on an
+    undocumented serving contract; honest deferral to manual review.
+sanitization_note: >-
+  Fully synthetic scenario; uploaded images are inert generated PNGs.
+report:
+  path: canonical/filetype-023/report.md

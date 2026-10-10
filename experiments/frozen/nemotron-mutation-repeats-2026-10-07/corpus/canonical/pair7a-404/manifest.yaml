@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-pair7a-404
+title: PlaygroundAPI error page shows the framework name on 404s
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: pair-007
+pair_role: plain
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - version_specific_exploitation
+  expected_dimensions:
+    reproducibility: 0.88
+    evidence_completeness: 0.62
+    claim_evidence_consistency: 0.24
+    impact_calibration: 0.06
+    scope_consistency: 0.29
+  rationale: >
+    Error-page branding duplicates README-published information; no boundary or
+    new capability involved. Reject.
+sanitization_note: >-
+  Fully synthetic scenario; PlaygroundAPI is fictional.
+report:
+  path: canonical/pair7a-404/report.md

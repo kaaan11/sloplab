@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-totiming-019
+title: Sign-in timing differences may distinguish existing usernames in MockMart demo
+source_type: synthetic
+license: CC0-1.0
+report_class: review
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: false
+  impact_class: low
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - username_enumeration_confirmed
+  expected_dimensions:
+    reproducibility: 0.5
+    evidence_completeness: 0.7
+    claim_evidence_consistency: 0.62
+    impact_calibration: 0.58
+    scope_consistency: 0.66
+  rationale: >
+    Careful measurement honestly reported as inconclusive across runs; neither
+    reject nor accept is supportable without attribution data or maintainer input.
+sanitization_note: >-
+  Fully synthetic scenario; MockMart is fictional.
+report:
+  path: canonical/totiming-019/report.md

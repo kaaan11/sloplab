@@ -1,0 +1,32 @@
+schema_version: 1
+id: canonical-dup-007
+title: Export feature allows CSV download of user's own data without extra confirmation in MockMart
+source_type: synthetic
+license: CC0-1.0
+report_class: invalid
+pair_id: null
+ground_truth:
+  reproducible: true
+  impact_class: none
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+  disallowed_claims:
+    - cross_user_access
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.75
+    claim_evidence_consistency: 0.4
+    impact_calibration: 0.12
+    scope_consistency: 0.3
+  rationale: >
+    Describes intended, documented behavior for self-service data export. The claimed
+    boundary (step-up authentication) is a product preference; no trust boundary is
+    crossed, so the correct triage decision is reject.
+sanitization_note: >-
+  Fully synthetic scenario; MockMart and shop.example.org are fictional demo assets.
+report:
+  path: canonical/dup-007/report.md

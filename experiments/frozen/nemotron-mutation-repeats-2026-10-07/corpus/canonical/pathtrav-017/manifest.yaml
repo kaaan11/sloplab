@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-pathtrav-017
+title: Download helper serves files outside the reports directory in ToyTracker
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - file_write_demonstrated
+  expected_dimensions:
+    reproducibility: 0.93
+    evidence_completeness: 0.88
+    claim_evidence_consistency: 0.91
+    impact_calibration: 0.82
+    scope_consistency: 0.86
+  rationale: >
+    Directory-escape read demonstrated against documented layout with placeholder
+    secrets acknowledged; write capability correctly not claimed.
+sanitization_note: >-
+  Fully synthetic scenario; traversal targets only the sandbox's own config file.
+report:
+  path: canonical/pathtrav-017/report.md

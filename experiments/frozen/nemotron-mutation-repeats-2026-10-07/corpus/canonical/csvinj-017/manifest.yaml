@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-csvinj-017
+title: Exported order CSV interprets leading formula characters in AcmePortal demo
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - malware_execution_demonstrated
+  expected_dimensions:
+    reproducibility: 0.9
+    evidence_completeness: 0.88
+    claim_evidence_consistency: 0.9
+    impact_calibration: 0.78
+    scope_consistency: 0.86
+  rationale: >
+    Formula-injection report with correct victim-side framing (export opener), an
+    inert documentation-standard payload, and no exaggerated execution claim.
+sanitization_note: >-
+  Fully synthetic scenario; payload demonstrates only the vendor prompt dialog.
+report:
+  path: canonical/csvinj-017/report.md

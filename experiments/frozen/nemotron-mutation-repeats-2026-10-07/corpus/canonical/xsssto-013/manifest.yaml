@@ -1,0 +1,33 @@
+schema_version: 1
+id: canonical-xsssto-013
+title: Stored markup injection persists through comment rendering in DemoVault
+source_type: synthetic
+license: CC0-1.0
+report_class: valid
+pair_id: null
+pair_role: null
+ground_truth:
+  reproducible: true
+  impact_class: medium
+  required_evidence:
+    - affected_component
+    - affected_versions
+    - preconditions
+    - reproduction_steps
+    - observed_result
+    - expected_security_boundary
+  disallowed_claims:
+    - session_hijack_demonstrated
+  expected_dimensions:
+    reproducibility: 0.91
+    evidence_completeness: 0.89
+    claim_evidence_consistency: 0.93
+    impact_calibration: 0.84
+    scope_consistency: 0.9
+  rationale: >
+    Complete stored-injection report with two-account verification and honest
+    severity framing limited to the demo environment.
+sanitization_note: >-
+  Fully synthetic scenario; payload is an inert non-resolving image element.
+report:
+  path: canonical/xsssto-013/report.md
