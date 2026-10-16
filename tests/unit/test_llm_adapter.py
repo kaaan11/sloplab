@@ -295,7 +295,11 @@ class TestHttpLLMClientTimeout:
             return type(self)._FakeResponse(body)
 
         monkeypatch.setenv("SLOPLAB_LLM_API_KEY", "test-key")
-        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(
+            urllib.request,
+            "build_opener",
+            lambda *handlers: type("Opener", (), {"open": staticmethod(fake_urlopen)})(),
+        )
 
         client = HttpLLMClient(
             model="m",
@@ -320,7 +324,11 @@ class TestHttpLLMClientTimeout:
             return type(self)._FakeResponse(body)
 
         monkeypatch.setenv("SLOPLAB_LLM_API_KEY", "test-key")
-        monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+        monkeypatch.setattr(
+            urllib.request,
+            "build_opener",
+            lambda *handlers: type("Opener", (), {"open": staticmethod(fake_urlopen)})(),
+        )
         client = HttpLLMClient(
             model="m",
             api_key_env="SLOPLAB_LLM_API_KEY",

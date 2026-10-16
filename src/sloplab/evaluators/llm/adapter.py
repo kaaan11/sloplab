@@ -57,6 +57,7 @@ import json
 import os
 import re
 import time
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -514,6 +515,13 @@ def _load_strict_document(text: str) -> Any:
         raise _ResponseFailure("parse.invalid_json") from exc
 
 
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Keep credentials at the configured endpoint; redirects are HTTP errors."""
+
+    def redirect_request(self, *args: Any, **kwargs: Any) -> None:
+        return None
+
+
 class HttpLLMClient:
     """Minimal HTTP client for live use. Never used with live settings by tests/CI.
 
@@ -603,10 +611,17 @@ class HttpLLMClient:
                 raise DeadlineExceeded("run deadline expired before HTTP dispatch")
             timeout = min(timeout, remaining)
         start = time.monotonic()
-        with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310
+        opener = urllib.request.build_opener(_NoRedirect)
+        with opener.open(request, timeout=timeout) as response:
             payload = _json.loads(response.read().decode())
         latency = int((time.monotonic() - start) * 1000)
-        message = payload.get("choices", [{}])[0].get("message", {})
+        # Empty or malformed provider envelopes follow the existing terminal
+        # parse.empty_response path, preserving dispatch accounting.
+        choices = payload.get("choices") if isinstance(payload, dict) else None
+        first = choices[0] if isinstance(choices, list) and choices else None
+        message = first.get("message") if isinstance(first, dict) else None
+        if not isinstance(message, dict):
+            message = {}
         content = message.get("content")
         # A null/absent content becomes "" (-> parse.empty_response), never a
         # transport error. An explicit OpenAI-compatible ``refusal`` string is

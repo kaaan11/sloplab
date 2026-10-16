@@ -244,7 +244,13 @@ def _http_client(monkeypatch: pytest.MonkeyPatch, message: dict[str, Any]) -> Ht
     body = json.dumps({"choices": [{"message": message}]}).encode()
     monkeypatch.setenv("A008_KEY", "k")
     monkeypatch.setattr(
-        urllib.request, "urlopen", lambda request, timeout=None: _FakeHttpResponse(body)
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type(
+            "Opener",
+            (),
+            {"open": staticmethod(lambda request, timeout=None: _FakeHttpResponse(body))},
+        )(),
     )
     return HttpLLMClient(model="m", api_key_env="A008_KEY", endpoint="https://example.invalid/v1")
 

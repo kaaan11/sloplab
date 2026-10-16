@@ -38,6 +38,7 @@ from sloplab.evaluators.jev.failures import (
     JevTransportError,
 )
 from sloplab.evaluators.jev.mapping import encode_request
+from sloplab.http_utils import retry_after_seconds
 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api"
 TYPESAFE_NATIVE_BASE_URL = "https://api.typesafe.ai"
@@ -98,22 +99,7 @@ def parse_retry_after(headers: Message | None) -> float | None:
     """Parse ``Retry-After`` (delta seconds or HTTP-date); ``None`` if unusable."""
     if headers is None:
         return None
-    raw = headers.get("Retry-After")
-    if raw is None:
-        return None
-    try:
-        seconds = float(raw)
-    except ValueError:
-        from email.utils import parsedate_to_datetime
-
-        try:
-            target = parsedate_to_datetime(raw)
-        except (TypeError, ValueError):
-            return None
-        return max(0.0, target.timestamp() - time.time())
-    if not math.isfinite(seconds):
-        return None
-    return max(0.0, seconds)
+    return retry_after_seconds(headers.get("Retry-After"), now=time.time())
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
