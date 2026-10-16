@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
@@ -25,7 +25,7 @@ jobs:
       - name: Type check
         run: uv run mypy src tests
       - name: Test
-        run: uv run pytest
+        run: uv run pytest --cov=sloplab --cov-report=term-missing
       - name: Validate corpus
         run: uv run sloplab validate corpus/
       - name: BYOE and offline HTML smoke

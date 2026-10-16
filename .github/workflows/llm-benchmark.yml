@@ -52,7 +52,7 @@ jobs:
           python-version: "3.13"
 
       - name: Install
-        run: uv sync --group dev
+        run: uv sync --locked --group dev
 
       - name: Verify environment configuration (no values printed)
         env:

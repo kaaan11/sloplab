@@ -32,7 +32,18 @@ def test_text_control_snapshot_reproduces_code_inputs_and_metrics(tmp_path: Path
     assert metrics_to_dict(compute_metrics(records, "text-quality-baseline")) == json.loads(
         (SNAPSHOT / "metrics-text-quality-baseline.json").read_text()
     )
-    provenance = json.loads((SNAPSHOT / "provenance.json").read_text())
+    provenance_bytes = (SNAPSHOT / "provenance.json").read_bytes()
+    provenance = json.loads(provenance_bytes)
+    revalidation = json.loads((SNAPSHOT / "maintenance-revalidation.json").read_text())
+    assert revalidation["schema_version"] == 1
+    assert (
+        revalidation["original_provenance_sha256"] == hashlib.sha256(provenance_bytes).hexdigest()
+    )
+    revalidated_sources = revalidation["source_file_sha256"]
+    assert set(revalidated_sources) == {
+        "src/sloplab/corpus/parser.py",
+        "src/sloplab/evaluators/text_quality.py",
+    }
     assert provenance["decision_counts"] == dict(Counter(str(r.decision) for r in records))
     assert provenance["authored_target_counts"] == dict(
         Counter(str(r.expected_decision) for r in records)
@@ -40,4 +51,5 @@ def test_text_control_snapshot_reproduces_code_inputs_and_metrics(tmp_path: Path
     for path, digest in provenance["artifact_sha256"].items():
         assert hashlib.sha256((SNAPSHOT / path).read_bytes()).hexdigest() == digest
     for path, digest in provenance["source_file_sha256"].items():
-        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == digest
+        expected_digest = revalidated_sources.get(path, digest)
+        assert hashlib.sha256((ROOT / path).read_bytes()).hexdigest() == expected_digest

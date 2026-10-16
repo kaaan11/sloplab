@@ -68,7 +68,7 @@ def analyze_variance(
         if fingerprint in fingerprints:
             raise VarianceError("same observation bundle supplied more than once")
         fingerprints.add(fingerprint)
-        manifest = json.loads((path / "manifest.json").read_text())
+        manifest = json.loads((path / "manifest.json").read_text(encoding="utf-8"))
         settings = {
             key: manifest.get(key)
             for key in (
@@ -87,7 +87,7 @@ def analyze_variance(
         group = groups.setdefault(condition, {"settings": settings, "sources": [], "cases": {}})
         group["sources"].append({"bundle_sha256": fingerprint, "base_seed": manifest["base_seed"]})
         records = {}
-        for line in (path / "records.jsonl").read_text().splitlines():
+        for line in (path / "records.jsonl").read_text(encoding="utf-8").splitlines():
             record = CaseRecord.model_validate_json(line)
             repeat = record.evaluation_metadata.get("repeat_index")
             if not isinstance(repeat, int) or isinstance(repeat, bool) or repeat < 0:
@@ -101,7 +101,7 @@ def analyze_variance(
                 raise VarianceError("invalid confidence observation")
             records[key] = record
         seen = set()
-        for line in (path / "outcomes.jsonl").read_text().splitlines():
+        for line in (path / "outcomes.jsonl").read_text(encoding="utf-8").splitlines():
             outcome = json.loads(line)
             repeat = outcome["repeat_index"]
             if not isinstance(repeat, int) or isinstance(repeat, bool) or repeat < 0:

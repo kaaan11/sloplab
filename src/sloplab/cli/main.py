@@ -10,7 +10,12 @@ import click
 
 from sloplab import __version__
 from sloplab.evaluators.base import Evaluator
-from sloplab.experiments.bundle import BundleError, open_result_dir
+from sloplab.experiments.bundle import (
+    COMPLETION_FILE_NAME,
+    IN_PROGRESS_FILE_NAME,
+    BundleError,
+    open_result_dir,
+)
 from sloplab.portable_paths import portable_path_str
 from sloplab.scoring.metrics import MetricBundle
 
@@ -319,6 +324,16 @@ def _metrics_filename(name: str) -> str:
     return f"metrics-{name}.json"
 
 
+def _check_legacy_output_dir(out_dir: Path) -> None:
+    """Refuse marked study/pilot outputs before a legacy writer changes them."""
+    for marker in (IN_PROGRESS_FILE_NAME, COMPLETION_FILE_NAME):
+        if (out_dir / marker).exists():
+            raise click.ClickException(
+                f"{out_dir}: contains {marker}; benchmark/evaluate write legacy bundles. "
+                "Choose a different output directory to preserve the existing bundle."
+            )
+
+
 def _select_evaluators(
     names: tuple[str, ...], modules: tuple[str, ...], plugins: tuple[str, ...] = ()
 ) -> list[Evaluator]:
@@ -404,9 +419,10 @@ def evaluate(
 
     from sloplab.reporting.writers import write_markdown_report
 
+    out_dir = _Path(out)
+    _check_legacy_output_dir(out_dir)
     selected = _select_evaluators(evaluators, evaluator_modules, evaluator_plugins)
     index_path, corpus_root, materialized_root = _resolve_suite_index(cases)
-    out_dir = _Path(out)
     bundles = _run_evaluators_over_suite(
         selected, index_path, corpus_root, materialized_root, out_dir, "evaluate", 0
     )
@@ -459,10 +475,11 @@ def benchmark(
     )
     from sloplab.reporting.writers import write_markdown_report, write_records_csv
 
+    out_dir = _Path(out)
+    _check_legacy_output_dir(out_dir)
     selected = _select_evaluators(evaluators, evaluator_modules, evaluator_plugins)
     suite_path = _Path(suite)
     config = load_suite_config(suite_path)
-    out_dir = _Path(out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     if do_materialize:
@@ -483,6 +500,13 @@ def benchmark(
         click.echo(result.summary())
     else:
         corpus_root = _resolve_corpus_root(config.corpus_root, suite_path)
+
+    index_path = out_dir / SUITE_INDEX_NAME
+    if not index_path.is_file():
+        raise click.ClickException(
+            f"{index_path}: suite-index.jsonl is missing; run materialize first "
+            "or omit --no-materialize"
+        )
 
     # A rerun owns the evaluation artifacts in its output directory. Invalidate
     # them only now — after validation and materialization — so a later failure
@@ -506,7 +530,6 @@ def benchmark(
                 "refusing to evaluate a partial unsafe suite"
             )
 
-    index_path = out_dir / SUITE_INDEX_NAME
     bundles = _run_evaluators_over_suite(
         selected,
         index_path,
@@ -816,7 +839,7 @@ def compare(results: tuple[str, ...]) -> None:
             continue
         metric_files = sorted(metrics_dir.glob("metrics-*.json"))
         for mfile in metric_files:
-            data = json.loads(mfile.read_text())
+            data = json.loads(mfile.read_text(encoding="utf-8"))
             name = data.get("evaluator_name", mfile.stem)
             summaries[(source_key, name)] = (
                 f"{source_token}:{name} ({source_label})",
@@ -900,7 +923,7 @@ def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -
             bundles,
             f"SlopLab results (analysis v{document.get('analysis_version')})",
         )
-        click.echo(rendered.read_text())
+        click.echo(rendered.read_text(encoding="utf-8"))
         return
 
     try:
@@ -926,7 +949,7 @@ def report(results: str, fmt: str, out: str | None, analysis_path: str | None) -
         bundles,
         f"SlopLab results ({metadata.suite_name if metadata else 'unknown suite'})",
     )
-    click.echo(rendered.read_text())
+    click.echo(rendered.read_text(encoding="utf-8"))
 
 
 @cli.command("variance")
@@ -969,7 +992,7 @@ def variance(
     rendered = json.dumps(result, indent=2, allow_nan=False) + "\n"
     if out:
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_text(rendered)
+        out.write_text(rendered, encoding="utf-8")
         click.echo(f"variance report written to {out}")
     else:
         click.echo(rendered, nl=False)

@@ -46,7 +46,6 @@ SYNTHETIC_PERSONS: tuple[str, ...] = (
     "D. Reviewer",
 )
 
-_FAKE_CVE_RE = re.compile(rf"CVE-{FAKE_CVE_YEAR}-\d{{4,}}", re.IGNORECASE)
 _ANY_CVE_RE = re.compile(r"CVE-(\d{4})-\d{4,}", re.IGNORECASE)
 _URL_CONTROL_WHITESPACE = "\t\r\n"
 _URL_START_RE = re.compile(

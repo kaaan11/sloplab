@@ -83,3 +83,14 @@ There is no trained local-model adapter in this implementation.
 The evaluator ignores labels, paths, fixture identifiers, operator identities
 and case-name contents. It echoes only the provided case handle. There are no
 content-specific truth targets or mutation-pattern detectors in this control.
+
+## Historical snapshot maintenance
+
+The 2026-10-03 snapshot retains its original `provenance.json`, 297 records,
+input identity and metrics. Maintenance fixes #108, #94 and #100 were revalidated
+on 2026-10-16: fresh records, inputs and metrics match the published artifacts.
+The sibling `maintenance-revalidation.json` binds the original provenance hash
+and the exact updated parser and text-quality evaluator source hashes. The
+snapshot regression test accepts those specific hashes and continues to enforce
+the original hashes for every other pinned source and artifact; later source
+changes require another explicit revalidation.

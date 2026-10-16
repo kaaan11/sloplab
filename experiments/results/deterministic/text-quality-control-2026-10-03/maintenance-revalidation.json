@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "revalidated_on": "2026-10-16",
+  "original_provenance_sha256": "40e87b0be2adcd1d9e660e767cf11746188e20c65b4b0c2d1086c022b64709d9",
+  "reason": "Maintenance fixes #108, #94 and #100: parser fence/ATX handling, section-target denominator, and mutation decision mapping retain all 297 historical records, input identity and metrics byte-for-byte. Original snapshot provenance and artifacts remain unchanged.",
+  "source_file_sha256": {
+    "src/sloplab/corpus/parser.py": "31ab60047489d9e61a93e1b5fe5d047ac0db03bfa2766d5834e22641285ca4dd",
+    "src/sloplab/evaluators/text_quality.py": "6355d4ae2646081f252375fde8588765984632807e23445c89bf3a96881cbbed"
+  }
+}
