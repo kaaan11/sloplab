@@ -196,6 +196,19 @@ def taxonomy_by_group(records: list[CaseRecord], key_fn: Any) -> dict[str, dict[
 # ---------------------------------------------------------------------------
 
 
+def _percentile_indices(size: int, ci: float) -> tuple[int, int]:
+    """Validate the bootstrap parameters and bound both percentile indices."""
+    if not 0 < ci < 1:
+        raise ValueError(f"ci must be in (0, 1), got {ci}")
+    if size < 1:
+        raise ValueError(f"resamples must be >= 1, got {size}")
+    alpha = (1.0 - ci) / 2
+    return (
+        max(0, min(int(alpha * size), size - 1)),
+        max(0, min(int((1 - alpha) * size), size - 1)),
+    )
+
+
 def bootstrap_accuracy_ci(
     records: list[CaseRecord],
     *,
@@ -204,6 +217,7 @@ def bootstrap_accuracy_ci(
     seed: int = 0,
 ) -> tuple[float, float, float]:
     """Percentile bootstrap CI for decision accuracy. Deterministic given seed."""
+    lo_idx, hi_idx = _percentile_indices(resamples, ci)
     if not records:
         return 0.0, 0.0, 0.0
     rng = random.Random(seed)
@@ -213,9 +227,6 @@ def bootstrap_accuracy_ci(
         sample_correct = sum(1 for _ in range(n) if records[rng.randrange(n)].correct)
         values.append(sample_correct / n)
     values.sort()
-    alpha = (1.0 - ci) / 2
-    lo_idx = int(alpha * resamples)
-    hi_idx = min(int((1 - alpha) * resamples), resamples - 1)
     point = sum(1 for r in records if r.correct) / n
     return values[lo_idx], point, values[hi_idx]
 
@@ -308,10 +319,9 @@ def cluster_bootstrap_accuracy_ci(
     acc(minuend) - acc(subtrahend) is unambiguous. ``pair_merge`` reads
     ``applied`` when pair ids actually merged fixtures, else ``skipped``
     (per-fixture fallback). Raises ``ValueError`` for ``resamples < 1``,
-    empty records, or if zero clusters resolve.
+    ``ci`` outside (0, 1), empty records, or if zero clusters resolve.
     """
-    if resamples < 1:
-        raise ValueError(f"resamples must be >= 1, got {resamples}")
+    lo_idx, hi_idx = _percentile_indices(resamples, ci)
     if not records:
         raise ValueError("cluster bootstrap needs non-empty records")
     pairs = pair_ids or {}
@@ -368,8 +378,7 @@ def cluster_bootstrap_accuracy_ci(
 
     def percentile(values: list[float]) -> tuple[float, float]:
         ordered = sorted(values)
-        size = len(ordered)
-        return ordered[int((1.0 - ci) / 2 * size)], ordered[int((1.0 - (1.0 - ci) / 2) * size)]
+        return ordered[lo_idx], ordered[hi_idx]
 
     accuracy = {name: percentile(acc_values[name]) for name in names}
     paired: dict[str, tuple[float, float, float]] | None = None

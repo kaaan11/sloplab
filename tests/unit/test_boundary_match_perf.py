@@ -3,9 +3,10 @@
 The tempered ``no boundary <clause> crossed`` patterns must stay fast on
 adversarial repetitive near-miss input (reports are untrusted input). The
 pattern-level tests exercise the match iterator the evaluator itself uses;
-the evaluate-level tests cover the whole ``evaluate()`` path. Bounds are
-generous on purpose: the pre-fix code takes multiple seconds here, the fixed
-code takes well under a tenth of a second.
+the evaluate-level tests cover the whole ``evaluate()`` path. CPU-time bounds
+exclude scheduling delays on busy CI runners and are generous on purpose:
+the pre-fix code takes multiple seconds here, the fixed code takes well under
+a tenth of a second.
 """
 
 from __future__ import annotations
@@ -72,32 +73,32 @@ def _evaluate_boundary(boundary: str) -> object:
 
 def test_match_iterator_40k_near_miss() -> None:
     text = _near_miss(40_000)
-    started = time.perf_counter()
+    started = time.process_time()
     list(rules_baseline._iter_no_boundary_matches(text))
-    assert time.perf_counter() - started < 0.5
+    assert time.process_time() - started < 0.5
 
 
 def test_match_iterator_80k_near_miss() -> None:
     text = _near_miss(80_000)
-    started = time.perf_counter()
+    started = time.process_time()
     list(rules_baseline._iter_no_boundary_matches(text))
-    assert time.perf_counter() - started < 0.5
+    assert time.process_time() - started < 0.5
 
 
 def test_match_iterator_80k_between_near_miss() -> None:
     text = ("no boundary between things " * 3000)[:80_000]
-    started = time.perf_counter()
+    started = time.process_time()
     list(rules_baseline._iter_no_boundary_matches(text))
-    assert time.perf_counter() - started < 0.5
+    assert time.process_time() - started < 0.5
 
 
 def test_full_evaluate_40k_near_miss() -> None:
-    started = time.perf_counter()
+    started = time.process_time()
     _evaluate_boundary(_near_miss(40_000))
-    assert time.perf_counter() - started < 1.0
+    assert time.process_time() - started < 1.0
 
 
 def test_full_evaluate_80k_near_miss() -> None:
-    started = time.perf_counter()
+    started = time.process_time()
     _evaluate_boundary(_near_miss(80_000))
-    assert time.perf_counter() - started < 1.0
+    assert time.process_time() - started < 1.0

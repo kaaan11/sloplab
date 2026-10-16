@@ -38,10 +38,18 @@ def read_run_jsonl(path: Path) -> tuple[RunMetadata | None, list[CaseRecord]]:
 
 
 def default_run_metadata(**overrides: Any) -> RunMetadata:
+    """Build provenance defaults; every explicit override takes precedence."""
     import platform
     import subprocess
 
     from sloplab import __version__
+
+    unknown = overrides.keys() - RunMetadata.model_fields.keys()
+    if unknown:
+        raise ValueError(
+            f"unknown run metadata fields: {', '.join(sorted(unknown))}; "
+            f"allowed fields: {', '.join(sorted(RunMetadata.model_fields))}"
+        )
 
     git_commit: str | None = None
     try:
@@ -65,7 +73,7 @@ def default_run_metadata(**overrides: Any) -> RunMetadata:
         "base_seed": overrides.get("base_seed", 0),
         "evaluators": overrides.get("evaluators", []),
     }
-    fields.update({k: v for k, v in overrides.items() if k not in fields or v})
+    fields.update(overrides)
     return RunMetadata.model_validate(fields)
 
 
