@@ -1,4 +1,4 @@
-"""Tests for the six V1 mutation operators: behavior, determinism, safety."""
+"""Tests for mutation operators: behavior, determinism, safety."""
 
 import random
 import re
@@ -6,16 +6,21 @@ from typing import Any
 
 import pytest
 
+import sloplab.mutations.base as base_module
 import sloplab.mutations.operators.presentation as presentation_module
 from sloplab.corpus.loader import load_canonical_fixture
 from sloplab.corpus.parser import parse_report
 from sloplab.models.enums import Decision, ReportClass
-from sloplab.mutations.base import derive_seed, get_operator, list_operators
+from sloplab.mutations.base import derive_seed, get_operator, list_operators, register
 from sloplab.mutations.operators.evidence import (
     RemoveAffectedVersion,
     RemoveReproductionStep,
 )
-from sloplab.mutations.operators.impact import ImpactInflation, ScopeExpansion
+from sloplab.mutations.operators.impact import (
+    _INFLATION_SENTENCES,
+    ImpactInflation,
+    ScopeExpansion,
+)
 from sloplab.mutations.operators.presentation import (
     AddAuthorizationPreamble,
     ConfidenceOverstatement,
@@ -121,7 +126,7 @@ class TestOperatorBehavior:
         doc = valid_report
         mutated, _ = ContradictObservedResult().apply(doc, random.Random(3))
         observed = _section(mutated, r"observed")
-        assert observed is not None and "403" in observed or "could not reproduce" in observed
+        assert observed is not None and ("403" in observed or "could not reproduce" in observed)
 
     def test_add_irrelevant_detail_appends_section(self, valid_report: Any) -> None:
         doc = valid_report
@@ -154,7 +159,8 @@ class TestOperatorBehavior:
     def test_impact_inflation_escalates_language(self, valid_report: Any) -> None:
         doc = valid_report
         mutated, params = ImpactInflation().apply(doc, random.Random(7))
-        assert "critical" in params.get("appended_sentence", "").lower() or True
+        assert params["appended_sentence"] in _INFLATION_SENTENCES
+        assert params["appended_sentence"] in mutated
         impact_text = _section(mutated, r"impact")
         assert "critical" in impact_text.lower()
 
@@ -241,9 +247,7 @@ Low impact on demo data.
         mutated, _ = ConfidenceOverstatement().apply(doc, random.Random(7))
 
         assert "unlikely" in mutated.lower()
-        # Guard only, NOT RED evidence: "likelihood" contains no "likely"
-        # substring (no 'y'), so even the pre-fix unbounded pattern never
-        # matched it; the RED-on-base signal in this test is "unlikely".
+        # Preserve adjacent prose as well as the boundary-sensitive "unlikely".
         assert "likelihood" in mutated.lower()
         assert "certainly exploitable" in mutated.lower()
 
@@ -258,16 +262,6 @@ Low impact on demo data.
                 assert not pattern.search("unlikely")
                 assert not pattern.search("likelihood")
                 assert replacement == "certainly"
-
-    def test_hedge_globally_respects_hyphen_boundaries(self) -> None:
-        doc = parse_report(
-            "# T\n\n## Summary\n\nIt was likely-ish and most-likely here.\n",
-            fixture_id="canonical-hyphen-001",
-            path="x",
-        )
-        mutated, params = ConfidenceOverstatement().apply(doc, random.Random(3))
-        assert mutated == doc.raw_text
-        assert params == {"note": "no hedged language found outside code fences"}
 
 
 HEDGE_PATTERN_EXPECTED = r"(?<" + "!" + r"[\w-])likely(?" + "!" + r"[\w-])"
@@ -339,14 +333,31 @@ class TestSafetyOfOutputs:
 
 
 class TestSpecTables:
-    def test_valid_parent_expected_decisions(self) -> None:
-        for op_cls in ALL_OPS:
-            decision = op_cls.spec.expected_decision(ReportClass.VALID)
-            assert decision in (
-                Decision.NEEDS_MANUAL_REVIEW,
-                Decision.REJECT,
-                Decision.ACCEPT,
-            )
+    @pytest.mark.parametrize(
+        ("op_cls", "valid_decision"),
+        [
+            (RemoveReproductionStep, Decision.NEEDS_MANUAL_REVIEW),
+            (RemoveAffectedVersion, Decision.ACCEPT),
+            (ImpactInflation, Decision.NEEDS_MANUAL_REVIEW),
+            (ScopeExpansion, Decision.NEEDS_MANUAL_REVIEW),
+            (InventApiIdentifier, Decision.NEEDS_MANUAL_REVIEW),
+            (ProfessionalizeLanguage, Decision.ACCEPT),
+            (ProfessionalizeStyle, Decision.ACCEPT),
+            (AddAuthorizationPreamble, Decision.ACCEPT),
+            (ConfidenceOverstatement, Decision.ACCEPT),
+            (FabricateReference, Decision.NEEDS_MANUAL_REVIEW),
+            (MisattributeCve, Decision.NEEDS_MANUAL_REVIEW),
+            (ImpossiblePrecondition, Decision.REJECT),
+            (ContradictObservedResult, Decision.REJECT),
+            (AddIrrelevantDetail, Decision.ACCEPT),
+        ],
+    )
+    def test_expected_decisions_by_parent_class(
+        self, op_cls: Any, valid_decision: Decision
+    ) -> None:
+        assert op_cls.spec.expected_decision(ReportClass.VALID) == valid_decision
+        assert op_cls.spec.expected_decision(ReportClass.INVALID) == Decision.REJECT
+        assert op_cls.spec.expected_decision(ReportClass.REVIEW) == Decision.NEEDS_MANUAL_REVIEW
 
     def test_professionalize_keeps_class_decisions(self) -> None:
         spec = ProfessionalizeLanguage.spec
@@ -365,3 +376,67 @@ def _section(text: str, pattern: str) -> str:
 
     doc = parse_report(text, fixture_id="_t", path="_t.md")
     return doc.section_text(pattern)
+
+
+@pytest.mark.parametrize(
+    "first_name, second_name", [("foo_bar", "foo-bar"), ("foo-bar", "foo_bar")]
+)
+def test_registry_rejects_colliding_case_id_slugs(
+    monkeypatch: pytest.MonkeyPatch, first_name: str, second_name: str
+) -> None:
+    from dataclasses import replace
+
+    monkeypatch.setattr(base_module, "_REGISTRY", {})
+    first, second = ProfessionalizeStyle(), ProfessionalizeStyle()
+    first.spec = replace(first.spec, name=first_name)
+    second.spec = replace(second.spec, name=second_name)
+    register(first)
+    with pytest.raises(ValueError, match="case-id slug 'foo-bar'.*already used"):
+        register(second)
+    assert list_operators() == [first_name]
+    assert get_operator(first_name) is first
+
+
+@pytest.mark.parametrize(
+    "op_cls",
+    [
+        ProfessionalizeStyle,
+        ProfessionalizeLanguage,
+        ConfidenceOverstatement,
+        AddAuthorizationPreamble,
+    ],
+)
+@pytest.mark.parametrize("fence", ["~~~", "~~~~", "```", "````"])
+def test_presentation_operators_preserve_fenced_code(op_cls: Any, fence: str) -> None:
+    other = "```" if fence.startswith("~") else "~~~"
+    code = (
+        f"{fence}text\n# fake title\ncapture( 'payload-1' ) may allow a bug!!\n"
+        f"{other}\n{fence[:3]}not a closer\n{fence[:-1]}\n# another fake title\n{fence}\n"
+    )
+    doc = parse_report(
+        code + "# Real title\n\nthis bug may allow access!!\n", fixture_id="fenced", path="x"
+    )
+    mutated, _ = op_cls().apply(doc, random.Random(7))
+    assert mutated.startswith(code)
+    if op_cls in (ProfessionalizeLanguage, AddAuthorizationPreamble):
+        assert mutated.index("authorized testing") > mutated.index("# Real title")
+    if op_cls is ConfidenceOverstatement:
+        assert "this bug allows access" in mutated
+    if op_cls in (ProfessionalizeStyle, ProfessionalizeLanguage):
+        assert "This defect may allow access." in mutated
+
+
+def test_confidence_overstatement_uses_grammatical_copula() -> None:
+    doc = parse_report("# T\n\nThe flag appears to be set.\n", fixture_id="copula", path="x")
+    mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+    assert "The flag is set." in mutated
+    assert params["certainty_upgrades"] == ["appears to be->is"]
+
+
+def test_confidence_overstatement_preserves_non_copula_rewrite() -> None:
+    doc = parse_report(
+        "# T\n\nThe flaw appears to allow access.\n", fixture_id="non-copula", path="x"
+    )
+    mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+    assert "The flaw does allow access." in mutated
+    assert params["certainty_upgrades"] == ["appears to->does"]

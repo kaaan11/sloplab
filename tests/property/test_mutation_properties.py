@@ -49,7 +49,6 @@ def test_provenance_invariants(sample_reports: list[Any]) -> None:
                     op_name,
                     variant,
                 )
-                _ = seed
 
 
 def test_safety_across_seeds(sample_reports: list[Any]) -> None:

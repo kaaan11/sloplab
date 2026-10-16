@@ -7,12 +7,43 @@ Reports are structured with ATX headings. Fenced code blocks are tracked so that
 from __future__ import annotations
 
 import re
+from collections.abc import Iterator
 
 from sloplab.models.report import ReportDocument, ReportSection, SourceLocation
 
-_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})[ \t]+(?P<text>.*)$")
+_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})(?:[ \t]+(?P<text>.*)|$)")
 _ATX_CLOSING_RE = re.compile(r"[ \t]+#+[ \t]*$")
 _FENCE_RE = re.compile(r"^\s*(?P<fence>`{3,}|~{3,})")
+
+
+def iter_fenced_lines(text: str) -> Iterator[tuple[bool, str]]:
+    """Yield lines with their fence status, including both delimiter lines.
+
+    Backtick and tilde fences close only on the same character, at least the
+    opening length, followed by whitespace alone. Unclosed fences protect the
+    rest of the document.
+    """
+    fence_marker = ""
+    fence_length = 0
+    for line in text.splitlines():
+        match = _FENCE_RE.match(line)
+        if fence_marker:
+            yield True, line
+            if match:
+                marker = match.group("fence")
+                if (
+                    marker[0] == fence_marker
+                    and len(marker) >= fence_length
+                    and not line[match.end() :].strip()
+                ):
+                    fence_marker = ""
+                    fence_length = 0
+        elif match:
+            marker = match.group("fence")
+            fence_marker, fence_length = marker[0], len(marker)
+            yield True, line
+        else:
+            yield False, line
 
 
 def parse_report(
@@ -27,9 +58,6 @@ def parse_report(
     current_heading: str | None = None
     current_level = 0
     section_start = 1
-    in_fence = False
-    fence_marker = ""
-    fence_length = 0
 
     def close_section(end_line: int) -> None:
         body = "\n".join(lines[section_start - 1 : end_line]).strip("\n")
@@ -44,24 +72,7 @@ def parse_report(
             )
         )
 
-    for index, line in enumerate(lines, start=1):
-        fence_match = _FENCE_RE.match(line)
-        if fence_match:
-            marker = fence_match.group("fence")
-            if not in_fence:
-                in_fence = True
-                fence_marker = marker[0]
-                fence_length = len(marker)
-            elif (
-                marker[0] == fence_marker
-                and len(marker) >= fence_length
-                and not line[fence_match.end() :].strip()
-            ):
-                in_fence = False
-                fence_marker = ""
-                fence_length = 0
-            continue
-
+    for index, (in_fence, line) in enumerate(iter_fenced_lines(raw_text), start=1):
         if in_fence:
             continue
 
@@ -70,7 +81,7 @@ def parse_report(
             # Skip an empty preamble when the document starts with a heading.
             if not (current_heading is None and section_start > index - 1):
                 close_section(index - 1)
-            heading_text = heading_match.group("text").rstrip(" \t")
+            heading_text = (heading_match.group("text") or "").rstrip(" \t")
             if re.fullmatch(r"#+", heading_text):
                 heading_text = ""
             else:
