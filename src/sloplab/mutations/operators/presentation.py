@@ -242,8 +242,14 @@ class ConfidenceOverstatement:
     @staticmethod
     def _compile_hedge(phrase: str) -> re.Pattern[str]:
         """Hedge matcher with the contract's hyphen-aware lookarounds."""
+        suffix = ""
+        if phrase == "appears to":
+            # The copula rule owns every "appears to be" occurrence, including
+            # those left unchanged by its first-occurrence-only contract.
+            suffix = r"(?" + NOT + r"\s+be\b)"
         return re.compile(
-            r"(?<" + NOT + r"[\w-])" + re.escape(phrase) + r"(?" + NOT + r"[\w-])", re.IGNORECASE
+            r"(?<" + NOT + r"[\w-])" + re.escape(phrase) + r"(?" + NOT + r"[\w-])" + suffix,
+            re.IGNORECASE,
         )
 
     def apply(

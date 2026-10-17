@@ -8,6 +8,8 @@ import random
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from sloplab import __version__
 from sloplab.corpus.loader import discover_fixtures
 from sloplab.corpus.parser import parse_report
@@ -416,3 +418,19 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     # Ledger counts unchanged (fix changes bytes, not populations).
     assert "planned 280" in result.summary()
     assert "written 237" in result.summary()
+
+
+@pytest.mark.parametrize("level", range(1, 7))
+def test_bare_atx_heading_spans_can_be_edited(level: int) -> None:
+    heading = "#" * level
+    doc = parse_report(f"{heading}\nbody\n## Tail\ntail\n", fixture_id="bare", path="x")
+    section = doc.sections[0]
+    identity = document_identity(doc)
+    assert section.heading == ""
+    assert section.level == level
+    assert span_authorized(doc, section, expected_document_identity=identity)
+    assert remove_section(doc, section, expected_document_identity=identity) == "## Tail\ntail"
+    assert (
+        replace_section_body(doc, section, "updated", expected_document_identity=identity)
+        == f"{heading}\nupdated\n## Tail\ntail"
+    )

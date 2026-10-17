@@ -256,7 +256,10 @@ Low impact on demo data.
         for phrase, replacement in ConfidenceOverstatement._HEDGES:
             pattern = ConfidenceOverstatement._compile_hedge(phrase)
             assert pattern.search(phrase) is not None
-            assert pattern.pattern == r"(?<![\w-])" + re.escape(phrase) + r"(?![\w-])"
+            expected = r"(?<![\w-])" + re.escape(phrase) + r"(?![\w-])"
+            if phrase == "appears to":
+                expected += r"(?!\s+be\b)"
+            assert pattern.pattern == expected
             # 'likely' inside 'unlikely'/'likelihood' must not match.
             if phrase == "likely":
                 assert not pattern.search("unlikely")
@@ -439,4 +442,33 @@ def test_confidence_overstatement_preserves_non_copula_rewrite() -> None:
     )
     mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
     assert "The flaw does allow access." in mutated
+    assert params["certainty_upgrades"] == ["appears to->does"]
+
+
+@pytest.mark.parametrize("non_copula", ["", "The issue appears to allow access. "])
+def test_repeated_copulas_do_not_fall_through_to_generic_hedge(non_copula: str) -> None:
+    text = (
+        "# T\n\nThe flag appears to be set. "
+        "The permission appears to be enabled. " + non_copula + "\n"
+    )
+    doc = parse_report(text, fixture_id="repeated-copula", path="x")
+    mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+    assert "The flag is set." in mutated
+    # Each hedge still changes at most one occurrence. The remaining copula
+    # must stay intact, and cannot steal the generic non-copula rewrite.
+    assert "The permission appears to be enabled." in mutated
+    assert "does be" not in mutated
+    expected = ["appears to be->is"]
+    if non_copula:
+        assert "The issue does allow access." in mutated
+        expected.append("appears to->does")
+    assert params["certainty_upgrades"] == expected
+
+
+def test_non_copula_hedge_still_matches_become() -> None:
+    doc = parse_report(
+        "# T\n\nThe flag appears to become enabled.\n", fixture_id="become", path="x"
+    )
+    mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+    assert "The flag does become enabled." in mutated
     assert params["certainty_upgrades"] == ["appears to->does"]
