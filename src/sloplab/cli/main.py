@@ -166,6 +166,8 @@ def materialize(suite: str, out: str) -> None:
     from sloplab.corpus.loader import FixtureError, discover_fixtures
     from sloplab.mutations.materialize import load_suite_config, materialize_suite
 
+    out_dir = _Path(out)
+    _check_legacy_output_dir(out_dir)
     config = load_suite_config(_Path(suite))
     corpus_root = _resolve_corpus_root(config.corpus_root, _Path(suite))
     try:
@@ -178,7 +180,7 @@ def materialize(suite: str, out: str) -> None:
             f"check 'corpus_root' in {suite}"
         )
 
-    result = materialize_suite(config, canonical, _Path(out), corpus_root_resolved=corpus_root)
+    result = materialize_suite(config, canonical, out_dir, corpus_root_resolved=corpus_root)
     click.echo(result.summary())
     if result.safety_violations:
         raise SystemExit(1)
@@ -326,12 +328,15 @@ def _metrics_filename(name: str) -> str:
 
 def _check_legacy_output_dir(out_dir: Path) -> None:
     """Refuse marked study/pilot outputs before a legacy writer changes them."""
-    for marker in (IN_PROGRESS_FILE_NAME, COMPLETION_FILE_NAME):
-        if (out_dir / marker).exists():
-            raise click.ClickException(
-                f"{out_dir}: contains {marker}; benchmark/evaluate write legacy bundles. "
-                "Choose a different output directory to preserve the existing bundle."
-            )
+    resolved = out_dir.resolve()
+    for directory in (resolved, *resolved.parents):
+        for marker in (IN_PROGRESS_FILE_NAME, COMPLETION_FILE_NAME):
+            if (directory / marker).exists():
+                raise click.ClickException(
+                    f"{directory}: contains {marker}; "
+                    "benchmark/evaluate/materialize write legacy bundles. "
+                    "Choose a different output directory to preserve the existing bundle."
+                )
 
 
 def _select_evaluators(

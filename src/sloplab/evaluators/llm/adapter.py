@@ -24,7 +24,7 @@ Design constraints (decision D-0010):
   ``parse.invalid_*``); ``refusal`` (``refusal.provider`` for a provider-native
   refusal field, ``refusal.text_pattern`` for a response containing no ``{``
   whose start matches :data:`REFUSAL_PATTERNS`); ``http-permanent``
-  (``http.<status>`` for 4xx other than 408/429). All of these are terminal:
+  (``http.<status>`` for 3xx/4xx other than 408/429). All of these are terminal:
   retrying the same prompt is not expected to change them. Refusal detection is
   a conservative surface-form rule, not a semantic judgement; everything it
   misses stays a ``parse`` failure.
@@ -310,7 +310,7 @@ class LlmEvaluator:
 
         Success keeps returning :class:`EvaluationResult`. Terminal errors
         (JSON syntax / strict-format / schema failures, refusals, permanent
-        HTTP 4xx, spent budget, refused deadline waits) raise immediately
+        HTTP 3xx/4xx, spent budget, refused deadline waits) raise immediately
         without retry; timeouts, transports, and explicit rate-limit
         backpressure use the configured retries. Every attempt of one call
         renders the same prompt. ``adapter_attempts`` counts logical attempts
