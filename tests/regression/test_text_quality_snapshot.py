@@ -28,7 +28,6 @@ def test_text_control_snapshot_reproduces_code_inputs_and_metrics(tmp_path: Path
     assert len(records) == 297
     fresh_bytes = "".join(r.model_dump_json() + "\n" for r in records).encode()
     assert fresh_bytes == (SNAPSHOT / "records.jsonl").read_bytes()
-    assert build_input_identity(cases) == json.loads((SNAPSHOT / "input-identity.json").read_text())
     assert metrics_to_dict(compute_metrics(records, "text-quality-baseline")) == json.loads(
         (SNAPSHOT / "metrics-text-quality-baseline.json").read_text()
     )
@@ -39,6 +38,24 @@ def test_text_control_snapshot_reproduces_code_inputs_and_metrics(tmp_path: Path
     assert (
         revalidation["original_provenance_sha256"] == hashlib.sha256(provenance_bytes).hexdigest()
     )
+    # #111 changes one report's capitalization; historical inputs stay frozen.
+    changes = revalidation["input_identity_changes"]
+    assert changes["reason"] == "#111 case-preserving confidence substitution"
+    assert [change["case_id"] for change in changes["cases"]] == [
+        "mut-ratelimit-010-confidence-overstatement-01"
+    ]
+    change = changes["cases"][0]
+    expected_identity = json.loads((SNAPSHOT / "input-identity.json").read_text())
+    assert expected_identity["inputs_hash"] == changes["old_inputs_hash"]
+    assert changes["old_inputs_hash"] != changes["new_inputs_hash"]
+    expected_identity["inputs_hash"] = changes["new_inputs_hash"]
+    affected = [row for row in expected_identity["cases"] if row["case_id"] == change["case_id"]]
+    assert len(affected) == 1
+    for key in ("report_hash", "input_hash"):
+        assert affected[0][key] == change[f"old_{key}"]
+        assert change[f"old_{key}"] != change[f"new_{key}"]
+        affected[0][key] = change[f"new_{key}"]
+    assert build_input_identity(cases) == expected_identity
     revalidated_sources = revalidation["source_file_sha256"]
     assert set(revalidated_sources) == {
         "src/sloplab/corpus/parser.py",

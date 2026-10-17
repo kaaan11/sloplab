@@ -1,10 +1,24 @@
 {
   "schema_version": 1,
-  "revalidated_on": "2026-10-16",
+  "revalidated_on": "2026-10-17",
   "original_provenance_sha256": "40e87b0be2adcd1d9e660e767cf11746188e20c65b4b0c2d1086c022b64709d9",
-  "reason": "Maintenance fixes #108, #94 and #100: parser fence/ATX handling, section-target denominator, and mutation decision mapping retain all 297 historical records, input identity and metrics byte-for-byte. Original snapshot provenance and artifacts remain unchanged.",
+  "reason": "Maintenance fixes #108, #94 and #100: parser fence/ATX handling, section-target denominator, and mutation decision mapping retain all 297 historical records, input identity and metrics byte-for-byte. #111 case-preserving confidence substitution changes only the input identity documented below; records and metrics still match. Original snapshot provenance and artifacts remain unchanged.",
   "source_file_sha256": {
     "src/sloplab/corpus/parser.py": "31ab60047489d9e61a93e1b5fe5d047ac0db03bfa2766d5834e22641285ca4dd",
     "src/sloplab/evaluators/text_quality.py": "6355d4ae2646081f252375fde8588765984632807e23445c89bf3a96881cbbed"
+  },
+  "input_identity_changes": {
+    "reason": "#111 case-preserving confidence substitution",
+    "old_inputs_hash": "29086b976c48d0fd33f81dd6bd110292b9e258f68f0ee9333398f46dde297ca1",
+    "new_inputs_hash": "b8427195cb3eb206f38b114434b0f5dd9e78da667399b7d237e630d49019ca9f",
+    "cases": [
+      {
+        "case_id": "mut-ratelimit-010-confidence-overstatement-01",
+        "old_input_hash": "f03a32fa59e3ba856b9dc1b0cccd04222a65be3cf8e24b0458d8db033c45e1c9",
+        "new_input_hash": "10a581d2f4d3a4dacdd3fc753080c9c03dd401f04427f195a2c7408fa2c8ade4",
+        "old_report_hash": "2e31f021e5c4f8e22f189e4a8ea4a015bb9af06c295afc3dacbc04a7977564c9",
+        "new_report_hash": "037cf3e2b8ee7bf6294e389e243cc81751495fca96942d5b71cc9b939fe209dd"
+      }
+    ]
   }
 }
