@@ -91,6 +91,13 @@ def _match_case(match: re.Match[str], replacement: str) -> str:
     return replacement if match.group(0).islower() else replacement.capitalize()
 
 
+def _match_confidence_case(match: re.Match[str], replacement: str) -> str:
+    """Preserve all-caps certainty cues, otherwise follow the first letter."""
+    if match.group(0).isupper():
+        return replacement.upper()
+    return replacement.capitalize() if match.group(0)[0].isupper() else replacement
+
+
 def _rewrite_unfenced(text: str, transform: Callable[[str], str]) -> str:
     """Apply ``transform`` to every unfenced chunk and reassemble the text."""
     parts: list[str] = []
@@ -270,7 +277,11 @@ class ConfidenceOverstatement:
             rebuilt: list[str] = []
             for _index, (is_fenced, chunk) in enumerate(chunks):
                 if not replaced and not is_fenced and pattern.search(chunk):
-                    rebuilt.append(pattern.sub(new, chunk, count=1))
+                    rebuilt.append(
+                        pattern.sub(
+                            partial(_match_confidence_case, replacement=new), chunk, count=1
+                        )
+                    )
                     replaced = True
                     applied.append(f"{old}->{new}")
                 else:

@@ -429,6 +429,75 @@ def test_presentation_operators_preserve_fenced_code(op_cls: Any, fence: str) ->
         assert "This defect may allow access." in mutated
 
 
+@pytest.mark.parametrize(
+    "phrase, replacement",
+    [
+        ("may allow", "allows"),
+        ("might allow", "allows"),
+        ("could potentially allow", "allows"),
+        ("could allow", "allows"),
+        ("possibly", "certainly"),
+        ("potentially", "definitively"),
+        ("appears to be", "is"),
+        ("appears to", "does"),
+        ("suggesting that", "proving that"),
+        ("likely", "certainly"),
+        ("unclear whether", "confirmed that"),
+    ],
+)
+@pytest.mark.parametrize(
+    "case_style",
+    ["lowercase", "sentence-initial", "title", "all-caps", "mixed-lowercase", "mixed-capitalised"],
+)
+def test_confidence_overstatement_preserves_case(
+    phrase: str, replacement: str, case_style: str
+) -> None:
+    upgrade = f"{phrase}->{replacement}"
+    if case_style == "sentence-initial":
+        phrase, replacement = phrase.capitalize(), replacement.capitalize()
+    elif case_style == "title":
+        phrase, replacement = phrase.title(), replacement.capitalize()
+    elif case_style == "all-caps":
+        phrase, replacement = phrase.upper(), replacement.upper()
+    elif case_style == "mixed-lowercase":
+        phrase = phrase[0] + phrase[1:].upper()
+    elif case_style == "mixed-capitalised":
+        phrase = "".join(
+            char.upper() if index % 2 == 0 else char for index, char in enumerate(phrase)
+        )
+        replacement = replacement.capitalize()
+    fenced = f"```text\n{phrase} access.\n```\n\n"
+    text = f"# T\n\n{fenced}{phrase} access."
+    doc = parse_report(text, fixture_id="certainty", path="x")
+
+    mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
+
+    assert mutated == f"# T\n\n{fenced}{replacement} access."
+    assert params["certainty_upgrades"] == [upgrade]
+
+
+@pytest.mark.parametrize(
+    "op_cls, expected",
+    [
+        (
+            ProfessionalizeLanguage,
+            "# T\n\nThis report summarizes findings obtained exclusively through authorized "
+            "testing of a sandboxed demo environment.\n\nThis Defect is Functionally incorrect.",
+        ),
+        (ProfessionalizeStyle, "# T\n\nThis Defect is Functionally incorrect."),
+    ],
+)
+def test_professionalization_preserves_historical_all_caps_output(
+    op_cls: Any, expected: str
+) -> None:
+    doc = parse_report("# T\n\nThis BUG is BROKEN.", fixture_id="register", path="x")
+
+    mutated, params = op_cls().apply(doc, random.Random(7))
+
+    assert mutated == expected
+    assert params["transformations"] == ["register:bug", "register:broken"]
+
+
 def test_confidence_overstatement_uses_grammatical_copula() -> None:
     doc = parse_report("# T\n\nThe flag appears to be set.\n", fixture_id="copula", path="x")
     mutated, params = ConfidenceOverstatement().apply(doc, random.Random(7))
