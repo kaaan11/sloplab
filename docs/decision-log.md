@@ -173,3 +173,16 @@ Each entry records a material engineering decision, its context, and consequence
   run's outcomes. Previous studies, corpus targets and published coverage
   snapshots keep their existing inputs and results. A trained local-model adapter
   and release tagging remain separate work.
+
+## D-0016 - Keep benchmark/evaluate legacy output semantics explicit
+
+- **Date:** 2026-10-16
+- **Decision:** For issue #109, retain the documented marker-less output format of
+  `benchmark` and `evaluate`. These commands reject a destination containing either
+  publication marker before mutating files or dispatching evaluators. Reuse of a
+  completed or interrupted study/pilot directory requires a different destination.
+- **Limits:** Legacy outputs have no completion or integrity guarantee. An
+  interrupted legacy run can contain a partial evaluator subset; consumers must
+  wait for successful command completion. Use `study` or the LLM pilot when
+  marker-verified publication is required. Existing readers and old bundles keep
+  their established behavior.

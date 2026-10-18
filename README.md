@@ -22,7 +22,7 @@ a scanner, or an exploit framework.
 ## What it does
 
 - Loads Markdown vulnerability-report fixtures with structured manifests.
-- Applies controlled, traceable mutations (12 deterministic operators in V1).
+- Applies controlled, traceable mutations (14 deterministic operators).
 - Runs pluggable evaluators through a normalized contract.
 - Measures how much each mutation degrades triage decisions.
 - Produces reproducible JSONL / CSV / Markdown / offline HTML benchmark reports.
@@ -56,7 +56,11 @@ uv run sloplab report benchmarks/results/my-run/run.jsonl
 
 `sloplab benchmark` writes a plain result directory without a completion marker, so
 `report`/`compare` print `note: ... is a legacy bundle without integrity guarantees`.
-That note is expected here. Integrity-marked bundles (completion marker and hash
+That note is expected here. `benchmark` and `evaluate` intentionally write legacy
+bundles: interrupted runs can contain partial results, so consume them only after
+the command succeeds. They reject output directories containing publication
+markers before changing any files; use a different directory for study/pilot outputs.
+Integrity-marked bundles (completion marker and hash
 verification) are written by `sloplab study` and the LLM pilot.
 
 Bring your own **trusted local Python evaluator**, alongside the baseline, without

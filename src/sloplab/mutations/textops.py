@@ -5,15 +5,15 @@ from __future__ import annotations
 import hashlib
 import re
 
+from sloplab.corpus.parser import _ATX_CLOSING_RE
+from sloplab.corpus.parser import _HEADING_RE as _ATX_HEADING_RE
 from sloplab.models.report import ReportDocument, ReportSection
 
 _NUMBERED_STEP_RE = re.compile(r"^\s*\d+[.)]\s+")
-_ATX_HEADING_RE = re.compile(r"^(?P<hashes>#{1,6})[ \t]+(?P<text>.*)$")
-_ATX_CLOSING_RE = re.compile(r"[ \t]+#+[ \t]*$")
 # Mirrors parser.py fence syntax (single source of truth stays there; the
 # equality is pinned by test so profile drift fails loudly, not silently).
 _FENCE_RE = re.compile(r"^\s*(?P<fence>`{3,}|~{3,})")
-_HEADING_LINE_RE = re.compile(r"^#{1,6}\s+")
+_HEADING_LINE_RE = _ATX_HEADING_RE
 
 
 class StaleSpanError(ValueError):
@@ -172,7 +172,7 @@ def span_authorized(
     match = _ATX_HEADING_RE.match(raw_lines[start - 1])
     if match is None:
         return False
-    heading_text = match.group("text").rstrip(" \t")
+    heading_text = (match.group("text") or "").rstrip(" \t")
     if re.fullmatch(r"#+", heading_text):
         heading_text = ""
     else:

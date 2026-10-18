@@ -303,7 +303,11 @@ def test_http_deadline_bounds_urlopen_timeout(monkeypatch: pytest.MonkeyPatch) -
         _ = request
         return _FakeHttpResponse(_valid_payload_text())
 
-    monkeypatch.setattr(urllib.request, "urlopen", _fake_urlopen)
+    monkeypatch.setattr(
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type("Opener", (), {"open": staticmethod(_fake_urlopen)})(),
+    )
     fake = FakeClock(now=500.0)
     monkeypatch.setattr(adapter_module, "time", fake)
 

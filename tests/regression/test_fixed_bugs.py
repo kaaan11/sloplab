@@ -2,8 +2,14 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
+import pytest
+
+from sloplab.corpus.loader import FixtureError, load_canonical_fixture
 from sloplab.corpus.parser import parse_report
 from sloplab.safety.policy import is_reserved_host
+from tests._helpers import write_canonical_fixture
 
 
 def test_regression_empty_preamble_after_leading_heading() -> None:
@@ -13,23 +19,23 @@ def test_regression_empty_preamble_after_leading_heading() -> None:
     assert not [s for s in doc.sections if s.heading is None and not s.text.strip()]
 
 
-def test_regression_directory_name_suffix_matching() -> None:
-    """Bug: fixture directory check used split('-') which broke multi-dash ids
-    like canonical-sql-injection-003. Now uses removeprefix."""
-    from pathlib import Path
+@pytest.mark.parametrize("directory", ["sql-injection-003", "canonical-sql-injection-003"])
+def test_regression_directory_name_suffix_matching(tmp_path: Path, directory: str) -> None:
+    """Multi-dash IDs accept their full ID or the complete canonical suffix."""
+    fixture = write_canonical_fixture(
+        tmp_path, directory, fixture_id="canonical-sql-injection-003", title="SQL injection"
+    )
+    loaded = load_canonical_fixture(fixture, tmp_path)
+    assert loaded.manifest.id == "canonical-sql-injection-003"
 
-    from sloplab.corpus.loader import FixtureError
 
-    # A mismatched directory must still be caught after the fix.
-    try:
-        load = __import__(
-            "sloplab.corpus.loader", fromlist=["load_canonical_fixture"]
-        ).load_canonical_fixture
-        load(Path("nonexistent"), Path("nonexistent"))
-        raised = False
-    except (FixtureError, FileNotFoundError):
-        raised = True
-    assert raised  # loader fails cleanly; the split bug itself is covered in unit tests
+@pytest.mark.parametrize("directory", ["injection-003", "003", "unrelated"])
+def test_regression_directory_name_mismatch(tmp_path: Path, directory: str) -> None:
+    fixture = write_canonical_fixture(
+        tmp_path, directory, fixture_id="canonical-sql-injection-003", title="SQL injection"
+    )
+    with pytest.raises(FixtureError, match="does not match directory name"):
+        load_canonical_fixture(fixture, tmp_path)
 
 
 def test_regression_url_regex_includes_backtick_terminator() -> None:

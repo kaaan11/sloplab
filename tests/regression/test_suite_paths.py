@@ -84,15 +84,14 @@ def test_missing_corpus_root_fails_loudly(tmp_path: Path) -> None:
     assert "no canonical fixtures" in result.output
 
 
-def test_console_script_works_from_any_directory(tmp_path: Path) -> None:
-    """The installed console script resolves repo-relative corpus roots via the
-    suite file's ancestor directories (verified via subprocess isolation)."""
-    repo_root = Path(__file__).resolve().parents[2]
-    suite = repo_root / "benchmarks" / "suites" / "smoke-config-check.yaml"
-
-    # Build a tiny suite that references the repo corpus relatively.
+def test_console_script_works_from_any_directory(tmp_path: Path, make_fixture: Any) -> None:
+    """Resolve a relative corpus root from suite ancestors in a foreign cwd."""
     import yaml
 
+    workspace = tmp_path / "project"
+    make_fixture(workspace / "corpus", "cwd-001", fixture_id="canonical-cwd-001", title="Cwd check")
+    suite = workspace / "benchmarks" / "suites" / "smoke-config-check.yaml"
+    suite.parent.mkdir(parents=True)
     suite.write_text(
         yaml.safe_dump(
             {
@@ -101,60 +100,49 @@ def test_console_script_works_from_any_directory(tmp_path: Path) -> None:
                 "corpus_root": "corpus",
                 "include_canonical_cases": True,
                 "policies": {
-                    "invalid": {
-                        "variants_per_fixture": 1,
-                        "operators": ["professionalize_language"],
-                    },
-                    "valid": {"variants_per_fixture": 0, "operators": ["impact_inflation"]},
-                    "review": {"variants_per_fixture": 0, "operators": ["impact_inflation"]},
-                    "presentation_pair": {
-                        "variants_per_fixture": 0,
-                        "operators": ["confidence_overstatement"],
-                    },
+                    "valid": {"variants_per_fixture": 1, "operators": ["impact_inflation"]},
                 },
             }
         ),
         encoding="utf-8",
     )
-    try:
-        proc = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "sloplab.cli.main",
-                "benchmark",
-                str(suite),
-                "--evaluator",
-                "rules-baseline",
-                "--out",
-                str(tmp_path / "o"),
-                "--no-materialize",
-            ],
-            capture_output=True,
-            text=True,
-            cwd=tmp_path,
-            timeout=120,
-        )
-        # With --no-materialize there is no fresh index; command should still fail
-        # gracefully rather than crash - but our target is resolution, so run a
-        # real materialization from the foreign cwd instead.
-        out_dir = tmp_path / "o2"
-        proc = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "sloplab.cli.main",
-                "materialize",
-                str(suite),
-                "--out",
-                str(out_dir),
-            ],
-            capture_output=True,
-            text=True,
-            cwd=tmp_path,
-            timeout=300,
-        )
-        assert proc.returncode == 0, proc.stderr[-500:]
-        assert (out_dir / "suite-index.jsonl").is_file()
-    finally:
-        suite.unlink(missing_ok=True)
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sloplab.cli.main",
+            "benchmark",
+            str(suite),
+            "--evaluator",
+            "rules-baseline",
+            "--out",
+            str(tmp_path / "missing-index"),
+            "--no-materialize",
+        ],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        timeout=120,
+    )
+    assert proc.returncode != 0
+    assert "suite-index.jsonl" in proc.stdout + proc.stderr
+    assert "Traceback" not in proc.stdout + proc.stderr
+
+    out_dir = tmp_path / "materialized"
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "sloplab.cli.main",
+            "materialize",
+            str(suite),
+            "--out",
+            str(out_dir),
+        ],
+        capture_output=True,
+        text=True,
+        cwd=tmp_path,
+        timeout=120,
+    )
+    assert proc.returncode == 0, proc.stdout + proc.stderr
+    assert (out_dir / "suite-index.jsonl").is_file()

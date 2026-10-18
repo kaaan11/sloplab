@@ -24,6 +24,7 @@ from sloplab.evaluators.llm.failures import (
 )
 from sloplab.experiments.config import LLMPilotConfig
 from sloplab.experiments.runner import current_commit_sha
+from sloplab.http_utils import retry_after_seconds
 from sloplab.models.run import CaseRecord
 from sloplab.scoring.comparison import repeat_stability
 from sloplab.scoring.harness import SuiteCase
@@ -298,30 +299,10 @@ class ThrottledClient:
 
     @staticmethod
     def _retry_after_seconds(exc: Exception) -> float | None:
-        import math
-
         headers = getattr(exc, "headers", None)
         if getattr(exc, "code", None) != 429 or headers is None:
             return None
-        raw = headers.get("Retry-After")
-        if raw is None:
-            return None
-        try:
-            seconds = float(raw)
-        except ValueError:
-            try:
-                from email.utils import parsedate_to_datetime
-
-                target = parsedate_to_datetime(raw)
-                delta = target.timestamp() - time.time()
-                return max(0.0, delta)
-            except (TypeError, ValueError):
-                return None
-        # Non-finite values (e.g. "inf") would hang the run forever; treat them
-        # as absent and let the evaluator's retry loop proceed after pacing.
-        if not math.isfinite(seconds):
-            return None
-        return max(0.0, seconds)
+        return retry_after_seconds(headers.get("Retry-After"), now=time.time())
 
     def complete(self, prompt: str) -> LLMResponse:
         now = time.monotonic()

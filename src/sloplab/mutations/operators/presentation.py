@@ -13,6 +13,7 @@ from collections.abc import Callable
 from functools import partial
 from typing import Any
 
+from sloplab.corpus.parser import iter_fenced_lines
 from sloplab.models.enums import (
     CLAIM_EVIDENCE_CONSISTENCY,
     IMPACT_CALIBRATION,
@@ -65,35 +66,22 @@ HEDGE = re.compile(r"(?<" + NOT + r"[\w-])likely(?" + NOT + r"[\w-])", re.IGNORE
 def split_code_fences(text: str) -> list[tuple[bool, str]]:
     """Split ``text`` into ``(is_fenced, chunk)`` segments preserving order.
 
-    A fenced segment starts at a line beginning with ``` (after stripping) and
-    ends at the matching closing-fence line; the fence delimiter lines themselves
-    belong to the fenced chunk so they are never rewritten.
+    Backtick and tilde delimiters use the report parser's fence rules. Delimiter
+    lines themselves belong to the fenced chunk so they are never rewritten.
     """
     chunks: list[tuple[bool, str]] = []
     current: list[str] = []
     current_fenced = False
-    in_fence = False
 
     def flush() -> None:
         if current:
             chunks.append((current_fenced, "\n".join(current)))
 
-    for line in text.splitlines():
-        if line.strip().startswith("```"):
-            if not in_fence:
-                flush()
-                current, current_fenced = [line], True
-                in_fence = True
-            else:
-                current.append(line)
-                flush()
-                current, current_fenced = [], False
-                in_fence = False
-        else:
-            if not in_fence and current_fenced:
-                # already flushed above; start a fresh unfenced chunk
-                pass
-            current.append(line)
+    for is_fenced, line in iter_fenced_lines(text):
+        if is_fenced != current_fenced:
+            flush()
+            current, current_fenced = [], is_fenced
+        current.append(line)
     flush()
     return chunks
 
@@ -101,6 +89,13 @@ def split_code_fences(text: str) -> list[tuple[bool, str]]:
 def _match_case(match: re.Match[str], replacement: str) -> str:
     """Preserve capitalization of the first letter where needed."""
     return replacement if match.group(0).islower() else replacement.capitalize()
+
+
+def _match_confidence_case(match: re.Match[str], replacement: str) -> str:
+    """Preserve all-caps certainty cues, otherwise follow the first letter."""
+    if match.group(0).isupper():
+        return replacement.upper()
+    return replacement.capitalize() if match.group(0)[0].isupper() else replacement
 
 
 def _rewrite_unfenced(text: str, transform: Callable[[str], str]) -> str:
@@ -132,13 +127,8 @@ def _professionalize_style(text: str) -> tuple[str, list[str]]:
 
     text = _rewrite_unfenced(text, transform)
     out_lines: list[str] = []
-    in_fence = False
-    for line in text.splitlines():
+    for in_fence, line in iter_fenced_lines(text):
         stripped = line.strip()
-        if stripped.startswith("```"):
-            in_fence = not in_fence
-            out_lines.append(line)
-            continue
         if not in_fence and stripped and stripped[0].islower() and not stripped.startswith("#"):
             line = line.replace(stripped[0], stripped[0].upper(), 1)
         out_lines.append(line)
@@ -148,11 +138,7 @@ def _professionalize_style(text: str) -> tuple[str, list[str]]:
 def _add_authorization_preamble(text: str) -> str:
     """Insert the historical cue after the first H1, outside fenced code."""
     lines = text.splitlines()
-    in_fence = False
-    for index, line in enumerate(lines):
-        if line.strip().startswith("```"):
-            in_fence = not in_fence
-            continue
+    for index, (in_fence, line) in enumerate(iter_fenced_lines(text)):
         if not in_fence and line.startswith("# "):
             lines.insert(index + 1, "")
             lines.insert(index + 2, _POLITE_PREAMBLE.rstrip())
@@ -253,6 +239,7 @@ class ConfidenceOverstatement:
         ("could allow", "allows"),
         ("possibly", "certainly"),
         ("potentially", "definitively"),
+        ("appears to be", "is"),
         ("appears to", "does"),
         ("suggesting that", "proving that"),
         ("likely", "certainly"),
@@ -262,8 +249,14 @@ class ConfidenceOverstatement:
     @staticmethod
     def _compile_hedge(phrase: str) -> re.Pattern[str]:
         """Hedge matcher with the contract's hyphen-aware lookarounds."""
+        suffix = ""
+        if phrase == "appears to":
+            # The copula rule owns every "appears to be" occurrence, including
+            # those left unchanged by its first-occurrence-only contract.
+            suffix = r"(?" + NOT + r"\s+be\b)"
         return re.compile(
-            r"(?<" + NOT + r"[\w-])" + re.escape(phrase) + r"(?" + NOT + r"[\w-])", re.IGNORECASE
+            r"(?<" + NOT + r"[\w-])" + re.escape(phrase) + r"(?" + NOT + r"[\w-])" + suffix,
+            re.IGNORECASE,
         )
 
     def apply(
@@ -284,7 +277,11 @@ class ConfidenceOverstatement:
             rebuilt: list[str] = []
             for _index, (is_fenced, chunk) in enumerate(chunks):
                 if not replaced and not is_fenced and pattern.search(chunk):
-                    rebuilt.append(pattern.sub(new, chunk, count=1))
+                    rebuilt.append(
+                        pattern.sub(
+                            partial(_match_confidence_case, replacement=new), chunk, count=1
+                        )
+                    )
                     replaced = True
                     applied.append(f"{old}->{new}")
                 else:

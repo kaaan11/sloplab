@@ -60,6 +60,14 @@ _REGISTRY: dict[str, MutationOperator] = {}
 
 
 def register(operator: MutationOperator) -> None:
+    name = operator.spec.name
+    slug = name.replace("_", "-")
+    for existing_name in _REGISTRY:
+        if existing_name != name and existing_name.replace("_", "-") == slug:
+            raise ValueError(
+                f"mutation operator '{name}' has case-id slug '{slug}', "
+                f"already used by '{existing_name}'"
+            )
     _REGISTRY[operator.spec.name] = operator
 
 

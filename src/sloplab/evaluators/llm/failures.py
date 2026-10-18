@@ -30,8 +30,8 @@ from sloplab.models.evaluation import EvaluationResult
 #: :data:`PARSE_SCHEMA_DETAILS`). ``refusal`` (A-008) marks an explicit model
 #: refusal: a provider-native refusal field, or a JSON-free response matching the
 #: adapter's small documented refusal pattern set (terminal). ``http-permanent``
-#: (A-008) marks an HTTP 4xx status other than 408/429 (terminal: auth, invalid
-#: request, unknown model do not heal on retry). Existing kinds keep their
+#: (A-008) marks an HTTP 3xx/4xx status other than 408/429 (terminal: redirects,
+#: auth, invalid request, unknown model do not heal on retry). Existing kinds keep their
 #: names; new kinds are appended.
 ERROR_KINDS = (
     "parse",
@@ -123,7 +123,7 @@ def classify_dispatch_error(exc: BaseException) -> tuple[str, str, bool]:
 
     Terminal (never retried): spent budget and deadline refusal — retrying
     cannot succeed — and permanent HTTP statuses (an integer ``code`` in
-    400-499 other than 408 Request Timeout and 429 Too Many Requests), whose
+    300-499 other than 408 Request Timeout and 429 Too Many Requests), whose
     detail is ``http.<status>``. Retriable: timeouts, transports (including
     HTTP 5xx and 408), and explicit 429 / provider backpressure. Detail codes
     are stable strings; exception text (which may carry credentials, URLs, or
@@ -139,7 +139,7 @@ def classify_dispatch_error(exc: BaseException) -> tuple[str, str, bool]:
     if (
         isinstance(code, int)
         and not isinstance(code, bool)
-        and 400 <= code <= 499
+        and 300 <= code <= 499
         and code not in _HTTP_TRANSIENT_4XX
     ):
         return ("http-permanent", f"http.{code}", False)

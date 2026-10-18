@@ -240,7 +240,9 @@ class TextQualityBaselineEvaluator:
             confidence=0.5,
             dimensions=DimensionScores(
                 reproducibility=round(reproducibility, 6),
-                evidence_completeness=round(math.fsum(section_scores.values()) / 7, 6),
+                evidence_completeness=round(
+                    math.fsum(section_scores.values()) / len(_SECTION_TARGETS), 6
+                ),
                 claim_evidence_consistency=0.5,
                 impact_calibration=0.5,
                 scope_consistency=0.5,

@@ -244,7 +244,13 @@ def _http_client(monkeypatch: pytest.MonkeyPatch, message: dict[str, Any]) -> Ht
     body = json.dumps({"choices": [{"message": message}]}).encode()
     monkeypatch.setenv("A008_KEY", "k")
     monkeypatch.setattr(
-        urllib.request, "urlopen", lambda request, timeout=None: _FakeHttpResponse(body)
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type(
+            "Opener",
+            (),
+            {"open": staticmethod(lambda request, timeout=None: _FakeHttpResponse(body))},
+        )(),
     )
     return HttpLLMClient(model="m", api_key_env="A008_KEY", endpoint="https://example.invalid/v1")
 
@@ -274,6 +280,25 @@ def test_http_client_null_content_is_empty_response(monkeypatch: pytest.MonkeyPa
 
 
 # --- permanent vs transient HTTP ----------------------------------------------
+
+
+@pytest.mark.parametrize("status", [300, 301, 302, 308, 399])
+def test_redirect_http_error_is_terminal(status: int) -> None:
+    exc = urllib.error.HTTPError("https://example.org/v1", status, "Redirect", Message(), None)
+    assert classify_dispatch_error(exc) == ("http-permanent", f"http.{status}", False)
+
+
+def test_redirect_dispatch_is_not_retried() -> None:
+    exc = urllib.error.HTTPError("https://example.org/v1", 302, "Redirect", Message(), None)
+    transport = _Raising(exc)
+    counting = CountingClient(transport, max_requests=10)
+    with pytest.raises(EvaluationFailure) as exc_info:
+        _evaluate(counting, max_retries=3)
+    assert transport.calls == 1
+    assert exc_info.value.adapter_attempts == 1
+    assert (exc_info.value.error_kind, exc_info.value.detail) == ("http-permanent", "http.302")
+    assert counting.physical_dispatches == 1
+    assert counting.errors == 1
 
 
 @pytest.mark.parametrize("status", [400, 401, 403, 404, 413, 422])

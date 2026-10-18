@@ -118,7 +118,9 @@ class TestMaterialization:
         one_dir = next(out.glob("adversarial/*/*/"))
         manifest = yaml.safe_load((one_dir / "mutation-manifest.yaml").read_text())
         assert manifest["parent_id"].startswith("canonical-")
-        assert manifest["expected_decision"] in {"accept", "reject", "needs_manual_review"}
+        plans, _ = plan_suite(config, fixtures)
+        planned = next(plan for plan in plans if plan.case_id == one_dir.name)
+        assert manifest["expected_decision"] == planned.expected_decision.value
         assert (one_dir / "report.md").exists()
 
     def test_materialization_is_deterministic(self, corpus: Path) -> None:

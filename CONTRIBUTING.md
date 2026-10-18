@@ -8,7 +8,7 @@ evaluators are against degraded report content.
 ```bash
 git clone <repo-url> && cd sloplab
 uv sync --group dev                      # install with dev tooling
-uv run pytest                            # full test suite, offline
+uv run pytest --cov=sloplab --cov-report=term-missing  # offline tests + coverage
 uv run sloplab validate corpus/          # validate the committed corpus
 uv run sloplab benchmark benchmarks/suites/v1-core.yaml \
     --evaluator rules-baseline --out /tmp/my-benchmark

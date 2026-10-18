@@ -148,7 +148,11 @@ def test_deadline_race_returns_reservation_unconsumed(
         _ = request
         return _FakeHttpResponse(_valid_payload_text())
 
-    monkeypatch.setattr(urllib.request, "urlopen", _fake_urlopen)
+    monkeypatch.setattr(
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type("Opener", (), {"open": staticmethod(_fake_urlopen)})(),
+    )
     http = HttpLLMClient(
         model="test-model",
         api_key_env="E2B_R2_API_KEY",

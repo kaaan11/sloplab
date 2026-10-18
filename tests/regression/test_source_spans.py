@@ -8,6 +8,8 @@ import random
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 from sloplab import __version__
 from sloplab.corpus.loader import discover_fixtures
 from sloplab.corpus.parser import parse_report
@@ -343,7 +345,7 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     the derivatives whose picked step had continuations changed) and then by
     the PR #33 full regeneration, which absorbed that divergence into the
     committed bundle. Fresh materialization is byte-identical except for the
-    release's generator version stamp; the
+    release's generator version stamp and #111's confidence capitalization; the
     B1-fixed shape (span identity keys, residue lines gone) stays pinned on
     the three E5a inventory members, and counts reconcile with the E5a
     inventory.
@@ -367,7 +369,7 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     assert set(fresh) == set(stored)
     # Historical provenance stays frozen when the package version advances.
     # Check both stamps explicitly, then normalize only that one YAML line;
-    # every other byte (including all report bytes) must still match.
+    # every other byte must match apart from the #111 report exception below.
     import yaml
 
     old = (
@@ -387,9 +389,14 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
             stored[name] = stored[name].replace(old_stamp, new_stamp, 1)
     differing = sorted(k for k in fresh if fresh[k] != stored[k])
     # PR #33 regenerated the committed bundle with current code, absorbing the
-    # B1 divergence documented below: after normalizing the generator stamp,
-    # fresh materialization is byte-identical to the committed bundle.
-    assert differing == []
+    # B1 divergence documented below. #111 preserves that historical bundle;
+    # only the sentence-initial confidence substitution now starts uppercase.
+    assert differing == ["ratelimit-010/mut-ratelimit-010-confidence-overstatement-01/report.md"]
+    name = differing[0]
+    assert stored[name].count(b"\ndefinitively easier") == 1
+    assert (
+        stored[name].replace(b"\ndefinitively easier", b"\nDefinitively easier", 1) == fresh[name]
+    )
     # The three E5a-inventory derivatives whose picked step had continuations
     # carry span identity in the committed bundle (report residue lines gone,
     # manifest params gained span_model), and only they do.
@@ -416,3 +423,19 @@ def test_materialize_matches_committed_bundle_except_b1_fix(tmp_path: Path) -> N
     # Ledger counts unchanged (fix changes bytes, not populations).
     assert "planned 280" in result.summary()
     assert "written 237" in result.summary()
+
+
+@pytest.mark.parametrize("level", range(1, 7))
+def test_bare_atx_heading_spans_can_be_edited(level: int) -> None:
+    heading = "#" * level
+    doc = parse_report(f"{heading}\nbody\n## Tail\ntail\n", fixture_id="bare", path="x")
+    section = doc.sections[0]
+    identity = document_identity(doc)
+    assert section.heading == ""
+    assert section.level == level
+    assert span_authorized(doc, section, expected_document_identity=identity)
+    assert remove_section(doc, section, expected_document_identity=identity) == "## Tail\ntail"
+    assert (
+        replace_section_body(doc, section, "updated", expected_document_identity=identity)
+        == f"{heading}\nupdated\n## Tail\ntail"
+    )

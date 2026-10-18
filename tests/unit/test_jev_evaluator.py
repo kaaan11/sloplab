@@ -454,12 +454,14 @@ class TestHttpTransportOffline:
             transport.decide({"model": MODEL})
         assert info.value.retry_after_s == 2.5
 
-    @pytest.mark.parametrize("value", ["inf", "nan", "soon", "-4"])
-    def test_unusable_retry_after(self, value: str) -> None:
+    @pytest.mark.parametrize(
+        ("value", "expected"), [("inf", None), ("nan", None), ("soon", None), ("-4", 0.0)]
+    )
+    def test_unusable_retry_after(self, value: str, expected: float | None) -> None:
         message = Message()
         message["Retry-After"] = value
         parsed = transport_module.parse_retry_after(message)
-        assert parsed is None or parsed == 0.0
+        assert parsed == expected
 
 
 class TestNoSockets:

@@ -126,3 +126,22 @@ def test_plural_expected_security_boundaries_heading_is_recognized() -> None:
     matches = doc.find_sections(EVIDENCE_SECTION_PATTERNS["expected_security_boundary"])
     assert len(matches) == 1
     assert matches[0].heading == "Expected Security Boundaries"
+
+
+def test_bare_atx_headings_preserve_section_ranges() -> None:
+    doc = parse_report("#\n## Title\nbody\n###\nlast\n", fixture_id="bare", path="x")
+    assert [
+        (s.heading, s.level, s.location.start_line, s.location.end_line) for s in doc.sections
+    ] == [
+        ("", 1, 1, 1),
+        ("Title", 2, 2, 3),
+        ("", 3, 4, 5),
+    ]
+    assert doc.title == "bare"
+
+
+def test_atx_heading_requires_space_or_end_after_hashes() -> None:
+    doc = parse_report("#word\n#######\n## Real\nbody\n", fixture_id="bare", path="x")
+    assert doc.sections[0].heading is None
+    assert doc.sections[0].text == "#word\n#######"
+    assert doc.sections[1].heading == "Real"

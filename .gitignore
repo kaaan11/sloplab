@@ -26,6 +26,7 @@ heldout-private/
 
 # Local review/worker process notes (kept on disk, not part of the published repo)
 docs/reviews/
+docs/kod-denetimi-*.md
 docs/issue-05-*.md
 arastirma.md
 muhendislik.md
