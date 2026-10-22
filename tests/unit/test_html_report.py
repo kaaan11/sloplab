@@ -240,11 +240,11 @@ def test_html_cannot_modify_completed_bundle(tmp_path: Path) -> None:
     from sloplab.experiments.bundle import KIND_REQUIRED_FILES, begin_publish, finish_publish
 
     root = tmp_path / "bundle"
-    begin_publish(root, kind="study")
-    for name in KIND_REQUIRED_FILES["study"]:
-        (root / name).write_text("{}")
-    write_run_jsonl(root / "run.jsonl", metadata("test-eval"), [record("a")])
-    finish_publish(root, kind="study")
+    with begin_publish(root, kind="study") as publication:
+        for name in KIND_REQUIRED_FILES["study"]:
+            (root / name).write_text("{}")
+        write_run_jsonl(root / "run.jsonl", metadata("test-eval"), [record("a")])
+        finish_publish(root, kind="study", publication=publication)
     with pytest.raises(ValueError, match="outside the integrity-marked bundle"):
         write_html_report(root / "run.jsonl", root / "report.html")
     assert not (root / "report.html").exists()

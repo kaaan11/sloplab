@@ -517,214 +517,214 @@ def run_llm_pilot(
     # Open the publish cycle after all validation, before any dispatch or
     # output: a reused directory stops looking complete here, and an
     # interrupted run below leaves an in-progress marker readers refuse.
-    begin_publish(out_dir, kind="llm-pilot")
+    with begin_publish(out_dir, kind="llm-pilot") as publication:
 
-    def _remaining_plans(repeat: int, index: int) -> list[tuple[int, SuiteCase]]:
-        """Unstarted (repeat, case) plans from ``index`` on, in ledger order."""
-        pending: list[tuple[int, SuiteCase]] = [
-            (repeat, pending_case) for pending_case in selected[index:]
-        ]
-        for later in range(repeat + 1, config.repeats):
-            pending.extend((later, pending_case) for pending_case in selected)
-        return pending
+        def _remaining_plans(repeat: int, index: int) -> list[tuple[int, SuiteCase]]:
+            """Unstarted (repeat, case) plans from ``index`` on, in ledger order."""
+            pending: list[tuple[int, SuiteCase]] = [
+                (repeat, pending_case) for pending_case in selected[index:]
+            ]
+            for later in range(repeat + 1, config.repeats):
+                pending.extend((later, pending_case) for pending_case in selected)
+            return pending
 
-    all_records: list[CaseRecord] = []
-    success_by_repeat: list[list[CaseRecord]] = []
-    outcomes: list[dict[str, Any]] = []
-    successful = 0
-    failed = 0
-    not_run = 0
-    skipped_by_budget = 0
-    skipped_by_deadline = 0
-    stop_remaining = False
-    evaluator_name = active.name
+        all_records: list[CaseRecord] = []
+        success_by_repeat: list[list[CaseRecord]] = []
+        outcomes: list[dict[str, Any]] = []
+        successful = 0
+        failed = 0
+        not_run = 0
+        skipped_by_budget = 0
+        skipped_by_deadline = 0
+        stop_remaining = False
+        evaluator_name = active.name
 
-    for repeat in range(config.repeats):
-        repeat_success: list[CaseRecord] = []
-        for index, case in enumerate(selected):
-            # Clean pre-check: once the budget is spent, stop dispatching work.
-            # (The counting client also hard-raises mid-case as a safety net.)
-            # Every unstarted plan becomes an explicit not_run outcome row.
-            if counting.physical_dispatches >= effective_cap:
-                for pending_repeat, pending_case in _remaining_plans(repeat, index):
-                    outcomes.append(
-                        _not_run_outcome(
-                            pending_case.case_id,
-                            evaluator_name,
-                            pending_repeat,
-                            NOT_RUN_BUDGET_REASON,
+        for repeat in range(config.repeats):
+            repeat_success: list[CaseRecord] = []
+            for index, case in enumerate(selected):
+                # Clean pre-check: once the budget is spent, stop dispatching work.
+                # (The counting client also hard-raises mid-case as a safety net.)
+                # Every unstarted plan becomes an explicit not_run outcome row.
+                if counting.physical_dispatches >= effective_cap:
+                    for pending_repeat, pending_case in _remaining_plans(repeat, index):
+                        outcomes.append(
+                            _not_run_outcome(
+                                pending_case.case_id,
+                                evaluator_name,
+                                pending_repeat,
+                                NOT_RUN_BUDGET_REASON,
+                            )
                         )
-                    )
-                    not_run += 1
-                    skipped_by_budget += 1
-                stop_remaining = True
-                break
-            if run_deadline is not None and time.monotonic() >= run_deadline:
-                for pending_repeat, pending_case in _remaining_plans(repeat, index):
-                    outcomes.append(
-                        _not_run_outcome(
-                            pending_case.case_id,
-                            evaluator_name,
-                            pending_repeat,
-                            NOT_RUN_DEADLINE_REASON,
+                        not_run += 1
+                        skipped_by_budget += 1
+                    stop_remaining = True
+                    break
+                if run_deadline is not None and time.monotonic() >= run_deadline:
+                    for pending_repeat, pending_case in _remaining_plans(repeat, index):
+                        outcomes.append(
+                            _not_run_outcome(
+                                pending_case.case_id,
+                                evaluator_name,
+                                pending_repeat,
+                                NOT_RUN_DEADLINE_REASON,
+                            )
                         )
-                    )
-                    not_run += 1
-                    skipped_by_deadline += 1
-                stop_remaining = True
+                        not_run += 1
+                        skipped_by_deadline += 1
+                    stop_remaining = True
+                    break
+                document = _document_for(case, repo_root)
+                # Data minimization, not a sandbox: the LLM sees no ground truth.
+                context = EvaluationContext(report=document, case_id=case.case_id, labels={})
+                try:
+                    result = raise_if_failed_result(active.evaluate(document, context))
+                except EvaluationFailure as exc:
+                    outcomes.append(_failed_outcome(case.case_id, evaluator_name, repeat, exc))
+                    failed += 1
+                    continue
+                record = CaseRecord.from_result(
+                    result,
+                    case_id=case.case_id,
+                    case_kind=case_kinds[case.case_id],
+                    report_class=case.report_class,
+                    expected_decision=(
+                        Decision(case.expected_decision) if case.expected_decision else None
+                    ),
+                    parent_id=case.parent_id,
+                    operator=case.operator,
+                    seed=case.seed,
+                )
+                record.evaluation_metadata["repeat_index"] = repeat
+                repeat_success.append(record)
+                all_records.append(record)
+                outcomes.append(_success_outcome(case.case_id, evaluator_name, repeat))
+                successful += 1
+            success_by_repeat.append(repeat_success)
+            if stop_remaining:
                 break
-            document = _document_for(case, repo_root)
-            # Data minimization, not a sandbox: the LLM sees no ground truth.
-            context = EvaluationContext(report=document, case_id=case.case_id, labels={})
-            try:
-                result = raise_if_failed_result(active.evaluate(document, context))
-            except EvaluationFailure as exc:
-                outcomes.append(_failed_outcome(case.case_id, evaluator_name, repeat, exc))
-                failed += 1
-                continue
-            record = CaseRecord.from_result(
-                result,
-                case_id=case.case_id,
-                case_kind=case_kinds[case.case_id],
-                report_class=case.report_class,
-                expected_decision=(
-                    Decision(case.expected_decision) if case.expected_decision else None
-                ),
-                parent_id=case.parent_id,
-                operator=case.operator,
-                seed=case.seed,
-            )
-            record.evaluation_metadata["repeat_index"] = repeat
-            repeat_success.append(record)
-            all_records.append(record)
-            outcomes.append(_success_outcome(case.case_id, evaluator_name, repeat))
-            successful += 1
-        success_by_repeat.append(repeat_success)
-        if stop_remaining:
-            break
 
-    # Stability only on full success coverage: a case missing from any repeat
-    # must not read as unanimous via union counting (E2b owns coverage checks).
-    full_coverage = (
-        len(selected) > 0
-        and len(success_by_repeat) == config.repeats
-        and all(len(rs) == len(selected) for rs in success_by_repeat)
-    )
-    if len(success_by_repeat) >= 2 and full_coverage:
-        stability = repeat_stability(success_by_repeat).as_dict()
-        stability_omitted_reason: str | None = None
-    elif config.repeats < 2 or not selected:
-        stability = {}
-        stability_omitted_reason = "single-repeat-or-empty"
-    else:
-        stability = {}
-        stability_omitted_reason = "incomplete-success-coverage"
-
-    planned = successful + failed + not_run
-    scored = successful
-    coverage_errors = check_outcome_coverage(
-        outcomes,
-        case_ids=[case.case_id for case in selected],
-        evaluator_name=evaluator_name,
-        repeats=config.repeats,
-    )
-    if coverage_errors:
-        raise OutcomeCoverageError(
-            f"pilot ledger does not reconcile: {coverage_errors[0]}"
-            + (f" (+{len(coverage_errors) - 1} more)" if len(coverage_errors) > 1 else "")
+        # Stability only on full success coverage: a case missing from any repeat
+        # must not read as unanimous via union counting (E2b owns coverage checks).
+        full_coverage = (
+            len(selected) > 0
+            and len(success_by_repeat) == config.repeats
+            and all(len(rs) == len(selected) for rs in success_by_repeat)
         )
-    coverage: dict[str, object] = {
-        "expected": len(selected) * config.repeats,
-        "successful": successful,
-        "complete": full_coverage,
-    }
+        if len(success_by_repeat) >= 2 and full_coverage:
+            stability = repeat_stability(success_by_repeat).as_dict()
+            stability_omitted_reason: str | None = None
+        elif config.repeats < 2 or not selected:
+            stability = {}
+            stability_omitted_reason = "single-repeat-or-empty"
+        else:
+            stability = {}
+            stability_omitted_reason = "incomplete-success-coverage"
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    records_path = out_dir / "records.jsonl"
-    records_path.write_text(
-        "".join(r.model_dump_json() + "\n" for r in all_records), encoding="utf-8"
-    )
-    outcomes_path = out_dir / "outcomes.jsonl"
-    outcomes_path.write_text(
-        "".join(json.dumps(outcome, sort_keys=True) + "\n" for outcome in outcomes),
-        encoding="utf-8",
-    )
+        planned = successful + failed + not_run
+        scored = successful
+        coverage_errors = check_outcome_coverage(
+            outcomes,
+            case_ids=[case.case_id for case in selected],
+            evaluator_name=evaluator_name,
+            repeats=config.repeats,
+        )
+        if coverage_errors:
+            raise OutcomeCoverageError(
+                f"pilot ledger does not reconcile: {coverage_errors[0]}"
+                + (f" (+{len(coverage_errors) - 1} more)" if len(coverage_errors) > 1 else "")
+            )
+        coverage: dict[str, object] = {
+            "expected": len(selected) * config.repeats,
+            "successful": successful,
+            "complete": full_coverage,
+        }
 
-    manifest = {
-        "experiment_name": config.name,
-        "kind": "llm-pilot",
-        "commit_sha": run_commit_sha,
-        "base_seed": config.base_seed,
-        "repeats": config.repeats,
-        "selected_cases": len(selected),
-        "case_offset": config.case_offset,
-        "selected_case_ids": [case.case_id for case in selected],
-        "budget": config.budget.model_dump(),
-        "effective_max_requests": effective_cap,
-        "counters": {
-            "physical_dispatches": counting.physical_dispatches,
-            "errors": counting.errors,
-            "timeouts": counting.timeouts,
-        },
-        "planned": planned,
-        "successful": successful,
-        "failed": failed,
-        "not_run": not_run,
-        "skipped_by_budget": skipped_by_budget,
-        "skipped_by_deadline": skipped_by_deadline,
-        "scored": scored,
-        "stability": stability,
-        "stability_omitted_reason": stability_omitted_reason,
-        "coverage": coverage,
-        # Technical publication vs scientific sufficiency are separate fields
-        # and must never be equated: bundle_complete says every bundle file
-        # was published (the marker below covers them); coverage_sufficient
-        # says every planned case x repeat succeeded (full_coverage).
-        "bundle_complete": True,
-        "coverage_sufficient": full_coverage,
-        # SHA-256 of the original UTF-8 template bytes frozen at pilot start
-        # (no newline normalization); the same bytes every dispatch rendered.
-        "prompt_hash": loaded_prompt.sha256,
-        "prompt_renderer_version": PROMPT_RENDERER_VERSION,
-        "model_env": config.model_env,
-        "model_id": model_id if model_id is not None else os.environ.get(config.model_env),
-        "output_mode": config.output_mode,
-        "provider_require_parameters": config.provider_require_parameters,
-        "temperature": config.temperature,
-        "response_schema_sha256": (
-            LLM_OUTPUT_SCHEMA_SHA256 if config.output_mode == "json_schema" else None
-        ),
-        "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "note": "raw model responses are not stored; only normalized records",
-    }
-    manifest_path = out_dir / "manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        out_dir.mkdir(parents=True, exist_ok=True)
+        records_path = out_dir / "records.jsonl"
+        records_path.write_text(
+            "".join(r.model_dump_json() + "\n" for r in all_records), encoding="utf-8"
+        )
+        outcomes_path = out_dir / "outcomes.jsonl"
+        outcomes_path.write_text(
+            "".join(json.dumps(outcome, sort_keys=True) + "\n" for outcome in outcomes),
+            encoding="utf-8",
+        )
 
-    # Publish last: the completion marker covers records, outcomes, and the
-    # manifest, so the bundle never looks complete before all three exist;
-    # the in-progress marker is removed after the completion is written.
-    completion_path = finish_publish(out_dir, kind="llm-pilot")
+        manifest = {
+            "experiment_name": config.name,
+            "kind": "llm-pilot",
+            "commit_sha": run_commit_sha,
+            "base_seed": config.base_seed,
+            "repeats": config.repeats,
+            "selected_cases": len(selected),
+            "case_offset": config.case_offset,
+            "selected_case_ids": [case.case_id for case in selected],
+            "budget": config.budget.model_dump(),
+            "effective_max_requests": effective_cap,
+            "counters": {
+                "physical_dispatches": counting.physical_dispatches,
+                "errors": counting.errors,
+                "timeouts": counting.timeouts,
+            },
+            "planned": planned,
+            "successful": successful,
+            "failed": failed,
+            "not_run": not_run,
+            "skipped_by_budget": skipped_by_budget,
+            "skipped_by_deadline": skipped_by_deadline,
+            "scored": scored,
+            "stability": stability,
+            "stability_omitted_reason": stability_omitted_reason,
+            "coverage": coverage,
+            # Technical publication vs scientific sufficiency are separate fields
+            # and must never be equated: bundle_complete says every bundle file
+            # was published (the marker below covers them); coverage_sufficient
+            # says every planned case x repeat succeeded (full_coverage).
+            "bundle_complete": True,
+            "coverage_sufficient": full_coverage,
+            # SHA-256 of the original UTF-8 template bytes frozen at pilot start
+            # (no newline normalization); the same bytes every dispatch rendered.
+            "prompt_hash": loaded_prompt.sha256,
+            "prompt_renderer_version": PROMPT_RENDERER_VERSION,
+            "model_env": config.model_env,
+            "model_id": model_id if model_id is not None else os.environ.get(config.model_env),
+            "output_mode": config.output_mode,
+            "provider_require_parameters": config.provider_require_parameters,
+            "temperature": config.temperature,
+            "response_schema_sha256": (
+                LLM_OUTPUT_SCHEMA_SHA256 if config.output_mode == "json_schema" else None
+            ),
+            "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "note": "raw model responses are not stored; only normalized records",
+        }
+        manifest_path = out_dir / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
-    return PilotRunResult(
-        out_dir=out_dir,
-        records_path=records_path,
-        manifest_path=manifest_path,
-        outcomes_path=outcomes_path,
-        completion_path=completion_path,
-        evaluations_attempted=successful + failed,
-        failed_evaluations=failed,
-        skipped_by_budget=skipped_by_budget,
-        skipped_by_deadline=skipped_by_deadline,
-        planned=planned,
-        successful=successful,
-        failed=failed,
-        not_run=not_run,
-        scored=scored,
-        counters={
-            "physical_dispatches": counting.physical_dispatches,
-            "errors": counting.errors,
-            "timeouts": counting.timeouts,
-        },
-        stability=stability,
-        coverage=coverage,
-    )
+        # Publish last: the completion marker covers records, outcomes, and the
+        # manifest, so the bundle never looks complete before all three exist;
+        # the in-progress marker is removed after the completion is written.
+        completion_path = finish_publish(out_dir, kind="llm-pilot", publication=publication)
+
+        return PilotRunResult(
+            out_dir=out_dir,
+            records_path=records_path,
+            manifest_path=manifest_path,
+            outcomes_path=outcomes_path,
+            completion_path=completion_path,
+            evaluations_attempted=successful + failed,
+            failed_evaluations=failed,
+            skipped_by_budget=skipped_by_budget,
+            skipped_by_deadline=skipped_by_deadline,
+            planned=planned,
+            successful=successful,
+            failed=failed,
+            not_run=not_run,
+            scored=scored,
+            counters={
+                "physical_dispatches": counting.physical_dispatches,
+                "errors": counting.errors,
+                "timeouts": counting.timeouts,
+            },
+            stability=stability,
+            coverage=coverage,
+        )

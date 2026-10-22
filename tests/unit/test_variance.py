@@ -25,39 +25,39 @@ def bundle(
     failure: bool = False,
 ) -> Path:
     path = root / name
-    begin_publish(path, kind="llm-pilot")
-    manifest = {
-        "model_id": model,
-        "prompt_hash": "template",
-        "base_seed": base_seed,
-        "temperature": 0,
-        "output_mode": "json_schema",
-    }
-    records = []
-    outcomes = []
-    for case_id in ("a", "b"):
-        for repeat in (0, 1):
-            failed = failure and case_id == "a" and repeat == 1
-            outcomes.append(
-                {
-                    "case_id": case_id,
-                    "repeat_index": repeat,
-                    "status": "failed" if failed else "success",
-                }
-            )
-            if failed:
-                continue
-            row = record(
-                case_id,
-                decision=Decision.REJECT if case_id == "b" and repeat else Decision.ACCEPT,
-                confidence=0.2 if repeat else 0.8,
-            )
-            row.evaluation_metadata.update(repeat_index=repeat, rendered_prompt_hash=hash_value)
-            records.append(row.model_dump_json())
-    (path / "manifest.json").write_text(json.dumps(manifest))
-    (path / "records.jsonl").write_text("\n".join(records) + "\n")
-    (path / "outcomes.jsonl").write_text("".join(json.dumps(r) + "\n" for r in outcomes))
-    finish_publish(path, kind="llm-pilot")
+    with begin_publish(path, kind="llm-pilot") as publication:
+        manifest = {
+            "model_id": model,
+            "prompt_hash": "template",
+            "base_seed": base_seed,
+            "temperature": 0,
+            "output_mode": "json_schema",
+        }
+        records = []
+        outcomes = []
+        for case_id in ("a", "b"):
+            for repeat in (0, 1):
+                failed = failure and case_id == "a" and repeat == 1
+                outcomes.append(
+                    {
+                        "case_id": case_id,
+                        "repeat_index": repeat,
+                        "status": "failed" if failed else "success",
+                    }
+                )
+                if failed:
+                    continue
+                row = record(
+                    case_id,
+                    decision=Decision.REJECT if case_id == "b" and repeat else Decision.ACCEPT,
+                    confidence=0.2 if repeat else 0.8,
+                )
+                row.evaluation_metadata.update(repeat_index=repeat, rendered_prompt_hash=hash_value)
+                records.append(row.model_dump_json())
+        (path / "manifest.json").write_text(json.dumps(manifest))
+        (path / "records.jsonl").write_text("\n".join(records) + "\n")
+        (path / "outcomes.jsonl").write_text("".join(json.dumps(r) + "\n" for r in outcomes))
+        finish_publish(path, kind="llm-pilot", publication=publication)
     return path
 
 
