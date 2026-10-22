@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import json
+import selectors
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +20,7 @@ from sloplab.experiments.bundle import (
     BundleError,
     begin_publish,
     classify_bundle,
+    finish_publish,
     open_result_dir,
     verify_bundle,
 )
@@ -30,6 +34,51 @@ from tests._helpers import write_canonical_fixture
 REPO_ROOT = Path(__file__).resolve().parents[2]
 EXAMPLE = REPO_ROOT / "benchmarks" / "results" / "v1-core-example"
 IN_PROGRESS = "publish-in-progress.json"
+
+
+def test_second_process_cannot_publish_mixed_bundle(tmp_path: Path) -> None:
+    """A competing process must fail before overwriting A's files or marker."""
+    out = tmp_path / "shared"
+    publication = begin_publish(out, kind="llm-pilot")
+    try:
+        (out / "records.jsonl").write_text('{"run":"A"}\n', encoding="utf-8")
+        (out / "outcomes.jsonl").write_text("", encoding="utf-8")
+        marker = (out / IN_PROGRESS).read_bytes()
+        contender = subprocess.run(
+            [
+                sys.executable,
+                "-c",
+                """
+import sys
+from pathlib import Path
+from sloplab.experiments.bundle import BundleError, begin_publish, finish_publish
+out = Path(sys.argv[1])
+try:
+    publication = begin_publish(out, kind="llm-pilot")
+except BundleError:
+    print("rejected")
+else:
+    (out / "manifest.json").write_text('{"run":"B"}\\n', encoding="utf-8")
+    finish_publish(out, kind="llm-pilot")
+    print("published mixed bundle")
+""",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
+        )
+        assert contender.stdout.strip() == "rejected", contender.stdout
+        assert (out / IN_PROGRESS).read_bytes() == marker
+        assert not (out / "manifest.json").exists()
+        assert classify_bundle(out) == "incomplete"
+    finally:
+        # The baseline API returned a Path, so this cleanup also permits an
+        # assertion-based red run against the original implementation.
+        close = getattr(publication, "close", None)
+        if close is not None:
+            close()
 
 
 def _valid_payload_text() -> str:
@@ -48,6 +97,175 @@ def _valid_payload_text() -> str:
             "rationale": "ok",
         }
     )
+
+
+def _wait_for_publisher(process: subprocess.Popen[str]) -> None:
+    assert process.stdout is not None
+    with selectors.DefaultSelector() as selector:
+        selector.register(process.stdout, selectors.EVENT_READ)
+        assert selector.select(timeout=10), "publisher never reached the barrier"
+    assert process.stdout.readline().strip() == "publishing"
+
+
+@pytest.mark.parametrize("phase", ["pilot", "study", "study-analysis"])
+@pytest.mark.parametrize("contender_kind", ["llm-pilot", "study"])
+def test_publishers_reject_competitor_before_dispatch_or_materialization(
+    tmp_path: Path, phase: str, contender_kind: str
+) -> None:
+    """Hold a real publisher at an explicit barrier; no scheduling sleeps."""
+    study_path, out = _study_dir(tmp_path, "owner")
+    paths = _workspace(tmp_path / "contender")
+    cases = [c for c in paths["cases"] if c.kind == "mutated"][:1]
+    script = """
+import sys
+from pathlib import Path
+from click.testing import CliRunner
+from sloplab.cli.main import cli
+from sloplab.evaluators.llm.adapter import LlmEvaluator
+from sloplab.experiments.pilot import build_pilot_client_chain, run_llm_pilot
+from tests.regression.test_publish_protocol import (
+    _workspace, _pilot_config, _RecordingTransport, _valid_payload_text,
+)
+phase, config_path, output = sys.argv[1:]
+def pause():
+    print("publishing", flush=True)
+    assert sys.stdin.readline().strip() == "continue"
+if phase == "pilot":
+    paths = _workspace(Path(config_path).parent / "pilot-inputs")
+    class Transport(_RecordingTransport):
+        def complete(self, prompt):
+            pause()
+            return super().complete(prompt)
+    transport = Transport(_valid_payload_text())
+    client = build_pilot_client_chain(transport, min_interval_ms=0, max_requests=50)
+    run_llm_pilot(
+        _pilot_config(paths["template"]), LlmEvaluator(client=client, enabled=True),
+        paths["cases"][:1], Path(config_path).parent, Path(output),
+    )
+else:
+    if phase == "study":
+        import sloplab.experiments.study as module
+        original = module.materialize_suite
+        def wrapped(*args, **kwargs):
+            pause()
+            return original(*args, **kwargs)
+        module.materialize_suite = wrapped
+    else:
+        import sloplab.reporting.study_analysis as module
+        original = module.build_study_analysis
+        def wrapped(*args, **kwargs):
+            pause()
+            return original(*args, **kwargs)
+        module.build_study_analysis = wrapped
+    # CliRunner captures stdout; invoke the Click command without capture so
+    # the parent can synchronize at the materialization/analysis barrier.
+    cli.main(["study", config_path, "--out", output], standalone_mode=False)
+"""
+    process = subprocess.Popen(
+        [sys.executable, "-c", script, phase, str(study_path), str(out)],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        _wait_for_publisher(process)
+        before = {p.relative_to(out): p.read_bytes() for p in out.rglob("*") if p.is_file()}
+        assert classify_bundle(out) == "incomplete"
+        with pytest.raises(BundleError, match="in progress"):
+            open_result_dir(out, purpose="concurrent read")
+        if contender_kind == "study":
+            result = CliRunner().invoke(cli, ["study", str(study_path), "--out", str(out)])
+            assert result.exit_code == 1, result.output
+            assert "another publisher is active" in result.output
+            assert "--out" in result.output
+        else:
+            transport = _RecordingTransport(_valid_payload_text())
+            client = build_pilot_client_chain(transport, min_interval_ms=0, max_requests=50)
+            with pytest.raises(BundleError, match="another publisher is active"):
+                run_llm_pilot(
+                    _pilot_config(paths["template"]),
+                    LlmEvaluator(client=client, enabled=True),
+                    cases,
+                    tmp_path,
+                    out,
+                )
+            assert transport.calls == 0
+        after = {p.relative_to(out): p.read_bytes() for p in out.rglob("*") if p.is_file()}
+        assert after == before
+        stdout, stderr = process.communicate("continue\n", timeout=10)
+        assert process.returncode == 0, stdout + stderr
+        assert classify_bundle(out) == "complete"
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.communicate(timeout=10)
+
+
+def test_process_death_leaves_incomplete_bundle_and_allows_recovery(tmp_path: Path) -> None:
+    out = tmp_path / "crashed"
+    script = """
+import sys
+from pathlib import Path
+from sloplab.experiments.bundle import begin_publish
+out = Path(sys.argv[1])
+publication = begin_publish(out, kind="llm-pilot")
+(out / "records.jsonl").write_text('{"run":"interrupted"}\\n')
+print("publishing", flush=True)
+sys.stdin.readline()
+"""
+    process = subprocess.Popen(
+        [sys.executable, "-c", script, str(out)],
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    try:
+        _wait_for_publisher(process)
+        marker = (out / IN_PROGRESS).read_bytes()
+        with pytest.raises(BundleError, match="another publisher is active"):
+            begin_publish(out, kind="llm-pilot")
+        assert (out / IN_PROGRESS).read_bytes() == marker
+        process.kill()
+        process.communicate(timeout=10)
+        assert process.returncode != 0
+        assert classify_bundle(out) == "incomplete"
+        with pytest.raises(BundleError, match="in progress"):
+            verify_bundle(out, kind="llm-pilot")
+        completions = []
+        for _ in range(2):
+            with begin_publish(out, kind="llm-pilot") as publication:
+                for name in ("records.jsonl", "outcomes.jsonl", "manifest.json"):
+                    (out / name).write_text('{"run":"recovered"}\n', encoding="utf-8")
+                finish_publish(out, kind="llm-pilot", publication=publication)
+                # Even after unmarking, the active owner's lock gates readers.
+                assert classify_bundle(out) == "incomplete"
+            completions.append((out / "completion.json").read_bytes())
+            assert classify_bundle(out) == "complete"
+            assert ".publish.lock" not in verify_bundle(out, kind="llm-pilot")["files"]
+        assert completions[0] == completions[1]
+    finally:
+        if process.poll() is None:
+            process.kill()
+        process.communicate(timeout=10)
+
+
+def test_only_current_publication_can_remove_its_marker(tmp_path: Path) -> None:
+    with begin_publish(tmp_path, kind="llm-pilot") as previous:
+        pass  # interrupted ownership, released normally (same as exception exit)
+    with begin_publish(tmp_path, kind="llm-pilot") as current:
+        marker = (tmp_path / IN_PROGRESS).read_bytes()
+        for owner in (None, previous):
+            with pytest.raises(BundleError, match="ownership"):
+                finish_publish(tmp_path, kind="llm-pilot", publication=owner)
+            assert (tmp_path / IN_PROGRESS).read_bytes() == marker
+            assert not (tmp_path / "completion.json").exists()
+        # An old/replaced run token may never be retired by the current handle.
+        (tmp_path / IN_PROGRESS).write_text('{"token":"foreign-run"}\n', encoding="utf-8")
+        with pytest.raises(BundleError, match="ownership"):
+            finish_publish(tmp_path, kind="llm-pilot", publication=current)
+        assert (tmp_path / IN_PROGRESS).read_text(encoding="utf-8") == '{"token":"foreign-run"}\n'
 
 
 class _RecordingTransport:

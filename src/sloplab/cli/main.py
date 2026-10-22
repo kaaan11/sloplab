@@ -579,139 +579,148 @@ def study(config: str, out: str) -> None:
     except ValueError as exc:
         raise click.ClickException(f"invalid study config: {exc}") from exc
     out_dir = _Path(out)
-    from sloplab.experiments.bundle import finish_publish
+    from sloplab.experiments.bundle import begin_publish, finish_publish
+    from sloplab.experiments.study import preflight_study_config
 
     try:
-        result = run_deterministic_study(cfg, _Path(config), out_dir)
-    except StudyConfigError as exc:
-        raise click.ClickException(str(exc)) from exc
+        preflight_study_config(cfg)
+        with begin_publish(out_dir, kind="study") as publication:
+            result = run_deterministic_study(cfg, _Path(config), out_dir, publication=publication)
 
-    # Analysis options come from the frozen in-run copy, never by re-reading
-    # the mutable original config after the run.
-    analysis_cfg = result.recipe.analysis
-    assert analysis_cfg is not None
+            # Analysis options come from the frozen in-run copy, never by re-reading
+            # the mutable original config after the run.
+            analysis_cfg = result.recipe.analysis
+            assert analysis_cfg is not None
 
-    # Publisher-internal read of this invocation's own just-written records:
-    # same-process-bound and mid-publish by construction (the in-progress
-    # marker is still present), so the consumption boundary — which must
-    # refuse in-progress bundles — cannot gate it without deadlocking
-    # publication. Cross-time/cross-process reads of this directory always
-    # go through open_result_dir and refuse until finish_publish.
-    _meta, records = read_run_jsonl(result.records_path)
-    by_evaluator: dict[str, list[Any]] = {}
-    for record in records:
-        by_evaluator.setdefault(record.evaluator_name, []).append(record)
+            # Publisher-internal read of this invocation's own just-written records:
+            # same-process-bound and mid-publish by construction (the in-progress
+            # marker is still present), so the consumption boundary — which must
+            # refuse in-progress bundles — cannot gate it without deadlocking
+            # publication. Cross-time/cross-process reads of this directory always
+            # go through open_result_dir and refuse until finish_publish.
+            _meta, records = read_run_jsonl(result.records_path)
+            by_evaluator: dict[str, list[Any]] = {}
+            for record in records:
+                by_evaluator.setdefault(record.evaluator_name, []).append(record)
 
-    bundles: dict[str, MetricBundle] = {
-        n: compute_metrics(rs, n) for n, rs in sorted(by_evaluator.items())
-    }
-    names = sorted(by_evaluator)
-    comparisons = [
-        paired_win_loss(by_evaluator[a], by_evaluator[b])
-        for i, a in enumerate(names)
-        for b in names[i + 1 :]
-    ]
-    taxonomy_counts = {n: error_taxonomy(rs).counts for n, rs in sorted(by_evaluator.items())}
-    cis = {
-        n: bootstrap_accuracy_ci(
-            rs,
-            resamples=analysis_cfg.bootstrap_resamples,
-            ci=analysis_cfg.bootstrap_ci,
-            seed=analysis_cfg.bootstrap_seed,
-        )
-        for n, rs in sorted(by_evaluator.items())
-    }
-
-    from sloplab.reporting.study_analysis import build_study_analysis
-    from sloplab.scoring.comparison import _pair_ids_from_root
-
-    # Presentation-pair merge keys for the cluster bootstrap (issue #48):
-    # read from the same corpus the run materialized from.
-    pair_ids: dict[str, str] = {}
-    if result.recipe.locations is not None:
-        pair_ids = _pair_ids_from_root(Path(result.recipe.locations.corpus_root))
-    if not pair_ids:
-        # Making the silent per-fixture fallback visible (issue #48 review):
-        # the merge was skipped because manifests/locations were unavailable.
-        click.echo(
-            "WARNING: canonical pair ids unavailable (missing recipe locations or "
-            "corpus manifests without pair ids); cluster bootstrap falls back to "
-            "per-fixture clusters (pair_merge=skipped)",
-            err=True,
-        )
-
-    analysis = build_study_analysis(
-        records,
-        bootstrap_resamples=analysis_cfg.bootstrap_resamples,
-        bootstrap_ci=analysis_cfg.bootstrap_ci,
-        bootstrap_seed=analysis_cfg.bootstrap_seed,
-        pair_ids=pair_ids,
-    )
-    from sloplab.reporting.analysis import write_text_atomic
-
-    analysis_path = out_dir / "analysis.json"
-    write_text_atomic(analysis_path, json.dumps(analysis, indent=2))
-
-    write_records_csv(out_dir / "results.csv", records)
-    cluster_cis = {
-        name: (entry["low"], entry["high"])
-        for name, entry in analysis["cluster_bootstrap"]["accuracy_ci"].items()
-    }
-    cluster_diff = analysis["cluster_bootstrap"].get("paired_difference_ci") or {}
-    _write_comparison_markdown(
-        out_dir / "report.md",
-        bundles,
-        comparisons,
-        cis,
-        taxonomy_counts,
-        result.experiment_name,
-        cluster_cis=cluster_cis,
-        cluster_diff=cluster_diff,
-        cluster_count=analysis["cluster_bootstrap"]["clusters"],
-    )
-    # Versioned analysis under a separate name: bound to the exact records
-    # bytes, outcomes source, selection coverage, and definition version;
-    # historical analysis.json is never overwritten or replaced. Evaluators
-    # with zero successes stay visible with scored=0 and undefined metrics
-    # (no invented decisions or scored records).
-    from sloplab.reporting.analysis import write_versioned_analysis
-    from sloplab.reporting.writers import metrics_to_dict as _metrics_to_dict
-    from sloplab.scoring.metrics import compute_metrics as _compute_metrics
-
-    failed_by_evaluator: dict[str, int] = {}
-    outcomes_path = out_dir / "outcomes.jsonl"
-    if outcomes_path.is_file():
-        for line in outcomes_path.read_text(encoding="utf-8").splitlines():
-            if not line.strip():
-                continue
-            row = json.loads(line)
-            if row.get("status") == "failed":
-                evaluator_name = row.get("evaluator_name", "?")
-                failed_by_evaluator[evaluator_name] = failed_by_evaluator.get(evaluator_name, 0) + 1
-    versioned_names = sorted(set(names) | set(failed_by_evaluator))
-    versioned_bundles = {n: _metrics_to_dict(b) for n, b in bundles.items()}
-    for name in versioned_names:
-        if name not in versioned_bundles:
-            versioned_bundles[name] = _metrics_to_dict(_compute_metrics([], name))
-    write_versioned_analysis(
-        out_dir,
-        records_path=result.records_path,
-        bundles=versioned_bundles,
-        coverage={
-            n: {
-                "planned": result.case_count,
-                "scored": len(by_evaluator.get(n, [])),
-                "failed": failed_by_evaluator.get(n, 0),
-                "not_run": 0,
+            bundles: dict[str, MetricBundle] = {
+                n: compute_metrics(rs, n) for n, rs in sorted(by_evaluator.items())
             }
-            for n in versioned_names
-        },
-        outcomes_path=outcomes_path if outcomes_path.is_file() else None,
-    )
-    # Close the publish cycle last: verifiable completion first, in-progress
-    # marker removed after it. Only then does the bundle read complete.
-    finish_publish(out_dir, kind="study")
-    click.echo(f"study complete -> {out_dir} ({result.case_count} cases, {len(names)} evaluators)")
+            names = sorted(by_evaluator)
+            comparisons = [
+                paired_win_loss(by_evaluator[a], by_evaluator[b])
+                for i, a in enumerate(names)
+                for b in names[i + 1 :]
+            ]
+            taxonomy_counts = {
+                n: error_taxonomy(rs).counts for n, rs in sorted(by_evaluator.items())
+            }
+            cis = {
+                n: bootstrap_accuracy_ci(
+                    rs,
+                    resamples=analysis_cfg.bootstrap_resamples,
+                    ci=analysis_cfg.bootstrap_ci,
+                    seed=analysis_cfg.bootstrap_seed,
+                )
+                for n, rs in sorted(by_evaluator.items())
+            }
+
+            from sloplab.reporting.study_analysis import build_study_analysis
+            from sloplab.scoring.comparison import _pair_ids_from_root
+
+            # Presentation-pair merge keys for the cluster bootstrap (issue #48):
+            # read from the same corpus the run materialized from.
+            pair_ids: dict[str, str] = {}
+            if result.recipe.locations is not None:
+                pair_ids = _pair_ids_from_root(Path(result.recipe.locations.corpus_root))
+            if not pair_ids:
+                # Making the silent per-fixture fallback visible (issue #48 review):
+                # the merge was skipped because manifests/locations were unavailable.
+                click.echo(
+                    "WARNING: canonical pair ids unavailable (missing recipe locations or "
+                    "corpus manifests without pair ids); cluster bootstrap falls back to "
+                    "per-fixture clusters (pair_merge=skipped)",
+                    err=True,
+                )
+
+            analysis = build_study_analysis(
+                records,
+                bootstrap_resamples=analysis_cfg.bootstrap_resamples,
+                bootstrap_ci=analysis_cfg.bootstrap_ci,
+                bootstrap_seed=analysis_cfg.bootstrap_seed,
+                pair_ids=pair_ids,
+            )
+            from sloplab.reporting.analysis import write_text_atomic
+
+            analysis_path = out_dir / "analysis.json"
+            write_text_atomic(analysis_path, json.dumps(analysis, indent=2))
+
+            write_records_csv(out_dir / "results.csv", records)
+            cluster_cis = {
+                name: (entry["low"], entry["high"])
+                for name, entry in analysis["cluster_bootstrap"]["accuracy_ci"].items()
+            }
+            cluster_diff = analysis["cluster_bootstrap"].get("paired_difference_ci") or {}
+            _write_comparison_markdown(
+                out_dir / "report.md",
+                bundles,
+                comparisons,
+                cis,
+                taxonomy_counts,
+                result.experiment_name,
+                cluster_cis=cluster_cis,
+                cluster_diff=cluster_diff,
+                cluster_count=analysis["cluster_bootstrap"]["clusters"],
+            )
+            # Versioned analysis under a separate name: bound to the exact records
+            # bytes, outcomes source, selection coverage, and definition version;
+            # historical analysis.json is never overwritten or replaced. Evaluators
+            # with zero successes stay visible with scored=0 and undefined metrics
+            # (no invented decisions or scored records).
+            from sloplab.reporting.analysis import write_versioned_analysis
+            from sloplab.reporting.writers import metrics_to_dict as _metrics_to_dict
+            from sloplab.scoring.metrics import compute_metrics as _compute_metrics
+
+            failed_by_evaluator: dict[str, int] = {}
+            outcomes_path = out_dir / "outcomes.jsonl"
+            if outcomes_path.is_file():
+                for line in outcomes_path.read_text(encoding="utf-8").splitlines():
+                    if not line.strip():
+                        continue
+                    row = json.loads(line)
+                    if row.get("status") == "failed":
+                        evaluator_name = row.get("evaluator_name", "?")
+                        failed_by_evaluator[evaluator_name] = (
+                            failed_by_evaluator.get(evaluator_name, 0) + 1
+                        )
+            versioned_names = sorted(set(names) | set(failed_by_evaluator))
+            versioned_bundles = {n: _metrics_to_dict(b) for n, b in bundles.items()}
+            for name in versioned_names:
+                if name not in versioned_bundles:
+                    versioned_bundles[name] = _metrics_to_dict(_compute_metrics([], name))
+            write_versioned_analysis(
+                out_dir,
+                records_path=result.records_path,
+                bundles=versioned_bundles,
+                coverage={
+                    n: {
+                        "planned": result.case_count,
+                        "scored": len(by_evaluator.get(n, [])),
+                        "failed": failed_by_evaluator.get(n, 0),
+                        "not_run": 0,
+                    }
+                    for n in versioned_names
+                },
+                outcomes_path=outcomes_path if outcomes_path.is_file() else None,
+            )
+            # Close the publish cycle last: verifiable completion first, in-progress
+            # marker removed after it. Only then does the bundle read complete.
+            finish_publish(out_dir, kind="study", publication=publication)
+            click.echo(
+                f"study complete -> {out_dir} ({result.case_count} cases, {len(names)} evaluators)"
+            )
+    except (StudyConfigError, BundleError) as exc:
+        raise click.ClickException(str(exc)) from exc
 
 
 def _write_comparison_markdown(

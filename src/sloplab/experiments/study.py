@@ -9,6 +9,7 @@ from typing import Any
 
 from sloplab.corpus.loader import discover_fixtures
 from sloplab.evaluators.base import get_evaluator
+from sloplab.experiments.bundle import Publication, begin_publish
 from sloplab.experiments.config import DeterministicStudyConfig
 from sloplab.experiments.input_identity import build_input_identity, write_input_identity
 from sloplab.experiments.resolved_recipe import (
@@ -104,6 +105,8 @@ def run_deterministic_study(
     config: DeterministicStudyConfig,
     study_config_path: Path,
     out_dir: Path,
+    *,
+    publication: Publication | None = None,
 ) -> StudyRunResult:
     """Materialize the suite, evaluate all evaluators, write a reproducible bundle.
 
@@ -115,11 +118,16 @@ def run_deterministic_study(
     # materialization/evaluation runs. Provenance must describe this copy too.
     config = config.model_copy(deep=True)
     preflight_study_config(config)
-    # Open the publish cycle before any output mutation: an interrupted runner
-    # leaves an in-progress marker, never a legacy-shaped silent partial.
-    from sloplab.experiments.bundle import begin_publish
+    if publication is None:
+        with begin_publish(out_dir, kind="study"):
+            return _run_deterministic_study(config, study_config_path, out_dir)
+    publication.check(out_dir, kind="study")
+    return _run_deterministic_study(config, study_config_path, out_dir)
 
-    begin_publish(out_dir, kind="study")
+
+def _run_deterministic_study(
+    config: DeterministicStudyConfig, study_config_path: Path, out_dir: Path
+) -> StudyRunResult:
     # The previous failure ledger (if any) stays in place until the new run
     # has fully succeeded: only then is it atomically replaced — or retired
     # when the rerun has no failures — so an interrupted rerun never loses
