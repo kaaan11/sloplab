@@ -59,6 +59,7 @@ class FakeHttp:
         api_key_env: str,
         endpoint: str,
         timeout_s: float = 60.0,
+        max_response_bytes: int = 16 * 1024 * 1024,
         output_mode: str = "prompt_only",
         provider_require_parameters: bool = False,
         temperature: float | None = None,
@@ -67,6 +68,7 @@ class FakeHttp:
         self.api_key_env = api_key_env
         self.endpoint = endpoint
         self.timeout_s = timeout_s
+        self.max_response_bytes = max_response_bytes
         self.output_mode = output_mode
         self.provider_require_parameters = provider_require_parameters
         self.temperature = temperature
@@ -200,6 +202,11 @@ class TestOutputsAndProvenance:
         # P2-2: budget.request_timeout_s is the single source for HTTP timeouts.
         assert fake_http.last is not None
         assert fake_http.last.timeout_s == manifest["budget"]["request_timeout_s"] == 60
+        assert (
+            fake_http.last.max_response_bytes
+            == manifest["budget"]["max_response_bytes"]
+            == 16 * 1024 * 1024
+        )
         assert fake_http.last.output_mode == "json_schema"
         assert fake_http.last.provider_require_parameters is True
         assert fake_http.last.temperature == 0

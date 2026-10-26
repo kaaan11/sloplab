@@ -15,8 +15,13 @@ import pytest
 
 from sloplab.evaluators.jev.transport import parse_retry_after
 from sloplab.evaluators.llm.adapter import HttpLLMClient
-from sloplab.evaluators.llm.failures import EvaluationFailure
-from sloplab.experiments.pilot import ThrottledClient
+from sloplab.evaluators.llm.failures import (
+    DeadlineExceeded,
+    EvaluationFailure,
+    ResponseTooLarge,
+    classify_dispatch_error,
+)
+from sloplab.experiments.pilot import CountingClient, ThrottledClient
 from tests.regression.test_llm_failure_taxonomy import _evaluate
 
 
@@ -65,6 +70,150 @@ def test_llm_redirect_never_dispatches_to_destination(
         server.shutdown()
         thread.join(timeout=2)
         server.server_close()
+
+
+def test_deadline_interrupts_a_continuously_streamed_local_response(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    body = json.dumps({"choices": [{"message": {"content": "x" * 200}}]}).encode()
+    request_closed = threading.Event()
+
+    class Handler(BaseHTTPRequestHandler):
+        def do_POST(self) -> None:
+            self.rfile.read(int(self.headers.get("Content-Length", "0")))
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            for offset in range(0, len(body), 8):
+                try:
+                    self.wfile.write(body[offset : offset + 8])
+                    self.wfile.flush()
+                except (BrokenPipeError, ConnectionAbortedError, ConnectionResetError):
+                    request_closed.set()
+                    return
+                time.sleep(0.03)
+
+        def log_message(self, *args: Any) -> None:
+            pass
+
+    server = HTTPServer(("127.0.0.1", 0), Handler)
+    server_thread = threading.Thread(target=lambda: server.serve_forever(poll_interval=0.01))
+    server_thread.start()
+    monkeypatch.setenv("STREAM_KEY", "test-key")
+    transport = HttpLLMClient(
+        model="m",
+        api_key_env="STREAM_KEY",
+        endpoint=f"http://127.0.0.1:{server.server_port}/completion",
+        timeout_s=2,
+        max_response_bytes=1024,
+    )
+    counting = CountingClient(transport, max_requests=1)
+    throttled = ThrottledClient(counting, min_interval_ms=0)
+    throttled.set_deadline(time.monotonic() + 0.4)
+    started = time.monotonic()
+
+    try:
+        with pytest.raises(DeadlineExceeded) as caught:
+            throttled.complete("prompt")
+        elapsed = time.monotonic() - started
+        assert caught.value.dispatch_started is True
+        assert counting.physical_dispatches == 1
+        assert counting.errors == 1
+        assert throttled._last_dispatch is not None  # noqa: SLF001
+        assert elapsed < 0.8
+        assert request_closed.wait(1)
+    finally:
+        server.shutdown()
+        server_thread.join(timeout=2)
+        server.server_close()
+
+
+def test_oversized_response_is_typed_and_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _OversizedResponse:
+        def __init__(self) -> None:
+            self.body = b"x" * 100
+            self.offset = 0
+            self.closed = False
+
+        def __enter__(self) -> _OversizedResponse:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            self.closed = True
+
+        def read1(self, size: int) -> bytes:
+            chunk = self.body[self.offset : self.offset + size]
+            self.offset += len(chunk)
+            return chunk
+
+    import urllib.request
+
+    response = _OversizedResponse()
+    monkeypatch.setenv("OVERSIZED_KEY", "test-key")
+    monkeypatch.setattr(
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type(
+            "Opener", (), {"open": staticmethod(lambda request, timeout=None: response)}
+        )(),
+    )
+    client = HttpLLMClient(
+        model="m",
+        api_key_env="OVERSIZED_KEY",
+        endpoint="https://example.invalid/v1",
+        max_response_bytes=8,
+    )
+
+    with pytest.raises(ResponseTooLarge) as caught:
+        client.complete("prompt")
+
+    assert caught.value.limit == 8
+    assert caught.value.observed_bytes == 9
+    assert response.offset == 9
+    assert response.closed is True
+    assert classify_dispatch_error(caught.value) == (
+        "transport",
+        "transport.response_too_large",
+        False,
+    )
+
+
+def test_cancelled_response_read_closes_the_http_response(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _CancelledResponse:
+        closed = False
+
+        def __enter__(self) -> _CancelledResponse:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            self.closed = True
+
+        def read1(self, size: int) -> bytes:
+            _ = size
+            raise KeyboardInterrupt
+
+    import urllib.request
+
+    response = _CancelledResponse()
+    monkeypatch.setenv("CANCEL_KEY", "test-key")
+    monkeypatch.setattr(
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type(
+            "Opener", (), {"open": staticmethod(lambda request, timeout=None: response)}
+        )(),
+    )
+    counting = CountingClient(
+        HttpLLMClient(model="m", api_key_env="CANCEL_KEY", endpoint="https://example.invalid/v1"),
+        max_requests=1,
+    )
+
+    with pytest.raises(KeyboardInterrupt):
+        counting.complete("prompt")
+
+    assert response.closed is True
+    assert counting.physical_dispatches == 1
 
 
 @pytest.mark.parametrize(

@@ -24,7 +24,12 @@ from sloplab.evaluators.llm.adapter import (
 )
 from sloplab.evaluators.llm.failures import DeadlineExceeded, EvaluationFailure
 from sloplab.experiments.config import LLMPilotConfig
-from sloplab.experiments.pilot import build_pilot_client_chain, run_llm_pilot
+from sloplab.experiments.pilot import (
+    CountingClient,
+    ThrottledClient,
+    build_pilot_client_chain,
+    run_llm_pilot,
+)
 from sloplab.models.suite import SuiteConfig
 from sloplab.mutations.materialize import materialize_suite
 from sloplab.scoring.harness import build_cases
@@ -289,8 +294,78 @@ class _FakeHttpResponse:
     def __exit__(self, *args: Any) -> None:
         return None
 
-    def read(self) -> bytes:
-        return self._body
+    def read(self, size: int = -1) -> bytes:
+        if size < 0:
+            size = len(self._body)
+        body, self._body = self._body[:size], self._body[size:]
+        return body
+
+
+def test_deadline_during_body_read_preserves_physical_dispatch(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import sloplab.experiments.pilot as pilot_module
+
+    class _Socket:
+        def __init__(self) -> None:
+            self.timeouts: list[float] = []
+
+        def settimeout(self, timeout: float) -> None:
+            self.timeouts.append(timeout)
+
+    class _StreamingResponse:
+        def __init__(self, clock: FakeClock) -> None:
+            self.body = b"x" * 128
+            self.offset = 0
+            self.clock = clock
+            self.socket = _Socket()
+            self.fp = type("File", (), {"raw": type("Raw", (), {"_sock": self.socket})()})()
+            self.closed = False
+
+        def __enter__(self) -> _StreamingResponse:
+            return self
+
+        def __exit__(self, *args: Any) -> None:
+            self.closed = True
+
+        def read1(self, size: int) -> bytes:
+            self.clock.now += 0.03
+            chunk = self.body[self.offset : self.offset + min(size, 8)]
+            self.offset += len(chunk)
+            return chunk
+
+    clock = FakeClock(now=100.0)
+    response = _StreamingResponse(clock)
+    monkeypatch.setenv("DEADLINE_KEY", "test-key")
+    monkeypatch.setattr(adapter_module, "time", clock)
+    monkeypatch.setattr(pilot_module, "time", clock)
+    monkeypatch.setattr(
+        urllib.request,
+        "build_opener",
+        lambda *handlers: type(
+            "Opener", (), {"open": staticmethod(lambda request, timeout=None: response)}
+        )(),
+    )
+
+    transport = HttpLLMClient(
+        model="m",
+        api_key_env="DEADLINE_KEY",
+        endpoint="https://example.invalid/v1",
+        max_response_bytes=1024,
+    )
+    counting = CountingClient(transport, max_requests=1)
+    throttled = ThrottledClient(counting, min_interval_ms=0)
+    throttled.set_deadline(100.1)
+
+    with pytest.raises(DeadlineExceeded) as caught:
+        throttled.complete("prompt")
+
+    assert caught.value.dispatch_started is True
+    assert counting.physical_dispatches == 1
+    assert counting.errors == 1
+    assert throttled._last_dispatch == pytest.approx(100.0)  # noqa: SLF001
+    assert response.closed is True
+    assert response.socket.timeouts == pytest.approx([0.1, 0.07, 0.04, 0.01])
 
 
 def test_http_deadline_bounds_urlopen_timeout(monkeypatch: pytest.MonkeyPatch) -> None:

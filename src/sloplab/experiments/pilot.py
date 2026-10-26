@@ -47,11 +47,10 @@ class CountingClient:
     are needed. Single-threaded dispatch cannot interleave, but no
     cross-thread atomicity is claimed.
 
-    Inner-transport contract: :class:`BudgetExhausted` and
-    :class:`DeadlineExceeded` from ``inner.complete()`` mean the transport
-    did not start, so the reservation is returned unconsumed and no error
-    is recorded. Any error after a real transport start (success, timeout,
-    429, transport error) keeps its reservation as a physical dispatch.
+    Inner-transport contract: :class:`BudgetExhausted` and pre-dispatch
+    :class:`DeadlineExceeded` from ``inner.complete()`` return the reservation.
+    An in-flight deadline carries ``dispatch_started=True`` and keeps the
+    reservation as a physical dispatch, like any other post-start error.
     """
 
     def __init__(self, inner: Any, max_requests: int) -> None:
@@ -85,12 +84,15 @@ class CountingClient:
             complete_fn = inner.complete
             response: LLMResponse = complete_fn(prompt)
             return response
-        except (BudgetExhausted, DeadlineExceeded):
-            # Pre-dispatch refusal from below (spent budget, or the run
-            # deadline expiring between the two checks): the transport never
-            # started, so the reservation is returned and nothing is counted
-            # as physical, error, or timeout. The hard cap is preserved.
+        except BudgetExhausted:
             self.physical_dispatches -= 1
+            raise
+        except DeadlineExceeded as exc:
+            if exc.dispatch_started:
+                self.errors += 1
+            else:
+                # The request never reached the transport.
+                self.physical_dispatches -= 1
             raise
         except TimeoutError:
             self.timeouts += 1
@@ -311,10 +313,11 @@ class ThrottledClient:
         start = time.monotonic()
         try:
             response: LLMResponse = self._inner.complete(prompt)
-        except (BudgetExhausted, DeadlineExceeded):
-            # Pre-dispatch refusal from below (spent budget or expired run
-            # deadline): no transport started, so the pacing baseline is
-            # left untouched and the refusal propagates unchanged.
+        except BudgetExhausted:
+            raise
+        except DeadlineExceeded as exc:
+            if exc.dispatch_started:
+                self._last_dispatch = start
             raise
         except Exception as exc:  # noqa: BLE001 - transport errors are re-raised
             # A transport call really started (even a 429 arrived over the

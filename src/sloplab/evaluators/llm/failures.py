@@ -115,7 +115,24 @@ class BudgetExhausted(Exception):
 
 class DeadlineExceeded(Exception):
     """Raised instead of sleeping when a required wait does not fit the deadline,
-    or instead of dispatching when the run deadline has already passed."""
+    or instead of dispatching when the run deadline has already passed.
+
+    ``dispatch_started`` distinguishes a pre-dispatch refusal, which consumes no
+    request budget, from a deadline reached while an HTTP request is in flight.
+    """
+
+    def __init__(self, message: str, *, dispatch_started: bool = False) -> None:
+        self.dispatch_started = dispatch_started
+        super().__init__(message)
+
+
+class ResponseTooLarge(Exception):
+    """A response body exceeded its configured byte limit."""
+
+    def __init__(self, limit: int, observed_bytes: int) -> None:
+        self.limit = limit
+        self.observed_bytes = observed_bytes
+        super().__init__("HTTP response body exceeded its configured byte limit")
 
 
 def classify_dispatch_error(exc: BaseException) -> tuple[str, str, bool]:
@@ -133,6 +150,8 @@ def classify_dispatch_error(exc: BaseException) -> tuple[str, str, bool]:
         return ("budget", "budget.exhausted", False)
     if isinstance(exc, DeadlineExceeded):
         return ("deadline", "deadline.exceeded", False)
+    if isinstance(exc, ResponseTooLarge):
+        return ("transport", "transport.response_too_large", False)
     code = getattr(exc, "code", None)
     if code == 429:
         return ("rate-limit", "rate_limited", True)

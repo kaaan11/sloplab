@@ -131,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
             api_key_env=config.api_key_env,
             endpoint=endpoint,
             timeout_s=config.budget.request_timeout_s,
+            max_response_bytes=config.budget.max_response_bytes,
             output_mode=config.output_mode,
             provider_require_parameters=config.provider_require_parameters,
             temperature=config.temperature,

@@ -59,6 +59,7 @@ class DeterministicStudyConfig(StrictModel):
 class LLMBudget(StrictModel):
     max_requests: int = Field(gt=0)
     request_timeout_s: int = Field(default=60, gt=0)
+    max_response_bytes: int = Field(default=16 * 1024 * 1024, gt=0)
     max_retries_per_case: int = Field(default=2, ge=0)
     min_interval_ms: int = Field(default=0, ge=0)
     # Optional monotonic deadline for the whole pilot run, in seconds. Each of

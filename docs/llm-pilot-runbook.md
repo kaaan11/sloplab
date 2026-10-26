@@ -53,6 +53,11 @@ cannot honor the schema, the request fails and its failure is recorded.
   `budget.max_requests` (180) even when failures trigger retries.
 - **Per-request timeout:** `budget.request_timeout_s` (60 s) is passed straight
   into the HTTP client - the config value is the single source of truth.
+- **Response size:** `budget.max_response_bytes` (16 MiB by default) limits the
+  bytes retained from an HTTP response; oversized bodies fail before they are
+  fully consumed.
+- **Run deadline:** each response-body read uses the remaining monotonic run
+  time, so a provider that keeps sending bytes cannot extend the run deadline.
 - **Retries:** at most `budget.max_retries_per_case` (2) additional attempts per
   evaluation after transient failures (timeouts, transport errors, HTTP 5xx/408,
   HTTP 429). Parse/schema failures, refusals, and permanent HTTP 4xx statuses are

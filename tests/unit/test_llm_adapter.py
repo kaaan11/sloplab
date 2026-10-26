@@ -276,8 +276,11 @@ class TestHttpLLMClientTimeout:
         def __exit__(self, *args: Any) -> None:
             return None
 
-        def read(self) -> bytes:
-            return self._body
+        def read(self, size: int = -1) -> bytes:
+            if size < 0:
+                size = len(self._body)
+            body, self._body = self._body[:size], self._body[size:]
+            return body
 
     def test_timeout_is_passed_to_urlopen(self, monkeypatch: Any) -> None:
         import urllib.request

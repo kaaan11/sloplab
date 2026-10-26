@@ -66,6 +66,7 @@ from sloplab import __version__
 from sloplab.evaluators.llm.failures import (
     DeadlineExceeded,
     EvaluationFailure,
+    ResponseTooLarge,
     classify_dispatch_error,
 )
 from sloplab.models.enums import DIMENSIONS
@@ -102,6 +103,10 @@ REFUSAL_PATTERNS: tuple[re.Pattern[str], ...] = tuple(
     )
 )
 REFUSAL_MAX_CHARS = 500
+
+# Bound response memory use while leaving room for ordinary provider envelopes.
+DEFAULT_MAX_RESPONSE_BYTES = 16 * 1024 * 1024
+_HTTP_READ_CHUNK_BYTES = 64 * 1024
 
 #: Version of the file-template renderer recorded in pilot manifests.
 #: Bump when render semantics change; the legacy ``PROMPT_TEMPLATE`` path below
@@ -531,11 +536,10 @@ class HttpLLMClient:
     so the config file is the single source of truth.
 
     A monotonic run deadline can be armed via :meth:`set_deadline` (the pilot
-    forwards it through the wrapper chain). Before every HTTP dispatch the
-    remaining run time is computed: the ``urlopen`` timeout becomes
-    ``min(timeout_s, remaining)`` so no request outlives the run, and an
-    already-expired deadline raises :class:`DeadlineExceeded` without any
-    HTTP call.
+    forwards it through the wrapper chain). The remaining run time caps both
+    the initial HTTP timeout and each response-body read; a body that makes
+    progress past the deadline is interrupted. Responses are read in bounded
+    chunks and limited by ``max_response_bytes``.
     """
 
     def __init__(
@@ -545,6 +549,7 @@ class HttpLLMClient:
         api_key_env: str,
         endpoint: str,
         timeout_s: float = 60.0,
+        max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES,
         output_mode: str = "prompt_only",
         provider_require_parameters: bool = False,
         temperature: float | None = None,
@@ -553,6 +558,12 @@ class HttpLLMClient:
 
         if timeout_s <= 0:
             raise AdapterError("timeout_s must be positive")
+        if (
+            not isinstance(max_response_bytes, int)
+            or isinstance(max_response_bytes, bool)
+            or max_response_bytes <= 0
+        ):
+            raise AdapterError("max_response_bytes must be a positive integer")
         if output_mode not in ("prompt_only", "json_schema"):
             raise AdapterError("output_mode must be prompt_only or json_schema")
         if temperature is not None and not 0 <= temperature <= 2:
@@ -560,6 +571,7 @@ class HttpLLMClient:
         self._model = model
         self._endpoint = endpoint
         self._timeout_s = timeout_s
+        self._max_response_bytes = max_response_bytes
         self._output_mode = output_mode
         self._provider_require_parameters = provider_require_parameters
         self._temperature = temperature
@@ -572,6 +584,50 @@ class HttpLLMClient:
     def set_deadline(self, deadline_monotonic: float | None) -> None:
         """Arm (or clear) the monotonic run deadline for future dispatches."""
         self._deadline_monotonic = deadline_monotonic
+
+    def _read_response_body(self, response: Any, deadline: float | None) -> bytes:
+        chunks = bytearray()
+        response_file = getattr(response, "fp", None)
+        response_socket = getattr(getattr(response_file, "raw", None), "_sock", None)
+        read1 = getattr(response, "read1", None)
+
+        while True:
+            timeout = self._timeout_s
+            deadline_limited = False
+            if deadline is not None:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise DeadlineExceeded(
+                        "run deadline expired while reading HTTP response",
+                        dispatch_started=True,
+                    )
+                deadline_limited = remaining <= self._timeout_s
+                timeout = min(timeout, remaining)
+            if response_socket is not None:
+                response_socket.settimeout(timeout)
+
+            read_size = min(_HTTP_READ_CHUNK_BYTES, self._max_response_bytes - len(chunks) + 1)
+            try:
+                chunk = read1(read_size) if callable(read1) else response.read(read_size)
+            except TimeoutError as exc:
+                if deadline_limited:
+                    raise DeadlineExceeded(
+                        "run deadline expired while reading HTTP response",
+                        dispatch_started=True,
+                    ) from exc
+                raise
+
+            if deadline is not None and time.monotonic() >= deadline:
+                raise DeadlineExceeded(
+                    "run deadline expired while reading HTTP response",
+                    dispatch_started=True,
+                )
+            if not chunk:
+                return bytes(chunks)
+            observed_bytes = len(chunks) + len(chunk)
+            if observed_bytes > self._max_response_bytes:
+                raise ResponseTooLarge(self._max_response_bytes, observed_bytes)
+            chunks.extend(chunk)
 
     def complete(self, prompt: str) -> LLMResponse:
         import json as _json
@@ -604,16 +660,23 @@ class HttpLLMClient:
                 "Authorization": f"Bearer {self._api_key}",
             },
         )
+        deadline = self._deadline_monotonic
         timeout = self._timeout_s
-        if self._deadline_monotonic is not None:
-            remaining = self._deadline_monotonic - time.monotonic()
+        if deadline is not None:
+            remaining = deadline - time.monotonic()
             if remaining <= 0:
                 raise DeadlineExceeded("run deadline expired before HTTP dispatch")
             timeout = min(timeout, remaining)
         start = time.monotonic()
         opener = urllib.request.build_opener(_NoRedirect)
         with opener.open(request, timeout=timeout) as response:
-            payload = _json.loads(response.read().decode())
+            raw_body = self._read_response_body(response, deadline)
+            payload = _json.loads(raw_body.decode())
+        if deadline is not None and time.monotonic() >= deadline:
+            raise DeadlineExceeded(
+                "run deadline expired after HTTP response",
+                dispatch_started=True,
+            )
         latency = int((time.monotonic() - start) * 1000)
         # Empty or malformed provider envelopes follow the existing terminal
         # parse.empty_response path, preserving dispatch accounting.
